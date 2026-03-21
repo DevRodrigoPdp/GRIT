@@ -120,15 +120,21 @@ PERDER_PESO | GANAR_MASA | RENDIMIENTO | RESISTENCIA | SALUD | REHABILITACION
   "data": {
     "id": "uuid-del-atleta",
     "estado": "ACTIVO",
-    "token": "jwt-access-token",
-    "refreshToken": "jwt-refresh-token"
+    "rol": "ATLETA"
   }
 }
 ```
 
+**Cookies que debe setear el servidor:**
+```
+Set-Cookie: access_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900
+Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age=604800
+```
+
 **Notas importantes:**
 - El atleta se activa **inmediatamente** tras el registro.
-- Devolver JWT en la respuesta para que el frontend pueda redirigir al dashboard directamente.
+- Los tokens **nunca se devuelven en el body**, solo se setean como cookies `HttpOnly` para prevenir XSS.
+- El frontend no necesita almacenar nada — el navegador gestiona las cookies automáticamente.
 - Enviar **email de bienvenida** al atleta.
 
 ---
@@ -138,25 +144,29 @@ PERDER_PESO | GANAR_MASA | RENDIMIENTO | RESISTENCIA | SALUD | REHABILITACION
 **`POST /api/v1/auth/login`**
 
 ```json
-// Request
+// Request body
 {
   "correo": "usuario@ejemplo.com",
   "password": "contraseña"
 }
 
-// Response 200
+// Response 200 — los tokens van en cookies, no en el body
 {
   "ok": true,
   "data": {
-    "token": "jwt-access-token",
-    "refreshToken": "jwt-refresh-token",
     "rol": "ENTRENADOR" | "ATLETA",
     "estado": "ACTIVO" | "PENDIENTE_REVISION" | "RECHAZADO"
   }
 }
 ```
 
-> **Nota:** Si el entrenador está en `PENDIENTE_REVISION`, el frontend mostrará una pantalla de espera. El backend debe indicarlo en el login.
+**Cookies que debe setear el servidor:**
+```
+Set-Cookie: access_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900
+Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age=604800
+```
+
+> **Nota:** Si el entrenador está en `PENDIENTE_REVISION`, el frontend mostrará una pantalla de espera. El backend debe indicarlo en el response body del login.
 
 ---
 
@@ -164,13 +174,17 @@ PERDER_PESO | GANAR_MASA | RENDIMIENTO | RESISTENCIA | SALUD | REHABILITACION
 
 **`POST /api/v1/auth/refresh`**
 
-```json
-// Request
-{ "refreshToken": "..." }
+No necesita body. El `refresh_token` viaja automáticamente en la cookie.
 
-// Response 200
-{ "token": "nuevo-access-token" }
+```json
+// Response 200 — renueva la cookie access_token automáticamente
+{ "ok": true }
 ```
+
+**El servidor debe:**
+1. Leer la cookie `refresh_token`
+2. Validarla y setear una nueva cookie `access_token`
+3. Responder `200 ok`
 
 ---
 
@@ -244,7 +258,10 @@ PERDER_PESO | GANAR_MASA | RENDIMIENTO | RESISTENCIA | SALUD | REHABILITACION
 - Los archivos subidos deben validarse en servidor (no solo por extensión): verificar el **magic number / MIME type real** del binario.
 - Las URLs de S3 deben ser **privadas con firma temporal** (pre-signed URLs), nunca públicas.
 - Contraseñas: **bcrypt** con cost factor mínimo 12. No almacenar en texto plano jamás.
-- Los JWTs deben expirar: access token **15 min**, refresh token **7 días**.
+- **Tokens via cookies HttpOnly** — los JWTs nunca se exponen al JavaScript del frontend (previene XSS y robo de tokens).
+  - `access_token`: `HttpOnly; Secure; SameSite=Strict; Max-Age=900` (15 min)
+  - `refresh_token`: `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age=604800` (7 días, solo enviado a la ruta de refresh)
+- **Logout:** endpoint `POST /api/v1/auth/logout` que sobreescribe ambas cookies con `Max-Age=0` para borrarlas.
 
 ---
 
