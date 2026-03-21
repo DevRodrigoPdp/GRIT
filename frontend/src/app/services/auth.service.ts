@@ -11,6 +11,7 @@ export interface LoginResponse {
   data: {
     rol: Rol;
     estado: EstadoCuenta;
+    tituloNutricion: boolean | null;
   };
 }
 
@@ -21,9 +22,9 @@ export class AuthService {
 
   private readonly API = '/api/v1/auth';
 
-  // Estado reactivo accesible desde cualquier componente
   readonly rol = signal<Rol | null>(null);
   readonly estado = signal<EstadoCuenta | null>(null);
+  readonly tituloNutricion = signal<boolean | null>(null);
   readonly loginError = signal<string | null>(null);
   readonly loading = signal(false);
 
@@ -38,13 +39,16 @@ export class AuthService {
           next: (res) => {
             this.rol.set(res.data.rol);
             this.estado.set(res.data.estado);
+            this.tituloNutricion.set(res.data.tituloNutricion);
             this.loading.set(false);
-            this.redirigir(res.data.rol, res.data.estado);
+            this.redirigir(res.data.rol, res.data.estado, res.data.tituloNutricion);
           },
           error: (err) => {
             this.loading.set(false);
             if (err.status === 401) {
               this.loginError.set('Correo o contraseña incorrectos.');
+            } else if (err.status === 403) {
+              this.loginError.set('Tu cuenta ha sido rechazada. Contacta con soporte.');
             } else {
               this.loginError.set('Error de conexión. Inténtalo de nuevo.');
             }
@@ -55,23 +59,34 @@ export class AuthService {
 
   logout() {
     this.http
-      .post('/api/v1/auth/logout', {}, { withCredentials: true })
+      .post(`${this.API}/logout`, {}, { withCredentials: true })
       .subscribe(() => {
         this.rol.set(null);
         this.estado.set(null);
+        this.tituloNutricion.set(null);
         this.router.navigate(['/']);
       });
   }
 
-  private redirigir(rol: Rol, estado: EstadoCuenta) {
-    if (rol === 'ATLETA' && estado === 'ACTIVO') {
-      this.router.navigate(['/dashboard/atleta']);
-    } else if (rol === 'ENTRENADOR' && estado === 'ACTIVO') {
-      this.router.navigate(['/dashboard/entrenador']);
-    } else if (estado === 'PENDIENTE_REVISION') {
+  private redirigir(rol: Rol, estado: EstadoCuenta, tituloNutricion: boolean | null) {
+    if (estado === 'PENDIENTE_REVISION') {
       this.router.navigate(['/pendiente']);
-    } else {
-      this.router.navigate(['/']);
+      return;
+    }
+    if (estado === 'RECHAZADO') {
+      this.loginError.set('Tu cuenta ha sido rechazada. Contacta con soporte.');
+      return;
+    }
+    if (rol === 'ATLETA') {
+      this.router.navigate(['/dashboard/atleta']);
+      return;
+    }
+    if (rol === 'ENTRENADOR') {
+      this.router.navigate(
+        tituloNutricion
+          ? ['/dashboard/entrenador/nutricion']
+          : ['/dashboard/entrenador']
+      );
     }
   }
 }

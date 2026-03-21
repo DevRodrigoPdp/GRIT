@@ -224,7 +224,40 @@ Set-Cookie: refresh_token=; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
 
 ---
 
-### 3.6 Protección de endpoints de Nutrición
+### 3.6 Solicitud de Ampliación de Permisos de Nutrición *(implementación futura)*
+
+Un entrenador que en el registro indicó **no tener** título de nutrición podrá solicitarlo más adelante aportando nueva documentación.
+
+**`POST /api/v1/entrenador/solicitar-nutricion`**
+
+Requiere cookie `access_token` válida con `rol === 'ENTRENADOR'` y `titulo_nutricion === false`.
+
+Recibe `multipart/form-data`:
+
+| Campo | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `documentos` | `File[]` | ✅ | 1–10 archivos PDF/JPG/PNG, max 10 MB c/u |
+
+**Respuesta 200:**
+```json
+{
+  "ok": true,
+  "message": "Solicitud de ampliación recibida. Revisaremos tu documentación en un plazo máximo de 48h.",
+  "data": { "estadoSolicitud": "PENDIENTE_REVISION_NUTRICION" }
+}
+```
+
+**Flujo completo:**
+1. Entrenador hace clic en "Ampliar acceso a Nutrición" desde su dashboard
+2. Sube la documentación acreditativa
+3. Estado pasa a `PENDIENTE_REVISION_NUTRICION` — sigue accediendo a su dashboard de entrenamiento con normalidad
+4. Admin revisa y aprueba/rechaza
+5. Si se aprueba: `titulo_nutricion` pasa a `true` en BBDD y se envía email de confirmación
+6. En el siguiente login (o con un endpoint de `/api/v1/auth/me`), el frontend recibe `tituloNutricion: true` y redirige al dashboard completo
+
+---
+
+### 3.7 Protección de endpoints de Nutrición
 
 Todos los endpoints bajo `/api/v1/nutricion/**` deben validar en servidor que el usuario autenticado es un entrenador con `titulo_nutricion = true`.
 
@@ -246,7 +279,7 @@ Todos los endpoints bajo `/api/v1/nutricion/**` deben validar en servidor que el
 
 ---
 
-### 3.7 Healthcheck
+### 3.8 Healthcheck
 
 **`GET /api/v1/health`**
 
@@ -400,8 +433,8 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 - [ ] ¿El entrenador debe crear su **contraseña** durante el registro o se le envía por email tras la aprobación?
 - [ ] ¿Necesitamos **OAuth** (Google, Apple) en la primera versión?
 - [ ] ¿Cuál es el **dominio de producción** definitivo?
-- [ ] ¿Un entrenador con `tituloNutricion = false` puede **solicitar ampliación** de permisos de nutrición más adelante aportando nueva documentación?
 - [ ] ¿Los endpoints de nutrición (`/api/v1/nutricion/**`) se desarrollan en esta fase o en una siguiente iteración?
+- [ ] ¿Se necesita endpoint `GET /api/v1/auth/me` para que el frontend pueda recuperar el perfil sin hacer login de nuevo (útil tras actualización de `titulo_nutricion`)?
 
 ---
 

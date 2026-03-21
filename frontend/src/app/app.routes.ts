@@ -12,6 +12,11 @@ export const routes: Routes = [
       import('./pages/login/login').then(m => m.LoginPage),
   },
   {
+    path: 'pendiente',
+    loadComponent: () =>
+      import('./pages/pendiente/pendiente').then(m => m.PendientePage),
+  },
+  {
     path: 'empezar',
     children: [
       {
@@ -41,8 +46,18 @@ export const routes: Routes = [
       },
       {
         path: 'entrenador',
-        loadComponent: () =>
-          import('./pages/dashboard-entrenador/dashboard-entrenador').then(m => m.DashboardEntrenadorPage),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./pages/dashboard-entrenador/dashboard-entrenador').then(m => m.DashboardEntrenadorPage),
+          },
+          {
+            path: 'nutricion',
+            loadComponent: () =>
+              import('./pages/dashboard-entrenador-nutricion/dashboard-entrenador-nutricion').then(m => m.DashboardEntrenadorNutricionPage),
+          },
+        ],
       },
     ],
   },
