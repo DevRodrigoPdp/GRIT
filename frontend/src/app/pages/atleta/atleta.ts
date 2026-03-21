@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed, inject, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -13,6 +13,7 @@ export type Genero    = 'hombre' | 'mujer' | 'otro' | '';
   templateUrl: './atleta.html',
 })
 export class AtletaPage {
+  private el = inject(ElementRef);
   readonly form: FormGroup;
   readonly submitted = signal(false);
 
@@ -31,17 +32,22 @@ export class AtletaPage {
     { value: 'elite',        label: 'ÉLITE — Más de 6 años / competición' },
   ];
 
+  readonly camposConError = computed(() => {
+    if (!this.submitted()) return 0;
+    return Object.keys(this.form.controls).filter(k => this.form.get(k)?.invalid).length;
+  });
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      nombre:        ['', [Validators.required, Validators.minLength(3)]],
-      correo:        ['', [Validators.required, Validators.email]],
-      fechaNac:      ['', Validators.required],
-      genero:        ['', Validators.required],
-      peso:          ['', [Validators.required, Validators.min(30), Validators.max(300)]],
-      altura:        ['', [Validators.required, Validators.min(100), Validators.max(250)]],
-      deporte:       ['', Validators.required],
-      nivel:         ['', Validators.required],
-      objetivo:      ['', Validators.required],
+      nombre:    ['', [Validators.required, Validators.minLength(3)]],
+      correo:    ['', [Validators.required, Validators.email]],
+      fechaNac:  ['', Validators.required],
+      genero:    ['', Validators.required],
+      peso:      ['', [Validators.required, Validators.min(30), Validators.max(300)]],
+      altura:    ['', [Validators.required, Validators.min(100), Validators.max(250)]],
+      deporte:   ['', [Validators.required, Validators.minLength(3)]],
+      nivel:     ['', Validators.required],
+      objetivo:  ['', Validators.required],
     });
   }
 
@@ -56,7 +62,16 @@ export class AtletaPage {
 
   onSubmit(): void {
     this.submitted.set(true);
-    if (this.form.invalid) return;
+    this.form.markAllAsTouched();
+
+    if (this.form.invalid) {
+      setTimeout(() => {
+        const firstError = this.el.nativeElement.querySelector('.error-field');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
+    // TODO: enviar al backend
     console.log(this.form.value);
   }
 }

@@ -290,6 +290,24 @@
           }
         </div>
 
+        <!-- ── BANNER ERROR GENERAL ── -->
+        @if (submitted() && camposConError() > 0) {
+          <div class="error-field border border-red-400 bg-red-50 px-5 py-4 flex items-start gap-3 mb-6">
+            <svg class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none">
+              <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+              <rect x="1.5" y="1.5" width="13" height="13"/>
+            </svg>
+            <div>
+              <p class="text-xs font-black tracking-[0.15em] uppercase text-red-500 mb-0.5">
+                {{ camposConError() }} {{ camposConError() === 1 ? 'campo sin completar' : 'campos sin completar' }}
+              </p>
+              <p class="text-xs font-light text-red-400">
+                Revisa los campos marcados en rojo antes de continuar.
+              </p>
+            </div>
+          </div>
+        }
+
         <!-- ── Submit ── -->
         <div class="border-t border-[#E5E7EB] pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p class="text-xs font-light text-gray-400 max-w-xs">

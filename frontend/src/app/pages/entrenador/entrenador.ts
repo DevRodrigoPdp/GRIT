@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -23,6 +23,7 @@ interface ArchivoSubido {
   templateUrl: './entrenador.html',
 })
 export class EntrenadorPage {
+  private el = inject(ElementRef);
   readonly form: FormGroup;
 
   readonly titulacionOpciones: { value: TipoTitulacion; label: string }[] = [
@@ -45,13 +46,20 @@ export class EntrenadorPage {
     return null;
   });
 
+  readonly camposConError = computed(() => {
+    if (!this.submitted()) return 0;
+    const formErrors = Object.keys(this.form.controls).filter(k => this.form.get(k)?.invalid).length;
+    const archivoErr = this.archivos().length === 0 ? 1 : 0;
+    return formErrors + archivoErr;
+  });
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       nombre:           ['', [Validators.required, Validators.minLength(3)]],
       correo:           ['', [Validators.required, Validators.email]],
       codigoColegiado:  ['', [Validators.required, Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
       titulacion:       ['', Validators.required],
-      tituloNutricion:  [false],
+      tituloNutricion:  [null, Validators.required],
     });
   }
 
@@ -79,6 +87,7 @@ export class EntrenadorPage {
     const permitidos = ['application/pdf', 'image/jpeg', 'image/png'];
     Array.from(files).forEach(file => {
       if (!permitidos.includes(file.type)) return;
+      if (file.size > 10 * 1024 * 1024) return;
       const kb = file.size / 1024;
       const tamaño = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
       this.archivos.update(list => [...list, { nombre: file.name, size: tamaño, tipo: file.type }]);
@@ -97,8 +106,16 @@ export class EntrenadorPage {
 
   onSubmit(): void {
     this.submitted.set(true);
-    if (this.form.invalid || this.archivos().length === 0) return;
-    // TODO: enviar datos al backend
+    this.form.markAllAsTouched();
+
+    if (this.form.invalid || this.archivos().length === 0) {
+      setTimeout(() => {
+        const firstError = this.el.nativeElement.querySelector('.error-field');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
+    // TODO: enviar al backend
     console.log({ ...this.form.value, archivos: this.archivos() });
   }
 
