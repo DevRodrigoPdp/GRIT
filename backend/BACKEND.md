@@ -2,17 +2,21 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
+> **Última actualización:** 21 de marzo de 2026
 
 ---
 
 ## 1. Contexto del Producto
 
-GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de usuario:
+GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de usuario y **tres dashboards diferenciados**:
 
-| Rol | Descripción |
-|---|---|
-| **Entrenador** | Profesional con credenciales verificables (colegiado, titulaciones, nutrición). Su cuenta requiere revisión manual antes de activarse. |
-| **Atleta** | Usuario que se registra con datos personales y físicos. Su cuenta se activa inmediatamente. |
+| Rol | Subtipo | Dashboard | Descripción |
+|---|---|---|---|
+| **Entrenador** | Con título de nutrición | `/dashboard/entrenador/nutricion` | Acceso completo: entrenamiento + planes nutricionales |
+| **Entrenador** | Sin título de nutrición | `/dashboard/entrenador` | Solo entrenamiento. Sin acceso a módulos de nutrición |
+| **Atleta** | — | `/dashboard/atleta` | Métricas, planes y seguimiento personal |
+
+> **Principio clave — No intrusión laboral:** Un entrenador sin titulación en nutrición **no puede** crear, editar ni visualizar planes nutricionales dentro de la plataforma. Esta restricción se aplica tanto en frontend (rutas protegidas) como en backend (validación en cada endpoint de nutrición).
 
 ---
 
@@ -155,10 +159,13 @@ Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1
   "ok": true,
   "data": {
     "rol": "ENTRENADOR" | "ATLETA",
-    "estado": "ACTIVO" | "PENDIENTE_REVISION" | "RECHAZADO"
+    "estado": "ACTIVO" | "PENDIENTE_REVISION" | "RECHAZADO",
+    "tituloNutricion": true | false | null
   }
 }
 ```
+
+> `tituloNutricion` solo es relevante cuando `rol === "ENTRENADOR"`. Para atletas devolver `null`.
 
 **Cookies que debe setear el servidor:**
 ```
@@ -166,7 +173,17 @@ Set-Cookie: access_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-A
 Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age=604800
 ```
 
-> **Nota:** Si el entrenador está en `PENDIENTE_REVISION`, el frontend mostrará una pantalla de espera. El backend debe indicarlo en el response body del login.
+**Lógica de redirección que aplica el frontend según la respuesta:**
+
+| `rol` | `estado` | `tituloNutricion` | Redirección |
+|---|---|---|---|
+| `ATLETA` | `ACTIVO` | `null` | `/dashboard/atleta` |
+| `ENTRENADOR` | `ACTIVO` | `true` | `/dashboard/entrenador/nutricion` |
+| `ENTRENADOR` | `ACTIVO` | `false` | `/dashboard/entrenador` |
+| `ENTRENADOR` | `PENDIENTE_REVISION` | cualquiera | `/pendiente` |
+| cualquiera | `RECHAZADO` | cualquiera | `/login` con mensaje de error |
+
+> **Nota:** Si el entrenador está en `PENDIENTE_REVISION`, el frontend mostrará una pantalla de espera informando que la solicitud está siendo revisada (plazo máximo 48h).
 
 ---
 
@@ -188,9 +205,51 @@ No necesita body. El `refresh_token` viaja automáticamente en la cookie.
 
 ---
 
-### 3.5 Healthcheck
+### 3.5 Logout
+
+**`POST /api/v1/auth/logout`**
+
+No necesita body. Elimina las cookies del navegador.
+
+```json
+// Response 200
+{ "ok": true }
+```
+
+El servidor debe sobreescribir ambas cookies con `Max-Age=0`:
+```
+Set-Cookie: access_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0
+Set-Cookie: refresh_token=; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age=0
+```
+
+---
+
+### 3.6 Protección de endpoints de Nutrición
+
+Todos los endpoints bajo `/api/v1/nutricion/**` deben validar en servidor que el usuario autenticado es un entrenador con `titulo_nutricion = true`.
+
+**Middleware a aplicar en esas rutas:**
+1. Verificar cookie `access_token` válida
+2. Verificar que `rol === 'ENTRENADOR'`
+3. Verificar que `titulo_nutricion === true` en BBDD
+
+**Respuesta si no tiene titulación de nutrición (`403`):**
+```json
+{
+  "ok": false,
+  "error": "ACCESO_DENEGADO_SIN_TITULACION_NUTRICION",
+  "message": "No tienes autorización para acceder a los módulos de nutrición. Se requiere titulación acreditada."
+}
+```
+
+> Esta validación **siempre ocurre en servidor**, independientemente de lo que muestre el frontend. El frontend oculta las rutas, pero el backend las bloquea.
+
+---
+
+### 3.7 Healthcheck
 
 **`GET /api/v1/health`**
+
 
 ```json
 { "status": "ok", "timestamp": "2026-03-21T12:00:00Z" }
@@ -321,14 +380,17 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 ## 9. Orden de Implementación Sugerido
 
 1. **Setup del proyecto** (estructura de carpetas, linting, Docker Compose con PostgreSQL)
-2. **Migraciones de BBDD** (`/bbdd` — schema SQL inicial)
+2. **Migraciones de BBDD** (`/bbdd` — schema SQL inicial con campo `titulo_nutricion`)
 3. **Healthcheck** (`GET /api/v1/health`)
 4. **Registro de Atleta** (el más simple, sin archivos ni revisión manual)
-5. **Login + JWT + Refresh**
+5. **Login + cookies HttpOnly + Refresh + Logout**
 6. **Registro de Entrenador** (con upload a S3 y flujo de revisión)
-7. **Sistema de emails**
-8. **Rate limiting + seguridad**
-9. **Tests de integración** para todos los endpoints
+   - Guardar `titulo_nutricion` correctamente en BBDD
+   - La respuesta del login debe devolver `tituloNutricion` para que el frontend redirija al dashboard correcto
+7. **Middleware de protección para rutas de nutrición** (`titulo_nutricion === true`)
+8. **Sistema de emails**
+9. **Rate limiting + seguridad**
+10. **Tests de integración** para todos los endpoints, incluyendo el caso de acceso denegado a nutrición
 
 ---
 
@@ -338,7 +400,9 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 - [ ] ¿El entrenador debe crear su **contraseña** durante el registro o se le envía por email tras la aprobación?
 - [ ] ¿Necesitamos **OAuth** (Google, Apple) en la primera versión?
 - [ ] ¿Cuál es el **dominio de producción** definitivo?
+- [ ] ¿Un entrenador con `tituloNutricion = false` puede **solicitar ampliación** de permisos de nutrición más adelante aportando nueva documentación?
+- [ ] ¿Los endpoints de nutrición (`/api/v1/nutricion/**`) se desarrollan en esta fase o en una siguiente iteración?
 
 ---
 
-*Documento generado el 21 de marzo de 2026 — actualizar conforme evolucione el producto.*
+*Última actualización: 21 de marzo de 2026*
