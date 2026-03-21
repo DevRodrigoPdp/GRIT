@@ -1,0 +1,35 @@
+@if (visible()) {
+  <div
+    class="splash-overlay"
+    [class.splash-leaving]="leaving()"
+  >
+    <!-- Wipe curtain that slides up on exit -->
+    <div class="splash-curtain" [class.splash-curtain-up]="leaving()"></div>
+
+    <!-- Content -->
+    <div class="splash-content" [class.splash-content-out]="leaving()">
+
+      <!-- Top-left corner line -->
+      <div class="splash-corner splash-corner-tl"></div>
+      <!-- Bottom-right corner line -->
+      <div class="splash-corner splash-corner-br"></div>
+
+      <!-- Logo -->
+      <div class="splash-logo-wrap">
+        <span class="splash-letter" style="--i:0">G</span>
+        <span class="splash-letter" style="--i:1">R</span>
+        <span class="splash-letter" style="--i:2">I</span>
+        <span class="splash-letter" style="--i:3">T</span>
+      </div>
+
+      <!-- Tagline -->
+      <p class="splash-tagline">ARQUITECTURA ELITE DEL RENDIMIENTO</p>
+
+      <!-- Loading bar -->
+      <div class="splash-bar-track">
+        <div class="splash-bar-fill"></div>
+      </div>
+
+    </div>
+  </div>
+}

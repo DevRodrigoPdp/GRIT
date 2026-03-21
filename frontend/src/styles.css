@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+@theme {
+  --color-grit-white: #FFFFFF;
+  --color-grit-black: #000000;
+  --color-brand-green: #2ED38D;
+  --color-border-gray: #E5E7EB;
+  --color-light-gray: #F3F4F6;
+  --font-family-sans: 'Inter', 'Geist', system-ui, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #000000;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Progress bar animation */
+@keyframes fillBar {
+  from { width: 0%; }
+  to { width: var(--bar-width); }
+}
+
+.progress-bar {
+  animation: fillBar 1.2s ease-out forwards;
+}
+
+/* SVG path draw-on animation */
+@keyframes drawPath {
+  to { stroke-dashoffset: 0; }
+}
+
+.svg-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawPath 2s ease-out forwards 0.5s;
+}
+
+/* Fade-up entrance animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.6s ease-out forwards;
+}
+
+.fade-up-delay-1 { animation-delay: 0.05s; opacity: 0; }
+.fade-up-delay-2 { animation-delay: 0.15s; opacity: 0; }
+.fade-up-delay-3 { animation-delay: 0.25s; opacity: 0; }
+.fade-up-delay-4 { animation-delay: 0.35s; opacity: 0; }
+
+/* ─── SPLASH SCREEN ───────────────────────────────────────── */
+
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Curtain that slides UP to reveal the page */
+.splash-curtain {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: translateY(0%);
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.splash-curtain-up {
+  transform: translateY(-100%);
+}
+
+/* Main content fades out just before curtain moves */
+.splash-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transition: opacity 0.3s ease;
+}
+.splash-content-out {
+  opacity: 0;
+}
+
+/* Corner decoration lines */
+.splash-corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+}
+.splash-corner-tl {
+  top: -60px;
+  left: -60px;
+  border-top: 1px solid #2ED38D;
+  border-left: 1px solid #2ED38D;
+  animation: cornerIn 0.6s ease-out 0.2s both;
+}
+.splash-corner-br {
+  bottom: -60px;
+  right: -60px;
+  border-bottom: 1px solid #2ED38D;
+  border-right: 1px solid #2ED38D;
+  animation: cornerIn 0.6s ease-out 0.4s both;
+}
+
+@keyframes cornerIn {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Logo letters */
+.splash-logo-wrap {
+  display: flex;
+  gap: 0.04em;
+}
+
+.splash-letter {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(5rem, 18vw, 14rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: letterIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i) * 0.08s + 0.1s);
+}
+
+@keyframes letterIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tagline */
+.splash-tagline {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #2ED38D;
+  margin: 0;
+  opacity: 0;
+  animation: fadeIn 0.6s ease forwards 0.8s;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* Loading bar */
+.splash-bar-track {
+  width: 120px;
+  height: 1px;
+  background: #222;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards 0.9s;
+}
+
+.splash-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: #2ED38D;
+  animation: barFill 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards 1s;
+}
+
+@keyframes barFill {
+  to { width: 100%; }
+}

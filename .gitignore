@@ -1,0 +1,29 @@
+# ─── Angular / Node ───────────────────────────────────────────────
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+
+# ─── Backend ──────────────────────────────────────────────────────
+backend/node_modules/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+backend/venv/
+backend/.venv/
+
+# ─── BBDD ─────────────────────────────────────────────────────────
+bbdd/*.sql.bak
+bbdd/*.dump
+
+# ─── Sistema ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+
+# ─── Variables de entorno (nunca subir) ───────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Carpeta legacy ───────────────────────────────────────────────
+grit-landing/

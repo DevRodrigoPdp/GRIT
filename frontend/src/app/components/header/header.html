@@ -1,0 +1,63 @@
+<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#E5E7EB]">
+  <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-2 no-underline">
+      <span class="font-black tracking-tighter text-2xl text-black uppercase select-none">GRIT</span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <div class="hidden md:flex items-center gap-10">
+      @for (link of navLinks; track link.label) {
+        <a
+          [href]="link.href"
+          class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors duration-200 no-underline"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </div>
+
+    <!-- CTA + Mobile Toggle -->
+    <div class="flex items-center gap-4">
+      <a
+        routerLink="/empezar"
+        class="hidden md:inline-flex items-center border border-black px-6 py-2 text-sm font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all duration-200 no-underline"
+      >
+        EMPEZAR
+      </a>
+
+      <!-- Mobile menu button -->
+      <button
+        class="md:hidden flex flex-col gap-1.5 p-1"
+        (click)="toggleMenu()"
+        aria-label="Toggle menu"
+      >
+        <span class="block w-6 h-px bg-black transition-all duration-200" [class.rotate-45]="isMenuOpen()" [class.translate-y-2]="isMenuOpen()"></span>
+        <span class="block w-6 h-px bg-black transition-all duration-200" [class.opacity-0]="isMenuOpen()"></span>
+        <span class="block w-6 h-px bg-black transition-all duration-200" [class.-rotate-45]="isMenuOpen()" [class.-translate-y-2]="isMenuOpen()"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  @if (isMenuOpen()) {
+    <div class="md:hidden border-t border-[#E5E7EB] bg-white px-6 py-4 flex flex-col gap-4">
+      @for (link of navLinks; track link.label) {
+        <a
+          [href]="link.href"
+          class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors no-underline"
+          (click)="toggleMenu()"
+        >
+          {{ link.label }}
+        </a>
+      }
+      <a
+        routerLink="/empezar"
+        class="inline-flex items-center border border-black px-6 py-2 text-sm font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all duration-200 no-underline w-fit"
+      >
+        EMPEZAR
+      </a>
+    </div>
+  }
+</header>
