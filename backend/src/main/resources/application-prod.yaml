@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false # Jamás mostrar SQL en logs de producción (seguridad y rendimiento)
+
+  flyway:
+    enabled: true
+    # En producción, Flyway puede usar un usuario con más permisos que la App
+    user: ${FLYWAY_USER}
+    password: ${FLYWAY_PASSWORD}
+
+logging:
+  level:
+    root: INFO
+    com.sistema.gritfitprueba: INFO # No queremos llenar el disco con DEBUG en producción
+    org.hibernate.SQL: ERROR # Solo logueamos errores de SQL
