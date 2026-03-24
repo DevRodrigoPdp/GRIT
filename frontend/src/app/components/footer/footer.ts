@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './footer.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterComponent implements AfterViewInit, OnDestroy {
   @ViewChild('bgVideo') bgVideoRef!: ElementRef<HTMLVideoElement>;
