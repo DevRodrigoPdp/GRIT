@@ -11,6 +11,7 @@
       @for (link of navLinks; track link.label) {
         <a
           [href]="link.href"
+          (click)="scrollTo($event, link.href)"
           class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors duration-200 no-underline"
         >
           {{ link.label }}
@@ -53,7 +54,7 @@
         <a
           [href]="link.href"
           class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors no-underline"
-          (click)="toggleMenu()"
+          (click)="scrollTo($event, link.href); toggleMenu()"
         >
           {{ link.label }}
         </a>

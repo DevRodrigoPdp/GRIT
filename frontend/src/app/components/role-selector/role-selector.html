@@ -29,11 +29,11 @@
   </div>
 
   <!-- Cards -->
-  <div class="flex-1 grid grid-cols-2 border-t border-[#E5E7EB] overflow-hidden">
+  <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 border-t border-[#E5E7EB] overflow-hidden">
 
     <!-- ATLETA -->
     <button
-      class="group relative flex flex-col justify-between p-8 text-left border-r border-[#E5E7EB] transition-colors duration-300 cursor-pointer overflow-hidden"
+      class="group relative flex flex-col justify-between p-8 text-left border-b sm:border-b-0 sm:border-r border-[#E5E7EB] transition-colors duration-300 cursor-pointer overflow-hidden"
       [class.bg-black]="selectedRole() === 'atleta'"
       [class.bg-white]="selectedRole() !== 'atleta'"
       (click)="select('atleta')"

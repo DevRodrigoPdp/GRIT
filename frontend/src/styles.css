@@ -198,3 +198,7 @@ body {
 @keyframes barFill {
   to { width: 100%; }
 }
+
+@media (max-width: 639px) {
+  .peak-label { display: none; }
+}
