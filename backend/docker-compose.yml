@@ -1,19 +1,19 @@
 services:
   postgres-db:
     image: postgres:17-alpine
-    container_name: sistema-gestion-db
+    container_name: grit-postgres-db
     environment:
-      - POSTGRES_DB=sistema_db
+      - POSTGRES_DB=grit_db
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - ./docker/postgres-data:/var/lib/postgresql/data
       # Inyección del script de inicialización
       - ./docker/init-db:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin_user -d sistema_db"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,4 +23,5 @@ services:
 
 networks:
   backend-network:
+    name: grit-postgres-net
     driver: bridge
