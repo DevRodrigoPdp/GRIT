@@ -19,8 +19,19 @@
       </p>
     </div>
 
-    <div class="text-xs font-bold tracking-[0.2em] uppercase text-gray-600">
-      © 2026 GRIT — TODOS LOS DERECHOS RESERVADOS
+    <div class="flex items-center justify-between">
+      <div class="text-xs font-bold tracking-[0.2em] uppercase text-gray-600">
+        © 2026 GRIT — TODOS LOS DERECHOS RESERVADOS
+      </div>
+      <a
+        routerLink="/"
+        class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase text-gray-600 hover:text-white transition-colors no-underline group"
+      >
+        <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-1" viewBox="0 0 16 16" fill="none">
+          <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+        VOLVER
+      </a>
     </div>
   </aside>
 
@@ -31,6 +42,15 @@
     <div class="lg:hidden flex items-center justify-between mb-12">
       <a routerLink="/" class="no-underline">
         <span class="font-black tracking-tighter text-xl text-black uppercase select-none">GRIT</span>
+      </a>
+      <a
+        routerLink="/"
+        class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors no-underline group"
+      >
+        <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-1" viewBox="0 0 16 16" fill="none">
+          <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+        VOLVER
       </a>
     </div>
 

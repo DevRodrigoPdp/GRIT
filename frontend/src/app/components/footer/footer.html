@@ -1,8 +1,21 @@
 <footer class="border-t border-[#E5E7EB] bg-white">
 
   <!-- CTA Band -->
-  <div class="border-b border-[#E5E7EB] bg-black">
-    <div class="max-w-7xl mx-auto px-6 py-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+  <div class="relative border-b border-[#E5E7EB] overflow-hidden min-h-[250px]">
+    <!-- Video background -->
+    <video
+      #bgVideo
+      src="/video.mp4"
+      autoplay
+      loop
+      muted
+      playsinline
+      class="absolute inset-0 w-full h-full object-cover object-[center_30%]"
+    ></video>
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/75"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
       <div>
         <h3 class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white leading-[0.9] mb-4">
           LISTO PARA<br>
