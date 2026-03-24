@@ -4,6 +4,8 @@ import grit.sistema.backend.dto.AuthResponseDTO;
 import grit.sistema.backend.dto.LoginRequestDTO;
 import grit.sistema.backend.dto.RegistroRequestDTO;
 import grit.sistema.backend.dto.UsuarioDTO;
+import grit.sistema.backend.exception.SesionActivaException;
+import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.UsuarioMapper;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.Rol;
@@ -77,7 +79,7 @@ public class UsuarioService {
 
     public void registrar(RegistroRequestDTO registroDto) {
         if (usuarioRepository.existsByEmail(registroDto.email())) {
-            throw new RuntimeException("Usuario existente");
+            throw new UsuarioExistenteException("Usuario existente");
         }
 
         Usuario usuario = new Usuario();
@@ -91,7 +93,7 @@ public class UsuarioService {
     public UsuarioDTO obtenerUsuarioActual() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("No hay sesión activa");
+            throw new SesionActivaException("No hay sesión activa");
         }
 
         String email = authentication.getName();

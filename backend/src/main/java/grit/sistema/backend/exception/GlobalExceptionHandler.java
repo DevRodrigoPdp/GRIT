@@ -59,9 +59,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorRespuestaDTO> handleRuntimeException(RuntimeException e, HttpServletRequest request) {
         HttpStatus status = e.getMessage().contains("no encontrado") ? HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+
         String mensaje = status == HttpStatus.NOT_FOUND ? e.getMessage() : "Error interno en el servidor";
 
         return buildErrorResponse(mensaje, status, request);
+    }
+
+    @ExceptionHandler(UsuarioExistenteException.class)
+    public ResponseEntity<ErrorRespuestaDTO> handleUsuarioExistente(UsuarioExistenteException e, HttpServletRequest request) {
+        return buildErrorResponse(e.getMessage(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler(SesionActivaException.class)
+    public ResponseEntity<ErrorRespuestaDTO> handleSesionActiva(SesionActivaException e, HttpServletRequest request) {
+        return buildErrorResponse(e.getMessage(), HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
