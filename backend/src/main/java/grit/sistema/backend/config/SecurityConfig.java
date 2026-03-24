@@ -1,4 +1,4 @@
-package com.sistema.gritfitprueba.config;
+package grit.sistema.backend.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

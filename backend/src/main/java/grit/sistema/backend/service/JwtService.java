@@ -1,4 +1,4 @@
-package com.sistema.gritfitprueba.service;
+package grit.sistema.backend.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

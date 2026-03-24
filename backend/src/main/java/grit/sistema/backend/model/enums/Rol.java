@@ -1,4 +1,4 @@
-package com.sistema.gritfitprueba.model.enums;
+package grit.sistema.backend.model.enums;
 
 public enum Rol {
     USER,

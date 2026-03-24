@@ -1,4 +1,4 @@
-package com.sistema.gritfitprueba.model;
+package grit.sistema.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

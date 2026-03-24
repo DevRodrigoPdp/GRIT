@@ -1,6 +1,6 @@
-package com.sistema.gritfitprueba.config;
+package grit.sistema.backend.config;
 
-import com.sistema.gritfitprueba.service.JwtService;
+import grit.sistema.backend.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

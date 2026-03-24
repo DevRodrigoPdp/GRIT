@@ -1,7 +1,7 @@
-package com.sistema.gritfitprueba.service;
+package grit.sistema.backend.service;
 
-import com.sistema.gritfitprueba.model.Ejercicio;
-import com.sistema.gritfitprueba.repositories.EjercicioRepository;
+import grit.sistema.backend.model.Ejercicio;
+import grit.sistema.backend.repositories.EjercicioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

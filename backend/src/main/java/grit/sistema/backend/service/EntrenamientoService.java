@@ -1,13 +1,13 @@
-package com.sistema.gritfitprueba.service;
+package grit.sistema.backend.service;
 
-import com.sistema.gritfitprueba.dto.EntrenamientoRequestDTO;
-import com.sistema.gritfitprueba.dto.EntrenamientoResponseDTO;
-import com.sistema.gritfitprueba.exception.AccesoDenegadoException;
-import com.sistema.gritfitprueba.mapper.EntrenamientoMapper;
-import com.sistema.gritfitprueba.model.Entrenamiento;
-import com.sistema.gritfitprueba.model.Usuario;
-import com.sistema.gritfitprueba.repositories.EntrenamientoRepository;
-import com.sistema.gritfitprueba.repositories.UsuarioRepository;
+import grit.sistema.backend.dto.EntrenamientoRequestDTO;
+import grit.sistema.backend.dto.EntrenamientoResponseDTO;
+import grit.sistema.backend.exception.AccesoDenegadoException;
+import grit.sistema.backend.mapper.EntrenamientoMapper;
+import grit.sistema.backend.model.Entrenamiento;
+import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.repositories.EntrenamientoRepository;
+import grit.sistema.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

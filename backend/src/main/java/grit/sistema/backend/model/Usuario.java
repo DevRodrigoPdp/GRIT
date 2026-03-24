@@ -1,6 +1,6 @@
-package com.sistema.gritfitprueba.model;
+package grit.sistema.backend.model;
 
-import com.sistema.gritfitprueba.model.enums.Rol;
+import grit.sistema.backend.model.enums.Rol;
 import jakarta.persistence.*;
 
 import lombok.Getter;

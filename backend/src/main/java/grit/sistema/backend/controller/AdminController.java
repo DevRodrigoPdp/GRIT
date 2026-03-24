@@ -1,4 +1,4 @@
-package com.sistema.gritfitprueba.controller;
+package grit.sistema.backend.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

@@ -1,11 +1,11 @@
-package com.sistema.gritfitprueba.mapper;
+package grit.sistema.backend.mapper;
 
-import com.sistema.gritfitprueba.dto.EjercicioReponseDTO;
-import com.sistema.gritfitprueba.dto.EntrenamientoRequestDTO;
-import com.sistema.gritfitprueba.dto.EntrenamientoResponseDTO;
-import com.sistema.gritfitprueba.model.Ejercicio;
-import com.sistema.gritfitprueba.model.Entrenamiento;
-import com.sistema.gritfitprueba.model.Usuario;
+import grit.sistema.backend.dto.EjercicioReponseDTO;
+import grit.sistema.backend.dto.EntrenamientoRequestDTO;
+import grit.sistema.backend.dto.EntrenamientoResponseDTO;
+import grit.sistema.backend.model.Ejercicio;
+import grit.sistema.backend.model.Entrenamiento;
+import grit.sistema.backend.model.Usuario;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

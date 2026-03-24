@@ -1,13 +1,13 @@
-package com.sistema.gritfitprueba.service;
+package grit.sistema.backend.service;
 
-import com.sistema.gritfitprueba.dto.AuthResponseDTO;
-import com.sistema.gritfitprueba.dto.LoginRequestDTO;
-import com.sistema.gritfitprueba.dto.RegistroRequestDTO;
-import com.sistema.gritfitprueba.dto.UsuarioDTO;
-import com.sistema.gritfitprueba.mapper.UsuarioMapper;
-import com.sistema.gritfitprueba.model.Usuario;
-import com.sistema.gritfitprueba.model.enums.Rol;
-import com.sistema.gritfitprueba.repositories.UsuarioRepository;
+import grit.sistema.backend.dto.AuthResponseDTO;
+import grit.sistema.backend.dto.LoginRequestDTO;
+import grit.sistema.backend.dto.RegistroRequestDTO;
+import grit.sistema.backend.dto.UsuarioDTO;
+import grit.sistema.backend.mapper.UsuarioMapper;
+import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.model.enums.Rol;
+import grit.sistema.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;

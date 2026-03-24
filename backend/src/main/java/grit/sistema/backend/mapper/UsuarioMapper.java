@@ -1,7 +1,7 @@
-package com.sistema.gritfitprueba.mapper;
+package grit.sistema.backend.mapper;
 
-import com.sistema.gritfitprueba.dto.UsuarioDTO;
-import com.sistema.gritfitprueba.model.Usuario;
+import grit.sistema.backend.dto.UsuarioDTO;
+import grit.sistema.backend.model.Usuario;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,4 +1,4 @@
-package com.sistema.gritfitprueba.dto;
+package grit.sistema.backend.dto;
 
 
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
-package com.sistema.gritfitprueba.exception;
+package grit.sistema.backend.exception;
 
-import com.sistema.gritfitprueba.dto.ErrorRespuestaDTO;
+import grit.sistema.backend.dto.ErrorRespuestaDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;

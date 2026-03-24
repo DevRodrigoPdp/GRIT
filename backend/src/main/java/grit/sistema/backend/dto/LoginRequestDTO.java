@@ -1,4 +1,4 @@
-package com.sistema.gritfitprueba.dto;
+package grit.sistema.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

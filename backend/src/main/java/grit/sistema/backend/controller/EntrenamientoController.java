@@ -1,9 +1,9 @@
-package com.sistema.gritfitprueba.controller;
+package grit.sistema.backend.controller;
 
-import com.sistema.gritfitprueba.dto.EntrenamientoRequestDTO;
-import com.sistema.gritfitprueba.dto.EntrenamientoResponseDTO;
-import com.sistema.gritfitprueba.model.Usuario;
-import com.sistema.gritfitprueba.service.EntrenamientoService;
+import grit.sistema.backend.dto.EntrenamientoRequestDTO;
+import grit.sistema.backend.dto.EntrenamientoResponseDTO;
+import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.service.EntrenamientoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

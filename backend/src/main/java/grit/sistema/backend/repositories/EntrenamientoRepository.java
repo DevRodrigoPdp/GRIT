@@ -1,7 +1,7 @@
-package com.sistema.gritfitprueba.repositories;
+package grit.sistema.backend.repositories;
 
-import com.sistema.gritfitprueba.model.Entrenamiento;
-import com.sistema.gritfitprueba.model.Usuario;
+import grit.sistema.backend.model.Entrenamiento;
+import grit.sistema.backend.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
