@@ -16,8 +16,8 @@ export class FooterComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     const video = this.bgVideoRef.nativeElement;
 
-    video.muted = true; // 👈 forzar por código
-    video.volume = 0;   // 👈 doble seguridad
+    video.muted = true;
+    video.volume = 0;
 
     this.observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) video.play().catch(() => { });
