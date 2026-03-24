@@ -8,7 +8,7 @@
 | npm | 10.9.2 |
 | Angular | 21.2.x |
 | Angular CLI | 21.2.3 |
-| TypeScript | 5.9.x |
+| JavaScript (ES2022+) | — |
 | Tailwind CSS | 4.2.x |
 | RxJS | 7.8.x |
 
@@ -39,7 +39,6 @@
 | `tailwindcss` | ^4.2.2 |
 | `autoprefixer` | ^10.4.27 |
 | `prettier` | ^3.8.1 |
-| `typescript` | ~5.9.2 |
 
 ---
 
