@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="sistema_db@localhost" uuid="d7643c13-37e0-4dbd-a1fe-0496a74e648c">
+    <data-source source="LOCAL" name="grit_db@localhost" uuid="42f021ed-7137-4b73-a97b-853602a4a408">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5433/sistema_db</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5433/grit_db</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
