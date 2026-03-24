@@ -3,6 +3,9 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20  # Más capacidad para muchos usuarios
+      connection-timeout: 5000 # Solo 5 segundos (en prod la red debe ser rápida)
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -21,3 +24,9 @@ logging:
     root: INFO
     com.sistema.gritfitprueba: INFO # No queremos llenar el disco con DEBUG en producción
     org.hibernate.SQL: ERROR # Solo logueamos errores de SQL
+
+application:
+  security:
+    jwt:
+      # En PROD no hay valor por defecto. Si no existe la variable, la app NO arranca (Seguridad).
+      secret-key: ${JWT_SECRET_KEY}

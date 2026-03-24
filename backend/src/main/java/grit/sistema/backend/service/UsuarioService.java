@@ -10,8 +10,12 @@ import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +28,9 @@ public class UsuarioService {
     private final JwtService jwtService;
     private final UsuarioMapper usuarioMapper;
     private final UsuarioRepository usuarioRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
 
     public List<UsuarioDTO> findAll() {
         return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
@@ -50,15 +56,16 @@ public class UsuarioService {
 
     public AuthResponseDTO login(LoginRequestDTO loginDto) {
         log.info("Iniciando cuenta para login: {}", loginDto.email());
-        /*Usamos el mismo mensaje ("Credenciales inválidas") tanto si el email no existe como si la contraseña es errónea. Así no le damos pistas a un atacante sobre qué parte falló.*/
-        Usuario usuario = usuarioRepository.findByEmail(loginDto.email()).orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
+        );
 
         log.info("Usuario encontrado, verificando password...");
 
-        if (!passwordEncoder.matches(loginDto.password(), usuario.getPassword())) {
-            log.warn("Password incorrecta para el usuario: {}", loginDto.email());
-            throw new RuntimeException("Credenciales inválidas");
-        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginDto.email());
+
+        Usuario usuario = (Usuario) userDetails;
 
         String miTokenGenerado = jwtService.generarToken(usuario.getEmail(),usuario.getRol().name());
 
@@ -82,10 +89,14 @@ public class UsuarioService {
     }
 
     public UsuarioDTO obtenerUsuarioActual() {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("No hay sesión activa");
+        }
 
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
+        String email = authentication.getName();
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return usuarioMapper.toDTO(usuario);
     }
 }

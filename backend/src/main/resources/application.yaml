@@ -5,3 +5,8 @@ spring:
     name: backend
   jpa:
     open-in-view: false # Buena práctica: evitar consultas extra en la vista
+
+application:
+  security:
+    jwt:
+      expiration: 86400000

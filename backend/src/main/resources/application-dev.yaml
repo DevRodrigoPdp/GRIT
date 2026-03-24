@@ -1,9 +1,16 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/grit_db}
+    username: ${DB_USERNAME:app_user}
+    password: ${DB_PASSWORD:password_de_tu_env}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: GritFit-HikariPool
+      connection-timeout: 15000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 5
+      minimum-idle: 2
 
   flyway:
     enabled: true
@@ -14,11 +21,19 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate # Flyway manda, Hibernate solo valida que todo coincida
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
 logging:
   level:
-    com.sistema.gritfitprueba: DEBUG
+    root: INFO
+    grit.sistema.backend: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.SQL: DEBUG
+
+application:
+    security:
+      jwt:
+        # Clave de desarrollo (puede ser conocida por el equipo)
+        secret-key: ${JWT_SECRET_KEY:clave_de_desarrollo_muy_larga_y_segura_1234567890}
