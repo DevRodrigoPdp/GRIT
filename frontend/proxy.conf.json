@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "https://nondynastic-cheryle-unvenerative.ngrok-free.dev",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "headers": {
+      "ngrok-skip-browser-warning": "true"
+    }
+  }
+}
