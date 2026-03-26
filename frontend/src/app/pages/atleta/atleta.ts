@@ -2,6 +2,7 @@ import { Component, signal, computed, inject, ElementRef, HostListener } from '@
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 export type Objetivo = 'rendimiento' | 'masa_muscular' | 'perder_peso' | 'salud' | 'resistencia';
 export type Nivel     = 'principiante' | 'intermedio' | 'avanzado' | 'elite';
@@ -16,6 +17,7 @@ export type Servicio  = 'entrenamiento' | 'nutricion' | 'ambos';
 })
 export class AtletaPage {
   private el = inject(ElementRef);
+  private auth = inject(AuthService);
   readonly form: FormGroup;
   readonly submitted = signal(false);
   readonly mostrarScrollTop = signal(false);
@@ -107,7 +109,8 @@ export class AtletaPage {
       }, 50);
       return;
     }
-    // TODO: enviar al backend
-    console.log(this.form.value);
+
+    const { nombre, servicio } = this.form.value;
+    this.auth.mockRegistroAtleta({ nombre, servicio: servicio.toUpperCase() });
   }
 }

@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 
 export type Rol = 'ATLETA' | 'ENTRENADOR';
 export type EstadoCuenta = 'ACTIVO' | 'PENDIENTE_REVISION' | 'RECHAZADO';
+export type ServicioAtleta = 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
 
 export interface LoginResponse {
   ok: boolean;
@@ -12,6 +13,8 @@ export interface LoginResponse {
     rol: Rol;
     estado: EstadoCuenta;
     tituloNutricion: boolean | null;
+    servicio: ServicioAtleta | null;   // solo para atletas
+    nombre: string;
   };
 }
 
@@ -25,8 +28,21 @@ export class AuthService {
   readonly rol = signal<Rol | null>(null);
   readonly estado = signal<EstadoCuenta | null>(null);
   readonly tituloNutricion = signal<boolean | null>(null);
+  readonly servicio = signal<ServicioAtleta | null>(null);
+  readonly nombre = signal<string | null>(null);
   readonly loginError = signal<string | null>(null);
   readonly loading = signal(false);
+
+  // ── Mock temporal hasta conectar backend ──────────────────
+  mockRegistroAtleta(datos: { nombre: string; servicio: ServicioAtleta }) {
+    this.rol.set('ATLETA');
+    this.estado.set('ACTIVO');
+    this.nombre.set(datos.nombre);
+    this.servicio.set(datos.servicio);
+    this.tituloNutricion.set(null);
+    this.router.navigate(['/dashboard/atleta']);
+  }
+  // ─────────────────────────────────────────────────────────
 
   login(correo: string, password: string) {
     this.loading.set(true);
@@ -40,6 +56,8 @@ export class AuthService {
             this.rol.set(res.data.rol);
             this.estado.set(res.data.estado);
             this.tituloNutricion.set(res.data.tituloNutricion);
+            this.servicio.set(res.data.servicio);
+            this.nombre.set(res.data.nombre);
             this.loading.set(false);
             this.redirigir(res.data.rol, res.data.estado, res.data.tituloNutricion);
           },
@@ -64,6 +82,8 @@ export class AuthService {
         this.rol.set(null);
         this.estado.set(null);
         this.tituloNutricion.set(null);
+        this.servicio.set(null);
+        this.nombre.set(null);
         this.router.navigate(['/']);
       });
   }
