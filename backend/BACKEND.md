@@ -20,15 +20,13 @@ GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de u
 
 ---
 
-## 2. Stack Recomendado
+## 2. Stack
 
-No hay restricción técnica, pero se recomienda:
-
-- **Lenguaje:** Node.js (TypeScript) / Python / Go
-- **Framework:** Express / Fastify / NestJS / FastAPI
+- **Lenguaje:** Java con Spring Boot
+- **Frontend:** TypeScript con Angular
 - **Base de datos:** PostgreSQL (ver carpeta `/bbdd`)
 - **Almacenamiento de archivos:** S3-compatible (AWS S3, MinIO, Cloudflare R2)
-- **Autenticación:** JWT (access token + refresh token)
+- **Autenticación:** JWT (access token + refresh token) via cookies HttpOnly
 - **Email:** SendGrid / Resend / SMTP
 
 ---
@@ -90,6 +88,8 @@ TAFAD | GRADO_CAFYD | MASTER_RENDIMIENTO | MASTER_ENTRENAMIENTO | CICLO_FP | OTR
 
 **`POST /api/v1/auth/registro/atleta`**
 
+El atleta rellena un formulario en el frontend con sus datos personales, físicos, el servicio que contrata y (si aplica) su objetivo deportivo. El servidor recibe todo como JSON, valida los campos, crea el usuario en base de datos y devuelve las cookies de sesión directamente — el atleta queda activo de inmediato sin revisión manual. Los tokens viajan únicamente en cookies `HttpOnly` y nunca en el body de la respuesta, lo que impide que el JavaScript del frontend pueda leerlos y previene ataques XSS. El campo `objetivo` es condicional: solo es obligatorio cuando el atleta ha contratado entrenamiento; si elige únicamente nutrición, se envía como `null` y el servidor debe aceptarlo sin error.
+
 Recibe el formulario como `application/json`. No hay archivos.
 
 **Campos del body:**
@@ -98,13 +98,15 @@ Recibe el formulario como `application/json`. No hay archivos.
 |---|---|---|---|
 | `nombre` | `string` | ✅ | Min 3 caracteres |
 | `correo` | `string` | ✅ | Formato email válido, único en BBDD |
+| `password` | `string` | ✅ | Min 8 caracteres |
 | `fechaNac` | `string` (ISO 8601) | ✅ | Formato `YYYY-MM-DD`, mayor de 14 años |
 | `genero` | `enum` | ✅ | `hombre` \| `mujer` \| `otro` |
 | `peso` | `number` | ✅ | Entre 30 y 300 (kg) |
 | `altura` | `number` | ✅ | Entre 100 y 250 (cm) |
 | `deporte` | `string` | ✅ | Min 3 caracteres |
 | `nivel` | `enum` | ✅ | Ver valores válidos abajo |
-| `objetivo` | `enum` | ✅ | Ver valores válidos abajo |
+| `servicio` | `enum` | ✅ | `ENTRENAMIENTO` \| `NUTRICION` \| `AMBOS` |
+| `objetivo` | `enum` | ⚠️ Condicional | **Requerido** si `servicio` es `ENTRENAMIENTO` o `AMBOS`. **Null** si `servicio` es `NUTRICION`. |
 
 **Valores válidos para `nivel`:**
 ```
@@ -113,7 +115,52 @@ PRINCIPIANTE | INTERMEDIO | AVANZADO | ELITE
 
 **Valores válidos para `objetivo`:**
 ```
-PERDER_PESO | GANAR_MASA | RENDIMIENTO | RESISTENCIA | SALUD | REHABILITACION
+RENDIMIENTO | MASA_MUSCULAR | PERDER_PESO | SALUD | RESISTENCIA
+```
+
+**Valores válidos para `servicio`:**
+```
+ENTRENAMIENTO | NUTRICION | AMBOS
+```
+
+**Validación cruzada obligatoria en servidor:**
+```
+si servicio == NUTRICION  → objetivo debe ser null o ausente
+si servicio == ENTRENAMIENTO o AMBOS → objetivo es obligatorio (400 si falta)
+```
+
+**Ejemplo body — solo nutrición:**
+```json
+{
+  "nombre": "Laura Sánchez",
+  "correo": "laura@email.com",
+  "password": "MiPassword123",
+  "fechaNac": "1998-05-14",
+  "genero": "mujer",
+  "peso": 65,
+  "altura": 168,
+  "deporte": "Crossfit",
+  "nivel": "INTERMEDIO",
+  "servicio": "NUTRICION",
+  "objetivo": null
+}
+```
+
+**Ejemplo body — entrenamiento o ambos:**
+```json
+{
+  "nombre": "Carlos Ruiz",
+  "correo": "carlos@email.com",
+  "password": "MiPassword123",
+  "fechaNac": "1995-03-20",
+  "genero": "hombre",
+  "peso": 80,
+  "altura": 180,
+  "deporte": "Ciclismo",
+  "nivel": "AVANZADO",
+  "servicio": "AMBOS",
+  "objetivo": "RENDIMIENTO"
+}
 ```
 
 **Respuesta 201 (éxito):**
@@ -126,6 +173,15 @@ PERDER_PESO | GANAR_MASA | RENDIMIENTO | RESISTENCIA | SALUD | REHABILITACION
     "estado": "ACTIVO",
     "rol": "ATLETA"
   }
+}
+```
+
+**Respuesta 400 (validación cruzada fallida):**
+```json
+{
+  "ok": false,
+  "error": "OBJETIVO_REQUERIDO",
+  "message": "El campo objetivo es obligatorio cuando el servicio incluye entrenamiento."
 }
 ```
 
@@ -339,7 +395,8 @@ Todos los endpoints bajo `/api/v1/nutricion/**` deben validar en servidor que el
 | `altura_cm` | SMALLINT | |
 | `deporte` | VARCHAR(100) | |
 | `nivel` | ENUM | `PRINCIPIANTE`, `INTERMEDIO`, `AVANZADO`, `ELITE` |
-| `objetivo` | ENUM | `PERDER_PESO`, `GANAR_MASA`, `RENDIMIENTO`, `RESISTENCIA`, `SALUD`, `REHABILITACION` |
+| `servicio` | ENUM | `ENTRENAMIENTO`, `NUTRICION`, `AMBOS` — **obligatorio** |
+| `objetivo` | ENUM NULLABLE | `RENDIMIENTO`, `MASA_MUSCULAR`, `PERDER_PESO`, `SALUD`, `RESISTENCIA` — **null si servicio = NUTRICION** |
 
 ---
 
@@ -438,4 +495,4 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 
 ---
 
-*Última actualización: 21 de marzo de 2026*
+*Última actualización: 26 de marzo de 2026*

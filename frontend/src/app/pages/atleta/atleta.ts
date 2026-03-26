@@ -1,21 +1,33 @@
-import { Component, signal, computed, inject, ElementRef } from '@angular/core';
+import { Component, signal, computed, inject, ElementRef, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 export type Objetivo = 'rendimiento' | 'masa_muscular' | 'perder_peso' | 'salud' | 'resistencia';
 export type Nivel     = 'principiante' | 'intermedio' | 'avanzado' | 'elite';
 export type Genero    = 'hombre' | 'mujer' | 'otro' | '';
+export type Servicio  = 'entrenamiento' | 'nutricion' | 'ambos';
 
 @Component({
   selector: 'app-atleta-page',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './atleta.html',
 })
 export class AtletaPage {
   private el = inject(ElementRef);
   readonly form: FormGroup;
   readonly submitted = signal(false);
+  readonly mostrarScrollTop = signal(false);
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.mostrarScrollTop.set(window.scrollY > 300);
+  }
+
+  scrollTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   readonly objetivos: { value: Objetivo; label: string; desc: string }[] = [
     { value: 'rendimiento',    label: 'RENDIMIENTO',     desc: 'Maximizar marca y potencia' },
@@ -23,6 +35,12 @@ export class AtletaPage {
     { value: 'perder_peso',    label: 'PERDER PESO',     desc: 'Composición corporal' },
     { value: 'salud',          label: 'SALUD GENERAL',   desc: 'Bienestar y longevidad' },
     { value: 'resistencia',    label: 'RESISTENCIA',     desc: 'Cardio y fondo' },
+  ];
+
+  readonly servicios: { value: Servicio; label: string; desc: string }[] = [
+    { value: 'entrenamiento', label: 'ENTRENAMIENTO',        desc: 'Planes de entreno personalizados' },
+    { value: 'nutricion',     label: 'NUTRICIÓN',            desc: 'Dieta y seguimiento nutricional' },
+    { value: 'ambos',         label: 'ENTRENAMIENTO + NUTRICIÓN', desc: 'Servicio completo' },
   ];
 
   readonly niveles: { value: Nivel; label: string }[] = [
@@ -48,11 +66,29 @@ export class AtletaPage {
       deporte:   ['', [Validators.required, Validators.minLength(3)]],
       nivel:     ['', Validators.required],
       objetivo:  ['', Validators.required],
+      servicio:  ['', Validators.required],
     });
   }
 
   selectObjetivo(value: Objetivo): void {
     this.form.get('objetivo')?.setValue(value);
+  }
+
+  get mostrarObjetivo(): boolean {
+    const s = this.form.get('servicio')?.value;
+    return s === 'entrenamiento' || s === 'ambos';
+  }
+
+  selectServicio(value: Servicio): void {
+    this.form.get('servicio')?.setValue(value);
+    const objetivo = this.form.get('objetivo')!;
+    if (value === 'nutricion') {
+      objetivo.clearValidators();
+      objetivo.setValue('');
+    } else {
+      objetivo.setValidators(Validators.required);
+    }
+    objetivo.updateValueAndValidity();
   }
 
   fieldError(campo: string): boolean {
