@@ -317,4 +317,18 @@
     </main>
 
   </div>
+
+  <!-- Scroll to top -->
+  <button
+    (click)="scrollTop()"
+    class="fixed bottom-8 right-8 w-11 h-11 bg-black text-white flex items-center justify-center transition-all duration-300 hover:bg-[#2ED38D] hover:text-black z-50"
+    [class.opacity-0]="!mostrarScrollTop()"
+    [class.pointer-events-none]="!mostrarScrollTop()"
+    [class.translate-y-4]="!mostrarScrollTop()"
+    aria-label="Volver arriba"
+  >
+    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
+      <path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+    </svg>
+  </button>
 </div>

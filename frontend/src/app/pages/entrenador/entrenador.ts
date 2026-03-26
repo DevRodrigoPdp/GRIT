@@ -1,6 +1,7 @@
-import { Component, signal, computed, inject, ElementRef } from '@angular/core';
+import { Component, signal, computed, inject, ElementRef, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 export type TipoTitulacion =
   | 'tafad'
@@ -19,12 +20,22 @@ interface ArchivoSubido {
 @Component({
   selector: 'app-entrenador-page',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './entrenador.html',
 })
 export class EntrenadorPage {
   private el = inject(ElementRef);
   readonly form: FormGroup;
+  readonly mostrarScrollTop = signal(false);
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.mostrarScrollTop.set(window.scrollY > 300);
+  }
+
+  scrollTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   readonly titulacionOpciones: { value: TipoTitulacion; label: string }[] = [
     { value: 'tafad',               label: 'TAFAD — Técnico Superior en AFAD' },
