@@ -142,20 +142,20 @@
               }
             </div>
 
-            <!-- Tipo de titulación -->
+            <!-- Titulación de entrenamiento -->
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
-                Tipo de titulación <span class="text-[#2ED38D]">*</span>
+                Titulación en entrenamiento <span class="text-[#2ED38D]">*</span>
               </label>
               <div class="relative">
                 <select
-                  formControlName="titulacion"
+                  formControlName="titulacionEntrenamiento"
                   class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black outline-none appearance-none cursor-pointer transition-colors duration-200 focus:border-[#2ED38D] pr-8"
-                  [class.border-red-400]="fieldError('titulacion')"
-                  [class.text-gray-300]="!form.get('titulacion')?.value"
+                  [class.border-red-400]="fieldError('titulacionEntrenamiento')"
+                  [class.text-gray-300]="!form.get('titulacionEntrenamiento')?.value"
                 >
                   <option value="" disabled selected class="text-gray-300">Selecciona tu titulación</option>
-                  @for (op of titulacionOpciones; track op.value) {
+                  @for (op of titulacionesEntrenamiento; track op.value) {
                     <option [value]="op.value" class="text-black">{{ op.label }}</option>
                   }
                 </select>
@@ -163,42 +163,37 @@
                   <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
                 </svg>
               </div>
-              @if (fieldError('titulacion')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Selecciona una titulación</span>
+              @if (fieldError('titulacionEntrenamiento')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Selecciona tu titulación en entrenamiento</span>
               }
             </div>
 
-            <!-- Título de nutrición -->
-            <div class="flex flex-col gap-3">
+            <!-- Titulación en nutrición (opcional) -->
+            <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
-                ¿Tienes título de nutrición?
+                Titulación en dietética y nutrición
+                <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
               </label>
-              <div class="flex gap-3">
-                <button
-                  type="button"
-                  (click)="form.get('tituloNutricion')?.setValue(true)"
-                  class="flex-1 py-3 text-xs font-bold tracking-[0.2em] uppercase border transition-all duration-200"
-                  [class.bg-black]="form.get('tituloNutricion')?.value === true"
-                  [class.text-[#2ED38D]]="form.get('tituloNutricion')?.value === true"
-                  [class.border-black]="form.get('tituloNutricion')?.value === true"
-                  [class.text-gray-400]="form.get('tituloNutricion')?.value !== true"
-                  [class.border-[#E5E7EB]]="form.get('tituloNutricion')?.value !== true"
+              <div class="relative">
+                <select
+                  formControlName="titulacionNutricion"
+                  class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black outline-none appearance-none cursor-pointer transition-colors duration-200 focus:border-[#2ED38D] pr-8"
+                  [class.text-gray-300]="!form.get('titulacionNutricion')?.value"
                 >
-                  SÍ
-                </button>
-                <button
-                  type="button"
-                  (click)="form.get('tituloNutricion')?.setValue(false)"
-                  class="flex-1 py-3 text-xs font-bold tracking-[0.2em] uppercase border transition-all duration-200"
-                  [class.bg-black]="form.get('tituloNutricion')?.value === false"
-                  [class.text-white]="form.get('tituloNutricion')?.value === false"
-                  [class.border-black]="form.get('tituloNutricion')?.value === false"
-                  [class.text-gray-400]="form.get('tituloNutricion')?.value !== false"
-                  [class.border-[#E5E7EB]]="form.get('tituloNutricion')?.value !== false"
-                >
-                  NO
-                </button>
+                  <option [value]="null" class="text-gray-300">No tengo titulación en nutrición</option>
+                  @for (op of titulacionesNutricion; track op.value) {
+                    <option [value]="op.value" class="text-black">{{ op.label }}</option>
+                  }
+                </select>
+                <svg class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+                </svg>
               </div>
+              @if (form.get('titulacionNutricion')?.value) {
+                <span class="text-xs font-light text-gray-400 tracking-wide">
+                  Tendrás acceso al módulo de nutrición una vez verificada tu titulación.
+                </span>
+              }
             </div>
 
           </div>

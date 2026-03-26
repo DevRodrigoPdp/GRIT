@@ -3,13 +3,14 @@ import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-export type TipoTitulacion =
-  | 'tafad'
-  | 'cafyd_grado'
-  | 'cafyd_licenciatura'
-  | 'master_rendimiento'
-  | 'master_salud'
-  | 'otro';
+export type TipoTitulacionEntrenamiento =
+  | 'GRADO_CAFYD'
+  | 'TSAF_TSEAS'
+  | 'CERT_AFDA0210';
+
+export type TipoTitulacionNutricion =
+  | 'GRADO_NUTRICION'
+  | 'TSD';
 
 interface ArchivoSubido {
   nombre: string;
@@ -37,13 +38,15 @@ export class EntrenadorPage {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  readonly titulacionOpciones: { value: TipoTitulacion; label: string }[] = [
-    { value: 'tafad',               label: 'TAFAD — Técnico Superior en AFAD' },
-    { value: 'cafyd_grado',         label: 'Grado en CAFYD' },
-    { value: 'cafyd_licenciatura',  label: 'Licenciatura en CAFYD / INEF' },
-    { value: 'master_rendimiento',  label: 'Máster en Rendimiento Deportivo' },
-    { value: 'master_salud',        label: 'Máster en Actividad Física y Salud' },
-    { value: 'otro',                label: 'Otra titulación' },
+  readonly titulacionesEntrenamiento: { value: TipoTitulacionEntrenamiento; label: string }[] = [
+    { value: 'GRADO_CAFYD',     label: 'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte' },
+    { value: 'TSAF_TSEAS',      label: 'TSAF / TSEAS — Técnico Superior en Animación de Actividades Físicas' },
+    { value: 'CERT_AFDA0210',   label: 'Certificado de Profesionalidad AFDA0210' },
+  ];
+
+  readonly titulacionesNutricion: { value: TipoTitulacionNutricion; label: string }[] = [
+    { value: 'GRADO_NUTRICION', label: 'Grado en Nutrición Humana y Dietética' },
+    { value: 'TSD',             label: 'TSD — Técnico Superior en Dietética' },
   ];
 
   readonly archivos = signal<ArchivoSubido[]>([]);
@@ -59,18 +62,19 @@ export class EntrenadorPage {
 
   readonly camposConError = computed(() => {
     if (!this.submitted()) return 0;
-    const formErrors = Object.keys(this.form.controls).filter(k => this.form.get(k)?.invalid).length;
+    const requeridos = ['nombre', 'correo', 'codigoColegiado', 'titulacionEntrenamiento'];
+    const formErrors = requeridos.filter(k => this.form.get(k)?.invalid).length;
     const archivoErr = this.archivos().length === 0 ? 1 : 0;
     return formErrors + archivoErr;
   });
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      nombre:           ['', [Validators.required, Validators.minLength(3)]],
-      correo:           ['', [Validators.required, Validators.email]],
-      codigoColegiado:  ['', [Validators.required, Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
-      titulacion:       ['', Validators.required],
-      tituloNutricion:  [null, Validators.required],
+      nombre:                    ['', [Validators.required, Validators.minLength(3)]],
+      correo:                    ['', [Validators.required, Validators.email]],
+      codigoColegiado:           ['', [Validators.required, Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
+      titulacionEntrenamiento:   ['', Validators.required],
+      titulacionNutricion:       [null],   // opcional — null si no tiene
     });
   }
 

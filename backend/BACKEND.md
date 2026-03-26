@@ -46,14 +46,24 @@ Recibe el formulario de registro del entrenador **como `multipart/form-data`** p
 | `nombre` | `string` | ✅ | Min 3 caracteres, solo letras y espacios |
 | `correo` | `string` | ✅ | Formato email válido, único en BBDD |
 | `codigoColegiado` | `string` | ✅ | Alfanumérico, 4–20 caracteres, único en BBDD |
-| `titulacion` | `enum` | ✅ | Ver valores válidos abajo |
-| `tituloNutricion` | `boolean` | ✅ | `true` / `false` |
+| `titulacionEntrenamiento` | `enum` | ✅ | Ver valores válidos abajo |
+| `titulacionNutricion` | `enum` | ⚠️ Condicional | Ver valores válidos abajo. `null` si no tiene titulación en nutrición |
 | `documentos` | `File[]` | ✅ | 1–10 archivos, formatos: PDF/JPG/JPEG/PNG, max 10 MB cada uno |
 
-**Valores válidos para `titulacion`:**
+**Valores válidos para `titulacionEntrenamiento`** (títulos oficiales en España):
 ```
-TAFAD | GRADO_CAFYD | MASTER_RENDIMIENTO | MASTER_ENTRENAMIENTO | CICLO_FP | OTRO
+GRADO_CAFYD    → Grado en Ciencias de la Actividad Física y del Deporte
+TSAF_TSEAS     → Técnico Superior en Animación de Actividades Físicas / TSEAS
+CERT_AFDA0210  → Certificado de Profesionalidad AFDA0210
 ```
+
+**Valores válidos para `titulacionNutricion`** (títulos oficiales en España):
+```
+GRADO_NUTRICION  → Grado en Nutrición Humana y Dietética
+TSD              → Técnico Superior en Dietética
+```
+
+> El campo `titulo_nutricion` **no se envía desde el frontend** — el backend lo deriva automáticamente: si `titulacionNutricion` tiene valor → `titulo_nutricion = true`.
 
 **Respuesta 201 (éxito):**
 ```json
