@@ -2,21 +2,30 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 21 de marzo de 2026
+> **Última actualización:** 28 de marzo de 2026
 
 ---
 
 ## 1. Contexto del Producto
 
-GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de usuario y **tres dashboards diferenciados**:
+GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de usuario y **cuatro dashboards diferenciados**:
 
-| Rol | Subtipo | Dashboard | Descripción |
+| Rol | Titulaciones | Dashboard | Descripción |
 |---|---|---|---|
-| **Entrenador** | Con título de nutrición | `/dashboard/entrenador/nutricion` | Acceso completo: entrenamiento + planes nutricionales |
-| **Entrenador** | Sin título de nutrición | `/dashboard/entrenador` | Solo entrenamiento. Sin acceso a módulos de nutrición |
+| **Entrenador** | Entrenamiento + Nutrición | `/dashboard/entrenador/nutricion` | Acceso completo: entrenamiento + planes nutricionales |
+| **Entrenador** | Solo Entrenamiento | `/dashboard/entrenador` | Solo entrenamiento. Sin acceso a módulos de nutrición |
+| **Entrenador** | Solo Nutrición | `/dashboard/entrenador/solo-nutricion` | Solo nutrición. Sin acceso a módulos de entrenamiento |
 | **Atleta** | — | `/dashboard/atleta` | Métricas, planes y seguimiento personal |
 
-> **Principio clave — No intrusión laboral:** Un entrenador sin titulación en nutrición **no puede** crear, editar ni visualizar planes nutricionales dentro de la plataforma. Esta restricción se aplica tanto en frontend (rutas protegidas) como en backend (validación en cada endpoint de nutrición).
+El dashboard al que se redirige a un entrenador (tras login o registro aprobado) se determina combinando `tituloEntrenamiento` y `tituloNutricion`:
+
+| `tituloEntrenamiento` | `tituloNutricion` | Redirección |
+|---|---|---|
+| `true` | `true` | `/dashboard/entrenador/nutricion` |
+| `true` | `false` | `/dashboard/entrenador` |
+| `false` | `true` | `/dashboard/entrenador/solo-nutricion` |
+
+> **Principio clave — No intrusión laboral:** Un entrenador solo puede acceder a los módulos para los que tiene titulación acreditada. Esta restricción se aplica tanto en frontend (rutas protegidas) como en backend (validación en cada endpoint de entrenamiento y nutrición).
 
 ---
 
@@ -46,9 +55,14 @@ Recibe el formulario de registro del entrenador **como `multipart/form-data`** p
 | `nombre` | `string` | ✅ | Min 3 caracteres, solo letras y espacios |
 | `correo` | `string` | ✅ | Formato email válido, único en BBDD |
 | `codigoColegiado` | `string` | ✅ | Alfanumérico, 4–20 caracteres, único en BBDD |
-| `titulacionEntrenamiento` | `enum` | ✅ | Ver valores válidos abajo |
-| `titulacionNutricion` | `enum` | ⚠️ Condicional | Ver valores válidos abajo. `null` si no tiene titulación en nutrición |
+| `titulacionEntrenamiento` | `enum` | ⚠️ Condicional | `null` si no tiene titulación en entrenamiento. Ver valores válidos abajo |
+| `titulacionNutricion` | `enum` | ⚠️ Condicional | `null` si no tiene titulación en nutrición. Ver valores válidos abajo |
 | `documentos` | `File[]` | ✅ | 1–10 archivos, formatos: PDF/JPG/JPEG/PNG, max 10 MB cada uno |
+
+**Validación cruzada obligatoria en servidor:**
+```
+Si titulacionEntrenamiento == null Y titulacionNutricion == null → 400 (debe tener al menos una)
+```
 
 **Valores válidos para `titulacionEntrenamiento`** (títulos oficiales en España):
 ```
@@ -59,11 +73,11 @@ CERT_AFDA0210  → Certificado de Profesionalidad AFDA0210
 
 **Valores válidos para `titulacionNutricion`** (títulos oficiales en España):
 ```
-GRADO_NUTRICION  → Grado en Nutrición Humana y Dietética
-TSD              → Técnico Superior en Dietética
+GRADO_NUTRICION_DIETETICA  → Grado en Nutrición Humana y Dietética
+TSD                        → Técnico Superior en Dietética
 ```
 
-> El campo `titulo_nutricion` **no se envía desde el frontend** — el backend lo deriva automáticamente: si `titulacionNutricion` tiene valor → `titulo_nutricion = true`.
+> Los campos `titulo_entrenamiento` y `titulo_nutricion` **no se envían desde el frontend** — el backend los deriva automáticamente: si `titulacionEntrenamiento` tiene valor → `titulo_entrenamiento = true`, si `titulacionNutricion` tiene valor → `titulo_nutricion = true`.
 
 **Respuesta 201 (éxito):**
 ```json
@@ -72,10 +86,16 @@ TSD              → Técnico Superior en Dietética
   "message": "Solicitud recibida. Revisaremos tus credenciales en un plazo máximo de 48h y te notificaremos por correo.",
   "data": {
     "id": "uuid-del-entrenador",
-    "estado": "PENDIENTE_REVISION"
+    "nombre": "Carlos Martínez",
+    "rol": "ENTRENADOR",
+    "estado": "PENDIENTE_REVISION",
+    "tituloEntrenamiento": true,
+    "tituloNutricion": false
   }
 }
 ```
+
+> El frontend utiliza `tituloEntrenamiento` y `tituloNutricion` para saber a qué dashboard redirigir cuando el admin apruebe la cuenta.
 
 **Respuesta 409 (correo o código duplicado):**
 ```json
@@ -226,12 +246,15 @@ Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1
   "data": {
     "rol": "ENTRENADOR" | "ATLETA",
     "estado": "ACTIVO" | "PENDIENTE_REVISION" | "RECHAZADO",
-    "tituloNutricion": true | false | null
+    "nombre": "Carlos Martínez",
+    "tituloEntrenamiento": true | false | null,
+    "tituloNutricion": true | false | null,
+    "servicio": "ENTRENAMIENTO" | "NUTRICION" | "AMBOS" | null
   }
 }
 ```
 
-> `tituloNutricion` solo es relevante cuando `rol === "ENTRENADOR"`. Para atletas devolver `null`.
+> `tituloEntrenamiento` y `tituloNutricion` solo son relevantes cuando `rol === "ENTRENADOR"`. Para atletas devolver `null` en ambos. `servicio` solo es relevante para atletas; para entrenadores devolver `null`.
 
 **Cookies que debe setear el servidor:**
 ```
@@ -241,13 +264,14 @@ Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1
 
 **Lógica de redirección que aplica el frontend según la respuesta:**
 
-| `rol` | `estado` | `tituloNutricion` | Redirección |
-|---|---|---|---|
-| `ATLETA` | `ACTIVO` | `null` | `/dashboard/atleta` |
-| `ENTRENADOR` | `ACTIVO` | `true` | `/dashboard/entrenador/nutricion` |
-| `ENTRENADOR` | `ACTIVO` | `false` | `/dashboard/entrenador` |
-| `ENTRENADOR` | `PENDIENTE_REVISION` | cualquiera | `/pendiente` |
-| cualquiera | `RECHAZADO` | cualquiera | `/login` con mensaje de error |
+| `rol` | `estado` | `tituloEntrenamiento` | `tituloNutricion` | Redirección |
+|---|---|---|---|---|
+| `ATLETA` | `ACTIVO` | `null` | `null` | `/dashboard/atleta` |
+| `ENTRENADOR` | `ACTIVO` | `true` | `true` | `/dashboard/entrenador/nutricion` |
+| `ENTRENADOR` | `ACTIVO` | `true` | `false` | `/dashboard/entrenador` |
+| `ENTRENADOR` | `ACTIVO` | `false` | `true` | `/dashboard/entrenador/solo-nutricion` |
+| `ENTRENADOR` | `PENDIENTE_REVISION` | cualquiera | cualquiera | `/pendiente` |
+| cualquiera | `RECHAZADO` | cualquiera | cualquiera | `/login` con mensaje de error |
 
 > **Nota:** Si el entrenador está en `PENDIENTE_REVISION`, el frontend mostrará una pantalla de espera informando que la solicitud está siendo revisada (plazo máximo 48h).
 
@@ -290,9 +314,11 @@ Set-Cookie: refresh_token=; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
 
 ---
 
-### 3.6 Solicitud de Ampliación de Permisos de Nutrición *(implementación futura)*
+### 3.6 Solicitud de Ampliación de Permisos *(implementación futura)*
 
-Un entrenador que en el registro indicó **no tener** título de nutrición podrá solicitarlo más adelante aportando nueva documentación.
+Un entrenador podrá solicitar acceso a los módulos para los que no tenía titulación en el momento del registro, aportando nueva documentación.
+
+#### Ampliar acceso a Nutrición
 
 **`POST /api/v1/entrenador/solicitar-nutricion`**
 
@@ -313,17 +339,46 @@ Recibe `multipart/form-data`:
 }
 ```
 
-**Flujo completo:**
-1. Entrenador hace clic en "Ampliar acceso a Nutrición" desde su dashboard
+**Flujo:**
+1. Entrenador hace clic en "¿Tienes título de nutrición?" desde su dashboard de entrenamiento
 2. Sube la documentación acreditativa
-3. Estado pasa a `PENDIENTE_REVISION_NUTRICION` — sigue accediendo a su dashboard de entrenamiento con normalidad
-4. Admin revisa y aprueba/rechaza
-5. Si se aprueba: `titulo_nutricion` pasa a `true` en BBDD y se envía email de confirmación
-6. En el siguiente login (o con un endpoint de `/api/v1/auth/me`), el frontend recibe `tituloNutricion: true` y redirige al dashboard completo
+3. Estado pasa a `PENDIENTE_REVISION_NUTRICION` — sigue accediendo a su dashboard con normalidad
+4. Admin aprueba → `titulo_nutricion = true` en BBDD + email de confirmación
+5. En el siguiente login el frontend recibe `tituloNutricion: true` y redirige a `/dashboard/entrenador/nutricion`
+
+#### Ampliar acceso a Entrenamiento
+
+**`POST /api/v1/entrenador/solicitar-entrenamiento`**
+
+Requiere cookie `access_token` válida con `rol === 'ENTRENADOR'` y `titulo_entrenamiento === false`.
+
+Recibe `multipart/form-data`:
+
+| Campo | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `documentos` | `File[]` | ✅ | 1–10 archivos PDF/JPG/PNG, max 10 MB c/u |
+
+**Respuesta 200:**
+```json
+{
+  "ok": true,
+  "message": "Solicitud de ampliación recibida. Revisaremos tu documentación en un plazo máximo de 48h.",
+  "data": { "estadoSolicitud": "PENDIENTE_REVISION_ENTRENAMIENTO" }
+}
+```
+
+**Flujo:**
+1. Entrenador hace clic en "¿Tienes título de entrenamiento?" desde su dashboard de nutrición
+2. Sube la documentación acreditativa
+3. Estado pasa a `PENDIENTE_REVISION_ENTRENAMIENTO` — sigue accediendo a su dashboard con normalidad
+4. Admin aprueba → `titulo_entrenamiento = true` en BBDD + email de confirmación
+5. En el siguiente login el frontend recibe `tituloEntrenamiento: true` y redirige a `/dashboard/entrenador/nutricion`
 
 ---
 
-### 3.7 Protección de endpoints de Nutrición
+### 3.7 Protección de endpoints por titulación
+
+#### Endpoints de Nutrición
 
 Todos los endpoints bajo `/api/v1/nutricion/**` deben validar en servidor que el usuario autenticado es un entrenador con `titulo_nutricion = true`.
 
@@ -338,6 +393,24 @@ Todos los endpoints bajo `/api/v1/nutricion/**` deben validar en servidor que el
   "ok": false,
   "error": "ACCESO_DENEGADO_SIN_TITULACION_NUTRICION",
   "message": "No tienes autorización para acceder a los módulos de nutrición. Se requiere titulación acreditada."
+}
+```
+
+#### Endpoints de Entrenamiento
+
+Todos los endpoints bajo `/api/v1/entrenamiento/**` deben validar en servidor que el usuario autenticado es un entrenador con `titulo_entrenamiento = true`.
+
+**Middleware a aplicar en esas rutas:**
+1. Verificar cookie `access_token` válida
+2. Verificar que `rol === 'ENTRENADOR'`
+3. Verificar que `titulo_entrenamiento === true` en BBDD
+
+**Respuesta si no tiene titulación de entrenamiento (`403`):**
+```json
+{
+  "ok": false,
+  "error": "ACCESO_DENEGADO_SIN_TITULACION_ENTRENAMIENTO",
+  "message": "No tienes autorización para acceder a los módulos de entrenamiento. Se requiere titulación acreditada."
 }
 ```
 
@@ -379,8 +452,12 @@ Todos los endpoints bajo `/api/v1/nutricion/**` deben validar en servidor que el
 |---|---|---|
 | `id` | UUID PK FK → usuarios | |
 | `codigo_colegiado` | VARCHAR(20) UNIQUE | |
-| `titulacion` | ENUM | |
-| `titulo_nutricion` | BOOLEAN | |
+| `titulacion_entrenamiento` | ENUM NULLABLE | `GRADO_CAFYD`, `TSAF_TSEAS`, `CERT_AFDA0210`. `null` si es puramente nutricionista |
+| `titulacion_nutricion` | ENUM NULLABLE | `GRADO_NUTRICION_DIETETICA`, `TSD`. `null` si no tiene titulación en nutrición |
+| `titulo_entrenamiento` | BOOLEAN | Derivado: `titulacion_entrenamiento IS NOT NULL` |
+| `titulo_nutricion` | BOOLEAN | Derivado: `titulacion_nutricion IS NOT NULL` |
+
+> **Restricción:** `titulo_entrenamiento` y `titulo_nutricion` no pueden ser ambos `false` simultáneamente — el backend debe rechazar el registro con 400 si se da ese caso.
 
 ### Tabla `documentos_entrenador`
 
@@ -485,9 +562,12 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 4. **Registro de Atleta** (el más simple, sin archivos ni revisión manual)
 5. **Login + cookies HttpOnly + Refresh + Logout**
 6. **Registro de Entrenador** (con upload a S3 y flujo de revisión)
-   - Guardar `titulo_nutricion` correctamente en BBDD
-   - La respuesta del login debe devolver `tituloNutricion` para que el frontend redirija al dashboard correcto
-7. **Middleware de protección para rutas de nutrición** (`titulo_nutricion === true`)
+   - Guardar `titulo_entrenamiento` y `titulo_nutricion` correctamente en BBDD
+   - Rechazar con 400 si ambas titulaciones son `null`
+   - El login debe devolver `tituloEntrenamiento` y `tituloNutricion` para que el frontend redirija al dashboard correcto (4 casos posibles — ver sección 1)
+7. **Middleware de protección por titulación**
+   - Rutas de nutrición: requieren `titulo_nutricion === true`
+   - Rutas de entrenamiento: requieren `titulo_entrenamiento === true`
 8. **Sistema de emails**
 9. **Rate limiting + seguridad**
 10. **Tests de integración** para todos los endpoints, incluyendo el caso de acceso denegado a nutrición
@@ -505,4 +585,4 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 
 ---
 
-*Última actualización: 26 de marzo de 2026*
+*Última actualización: 28 de marzo de 2026*
