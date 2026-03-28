@@ -110,7 +110,19 @@ export class AtletaPage {
       return;
     }
 
-    const { nombre, servicio } = this.form.value;
-    this.auth.mockRegistroAtleta({ nombre, servicio: servicio.toUpperCase() });
+    const v = this.form.value;
+    this.auth.registroAtleta({
+      nombre:   v.nombre,
+      correo:   v.correo,
+      password: v.password,
+      fechaNac: v.fechaNac,
+      genero:   (v.genero as string).toUpperCase() as 'HOMBRE' | 'MUJER' | 'OTRO',
+      peso:     v.peso,
+      altura:   v.altura,
+      deporte:  v.deporte,
+      nivel:    (v.nivel as string).toUpperCase() as 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE',
+      servicio: (v.servicio as string).toUpperCase() as 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS',
+      objetivo: v.objetivo ? (v.objetivo as string).toUpperCase() as any : null,
+    });
   }
 }

@@ -145,16 +145,16 @@
             <!-- Titulación de entrenamiento -->
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
-                Titulación en entrenamiento <span class="text-[#2ED38D]">*</span>
+                Titulación en entrenamiento
+                <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
               </label>
               <div class="relative">
                 <select
                   formControlName="titulacionEntrenamiento"
                   class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black outline-none appearance-none cursor-pointer transition-colors duration-200 focus:border-[#2ED38D] pr-8"
-                  [class.border-red-400]="fieldError('titulacionEntrenamiento')"
                   [class.text-gray-300]="!form.get('titulacionEntrenamiento')?.value"
                 >
-                  <option value="" disabled selected class="text-gray-300">Selecciona tu titulación</option>
+                  <option [value]="null" class="text-gray-300">No tengo titulación en entrenamiento</option>
                   @for (op of titulacionesEntrenamiento; track op.value) {
                     <option [value]="op.value" class="text-black">{{ op.label }}</option>
                   }
@@ -163,8 +163,13 @@
                   <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
                 </svg>
               </div>
-              @if (fieldError('titulacionEntrenamiento')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Selecciona tu titulación en entrenamiento</span>
+              @if (sinTitulacion()) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Debes tener al menos una titulación</span>
+              }
+              @if (form.get('titulacionEntrenamiento')?.value) {
+                <span class="text-xs font-light text-gray-400 tracking-wide">
+                  Tendrás acceso al módulo de entrenamiento una vez verificada tu titulación.
+                </span>
               }
             </div>
 

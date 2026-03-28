@@ -57,6 +57,11 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./pages/dashboard-entrenador-nutricion/dashboard-entrenador-nutricion').then(m => m.DashboardEntrenadorNutricionPage),
           },
+          {
+            path: 'solo-nutricion',
+            loadComponent: () =>
+              import('./pages/dashboard-entrenador-solo-nutricion/dashboard-entrenador-solo-nutricion').then(m => m.DashboardEntrenadorSoloNutricionPage),
+          },
         ],
       },
     ],

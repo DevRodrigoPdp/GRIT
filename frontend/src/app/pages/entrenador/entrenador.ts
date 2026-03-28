@@ -62,10 +62,19 @@ export class EntrenadorPage {
 
   readonly camposConError = computed(() => {
     if (!this.submitted()) return 0;
-    const requeridos = ['nombre', 'correo', 'codigoColegiado', 'titulacionEntrenamiento'];
+    const requeridos = ['nombre', 'correo', 'codigoColegiado'];
     const formErrors = requeridos.filter(k => this.form.get(k)?.invalid).length;
     const archivoErr = this.archivos().length === 0 ? 1 : 0;
-    return formErrors + archivoErr;
+    const titulacionErr = this.sinTitulacion() ? 1 : 0;
+    return formErrors + archivoErr + titulacionErr;
+  });
+
+  // true si el usuario ha intentado enviar y no tiene ninguna titulación seleccionada
+  readonly sinTitulacion = computed(() => {
+    if (!this.submitted()) return false;
+    const ent  = this.form.get('titulacionEntrenamiento')?.value;
+    const nutr = this.form.get('titulacionNutricion')?.value;
+    return !ent && !nutr;
   });
 
   constructor(private fb: FormBuilder) {
@@ -73,7 +82,7 @@ export class EntrenadorPage {
       nombre:                    ['', [Validators.required, Validators.minLength(3)]],
       correo:                    ['', [Validators.required, Validators.email]],
       codigoColegiado:           ['', [Validators.required, Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
-      titulacionEntrenamiento:   ['', Validators.required],
+      titulacionEntrenamiento:   [null],   // opcional — null si es puramente nutricionista
       titulacionNutricion:       [null],   // opcional — null si no tiene
     });
   }
@@ -123,7 +132,7 @@ export class EntrenadorPage {
     this.submitted.set(true);
     this.form.markAllAsTouched();
 
-    if (this.form.invalid || this.archivos().length === 0) {
+    if (this.form.invalid || this.archivos().length === 0 || this.sinTitulacion()) {
       setTimeout(() => {
         const firstError = this.el.nativeElement.querySelector('.error-field');
         firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
