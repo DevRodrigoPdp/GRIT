@@ -54,7 +54,7 @@ Recibe el formulario de registro del entrenador **como `multipart/form-data`** p
 |---|---|---|---|
 | `nombre` | `string` | ✅ | Min 3 caracteres, solo letras y espacios |
 | `correo` | `string` | ✅ | Formato email válido, único en BBDD |
-| `codigoColegiado` | `string` | ✅ | Alfanumérico, 4–20 caracteres, único en BBDD |
+| `codigoProfesional` | `string` | ⚠️ Condicional | Alfanumérico, 4–20 caracteres. **Obligatorio** si tiene titulación universitaria. **Opcional** si solo tiene FP o certificado. Ver nota abajo |
 | `titulacionEntrenamiento` | `enum` | ⚠️ Condicional | `null` si no tiene titulación en entrenamiento. Ver valores válidos abajo |
 | `titulacionNutricion` | `enum` | ⚠️ Condicional | `null` si no tiene titulación en nutrición. Ver valores válidos abajo |
 | `documentos` | `File[]` | ✅ | 1–10 archivos, formatos: PDF/JPG/JPEG/PNG, max 10 MB cada uno |
@@ -62,7 +62,20 @@ Recibe el formulario de registro del entrenador **como `multipart/form-data`** p
 **Validación cruzada obligatoria en servidor:**
 ```
 Si titulacionEntrenamiento == null Y titulacionNutricion == null → 400 (debe tener al menos una)
+Si titulacionEntrenamiento == GRADO_CAFYD o titulacionNutricion == GRADO_NUTRICION_DIETETICA → codigoProfesional obligatorio (400 si falta)
 ```
+
+> **Nota sobre `codigoProfesional` — quién tiene cada tipo de número:**
+>
+> En España solo las titulaciones universitarias dan acceso a un Colegio Profesional y, por tanto, a un número de colegiado oficial:
+> - **`GRADO_CAFYD`** → Número de colegiado en el **COLEF** (Colegio Oficial de Licenciados en Educación Física). Obligatorio para ejercer legalmente como entrenador personal en la mayoría de CCAA.
+> - **`GRADO_NUTRICION_DIETETICA`** → Número de colegiado en el **Colegio de Dietistas-Nutricionistas** de la comunidad (ej. CODINMA en Madrid). La colegiación puede ser obligatoria o voluntaria según la CCAA.
+>
+> Los técnicos de FP y los certificados de profesionalidad **no pertenecen a ningún Colegio Profesional** y por tanto no tienen número de colegiado:
+> - **`TSAF_TSEAS` / `CERT_AFDA0210`** → Pueden tener un **número de registro** en el Registro Oficial de Profesionales del Deporte de su comunidad (disponible en CCAA como Cataluña o Extremadura), pero no es universal ni obligatorio.
+> - **`TSD`** → Pueden pertenecer a asociaciones como **ADDEPA**, que otorgan un número de asociado, pero sin el mismo peso legal que un número de colegiado.
+>
+> El frontend adapta dinámicamente el label del campo (`Número de colegiado` vs `Número de registro`) y su carácter obligatorio según las titulaciones seleccionadas. El backend debe aplicar la misma lógica de validación.
 
 **Valores válidos para `titulacionEntrenamiento`** (títulos oficiales en España):
 ```
@@ -451,7 +464,7 @@ Todos los endpoints bajo `/api/v1/entrenamiento/**` deben validar en servidor qu
 | Campo | Tipo | Notas |
 |---|---|---|
 | `id` | UUID PK FK → usuarios | |
-| `codigo_colegiado` | VARCHAR(20) UNIQUE | |
+| `codigo_profesional` | VARCHAR(20) UNIQUE NULLABLE | Nº de colegiado (titulación universitaria) o nº de registro/asociado (FP/certificado). Ver nota en sección 3.1 |
 | `titulacion_entrenamiento` | ENUM NULLABLE | `GRADO_CAFYD`, `TSAF_TSEAS`, `CERT_AFDA0210`. `null` si es puramente nutricionista |
 | `titulacion_nutricion` | ENUM NULLABLE | `GRADO_NUTRICION_DIETETICA`, `TSD`. `null` si no tiene titulación en nutrición |
 | `titulo_entrenamiento` | BOOLEAN | Derivado: `titulacion_entrenamiento IS NOT NULL` |
@@ -585,4 +598,4 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 
 ---
 
-*Última actualización: 28 de marzo de 2026*
+*Última actualización: 31 de marzo de 2026*

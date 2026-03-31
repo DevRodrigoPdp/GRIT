@@ -125,20 +125,30 @@
 
           <div class="flex flex-col gap-6">
 
-            <!-- Código colegiado -->
+            <!-- Número de colegiado / registro (dinámico según titulación) -->
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
-                Código de colegiado <span class="text-[#2ED38D]">*</span>
+                {{ infoCampoNumero().label }}
+                @if (infoCampoNumero().obligatorio) {
+                  <span class="text-[#2ED38D]">*</span>
+                } @else {
+                  <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
+                }
               </label>
               <input
                 type="text"
                 formControlName="codigoColegiado"
-                placeholder="Ej. MAD-12345"
+                [placeholder]="infoCampoNumero().placeholder"
                 class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D] uppercase"
                 [class.border-red-400]="fieldError('codigoColegiado')"
               />
               @if (fieldError('codigoColegiado')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Código inválido (letras y números, 4–20 caracteres)</span>
+                <span class="text-xs font-bold text-red-400 tracking-wide">
+                  @if (infoCampoNumero().obligatorio) { Introduce tu número de colegiado (letras y números, 4–20 caracteres) }
+                  @else { Formato inválido (letras y números, 4–20 caracteres) }
+                </span>
+              } @else {
+                <span class="text-xs font-light text-gray-400 tracking-wide">{{ infoCampoNumero().hint }}</span>
               }
             </div>
 
@@ -151,6 +161,7 @@
               <div class="relative">
                 <select
                   formControlName="titulacionEntrenamiento"
+                  (change)="onTitulacionChange()"
                   class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black outline-none appearance-none cursor-pointer transition-colors duration-200 focus:border-[#2ED38D] pr-8"
                   [class.text-gray-300]="!form.get('titulacionEntrenamiento')?.value"
                 >
@@ -182,6 +193,7 @@
               <div class="relative">
                 <select
                   formControlName="titulacionNutricion"
+                  (change)="onTitulacionChange()"
                   class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black outline-none appearance-none cursor-pointer transition-colors duration-200 focus:border-[#2ED38D] pr-8"
                   [class.text-gray-300]="!form.get('titulacionNutricion')?.value"
                 >
