@@ -1,5 +1,5 @@
 # GRIT — Frontend realizado hasta hoy
-**Período:** 21 Mar → 26 Mar 2026
+**Período:** 21 Mar → 31 Mar 2026
 
 ```mermaid
 gantt
@@ -14,12 +14,15 @@ gantt
     section 🔐 Autenticación
     Login page (formulario + validación)            :done, 2026-03-21, 1d
     AuthService (cookies JWT, signals, redirección) :done, 2026-03-21, 1d
-    Página pendiente de revisión                    :done, 2026-03-21, 1d
+    Página pendiente (en revisión + rechazado)      :done, 2026-03-31, 1d
 
     section 🏠 Landing
     Landing page (hero, scroll-video, splash)       :done, 2026-03-24, 1d
     Componente verificación de credenciales         :done, 2026-03-24, 1d
     Footer component                                :done, 2026-03-24, 1d
+    Hero responsive para portátil                   :done, 2026-03-31, 1d
+    Indicador de scroll animado                     :done, 2026-03-31, 1d
+    Scrollbar oculta                                :done, 2026-03-31, 1d
 
     section 📋 Registro Entrenador
     Formulario datos personales + correo            :done, 2026-03-24, 1d
@@ -41,6 +44,10 @@ gantt
     Tabs dinámicas según servicio contratado        :done, 2026-03-26, 1d
     Spinner de carga animado                        :done, 2026-03-26, 1d
     Conexión formulario → AuthService → dashboard   :done, 2026-03-26, 1d
+
+    section 📄 Especificación Backend
+    Endpoints admin verificación credenciales       :done, 2026-03-31, 1d
+    Modelo datos documentos (status, rejection_reason, auditoría) :done, 2026-03-31, 1d
 ```
 
 ---
@@ -53,6 +60,7 @@ gantt
 | 24 Mar | Landing, footer, registro entrenador, registro atleta |
 | 25 Mar | Reestructuración de archivos, navigation flow |
 | 26 Mar | Proxy, campo servicio + objetivo condicional, titulaciones oficiales, scroll to top, dashboard atleta completo |
+| 31 Mar | Hero responsive (media queries portátil, titular fluido, ticker oculto en <xl), indicador de scroll animado, scrollbar oculta, página pendiente con estado RECHAZADO diferenciado, BACKEND.md con endpoints admin y modelo de auditoría de documentos |
 
 ---
 
@@ -64,12 +72,12 @@ gantt
 | `pages/login` | ✅ |
 | `pages/entrenador` | ✅ |
 | `pages/atleta` | ✅ |
-| `pages/pendiente` | ✅ |
+| `pages/pendiente` | ✅ en revisión + rechazado |
 | `pages/dashboard-atleta` | ✅ estructura + tabs |
 | `pages/dashboard-entrenador` | 🔲 placeholder |
 | `pages/dashboard-entrenador-nutricion` | 🔲 placeholder |
 | `components/footer` | ✅ |
-| `components/hero` | ✅ |
+| `components/hero` | ✅ responsive portátil |
 | `components/splash` | ✅ |
 | `components/scroll-video` | ✅ |
 | `components/verification` | ✅ |
@@ -79,4 +87,4 @@ gantt
 
 ---
 
-> **Hoy:** 26 de Marzo de 2026
+> **Hoy:** 31 de Marzo de 2026
