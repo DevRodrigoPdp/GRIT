@@ -1,167 +1,145 @@
-# Ironmetric — Flujo de Navegación del Usuario
+# GRIT — Flujo de Navegación del Usuario
 
-> Documento generado a partir del análisis del router frontend.
-> Fecha: 2026-03-21 | Branch: `frontend`
+> Documento actualizado a partir del router real de Angular (`app.routes.ts`) y `AuthService`.
+> Fecha: 2026-03-31 | Branch: `frontend`
 
 ---
 
 ## Visión General
 
-La app tiene **dos tipos de usuario** (Coach y Atleta), cada uno con su propio dashboard.
-El punto de entrada siempre es la Landing Page (`/`).
-
-El token de sesión se almacena en una **cookie del navegador** (`ironmetric_token`) gestionada por `tokenService.js`.
+La app tiene **dos tipos de usuario** (Entrenador y Atleta). El entrenador tiene además **tres dashboards distintos** según sus titulaciones acreditadas. La sesión se gestiona mediante **cookies HttpOnly** enviadas por el backend — el frontend nunca almacena el JWT.
 
 ---
 
 ## 1. Flujo Completo
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                         / (Landing)                              │
-│                                                                  │
-│          [Registrarse]               [Iniciar Sesión]            │
-└───────────────┬──────────────────────────────┬───────────────────┘
-                │                              │
-                ▼                              ▼
-      /auth/register                     /auth/login
-      (Elegir tipo)                  (Email + Contraseña)
-            │                                  │
-       ┌────┴────┐                    POST /api/auth/login
-       ▼         ▼                             │
-  /auth/register/atleta   /auth/register/coach │ { accessToken, user: { role } }
-       │                        │              │
-  POST /api/auth/register  POST /api/auth/register   setToken(cookie)
-  /athlete                  /coach                        │
-       │                        │              ┌──────────┴───────────┐
-  setToken(cookie)          setToken(cookie)   ▼                      ▼
-       │                        │        /athlete/dashboard   /coach/dashboard
-       ▼                        ▼
-/auth/success-atleta  /auth/success-coach
-  (Cuenta creada ✓)    (Cuenta creada ✓)
+┌─────────────────────────────────────────────────────────────────┐
+│                          / (Landing)                            │
+│                                                                 │
+│            [EMPEZAR]                   [INICIAR SESIÓN]         │
+└──────────────┬──────────────────────────────┬───────────────────┘
+               │                              │
+               ▼                              ▼
+          /empezar                        /login
+      (Role Selector)               (Email + Contraseña)
+            │                                 │
+       ┌────┴────┐                   POST /api/v1/auth/login
+       ▼         ▼                            │
+/empezar/atleta  /empezar/entrenador     { rol, estado, nombre,
+       │                │                 tituloEntrenamiento,
+       │                │                 tituloNutricion,
+       ▼                ▼                 servicio }
+POST /api/v1/auth/   POST /api/v1/auth/        │
+registro/atleta      registro/entrenador        │
+       │                │                      │
+       │           (multipart/form-data         │
+       │            + documentos PDF)           │
+       │                │                      │
+       ▼                ▼                      │
+  ACTIVO         PENDIENTE_REVISION            │
+       │                │                      │
+       ▼                ▼                      │
+/dashboard/atleta   /pendiente            (ver sección 2)
 ```
 
 ---
 
-## 2. Dashboard — Atleta
+## 2. Lógica de Redirección Post-Login / Post-Registro
 
-**Ruta base:** `/athlete/dashboard`
+La redirección la ejecuta `AuthService.redirigir()` en función de los datos de sesión:
 
-| Ruta | Página | Descripción |
-|------|--------|-------------|
-| `/athlete/dashboard` | `AthleteDashboard` | Resumen general del atleta |
-| `/athlete/dashboard/training` | `AthleteTrainingPage` | Plan de entrenamiento |
-| `/athlete/dashboard/nutrition` | `AthleteNutritionPage` | Plan nutricional |
-| `/athlete/dashboard/progress` | `AthleteProgressPage` | Historial y métricas de progreso |
-| `/athlete/dashboard/settings` | `AthleteSettingsPage` | Perfil y configuración |
-
----
-
-## 3. Dashboard — Coach
-
-**Ruta base:** `/coach/dashboard`
-
-| Ruta | Página | Descripción |
-|------|--------|-------------|
-| `/coach/dashboard` | `CoachDashboard` | Resumen general del coach |
-| `/coach/dashboard/athletes` | `AthletesDashboard` | Gestión y listado de atletas |
-| `/coach/dashboard/training` | `TrainingDashboard` | Gestión de entrenamientos |
-| `/coach/dashboard/exercises` | `TrainingDashboard` | Alias de training (misma vista) |
-| `/coach/dashboard/nutrition` | `NutritionDashboard` | Gestión nutricional |
-| `/coach/dashboard/settings` | `SettingsDashboard` | Perfil y configuración |
+| `rol` | `estado` | `tituloEntrenamiento` | `tituloNutricion` | Destino |
+|---|---|---|---|---|
+| `ATLETA` | `ACTIVO` | `null` | `null` | `/dashboard/atleta` |
+| `ENTRENADOR` | `ACTIVO` | `true` | `true` | `/dashboard/entrenador/nutricion` |
+| `ENTRENADOR` | `ACTIVO` | `true` | `false` | `/dashboard/entrenador` |
+| `ENTRENADOR` | `ACTIVO` | `false` | `true` | `/dashboard/entrenador/solo-nutricion` |
+| `ENTRENADOR` | `PENDIENTE_REVISION` | cualquiera | cualquiera | `/pendiente` |
+| cualquiera | `RECHAZADO` | — | — | `/login` (con mensaje de error) |
 
 ---
 
-## 4. Rutas de Autenticación
+## 3. Página `/pendiente` — Estados del Entrenador
+
+Esta página se muestra cuando el entrenador ha registrado su documentación pero aún no ha sido revisada, o cuando ha sido rechazada.
+
+```
+/pendiente
+    │
+    ├── auth.estado() === 'PENDIENTE_REVISION'
+    │       → Indicadores verdes pulsantes
+    │         "SOLICITUD EN REVISIÓN"
+    │         Plazo máximo 48h + email de notificación
+    │
+    └── auth.estado() === 'RECHAZADO'
+            → Indicadores rojos
+              "SOLICITUD RECHAZADA"
+              Motivo de rechazo (cuando backend devuelva rejection_reason en /me)
+              CTA → soporte@grit.app
+```
+
+> La aprobación/rechazo la gestiona el backend exclusivamente (endpoints protegidos por rol `ADMIN`). Ver `BACKEND.md` sección 3.8.
+
+---
+
+## 4. Rutas Definidas
 
 | Ruta | Componente | Descripción |
-|------|-----------|-------------|
-| `/` | `Landing` | Página de inicio / marketing |
-| `/auth/register` | `Register` | Selector de tipo de cuenta |
-| `/auth/register/atleta` | `RegisterAtleta` | Formulario registro atleta |
-| `/auth/register/coach` | `RegisterCoach` | Formulario registro coach |
-| `/auth/login` | `Login` | Inicio de sesión |
-| `/auth/success-atleta` | `SuccessAtleta` | Confirmación registro atleta |
-| `/auth/success-coach` | `SuccessCoach` | Confirmación registro coach |
-
-> Cualquier ruta no definida (`*`) redirige automáticamente a `/`.
-
----
-
-## 5. Gestión del Token de Sesión
-
-El token se guarda en una cookie mediante `tokenService.js` (`frontend/src/services/tokenService.js`).
-
-| Función | Descripción |
-|---------|-------------|
-| `setToken(token)` | Guarda el token en cookie con 7 días de expiración y `SameSite=Strict` |
-| `getToken()` | Lee el token de las cookies |
-| `removeToken()` | Elimina la cookie (logout) |
-| `isAuthenticated()` | Devuelve `true` si existe un token válido |
-
-### Comportamiento Post-Login
-
-Tras un login o registro exitoso, el backend debe devolver el **token y el rol** del usuario:
-
-```
-POST /api/auth/login
-  └─► 200 OK { accessToken: "...", user: { id, nombre, email, role: "coach" | "athlete" } }
-        │
-        ├─ role === "coach"   → redirect /coach/dashboard
-        └─ role === "athlete" → redirect /athlete/dashboard
-
-POST /api/auth/register/coach
-POST /api/auth/register/athlete
-  └─► 200 OK { accessToken: "...", user: { ... } }
-        └─► redirect /auth/success-coach | /auth/success-atleta
-```
-
-### Cookie — Especificaciones
-
-| Atributo | Valor | Motivo |
-|----------|-------|--------|
-| Nombre | `ironmetric_token` | Identificador único de la app |
-| Expiración | 7 días | Balance entre UX y seguridad |
-| `SameSite` | `Strict` | Protección CSRF |
-| `Secure` | Activar en producción | Solo HTTPS |
-| `HttpOnly` | Pendiente — solo servidor | Protección XSS total |
-
-> **Nota para el backend:** cuando el servidor gestione la sesión con cookies `HttpOnly`, el frontend dejará de almacenar el token con `setToken()` y pasará a depender exclusivamente de la cookie que el servidor envíe en la respuesta.
+|---|---|---|
+| `/` | `LandingPage` | Página de inicio / marketing |
+| `/login` | `LoginPage` | Inicio de sesión (ambos roles) |
+| `/pendiente` | `PendientePage` | Espera de revisión o rechazo |
+| `/empezar` | `OnboardingPage` | Selector de rol |
+| `/empezar/entrenador` | `EntrenadorPage` | Registro de entrenador + subida de documentos |
+| `/empezar/atleta` | `AtletaPage` | Registro de atleta |
+| `/dashboard/atleta` | `DashboardAtletaPage` | Dashboard atleta (tabs por servicio) |
+| `/dashboard/entrenador` | `DashboardEntrenadorPage` | Dashboard entrenador (solo entrenamiento) |
+| `/dashboard/entrenador/nutricion` | `DashboardEntrenadorNutricionPage` | Dashboard entrenador (entrenamiento + nutrición) |
+| `/dashboard/entrenador/solo-nutricion` | `DashboardEntrenadorSoloNutricionPage` | Dashboard entrenador (solo nutrición) |
+| `**` | — | Redirige a `/` |
 
 ---
 
-## 6. Protección de Rutas (pendiente de implementar)
+## 5. Gestión de Sesión — AuthService
 
-Actualmente **no existen rutas protegidas**. El backend debe exponer `GET /api/auth/me` que el frontend consultará para:
+La sesión se mantiene en **signals de Angular** (única fuente de verdad en el frontend):
 
-1. Verificar si el token en cookie es válido al cargar la app.
-2. Obtener el rol y datos del usuario para renderizar el dashboard correcto.
-3. Redirigir a `/auth/login` si el token ha expirado o no existe.
+| Signal | Tipo | Descripción |
+|---|---|---|
+| `rol` | `'ATLETA' \| 'ENTRENADOR' \| null` | Rol del usuario autenticado |
+| `estado` | `'ACTIVO' \| 'PENDIENTE_REVISION' \| 'RECHAZADO' \| null` | Estado de la cuenta |
+| `tituloEntrenamiento` | `boolean \| null` | Tiene titulación de entrenamiento acreditada |
+| `tituloNutricion` | `boolean \| null` | Tiene titulación de nutrición acreditada |
+| `servicio` | `'ENTRENAMIENTO' \| 'NUTRICION' \| 'AMBOS' \| null` | Solo para atletas |
+| `nombre` | `string \| null` | Nombre para mostrar en UI |
 
-```
-GET /api/auth/me
-  Authorization: Bearer <token desde cookie>
-  │
-  ├─► 401 Unauthorized → frontend borra cookie → redirige a /auth/login
-  └─► 200 OK { id, nombre, email, role } → renderiza dashboard correspondiente
-```
+La sesión se restaura tras F5 llamando a `GET /api/v1/auth/me` (pendiente de conectar con backend).
 
 ---
 
-## 7. Flujo Completo con Autenticación Real
+## 6. Flujo Completo con Sesión Real
 
 ```
 App arranca
     │
     ▼
-¿Hay token en cookie (ironmetric_token)?
+AuthService.me() → GET /api/v1/auth/me
     │
-    ├── NO ──► / (Landing) o /auth/login
+    ├── 401 → signals vacíos → usuario ve /  o /login
     │
-    └── SÍ ──► GET /api/auth/me
+    └── 200 → setSession(rol, estado, títulos...)
                     │
-                    ├── 401 ──► removeToken() → /auth/login
-                    │
-                    └── 200 ──► role === "coach"   → /coach/dashboard
-                                role === "athlete" → /athlete/dashboard
+                    └── redirigir() → dashboard correspondiente
 ```
+
+---
+
+## 7. Cookies de Sesión
+
+| Cookie | Expiración | Scope |
+|---|---|---|
+| `access_token` | 15 min | Todas las rutas `/api/v1/**` |
+| `refresh_token` | 7 días | Solo `POST /api/v1/auth/refresh` |
+
+Ambas son `HttpOnly; Secure; SameSite=Strict` — inaccesibles desde JavaScript (previene XSS).
