@@ -3,9 +3,13 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Resuelve el host en cada petición, no al arrancar
+    resolver 8.8.8.8 valid=30s;
+
     # Proxy API calls al backend
     location /api {
-        proxy_pass ${BACKEND_URL};
+        set $backend "${BACKEND_URL}";
+        proxy_pass $backend;
         proxy_http_version 1.1;
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
