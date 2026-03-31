@@ -2,41 +2,90 @@
 
   <div class="max-w-md w-full">
 
-    <!-- Indicador animado -->
-    <div class="flex items-center justify-center gap-2 mb-10">
-      <span class="w-2 h-2 bg-[#2ED38D] rounded-full animate-pulse"></span>
-      <span class="w-2 h-2 bg-[#2ED38D] rounded-full animate-pulse [animation-delay:0.2s]"></span>
-      <span class="w-2 h-2 bg-[#2ED38D] rounded-full animate-pulse [animation-delay:0.4s]"></span>
-    </div>
+    @if (auth.estado() === 'RECHAZADO') {
 
-    <div class="flex items-center justify-center gap-3 mb-6">
-      <div class="w-5 h-px bg-[#2ED38D]"></div>
-      <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">ESTADO / EN REVISIÓN</span>
-      <div class="w-5 h-px bg-[#2ED38D]"></div>
-    </div>
+      <!-- ── Estado: RECHAZADO ──────────────────────────────────────── -->
+      <div class="flex items-center justify-center gap-2 mb-10">
+        <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+        <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+        <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+      </div>
 
-    <h1 class="text-5xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-6">
-      SOLICITUD<br>EN REVISIÓN
-    </h1>
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <div class="w-5 h-px bg-red-500"></div>
+        <span class="text-xs font-bold tracking-[0.3em] uppercase text-red-500">ESTADO / RECHAZADO</span>
+        <div class="w-5 h-px bg-red-500"></div>
+      </div>
 
-    <p class="text-sm font-light leading-relaxed text-gray-400 mb-4">
-      Hemos recibido tu documentación y estamos verificando tus credenciales. Este proceso puede tardar hasta <strong class="font-bold text-black">48 horas</strong>.
-    </p>
+      <h1 class="text-5xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-6">
+        SOLICITUD<br>RECHAZADA
+      </h1>
 
-    <p class="text-sm font-light leading-relaxed text-gray-400 mb-12">
-      Te notificaremos por correo electrónico en cuanto tu cuenta esté activa.
-    </p>
+      <p class="text-sm font-light leading-relaxed text-gray-400 mb-4">
+        Tu documentación no ha superado el proceso de verificación.
+      </p>
 
-    <!-- Separador -->
-    <div class="border-t border-[#E5E7EB] pt-8">
-      <p class="text-xs font-bold tracking-[0.2em] uppercase text-gray-300 mb-4">¿TIENES ALGUNA DUDA?</p>
-      <a
-        href="mailto:soporte@grit.app"
-        class="text-xs font-bold tracking-[0.2em] uppercase text-black underline hover:text-[#2ED38D] transition-colors duration-200"
-      >
-        CONTACTAR CON SOPORTE
-      </a>
-    </div>
+      <!-- TODO: mostrar rejection_reason cuando el backend lo devuelva en /me -->
+      <!-- @if (rejectionReason) {
+        <div class="border border-red-200 p-4 mb-6 text-left">
+          <p class="text-xs font-bold tracking-[0.2em] uppercase text-red-400 mb-1">MOTIVO</p>
+          <p class="text-sm font-light text-gray-600">{{ rejectionReason }}</p>
+        </div>
+      } -->
+
+      <p class="text-sm font-light leading-relaxed text-gray-400 mb-12">
+        Si crees que es un error o quieres aportar nueva documentación, contacta con el equipo de soporte.
+      </p>
+
+      <div class="border-t border-[#E5E7EB] pt-8">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gray-300 mb-4">¿TIENES ALGUNA DUDA?</p>
+        <a
+          href="mailto:soporte@grit.app"
+          class="text-xs font-bold tracking-[0.2em] uppercase text-black underline hover:text-red-500 transition-colors duration-200"
+        >
+          CONTACTAR CON SOPORTE
+        </a>
+      </div>
+
+    } @else {
+
+      <!-- ── Estado: PENDIENTE_REVISION ────────────────────────────── -->
+      <div class="flex items-center justify-center gap-2 mb-10">
+        <span class="w-2 h-2 bg-[#2ED38D] rounded-full animate-pulse"></span>
+        <span class="w-2 h-2 bg-[#2ED38D] rounded-full animate-pulse [animation-delay:0.2s]"></span>
+        <span class="w-2 h-2 bg-[#2ED38D] rounded-full animate-pulse [animation-delay:0.4s]"></span>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <div class="w-5 h-px bg-[#2ED38D]"></div>
+        <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">ESTADO / EN REVISIÓN</span>
+        <div class="w-5 h-px bg-[#2ED38D]"></div>
+      </div>
+
+      <h1 class="text-5xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-6">
+        SOLICITUD<br>EN REVISIÓN
+      </h1>
+
+      <p class="text-sm font-light leading-relaxed text-gray-400 mb-4">
+        Hemos recibido tu documentación y estamos verificando tus credenciales. Este proceso puede tardar hasta <strong class="font-bold text-black">48 horas</strong>.
+      </p>
+
+      <p class="text-sm font-light leading-relaxed text-gray-400 mb-12">
+        Te notificaremos por correo electrónico en cuanto tu cuenta esté activa.
+        <!-- TODO: el email lo envía el backend al aprobar/rechazar desde AdminService -->
+      </p>
+
+      <div class="border-t border-[#E5E7EB] pt-8">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gray-300 mb-4">¿TIENES ALGUNA DUDA?</p>
+        <a
+          href="mailto:soporte@grit.app"
+          class="text-xs font-bold tracking-[0.2em] uppercase text-black underline hover:text-[#2ED38D] transition-colors duration-200"
+        >
+          CONTACTAR CON SOPORTE
+        </a>
+      </div>
+
+    }
 
     <div class="mt-12">
       <a

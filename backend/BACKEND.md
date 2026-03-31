@@ -431,9 +431,91 @@ Todos los endpoints bajo `/api/v1/entrenamiento/**` deben validar en servidor qu
 
 ---
 
-### 3.8 Healthcheck
+### 3.8 Endpoints de Administración — Revisión de Credenciales
+
+> **Seguridad:** Todos estos endpoints requieren cookie `access_token` válida con `rol === 'ADMIN'`.
+> El panel de administración **no existe en el frontend** — la gestión se hace íntegramente desde el backend (interfaz propia, herramienta interna o cliente de API). Esto es una decisión de seguridad deliberada: la lógica de validación no se expone en el navegador del cliente.
+
+---
+
+**`GET /api/v1/admin/entrenadores?status=pending`**
+
+Devuelve la lista de entrenadores cuya documentación está pendiente de revisión.
+
+```json
+// Response 200
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid",
+      "nombre": "Carlos Martínez",
+      "correo": "carlos@example.com",
+      "titulacionEntrenamiento": "GRADO_CAFYD",
+      "titulacionNutricion": null,
+      "codigoProfesional": "12345",
+      "uploaded_at": "2026-03-29T10:30:00Z",
+      "documentos": [
+        {
+          "id": "uuid-doc",
+          "nombre_archivo": "Grado_CAFYD.pdf",
+          "url_firmada": "https://s3.../...",
+          "uploaded_at": "2026-03-29T10:30:00Z"
+        }
+      ]
+    }
+  ]
+}
+```
+
+> `url_firmada` es una pre-signed URL de S3 con expiración corta (ej. 15 min). El admin la usa para abrir el PDF directamente. Nunca se devuelve la `url_s3` privada.
+
+---
+
+**`POST /api/v1/admin/entrenadores/:id/aprobar`**
+
+Aprueba la documentación de un entrenador.
+
+**Acciones que debe realizar el backend:**
+1. Cambiar `usuarios.estado` → `ACTIVO`
+2. Cambiar `documentos_entrenador.status` → `verified` y setear `reviewed_at`
+3. Enviar email de aprobación al entrenador (ver sección 7)
+
+```json
+// Response 200
+{ "ok": true, "message": "Entrenador aprobado correctamente." }
+```
+
+---
+
+**`POST /api/v1/admin/entrenadores/:id/rechazar`**
+
+Rechaza la documentación de un entrenador con un motivo.
+
+**Body:**
+```json
+{ "motivo": "El PDF es ilegible. Por favor, sube una versión de mayor calidad." }
+```
+
+**Acciones que debe realizar el backend:**
+1. Cambiar `usuarios.estado` → `RECHAZADO`
+2. Cambiar `documentos_entrenador.status` → `rejected` y setear `reviewed_at`
+3. Guardar el motivo en `documentos_entrenador.rejection_reason`
+4. Enviar email de rechazo al entrenador incluyendo el motivo (ver sección 7)
+
+```json
+// Response 200
+{ "ok": true, "message": "Solicitud rechazada. El entrenador ha sido notificado." }
+```
+
+> El frontend de entrenador en `/pendiente` mostrará el estado `RECHAZADO` cuando el entrenador haga login. El `rejection_reason` se puede devolver en `GET /api/v1/auth/me` para mostrárselo al entrenador si se desea.
+
+---
+
+### 3.9 Healthcheck
 
 **`GET /api/v1/health`**
+
 
 
 ```json
@@ -479,10 +561,13 @@ Todos los endpoints bajo `/api/v1/entrenamiento/**` deben validar en servidor qu
 | `id` | UUID PK | |
 | `entrenador_id` | UUID FK → entrenadores | |
 | `nombre_archivo` | VARCHAR(255) | Nombre original del archivo |
-| `url_s3` | TEXT | URL privada del archivo en S3 |
+| `url_s3` | TEXT | URL privada del archivo en S3 (nunca pública) |
 | `tipo_mime` | VARCHAR(50) | `application/pdf`, `image/jpeg`, `image/png` |
 | `tamanyo_bytes` | INTEGER | |
-| `uploaded_at` | TIMESTAMP | |
+| `status` | ENUM | `pending`, `verified`, `rejected` — estado de revisión del documento |
+| `rejection_reason` | TEXT NULLABLE | Motivo de rechazo redactado por el admin. `null` si no ha sido rechazado |
+| `uploaded_at` | TIMESTAMP | Fecha de subida del documento (auditoría) |
+| `reviewed_at` | TIMESTAMP NULLABLE | Fecha en que el admin tomó la decisión |
 
 ### Tabla `atletas`
 
@@ -578,7 +663,11 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
    - Guardar `titulo_entrenamiento` y `titulo_nutricion` correctamente en BBDD
    - Rechazar con 400 si ambas titulaciones son `null`
    - El login debe devolver `tituloEntrenamiento` y `tituloNutricion` para que el frontend redirija al dashboard correcto (4 casos posibles — ver sección 1)
-7. **Middleware de protección por titulación**
+7. **Endpoints de administración** (sección 3.8) — aprobar/rechazar entrenadores
+   - Proteger con rol `ADMIN` en el JWT
+   - Generar pre-signed URLs de S3 para visualizar los PDFs
+   - Actualizar `documentos_entrenador.status`, `rejection_reason` y `reviewed_at`
+8. **Middleware de protección por titulación**
    - Rutas de nutrición: requieren `titulo_nutricion === true`
    - Rutas de entrenamiento: requieren `titulo_entrenamiento === true`
 8. **Sistema de emails**
@@ -589,7 +678,7 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 
 ## 10. Preguntas Abiertas para el Equipo
 
-- [ ] ¿Quién gestiona la **revisión manual** de los entrenadores? ¿Panel de admin o proceso manual?
+- [x] ¿Quién gestiona la **revisión manual** de los entrenadores? → **Backend exclusivamente** (endpoints `/api/v1/admin/**` protegidos por rol `ADMIN`). No hay panel de admin en el frontend por razones de seguridad.
 - [ ] ¿El entrenador debe crear su **contraseña** durante el registro o se le envía por email tras la aprobación?
 - [ ] ¿Necesitamos **OAuth** (Google, Apple) en la primera versión?
 - [ ] ¿Cuál es el **dominio de producción** definitivo?
@@ -598,4 +687,4 @@ SENDGRID_API_KEY=...  # o SMTP_HOST, SMTP_PORT, etc.
 
 ---
 
-*Última actualización: 31 de marzo de 2026*
+*Última actualización: 31 de marzo de 2026 — añadida sección 3.8 (endpoints admin), campos de auditoría en `documentos_entrenador` y decisión de arquitectura: gestión de credenciales solo en backend*
