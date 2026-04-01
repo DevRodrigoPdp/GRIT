@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # ETAPA 2: Ejecución (Solo JRE ligero)
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 # Copiamos solo el ejecutable generado en la etapa anterior
 COPY --from=build /app/target/*.jar app.jar
