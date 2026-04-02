@@ -1,12 +1,23 @@
 spring:
   profiles:
-    active: dev # Perfil por defecto si no se indica otro
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   application:
-    name: backend
+    name: grit-backend
   jpa:
     open-in-view: false # Buena práctica: evitar consultas extra en la vista
+
+  # Configuración para que los DTO (Records) se serialicen bien
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always # Útil para que el frontend sepa qué falló
 
 application:
   security:
     jwt:
+      # 24 horas en milisegundos
       expiration: 86400000

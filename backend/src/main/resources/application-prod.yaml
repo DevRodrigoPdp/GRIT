@@ -1,32 +1,42 @@
+server:
+  port: ${PORT:8080}
+  error:
+    include-stacktrace: never
+
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    # Railway suele proveer estas variables por defecto al vincular servicios
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20  # Más capacidad para muchos usuarios
-      connection-timeout: 5000 # Solo 5 segundos (en prod la red debe ser rápida)
+      maximum-pool-size: 10 # En Railway Free/Hobby, 20 puede ser mucho
+      connection-timeout: 20000 # Aumentamos a 20s para el arranque inicial en la nube
+      idle-timeout: 30000
+      max-lifetime: 2000000
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
-    show-sql: false # Jamás mostrar SQL en logs de producción (seguridad y rendimiento)
+      ddl-auto: validate # Correcto: la base de datos debe ser inmutable en PROD
+    show-sql: false
 
   flyway:
     enabled: true
-    # En producción, Flyway puede usar un usuario con más permisos que la App
-    user: ${FLYWAY_USER}
-    password: ${FLYWAY_PASSWORD}
+    # Simplificación: usar las mismas credenciales que la app para evitar bloqueos
+    url: ${SPRING_DATASOURCE_URL}
+    user: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
 logging:
   level:
     root: INFO
-    com.sistema.gritfitprueba: INFO # No queremos llenar el disco con DEBUG en producción
-    org.hibernate.SQL: ERROR # Solo logueamos errores de SQL
+    org.hibernate.SQL: ERROR
+    # Solo errores en seguridad para no exponer datos sensibles [cite: 25]
+    org.springframework.security: WARN
 
 application:
   security:
     jwt:
-      # En PROD no hay valor por defecto. Si no existe la variable, la app NO arranca (Seguridad).
       secret-key: ${JWT_SECRET_KEY}
