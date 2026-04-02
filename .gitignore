@@ -1,29 +1,71 @@
-# ─── Angular / Node ───────────────────────────────────────────────
-frontend/node_modules/
-frontend/.angular/
-frontend/dist/
-
-# ─── Backend ──────────────────────────────────────────────────────
-backend/node_modules/
-backend/__pycache__/
-backend/*.pyc
-backend/.env
-backend/venv/
-backend/.venv/
-
-# ─── BBDD ─────────────────────────────────────────────────────────
-bbdd/*.sql.bak
-bbdd/*.dump
-
-# ─── Sistema ──────────────────────────────────────────────────────
+# =================================================================
+# GLOBAL / SISTEMA OPERATIVO
+# =================================================================
 .DS_Store
 Thumbs.db
 *.log
+*.tmp
+*.bak
 
-# ─── Variables de entorno (nunca subir) ───────────────────────────
+# =================================================================
+# IDEs (Entornos de Desarrollo)
+# =================================================================
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# VS Code
+.vscode/
+.history/
+
+# Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# =================================================================
+# INFRAESTRUCTURA Y SEGURIDAD (CRÍTICO)
+# =================================================================
+# Nunca subir credenciales ni datos persistentes de contenedores
 .env
 .env.local
 .env.*.local
+docker/postgres-data/
+bbdd/*.sql.bak
+bbdd/*.dump
 
-# ─── Carpeta legacy ───────────────────────────────────────────────
+# =================================================================
+# BACKEND (Spring Boot / Maven)
+# =================================================================
+# Binarios y carpetas de compilación
+**/target/
+**/build/
+*.jar
+*.war
+*.ear
+
+# Maven Wrapper
+# IMPORTANTE: NO ignorar el .jar para que Docker/CI-CD funcionen
+# .mvn/wrapper/maven-wrapper.jar  <-- COMENTADO para permitir el build
+
+# =================================================================
+# FRONTEND (React / Angular / Node)
+# =================================================================
+**/node_modules/
+**/dist/
+.npm/
+.eslintcache
+.angular/
+
+# =================================================================
+# DOCUMENTACIÓN Y OTROS
+# =================================================================
+HELP.md
 grit-landing/
