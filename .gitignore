@@ -63,6 +63,7 @@ bbdd/*.dump
 .npm/
 .eslintcache
 .angular/
+.claude/
 
 # =================================================================
 # DOCUMENTACIÓN Y OTROS
