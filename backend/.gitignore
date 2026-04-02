@@ -14,10 +14,11 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
+out/
 
 # --- INFRAESTRUCTURA (DOCKER) ---
 # Muy importante: Ignorar la carpeta de datos de Postgres que definimos antes

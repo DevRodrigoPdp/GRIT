@@ -1,22 +1,29 @@
-# ETAPA 1: Construcción (Maven + JDK 17)
-FROM maven:3.8.4-openjdk-17-slim AS build
+# ETAPA 1: Construcción (Usamos JDK 17)
+FROM eclipse-temurin:17-jdk-jammy AS build
 WORKDIR /app
-# Copiamos el pom y descargamos dependencias para aprovechar el caché de Docker
-COPY pom.xml .
-RUN mvn dependency:go-offline
 
-# Copiamos el código y generamos el JAR
+# 1. Copiamos solo lo necesario para descargar dependencias
+# Esto permite que Docker cachee las librerías si el pom.xml no cambia
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
+
+# Descargamos las dependencias (Este paso tarda la primera vez, luego es instantáneo)
+RUN ./mvnw dependency:go-offline
+
+# 2. Copiamos el código fuente y compilamos
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
-# ETAPA 2: Ejecución (Solo JRE ligero)
+# ETAPA 2: Ejecución (JRE ligero para producción)
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-# Copiamos solo el ejecutable generado en la etapa anterior
+
+# Copiamos el JAR generado en la etapa anterior
 COPY --from=build /app/target/*.jar app.jar
 
-# Variable de puerto dinámica para Railway
+# Variable dinámica (útil para Railway/Heroku o Docker Compose)
+ENV PORT=8080
 EXPOSE ${PORT}
 
-# Comando de ejecución profesional
 ENTRYPOINT ["java", "-jar", "app.jar"]
