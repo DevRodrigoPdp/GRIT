@@ -124,7 +124,7 @@ public class AuthController {
     private ResponseCookie construirCookie(String nombre, String valor, long maxAge, String path) {
         return ResponseCookie.from(nombre, valor)
                 .httpOnly(true)
-                .secure(true) // Importante: Solo viaja por HTTPS
+                .secure(false) // Importante: Solo viaja por HTTPS para desarrollo dejarlo en false
                 .sameSite("Strict")
                 .path(path)
                 .maxAge(maxAge)

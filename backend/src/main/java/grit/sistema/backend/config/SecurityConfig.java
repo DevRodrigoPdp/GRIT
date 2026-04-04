@@ -38,10 +38,11 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/entrenamientos/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/entrenamientos/**").hasAnyRole("ATLETA", "ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -68,7 +69,13 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
         // Cabeceras permitidas (JWT)
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));
+        config.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Cache-Control",
+                "X-Requested-With",
+                "Accept"
+        ));
 
         // Permitir que el cliente acceda a ciertas cabeceras si fuera necesario
         config.setExposedHeaders(List.of("Authorization"));

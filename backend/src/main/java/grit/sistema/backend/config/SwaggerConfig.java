@@ -10,23 +10,23 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-    //http://localhost:8080/swagger-ui/index.html
+    //
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
+        // Nombre del esquema para identificarlo en la UI
+        final String securitySchemeName = "cookieAuth";
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("GRIT")
-                        .version("1.0")
+                        .title("GRIT API")
+                        .version("2.0")
                         .description("Documentación de la API para el sistema de gestión de entrenamientos GRIT"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
-                                        .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")));
+                                        .name("access_token") // DEBE coincidir con el nombre en tu JwtAuthenticationFilter
+                                        .type(SecurityScheme.Type.APIKEY)
+                                        .in(SecurityScheme.In.COOKIE)));
     }
 }

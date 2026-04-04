@@ -64,6 +64,11 @@ public class UsuarioMapper {
         usuario.setNombre(usuarioDTO.nombre());
         usuario.setEmail(usuarioDTO.email());
 
+        // Falta el ROL si quieres crearlo desde el DTO
+        if (usuarioDTO.rol() != null) {
+            usuario.setRol(Rol.valueOf(usuarioDTO.rol()));
+        }
+
         return usuario;
     }
 }
