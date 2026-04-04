@@ -41,6 +41,11 @@ backend/docker/postgres-data/
 bbdd/*.sql.bak
 bbdd/*.dump
 
+# Docker adicionales
+.docker/
+*.pem
+*.key
+
 # =================================================================
 # BACKEND (Spring Boot / Maven)
 # =================================================================

@@ -1,2 +1,9 @@
+# Configuración global: detectar texto automáticamente y usar LF al subir
 * text=auto eol=lf
+
+# Archivos específicos de Windows (scripts .bat o .cmd) deben mantener CRLF
 *.bat text eol=crlf
+*.cmd text eol=crlf
+
+# El wrapper de Maven DEBE ser LF para que funcione en Docker/Linux
+**/mvnw text eol=lf
