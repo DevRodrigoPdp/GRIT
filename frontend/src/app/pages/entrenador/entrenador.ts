@@ -2,6 +2,7 @@ import { Component, signal, computed, inject, ElementRef, HostListener } from '@
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 export type TipoTitulacionEntrenamiento =
   | 'GRADO_CAFYD'
@@ -13,6 +14,7 @@ export type TipoTitulacionNutricion =
   | 'TSD';
 
 interface ArchivoSubido {
+  file: File;
   nombre: string;
   size: string;
   tipo: string;
@@ -33,6 +35,7 @@ interface InfoCampoNumero {
 })
 export class EntrenadorPage {
   private el = inject(ElementRef);
+  private auth = inject(AuthService);
   readonly form: FormGroup;
   readonly mostrarScrollTop = signal(false);
 
@@ -186,7 +189,7 @@ export class EntrenadorPage {
       if (file.size > 10 * 1024 * 1024) return;
       const kb     = file.size / 1024;
       const tamaño = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
-      this.archivos.update(list => [...list, { nombre: file.name, size: tamaño, tipo: file.type }]);
+      this.archivos.update(list => [...list, { file, nombre: file.name, size: tamaño, tipo: file.type }]);
     });
   }
 
@@ -211,8 +214,16 @@ export class EntrenadorPage {
       }, 50);
       return;
     }
-    // TODO: enviar al backend
-    console.log({ ...this.form.value, archivos: this.archivos() });
+
+    const v = this.form.value;
+    // this.auth.registroEntrenador({
+    //   nombre: v.nombre,
+    //   correo: v.correo,
+    //   codigoProfesional: v.codigoColegiado || null,
+    //   titulacionEntrenamiento: v.titulacionEntrenamiento,
+    //   titulacionNutricion: v.titulacionNutricion,
+    //   documentos: this.archivos().map(a => a.file),
+    // });
   }
 
   fieldError(campo: string): boolean {

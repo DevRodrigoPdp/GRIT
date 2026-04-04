@@ -14,28 +14,22 @@ export type ServicioAtleta = 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
 
 export interface RegistroAtletaPayload {
   nombre:   string;
-  correo:   string;
+  email:    string;
   password: string;
   fechaNac: string;
-  genero:   'HOMBRE' | 'MUJER' | 'OTRO';
-  peso:     number;
-  altura:   number;
+  genero:   string;
+  pesoKg:   number;
+  alturaCm: number;
   deporte:  string;
-  nivel:    'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE';
-  servicio: ServicioAtleta;
-  objetivo: 'RENDIMIENTO' | 'MASA_MUSCULAR' | 'PERDER_PESO' | 'SALUD' | 'RESISTENCIA' | null;
+  nivel:    string;
+  servicio: string;
+  objetivo: string | null;
 }
 
 export interface RegistroEntrenadorPayload {
-  nombre:                  string;
-  correo:                  string;
-  password:                string;
-  fechaNac:                string;
-  genero:                  'HOMBRE' | 'MUJER' | 'OTRO';
-  titulacionEntrenamiento: 'GRADO_CAFYD' | 'TSAF_TSEAS' | 'CERT_AFDA0210' | null;
-  titulacionNutricion:     'GRADO_NUTRICION_DIETETICA' | 'TSD' | null;
-  experienciaAnos:         number;
-  descripcion:             string;
+  username:   string;
+  email:    string;
+  password: string;
 }
 
 // ── Respuestas del backend ───────────────────────────────────────────────────
@@ -53,16 +47,13 @@ export interface LoginResponse {
 }
 
 export interface RegistroResponse {
-  ok: boolean;
-  data: {
-    id:                  string;
-    nombre:              string;
-    rol:                 Rol;
-    estado:              EstadoCuenta;
-    servicio:            ServicioAtleta | null;
-    tituloEntrenamiento: boolean | null;
-    tituloNutricion:     boolean | null;
-  };
+  id:                  string;
+  nombre:              string;
+  rol:                 Rol;
+  estado:              EstadoCuenta;
+  servicio:            ServicioAtleta | null;
+  tituloEntrenamiento: boolean | null;
+  tituloNutricion:     boolean | null;
 }
 
 export interface MeResponse {
@@ -87,7 +78,7 @@ export class AuthService {
   private http   = inject(HttpClient);
   private router = inject(Router);
 
-  private readonly API = '/api/v1/auth';
+  private readonly API = 'http://localhost:8080/api/v1/auth';
 
   // Signals de sesión (única fuente de verdad en el frontend)
   readonly rol                 = signal<Rol | null>(null);
@@ -106,25 +97,17 @@ export class AuthService {
    * Normaliza los valores del formulario (lowercase → UPPERCASE) antes de enviar.
    * TODO: descomentar llamada real y eliminar bloque mock cuando haya backend.
    */
-  registroAtleta(payload: RegistroAtletaPayload): void {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // this.loading.set(true);
-    // this.http
-    //   .post<RegistroResponse>(`${this.API}/registro/atleta`, payload, { withCredentials: true })
-    //   .pipe(
-    //     tap({
-    //       next: (res) => {
-    //         this.loading.set(false);
-    //         this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
-    //         this.redirigir(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
-    //       },
-    //       error: () => this.loading.set(false),
-    //     })
-    //   )
-    //   .subscribe();
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    this.setSession('ATLETA', 'ACTIVO', null, null, payload.servicio, payload.nombre);
-    this.router.navigate(['/dashboard/atleta']);
+  registroAtleta(payload: RegistroAtletaPayload): Observable<RegistroResponse> {
+    return this.http
+      .post<RegistroResponse>(`${this.API}/registro/atleta`, payload, { withCredentials: true })
+      .pipe(
+        tap({
+          next: (res) => {
+            this.setSession(res.rol, res.estado, res.tituloEntrenamiento, res.tituloNutricion, res.servicio, res.nombre);
+            this.redirigir(res.rol, res.estado, res.tituloEntrenamiento, res.tituloNutricion);
+          },
+        })
+      );
   }
 
   // ── Registro entrenador ──────────────────────────────────────────────────
@@ -138,28 +121,38 @@ export class AuthService {
    *   - Ambas              → /dashboard/entrenador/nutricion
    * TODO: descomentar llamada real y eliminar bloque mock cuando haya backend.
    */
-  registroEntrenador(payload: RegistroEntrenadorPayload): void {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // this.loading.set(true);
-    // this.http
-    //   .post<RegistroResponse>(`${this.API}/registro/entrenador`, payload, { withCredentials: true })
-    //   .pipe(
-    //     tap({
-    //       next: (res) => {
-    //         this.loading.set(false);
-    //         this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
-    //         this.redirigir(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
-    //       },
-    //       error: () => this.loading.set(false),
-    //     })
-    //   )
-    //   .subscribe();
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    const tituloEntrenamiento = payload.titulacionEntrenamiento !== null;
-    const tituloNutricion     = payload.titulacionNutricion !== null;
-    this.setSession('ENTRENADOR', 'PENDIENTE_REVISION', tituloEntrenamiento, tituloNutricion, null, payload.nombre);
-    this.router.navigate(['/pendiente']);
-  }
+  // registroEntrenador(payload: RegistroEntrenadorPayload): void {
+  //   this.loading.set(true);
+  //   const formData = new FormData();
+  //   formData.append('nombre', payload.nombre);
+  //   formData.append('correo', payload.correo);
+  //   if (payload.codigoProfesional) {
+  //     formData.append('codigoProfesional', payload.codigoProfesional);
+  //   }
+  //   if (payload.titulacionEntrenamiento) {
+  //     formData.append('titulacionEntrenamiento', payload.titulacionEntrenamiento);
+  //   }
+  //   if (payload.titulacionNutricion) {
+  //     formData.append('titulacionNutricion', payload.titulacionNutricion);
+  //   }
+  //   payload.documentos.forEach((file, index) => {
+  //     formData.append('documentos', file);
+  //   });
+
+  //   this.http
+  //     .post<RegistroResponse>(`${this.API}/register`, formData, { withCredentials: true })
+  //     .pipe(
+  //       tap({
+  //         next: (res) => {
+  //           this.loading.set(false);
+  //           this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
+  //           this.redirigir(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
+  //         },
+  //         error: () => this.loading.set(false),
+  //       })
+  //     )
+  //     .subscribe();
+  // }
 
   // ── Login ────────────────────────────────────────────────────────────────
 
@@ -168,7 +161,7 @@ export class AuthService {
     this.loginError.set(null);
 
     return this.http
-      .post<LoginResponse>(`${this.API}/login`, { correo, password }, { withCredentials: true })
+      .post<LoginResponse>(`${this.API}/login`, { email: correo, password }, { withCredentials: true })
       .pipe(
         tap({
           next: (res) => {
