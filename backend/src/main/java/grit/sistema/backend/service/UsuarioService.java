@@ -1,9 +1,6 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.AuthResponseDTO;
-import grit.sistema.backend.dto.LoginRequestDTO;
-import grit.sistema.backend.dto.RegistroRequestDTO;
-import grit.sistema.backend.dto.UsuarioDTO;
+import grit.sistema.backend.dto.*;
 import grit.sistema.backend.exception.SesionActivaException;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.UsuarioMapper;
@@ -38,6 +35,18 @@ public class UsuarioService {
         return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
     }
 
+    public LoginData obtenerDatosParaRefresh(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return usuarioMapper.toLoginData(usuario);
+    }
+
+    public UsuarioDTO findByEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuario no encontrado con el email: " + email));
+
+        return usuarioMapper.toDTO(usuario);
+    }
+
     public UsuarioDTO guardar(UsuarioDTO usuarioDTO) {
         log.info("Iniciando creación de usuario para: {}", usuarioDTO.email());
 
@@ -56,25 +65,20 @@ public class UsuarioService {
         return usuarioMapper.toDTO(usuario);
     }
 
-    public AuthResponseDTO login(LoginRequestDTO loginDto) {
-        log.info("Iniciando cuenta para login: {}", loginDto.email());
+    public LoginResponseDTO login(LoginRequestDTO loginDto) {
+        log.info(">>> Intentando autenticar usuario: {}", loginDto.email());
 
-        authenticationManager.authenticate(
+        var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
         );
 
-        log.info("Usuario encontrado, verificando password...");
+        Usuario usuario = (Usuario) auth.getPrincipal();
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginDto.email());
+        LoginData data = usuarioMapper.toLoginData(usuario);
 
-        Usuario usuario = (Usuario) userDetails;
+        log.info("<<< Autenticación exitosa para: {}", usuario.getEmail());
 
-        String miTokenGenerado = jwtService.generarToken(usuario.getEmail(),usuario.getRol().name());
-
-        UsuarioDTO usuarioDTO = usuarioMapper.toDTO(usuario);
-
-        log.info("Token generado con éxito: {}", miTokenGenerado);
-        return new AuthResponseDTO(miTokenGenerado, usuarioDTO);
+        return new LoginResponseDTO(true, data);
     }
 
     public void registrar(RegistroRequestDTO registroDto) {

@@ -8,7 +8,9 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.sql.Types;
 import java.time.LocalDate;
 
 @Entity
@@ -29,9 +31,10 @@ public class Atleta extends Usuario {
 
     @DecimalMin(value = "30.0", message = "El peso debe ser mayor a 30kg")
     @DecimalMax(value = "300.0", message = "El peso no puede exceder los 300kg")
-    @Column(name = "peso_kg")
+    @Column(name = "peso_kg", columnDefinition = "numeric(5,2)")
     private Double pesoKg;
 
+    @JdbcTypeCode(Types.SMALLINT)
     @Min(value = 100, message = "La altura mínima es 100cm")
     @Max(value = 250, message = "La altura máxima es 250cm")
     @Column(name = "altura_cm")
@@ -50,6 +53,7 @@ public class Atleta extends Usuario {
     @Column(length = 20, nullable = false)
     private TipoServicio servicio;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Objetivo objetivo;
 }

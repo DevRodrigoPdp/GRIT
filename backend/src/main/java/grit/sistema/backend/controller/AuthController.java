@@ -13,10 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -46,20 +43,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDto) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDto) {
         log.info(">>> Solicitud de login recibida para el email: {}", loginDto.email());
 
-        AuthResponseDTO response = usuarioService.login(loginDto);
+        LoginResponseDTO response = usuarioService.login(loginDto);
 
         // Para cumplir con el requerimiento de cookies en el login:
         // Suponiendo que 'response' tiene los tokens que generó el usuarioService
-        String accessToken = jwtService.generarAccessToken(loginDto.email(), "DEBE DE IR EL ROL");
         String refreshToken = jwtService.generarRefreshToken(loginDto.email());
+        String accessToken = jwtService.generarAccessToken(loginDto.email(), response.data().rol());
 
         HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
 
         // Log de éxito
-        log.info("<<< Login exitoso para el usuario con UUID: {}", response.usuario().idPublico());
+        log.info("<<< Login exitoso para el usuario con email: {}", loginDto.email());
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
@@ -75,6 +72,41 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponseDTO> refresh(
+            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
+
+        log.info(">>> Solicitud de refresco de token recibida");
+
+        if (refreshToken == null || !jwtService.esTokenValido(refreshToken, jwtService.extraerEmail(refreshToken))) {
+            log.warn("Refresh token ausente o inválido");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // 1. Extraer datos del token actual
+        String email = jwtService.extraerEmail(refreshToken);
+
+        // 2. Obtener los datos del usuario para el nuevo Access Token y el Body
+        // Usamos el servicio para asegurar que el usuario sigue activo y con el mismo rol
+        UsuarioDTO usuarioDto = usuarioService.findByEmail(email);
+        // Nota: Asegúrate de tener findByEmail en tu Service que devuelva los datos necesarios
+
+        // 3. Generar nuevo Access Token
+        String newAccessToken = jwtService.generarAccessToken(email, usuarioDto.rol());
+
+        // 4. Generar las headers (el Refresh Token se mantiene o se puede rotar)
+        // En este caso, reutilizamos el mismo Refresh para no cerrar sesión al usuario
+        HttpHeaders headers = generarCookiesHeaders(newAccessToken, refreshToken);
+
+        // 5. Construir respuesta (Reutilizamos LoginData para que el frontend actualice su estado)
+        // Necesitarás un pequeño ajuste en tu mapper para esto
+        LoginData data = usuarioService.obtenerDatosParaRefresh(email);
+        LoginResponseDTO response = new LoginResponseDTO(true, data);
+
+        log.info("<<< Token refrescado exitosamente para: {}", email);
+        return ResponseEntity.ok().headers(headers).body(response);
     }
 
     // --- MÉTODOS DE APOYO PRIVADOS ---

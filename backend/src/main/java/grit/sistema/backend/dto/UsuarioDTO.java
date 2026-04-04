@@ -15,5 +15,8 @@ public record UsuarioDTO(String idPublico,
 
                          @Email(message = "El formato del email no es válido")
                          @NotBlank(message = "El email es obligatorio")
-                         String email) {
+                         String email,
+
+                         String rol
+) {
 }
