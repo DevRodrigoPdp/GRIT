@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -20,15 +21,28 @@ public class JwtService {
     private String secretKey;
 
     @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
+    private long jwtExpiration; // 900000 (15 min)
 
-    public String generarToken(String email, String rol) {
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshExpiration; // 604800000 (7 días)
+
+    public String generarAccessToken(String email, String rol) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("rol", rol.startsWith("ROLE_") ? rol : "ROLE_" + rol);
+        return construirToken(extraClaims, email, jwtExpiration);
+    }
+
+    public String generarRefreshToken(String email) {
+        // El refresh token suele llevar menos info por seguridad
+        return construirToken(new HashMap<>(), email, refreshExpiration);
+    }
+
+    public String construirToken(Map<String, Object> extraClaims, String subject, long expiration) {
         return Jwts.builder()
-                .setClaims(new HashMap<>())
-                .claim("rol", rol.startsWith("ROLE_") ? rol : "ROLE_" + rol)
-                .setSubject(email)
+                .setClaims(extraClaims)
+                .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -58,6 +72,8 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
+    // --- VALIDACIÓN ---
 
     public boolean esTokenValido(String token, String emailUsuario) {
         final String email = extraerEmail(token);
