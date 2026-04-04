@@ -37,7 +37,7 @@ out/
 .env
 .env.local
 .env.*.local
-docker/postgres-data/
+backend/docker/postgres-data/
 bbdd/*.sql.bak
 bbdd/*.dump
 

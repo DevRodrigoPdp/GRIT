@@ -86,7 +86,7 @@ public class UsuarioService {
         usuario.setNombre(registroDto.username());
         usuario.setEmail(registroDto.email());
         usuario.setPassword(passwordEncoder.encode(registroDto.password()));
-        usuario.setRol(Rol.USER);
+        usuario.setRol(Rol.ATLETA);
         usuarioRepository.save(usuario);
     }
 

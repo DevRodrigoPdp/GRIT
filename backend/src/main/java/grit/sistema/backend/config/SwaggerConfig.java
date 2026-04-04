@@ -17,9 +17,9 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("GritfitPrueba")
+                        .title("GRIT")
                         .version("1.0")
-                        .description("Documentación de la API para el sistema de gestión de entrenamientos Gritfit"))
+                        .description("Documentación de la API para el sistema de gestión de entrenamientos GRIT"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,

@@ -1,42 +1,69 @@
 package grit.sistema.backend.model;
 
+import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.model.enums.Rol;
 import jakarta.persistence.*;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Generated;
 import org.hibernate.generator.EventType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "usuarios")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public class Usuario implements UserDetails{
+@NoArgsConstructor
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "uuid",unique = true, nullable = false)
-    @Generated(event = EventType.INSERT)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, updatable = false)
+    private UUID uuid = UUID.randomUUID();
 
-    @Column(name = "username")
+    @Column(name = "username", nullable = false)
     private String nombre;
+
+    @Column(name = "password_hash", nullable = false)
     private String password;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Rol rol = Rol.USER;
+    private Rol rol = Rol.ATLETA;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoUsuario estado = EstadoUsuario.ACTIVO;
+
+    // --- AUDITORÍA BÁSICA ---
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    // --- HOOKS DE JPA ---
+    @PrePersist
+    protected void onCreate() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+        this.createdAt = LocalDateTime.now();
+        if (this.estado == null) {
+            this.estado = EstadoUsuario.ACTIVO; // Valor por defecto si no viene del registro
+        }
+    }
 
     // --- MÉTODOS DE USERDETAILS ---
 
@@ -47,18 +74,27 @@ public class Usuario implements UserDetails{
 
     @Override
     public String getUsername() {
-        return email;
+        return this.email;
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        // La cuenta solo está habilitada si el estado es ACTIVO
+        return EstadoUsuario.ACTIVO.equals(this.estado);
+    }
 }
