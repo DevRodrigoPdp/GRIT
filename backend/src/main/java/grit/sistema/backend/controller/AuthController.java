@@ -1,6 +1,7 @@
 package grit.sistema.backend.controller;
 
 import grit.sistema.backend.dto.*;
+import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.service.AtletaService;
 import grit.sistema.backend.service.JwtService;
 import grit.sistema.backend.service.UsuarioService;
@@ -34,7 +35,7 @@ public class AuthController {
 
         AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto);
 
-        String accessToken = jwtService.generarAccessToken(dto.email(), "ATLETA");
+        String accessToken = jwtService.generarAccessToken(dto.email(), Rol.ATLETA.name());
         String refreshToken = jwtService.generarRefreshToken(dto.email());
 
         HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
@@ -60,6 +61,20 @@ public class AuthController {
         // Log de éxito
         log.info("<<< Login exitoso para el usuario con UUID: {}", response.usuario().idPublico());
         return ResponseEntity.ok().headers(headers).body(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        log.info(">>> Solicitud de cierre de sesión");
+
+        // Para cerrar sesión, enviamos cookies vacías con tiempo de vida 0
+        ResponseCookie accessCookie = construirCookie("access_token", "", 0, "/");
+        ResponseCookie refreshCookie = construirCookie("refresh_token", "", 0, "/api/v1/auth/refresh");
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .build();
     }
 
     // --- MÉTODOS DE APOYO PRIVADOS ---

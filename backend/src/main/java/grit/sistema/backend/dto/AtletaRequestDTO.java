@@ -1,6 +1,7 @@
 package grit.sistema.backend.dto;
 
 import grit.sistema.backend.model.enums.NivelAtleta;
+import grit.sistema.backend.model.enums.Objetivo;
 import grit.sistema.backend.model.enums.TipoServicio;
 import jakarta.validation.constraints.*;
 
@@ -41,7 +42,7 @@ public record AtletaRequestDTO(
         @NotNull(message = "Debes seleccionar un servicio")
         TipoServicio servicio,
 
-        String objetivo
+        Objetivo objetivo
 ) {
 
 }

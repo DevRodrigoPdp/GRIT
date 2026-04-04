@@ -1,6 +1,7 @@
 package grit.sistema.backend.model;
 
 import grit.sistema.backend.model.enums.NivelAtleta;
+import grit.sistema.backend.model.enums.Objetivo;
 import grit.sistema.backend.model.enums.TipoServicio;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -50,5 +51,5 @@ public class Atleta extends Usuario {
     private TipoServicio servicio;
 
     @Column(length = 20)
-    private String objetivo;
+    private Objetivo objetivo;
 }
