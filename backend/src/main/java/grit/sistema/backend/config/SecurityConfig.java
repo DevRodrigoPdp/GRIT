@@ -3,6 +3,7 @@ package grit.sistema.backend.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +37,10 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/perfil").authenticated() // Cualquier logueado ve SU perfil
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/**").hasRole("ADMIN")    // Solo Admin lista o busca por UUID
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios").hasRole("ADMIN")     // Solo Admin crea usuarios "a dedo"
 
                         .requestMatchers("/api/v1/auth/**").permitAll()
 

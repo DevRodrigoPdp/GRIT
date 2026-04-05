@@ -51,8 +51,8 @@ public class UsuarioMapper {
         return new UsuarioDTO(
                 usuario.getUuid() != null ? usuario.getUuid().toString() : null,
                 usuario.getNombre(),
-                usuario.getEmail(),
                 null, // IMPORTANTE: Enviamos null en el password por seguridad
+                usuario.getEmail(),
                 usuario.getRol() != null ? usuario.getRol().name() : null
         );
     }
