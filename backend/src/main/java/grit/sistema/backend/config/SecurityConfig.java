@@ -38,9 +38,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios/perfil").authenticated() // Cualquier logueado ve SU perfil
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios/**").hasRole("ADMIN")    // Solo Admin lista o busca por UUID
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios").hasRole("ADMIN")     // Solo Admin crea usuarios "a dedo"
+                        .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated() // Cualquier logueado ve SU perfil
+                        .requestMatchers( "/api/v1/usuarios/**").hasRole("ADMIN")
 
                         .requestMatchers("/api/v1/auth/**").permitAll()
 

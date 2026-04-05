@@ -5,6 +5,7 @@ import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.service.AtletaService;
 import grit.sistema.backend.service.JwtService;
 import grit.sistema.backend.service.UsuarioService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Autenticación")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
