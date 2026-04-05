@@ -1,5 +1,7 @@
 package grit.sistema.backend.config;
 
+import grit.sistema.backend.security.JwtAuthenticationEntryPoint;
+import grit.sistema.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
@@ -29,6 +32,9 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(unauthorizedHandler) // Registro del 401
+                )
                 .authorizeHttpRequests(auth-> auth
                         //Documentación Swagger
                         .requestMatchers(
