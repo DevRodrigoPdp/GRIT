@@ -3,6 +3,7 @@ package grit.sistema.backend.exception;
 import grit.sistema.backend.dto.ErrorRespuestaDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     // 1. Errores de Seguridad (401)
@@ -66,6 +68,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorRespuestaDTO> handleGlobalException(Exception ex, HttpServletRequest request) {
         // Loguear el error real para el desarrollador, pero ocultarlo al cliente
+        log.error("Error interno en {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+
         return buildErrorResponse("Ocurrió un error inesperado en el servidor.", HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
