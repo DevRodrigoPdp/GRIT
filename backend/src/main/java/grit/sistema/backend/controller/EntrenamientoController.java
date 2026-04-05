@@ -3,7 +3,6 @@ package grit.sistema.backend.controller;
 import grit.sistema.backend.dto.EntrenamientoRequestDTO;
 import grit.sistema.backend.dto.EntrenamientoResponseDTO;
 import grit.sistema.backend.service.EntrenamientoService;
-import grit.sistema.backend.service.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import java.util.List;
 @Slf4j
 public class EntrenamientoController {
     private final EntrenamientoService entrenamientoService;
-    private final JwtService jwtService;
 
     @Operation(summary = "Crear un entrenamiento",
             description = "Crea un entrenamiento con sus ejercicios asignados.")

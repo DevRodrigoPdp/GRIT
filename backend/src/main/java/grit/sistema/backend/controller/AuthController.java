@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -25,6 +26,13 @@ public class AuthController {
     private final UsuarioService usuarioService;
     private final AtletaService atletaService;
     private final JwtService jwtService;
+
+    // Inyectamos las mismas variables que en JwtService
+    @Value("${application.security.jwt.expiration}")
+    private long jwtExpiration;
+
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshExpiration;
 
     @PostMapping("/registro/atleta")
     public ResponseEntity<AtletaResponseDTO> registrarAtleta(@Valid @RequestBody AtletaRequestDTO dto) {
@@ -112,8 +120,12 @@ public class AuthController {
     // --- MÉTODOS DE APOYO PRIVADOS ---
 
     private HttpHeaders generarCookiesHeaders(String access, String refresh) {
-        ResponseCookie accessCookie = construirCookie("access_token", access, 900, "/");
-        ResponseCookie refreshCookie = construirCookie("refresh_token", refresh, 604800, "/api/v1/auth/refresh");
+        // Convertimos milisegundos a segundos para la cookie
+        long accessSeconds = jwtExpiration / 1000;
+        long refreshSeconds = refreshExpiration / 1000;
+
+        ResponseCookie accessCookie = construirCookie("access_token", access, accessSeconds, "/");
+        ResponseCookie refreshCookie = construirCookie("refresh_token", refresh, refreshSeconds, "/api/v1/auth/refresh");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
