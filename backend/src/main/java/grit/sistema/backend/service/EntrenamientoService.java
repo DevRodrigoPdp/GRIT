@@ -8,6 +8,8 @@ import grit.sistema.backend.model.Entrenamiento;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.repositories.EntrenamientoRepository;
 import grit.sistema.backend.repositories.UsuarioRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class EntrenamientoService {
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final EntrenamientoRepository entrenamientoRepository;
     private final UsuarioRepository usuarioRepository;
     private final EntrenamientoMapper entrenamientoMapper;
@@ -43,7 +48,9 @@ public class EntrenamientoService {
 
     @Transactional
     public void eliminarEntrenamientoPorUuid(String uuid, String emailUsuarioAutenticado){
-        Entrenamiento entrenamiento = entrenamientoRepository.findByUuid(UUID.fromString(uuid))
+        entityManager.clear();
+
+        Entrenamiento entrenamiento = entrenamientoRepository.findByUuidConUsuario(UUID.fromString(uuid))
                 .orElseThrow(() -> new RuntimeException("Entrenamiento no encontrado"));
 
         String emailPropietario = entrenamiento.getUsuario().getEmail();
