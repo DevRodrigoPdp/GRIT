@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 public class EntrenamientoMapper {
     public Entrenamiento toEntity(EntrenamientoRequestDTO request, Usuario usuario) {
-        if(request == null) return null;
+        if (request == null) return null;
 
         Entrenamiento entrenamiento = new Entrenamiento();
         entrenamiento.setNombre(request.nombre());
@@ -23,7 +23,7 @@ public class EntrenamientoMapper {
         entrenamiento.setFechaEntrenamiento(LocalDateTime.now());
         entrenamiento.setUsuario(usuario);
 
-        if(request.ejercicios() != null && !request.ejercicios().isEmpty()) {
+        if (request.ejercicios() != null && !request.ejercicios().isEmpty()) {
             List<Ejercicio> ejercicios = request.ejercicios().stream()
                     .map(eDto -> {
                         Ejercicio ej = new Ejercicio();
@@ -42,9 +42,11 @@ public class EntrenamientoMapper {
     }
 
     public EntrenamientoResponseDTO toResponse(Entrenamiento entrenamiento) {
-        if(entrenamiento == null) return null;
+        if (entrenamiento == null) return null;
 
-        List<EjercicioReponseDTO> ejerciciosDto =  entrenamiento.getEjercicios().stream()
+        List<EjercicioReponseDTO> ejerciciosDto = (entrenamiento.getEjercicios() == null)
+                ? List.of()
+                : entrenamiento.getEjercicios().stream()
                 .map(ej -> new EjercicioReponseDTO(
                         ej.getUuid().toString(),
                         ej.getNombre(),

@@ -9,6 +9,7 @@ import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.repositories.EntrenamientoRepository;
 import grit.sistema.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EntrenamientoService {
     private final EntrenamientoRepository entrenamientoRepository;
     private final UsuarioRepository usuarioRepository;
@@ -42,11 +44,16 @@ public class EntrenamientoService {
     @Transactional
     public void eliminarEntrenamientoPorUuid(String uuid, String emailUsuarioAutenticado){
         Entrenamiento entrenamiento = entrenamientoRepository.findByUuid(UUID.fromString(uuid))
-                .orElseThrow(() -> new RuntimeException("Entrenamiento no encontrado con UUID"));
+                .orElseThrow(() -> new RuntimeException("Entrenamiento no encontrado"));
 
-        if(entrenamiento.getUsuario().getEmail().equals(emailUsuarioAutenticado)){
+        String emailPropietario = entrenamiento.getUsuario().getEmail();
+
+        log.info("Intento de borrado: Dueño[{}] - Solicitante[{}]", emailPropietario, emailUsuarioAutenticado);
+
+        if (!emailPropietario.equalsIgnoreCase(emailUsuarioAutenticado)) {
             throw new AccesoDenegadoException("No tienes permiso para borrar este entrenamiento. No te pertenece.");
         }
+
         entrenamientoRepository.delete(entrenamiento);
     }
 }
