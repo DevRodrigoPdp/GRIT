@@ -1,5 +1,6 @@
 package grit.sistema.backend.config;
 
+import grit.sistema.backend.security.CustomAccessDeniedHandler;
 import grit.sistema.backend.security.JwtAuthenticationEntryPoint;
 import grit.sistema.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import java.util.List;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
@@ -34,6 +36,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler) // Registro del 401
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth-> auth
                         //Documentación Swagger
