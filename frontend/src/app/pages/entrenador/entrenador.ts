@@ -1,6 +1,6 @@
 import { Component, signal, computed, inject, ElementRef, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 export type TipoTitulacionEntrenamiento =
@@ -56,9 +56,11 @@ export class EntrenadorPage {
     { value: 'TSD',                       label: 'TSD — Técnico Superior en Dietética' },
   ];
 
-  readonly archivos  = signal<ArchivoSubido[]>([]);
-  readonly dragOver  = signal(false);
-  readonly submitted = signal(false);
+  readonly archivos            = signal<ArchivoSubido[]>([]);
+  readonly dragOver            = signal(false);
+  readonly submitted           = signal(false);
+  readonly showPassword        = signal(false);
+  readonly showConfirmPassword = signal(false);
 
   // Signals que reflejan las titulaciones seleccionadas para poder usar computed()
   private readonly _titEnt  = signal<string | null>(null);
@@ -132,10 +134,22 @@ export class EntrenadorPage {
     this.form = this.fb.group({
       nombre:                  ['', [Validators.required, Validators.minLength(3)]],
       correo:                  ['', [Validators.required, Validators.email]],
-      codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],  // required se añade dinámicamente
+      password:                ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword:         ['', Validators.required],
+      codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
       titulacionEntrenamiento: [null],
       titulacionNutricion:     [null],
-    });
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  passwordMatchValidator(group: FormGroup): ValidationErrors | null {
+    const password        = group.get('password');
+    const confirmPassword = group.get('confirmPassword');
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      confirmPassword.setErrors({ mismatch: true });
+      return { mismatch: true };
+    }
+    return null;
   }
 
   /**
