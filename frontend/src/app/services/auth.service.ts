@@ -22,7 +22,7 @@ export interface RegistroAtletaPayload {
   alturaCm: number;
   deporte:  string;
   nivel:    string;
-  servicio: string;
+  servicio: ServicioAtleta;
   objetivo: string | null;
 }
 
@@ -47,13 +47,13 @@ export interface LoginResponse {
 }
 
 export interface RegistroResponse {
-  id:                  string;
-  nombre:              string;
-  rol:                 Rol;
-  estado:              EstadoCuenta;
-  servicio:            ServicioAtleta | null;
-  tituloEntrenamiento: boolean | null;
-  tituloNutricion:     boolean | null;
+  ok:       true;
+  message:  string;
+  data: {
+    id:    string;
+    rol:   Rol;
+    estado: EstadoCuenta;
+  };
 }
 
 export interface MeResponse {
@@ -103,8 +103,16 @@ export class AuthService {
       .pipe(
         tap({
           next: (res) => {
-            this.setSession(res.rol, res.estado, res.tituloEntrenamiento, res.tituloNutricion, res.servicio, res.nombre);
-            this.redirigir(res.rol, res.estado, res.tituloEntrenamiento, res.tituloNutricion);
+            const data = res.data;
+            this.setSession(
+              data.rol,
+              data.estado,
+              null,
+              null,
+              payload.servicio as ServicioAtleta,
+              payload.nombre
+            );
+            this.redirigir(data.rol, data.estado, null, null);
           },
         })
       );

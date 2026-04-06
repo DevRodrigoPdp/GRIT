@@ -2,7 +2,7 @@ import { Component, signal, computed, inject, ElementRef, HostListener } from '@
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, ServicioAtleta } from '../../services/auth.service';
 
 export type Objetivo = 'rendimiento' | 'masa_muscular' | 'perder_peso' | 'salud' | 'resistencia';
 export type Nivel     = 'principiante' | 'intermedio' | 'avanzado' | 'elite';
@@ -137,7 +137,7 @@ export class AtletaPage {
       alturaCm: v.altura,
       deporte:  v.deporte,
       nivel:    (v.nivel as string).toUpperCase(),
-      servicio: (v.servicio as string).toUpperCase(),
+      servicio: (v.servicio as Servicio).toUpperCase() as ServicioAtleta,
       objetivo: v.objetivo ? (v.objetivo as string).toUpperCase() : null,
     }).subscribe({
       next: () => {
