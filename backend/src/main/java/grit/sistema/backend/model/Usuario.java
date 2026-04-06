@@ -26,13 +26,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Usuario implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @Column(unique = true, nullable = false, updatable = false)
-    private UUID uuid = UUID.randomUUID();
-
-    @Column(name = "username", nullable = false)
+    @Column(nullable = false)
     private String nombre;
 
     @Column(name = "password_hash", nullable = false)
@@ -56,9 +53,6 @@ public class Usuario implements UserDetails {
     // --- HOOKS DE JPA ---
     @PrePersist
     protected void onCreate() {
-        if (this.uuid == null) {
-            this.uuid = UUID.randomUUID();
-        }
         this.createdAt = LocalDateTime.now();
         if (this.estado == null) {
             this.estado = EstadoUsuario.ACTIVO; // Valor por defecto si no viene del registro

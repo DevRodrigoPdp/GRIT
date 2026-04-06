@@ -60,7 +60,7 @@ public class UsuarioService {
     }
 
     public UsuarioDTO findByUuid(UUID uuid) {
-        Usuario usuario = usuarioRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("Usuario no encontrado con el UUID: " + uuid));
+        Usuario usuario = usuarioRepository.findById(uuid).orElseThrow(() -> new RuntimeException("Usuario no encontrado con el UUID: " + uuid));
 
         return usuarioMapper.toDTO(usuario);
     }

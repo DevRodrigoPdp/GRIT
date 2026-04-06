@@ -52,7 +52,7 @@ public class Entrenador {
     @ElementCollection
     @CollectionTable(
             name = "documentos_entrenador",
-            joinColumns = @JoinColumn(name = "entrenador_id"))
+            joinColumns = @JoinColumn(name = "entrenador_id", columnDefinition = "uuid"))
     @Column(name = "url_documento", length = 512)
     private List<String> documentosUrls;
 

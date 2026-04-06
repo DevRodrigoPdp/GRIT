@@ -29,7 +29,7 @@ public class Entrenamiento {
     private Integer duracionMinutos;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id", nullable = false, referencedColumnName = "id")
     private Usuario usuario;
 
     @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

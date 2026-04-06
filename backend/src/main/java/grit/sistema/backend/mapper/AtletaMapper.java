@@ -37,7 +37,7 @@ public class AtletaMapper {
         if (guardado == null) return null;
 
         AtletaData data = new AtletaData(
-                guardado.getUuid(),
+                guardado.getId(),
                 guardado.getEstado().name(),
                 guardado.getRol().name()
         );

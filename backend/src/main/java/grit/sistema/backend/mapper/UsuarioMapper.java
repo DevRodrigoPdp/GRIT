@@ -49,7 +49,7 @@ public class UsuarioMapper {
         if (usuario == null) return null;
 
         return new UsuarioDTO(
-                usuario.getUuid() != null ? usuario.getUuid().toString() : null,
+                usuario.getId() != null ? usuario.getId().toString() : null,
                 usuario.getNombre(),
                 null, // IMPORTANTE: Enviamos null en el password por seguridad
                 usuario.getEmail(),
