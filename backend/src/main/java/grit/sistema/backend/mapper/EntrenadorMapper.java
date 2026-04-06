@@ -12,26 +12,39 @@ import java.util.List;
 @Component
 public class EntrenadorMapper {
 
-    public Entrenador toEntity(EntrenadorRequestDTO request, Usuario usuario, List<String> urls){
-        if (request == null) return null;
+    public Entrenador toEntity(EntrenadorRequestDTO request, Usuario usuario, List<String> urls) {
+        if (request == null || usuario == null) return null;
 
-        return Entrenador.builder()
+        Entrenador entrenador = Entrenador.builder()
                 .usuario(usuario)
-                .codigoProfesional(request.codigoProfesional())
-                .titulacionEntrenamiento(request.titulacionEntrenamiento())
-                .titulacionNutricion(request.titulacionNutricion())
+                .codigoProfesional(request.getCodigoProfesional())
+                .titulacionEntrenamiento(request.getTitulacionEntrenamiento())
+                .titulacionNutricion(request.getTitulacionNutricion())
                 .documentosUrls(urls)
                 .estado(EstadoRevision.PENDIENTE_REVISION)
                 .build();
+
+        // Forzamos el ID desde el usuario
+        entrenador.setId(usuario.getId());
+
+        return entrenador;
     }
 
-    public EntrenadorResponseDTO toResponse(Entrenador entrenador){
+    public EntrenadorResponseDTO toResponse(Entrenador entrenador) {
         if (entrenador == null) return null;
+
+        String nombre = "N/A";
+        var rol = (grit.sistema.backend.model.enums.Rol) null;
+
+        if (entrenador.getUsuario() != null) {
+            nombre = entrenador.getUsuario().getNombre();
+            rol = entrenador.getUsuario().getRol();
+        }
 
         return new EntrenadorResponseDTO(
                 entrenador.getId(),
-                entrenador.getUsuario().getNombre(),
-                entrenador.getUsuario().getRol(),
+                nombre,
+                rol,
                 entrenador.getEstado(),
                 entrenador.isTieneTituloEntrenamiento(),
                 entrenador.isTieneTituloNutricion()

@@ -17,10 +17,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Entrenador {
+public class Entrenador implements org.springframework.data.domain.Persistable<UUID>{
 
     @Id
-    @Column(name = "usuario_id")
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -37,22 +36,23 @@ public class Entrenador {
     @Enumerated(EnumType.STRING)
     private TitulacionNutricion titulacionNutricion;
 
-    // Campos lógicos requeridos por el frontend
-    @Column(nullable = false)
+    // Solo lectura: PostgreSQL los gestiona
+    @Column(name = "tiene_titulo_entrenamiento", insertable = false, updatable = false)
+    @org.hibernate.annotations.Generated
     private boolean tieneTituloEntrenamiento;
 
-    @Column(nullable = false)
+    @Column(name = "tiene_titulo_nutricion", insertable = false, updatable = false)
+    @org.hibernate.annotations.Generated
     private boolean tieneTituloNutricion;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private EstadoRevision estado = EstadoRevision.PENDIENTE_REVISION;
 
-    // Guardamos las URLS de los documentos subidos a S3
     @ElementCollection
     @CollectionTable(
             name = "documentos_entrenador",
-            joinColumns = @JoinColumn(name = "entrenador_id", columnDefinition = "uuid"))
+            joinColumns = @JoinColumn(name = "entrenador_id"))
     @Column(name = "url_documento", length = 512)
     private List<String> documentosUrls;
 
@@ -60,11 +60,21 @@ public class Entrenador {
 
     @PrePersist
     protected void onCreate() {
-        this.fechaSolicitud = LocalDateTime.now();
-        this.tieneTituloEntrenamiento = (this.titulacionEntrenamiento != null);
-        this.tieneTituloNutricion = (this.titulacionNutricion != null);
+        if (this.fechaSolicitud == null) {
+            this.fechaSolicitud = LocalDateTime.now();
+        }
+    }
 
-        // Garantizamos que el estado sea el correcto al persistir
-        if (this.estado == null) this.estado = EstadoRevision.PENDIENTE_REVISION;
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        // Si el ID es el del usuario y acabamos de crearlo,
+        // podemos usar un flag o simplemente retornar true
+        // si sabemos que en el registro siempre es nuevo.
+        return true;
     }
 }

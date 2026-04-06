@@ -6,6 +6,7 @@ import grit.sistema.backend.service.AtletaService;
 import grit.sistema.backend.service.EntrenadorService;
 import grit.sistema.backend.service.JwtService;
 import grit.sistema.backend.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +36,17 @@ public class AuthController {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
+    @Operation(summary = "Registrar un nuevo entrenador con documentos")
     @PostMapping(value = "/registro/entrenador", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(@Valid @ModelAttribute EntrenadorRequestDTO dto) {
-        log.info(">>> Solicitud de registro de ENTRENADOR recibida: {}", dto.email());
+    public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @io.swagger.v3.oas.annotations.media.Content(
+                            encoding = @io.swagger.v3.oas.annotations.media.Encoding(name = "dto", contentType = "application/json"),
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+                    )
+            )
+            @Valid @ModelAttribute EntrenadorRequestDTO dto) {
+        log.info(">>> Solicitud de registro de ENTRENADOR recibida: {}", dto.getEmail());
 
         EntrenadorResponseDTO data = entrenadorService.registrarEntrenador(dto);
 
@@ -46,9 +55,8 @@ public class AuthController {
                 "Solicitud recibida. Revisaremos tus credenciales en un plazo máximo de 48h y te notificaremos por correo."
         );
 
-        log.info("<<< Entrenador registrado exitosamente en estado PENDIENTE: {}", dto.email());
+        log.info("<<< Entrenador registrado exitosamente en estado PENDIENTE: {}", dto.getEmail());
 
-        // Retornamos 201 Created sin cookies de sesión
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 

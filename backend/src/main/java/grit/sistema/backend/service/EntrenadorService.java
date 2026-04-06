@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,56 +31,55 @@ public class EntrenadorService {
 
     @Transactional
     public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request) {
-
         validarRequisitosProfesionales(request);
 
-        if(usuarioRepository.existsByEmail(request.email())){
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
-        if(request.codigoProfesional() != null && !request.codigoProfesional().isBlank()){
-            if (entrenadorRepository.existsByCodigoProfesional(request.codigoProfesional())) {
-                throw new UsuarioExistenteException("CODIGO_COLEGIADO_DUPLICADO");
-            }
-        }
 
-        // 3. Crear el Usuario base (Inactivo hasta revisión)
+        // 1. Crear y PERSISTIR el Usuario primero
         Usuario usuario = new Usuario();
-        usuario.setNombre(request.nombre());
-        usuario.setEmail(request.email());
-        usuario.setPassword(passwordEncoder.encode(request.password()));
+        usuario.setNombre(request.getNombre());
+        usuario.setEmail(request.getEmail());
+        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setRol(Rol.ENTRENADOR);
         usuario.setEstado(EstadoUsuario.PENDIENTE_REVISION);
-        usuario = usuarioRepository.save(usuario);
-//
-///       // 4. Subir documentos a S3
-//        // folder: "documentos/entrenadores/{email}"
-//        List<String> urls = request.documentos().stream()
-//                .map(file -> s3Service.uploadFile(file, "verificaciones/" + request.correo()))
-//                .toList();
-        List<String> urls = request.documentos().stream()
+
+        usuario = usuarioRepository.saveAndFlush(usuario);
+
+        // 2. Procesar documentos
+        List<String> urls = (request.getDocumentos() == null) ? List.of() : request.getDocumentos().stream()
                 .map(file -> "MOCK_S3_PATH/" + System.currentTimeMillis() + "_" + file.getOriginalFilename())
                 .toList();
 
         Entrenador entrenador = entrenadorMapper.toEntity(request, usuario, urls);
-        entrenador = entrenadorRepository.save(entrenador);
 
-        log.info("Registro exitoso: Entrenador {} pendiente de validación", usuario.getEmail());
+        // VINCULACIÓN MANUAL CRÍTICA:
+        entrenador.setUsuario(usuario);
+        entrenador.setId(usuario.getId()); // Aseguramos que el ID coincida antes de entrar al repo
 
+
+        try {
+            entrenador = entrenadorRepository.save(entrenador);
+        } catch (Exception e) {
+            log.error("Fallo al guardar entrenador: {}", e.getMessage());
+            throw e;
+        }
+
+        log.info("Registro exitoso: Entrenador con ID {} guardado", entrenador.getId());
         return entrenadorMapper.toResponse(entrenador);
     }
 
     private void validarRequisitosProfesionales(EntrenadorRequestDTO request) {
-        if (request.titulacionEntrenamiento() == null && request.titulacionNutricion() == null ){
-            throw new IllegalArgumentException("Debe tener al menos una titulación en entrenamiento o nutrición.");
+        if (request.getTitulacionEntrenamiento() == null && request.getTitulacionNutricion() == null) {
+            throw new IllegalArgumentException("Debe tener al menos una titulación.");
         }
 
-        boolean esGradoEntrenamiento = request.titulacionEntrenamiento() == TitulacionEntrenamiento.GRADO_CAFYD;
-        boolean esGradoNutricion = request.titulacionNutricion() == TitulacionNutricion.GRADO_NUTRICION_DIETETICA;
+        boolean requiereColegiado = (request.getTitulacionEntrenamiento() == TitulacionEntrenamiento.GRADO_CAFYD) ||
+                (request.getTitulacionNutricion() == TitulacionNutricion.GRADO_NUTRICION_DIETETICA);
 
-        if ((esGradoEntrenamiento || esGradoNutricion) &&
-        (request.codigoProfesional() == null || request.codigoProfesional().isBlank())){
+        if (requiereColegiado && (request.getCodigoProfesional() == null || request.getCodigoProfesional().isBlank())) {
             throw new IllegalArgumentException("El código profesional es obligatorio para titulaciones de grado");
         }
-
     }
 }
