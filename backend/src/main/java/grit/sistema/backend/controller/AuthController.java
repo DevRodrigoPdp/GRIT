@@ -7,6 +7,9 @@ import grit.sistema.backend.service.EntrenadorService;
 import grit.sistema.backend.service.JwtService;
 import grit.sistema.backend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +39,15 @@ public class AuthController {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
-    @Operation(summary = "Registrar un nuevo entrenador con documentos")
+    @Operation(
+            summary = "Registro de Entrenador",
+            description = "Registra un nuevo entrenador. Requiere datos personales y archivos de titulación (Multipart). El estado inicial será PENDIENTE_REVISION."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Solicitud recibida correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o falta de documentos"),
+            @ApiResponse(responseCode = "409", description = "El email ya está registrado")
+    })
     @PostMapping(value = "/registro/entrenador", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -60,6 +71,14 @@ public class AuthController {
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 
+    @Operation(
+            summary = "Registro de Atleta",
+            description = "Crea una cuenta de atleta y emite automáticamente cookies de sesión (Access y Refresh Token)."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Atleta creado y sesión iniciada"),
+            @ApiResponse(responseCode = "400", description = "Error en los datos de validación")
+    })
     @PostMapping("/registro/atleta")
     public ResponseEntity<AtletaResponseDTO> registrarAtleta(@Valid @RequestBody AtletaRequestDTO dto) {
         log.info(">>> Solicitud de registro de atleta recibida: {}", dto.email());
@@ -76,6 +95,14 @@ public class AuthController {
         return new ResponseEntity<>(respuesta, headers, HttpStatus.CREATED);
     }
 
+    @Operation(
+            summary = "Login de Usuario",
+            description = "Autentica al usuario y establece las cookies HttpOnly 'access_token' y 'refresh_token'."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login exitoso"),
+            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas")
+    })
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDto) {
         log.info(">>> Solicitud de login recibida para el email: {}", loginDto.email());
@@ -94,6 +121,11 @@ public class AuthController {
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
+    @Operation(
+            summary = "Logout",
+            description = "Limpia las cookies de sesión del navegador estableciendo su tiempo de vida a cero."
+    )
+    @ApiResponse(responseCode = "200", description = "Sesión cerrada exitosamente")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         log.info(">>> Solicitud de cierre de sesión");
@@ -108,8 +140,17 @@ public class AuthController {
                 .build();
     }
 
+    @Operation(
+            summary = "Refrescar Access Token",
+            description = "Utiliza la cookie 'refresh_token' para emitir un nuevo 'access_token' sin pedir credenciales."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token refrescado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Refresh token inválido o expirado")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDTO> refresh(
+            @Parameter(hidden = true)
             @CookieValue(name = "refresh_token", required = false) String refreshToken) {
 
         log.info(">>> Solicitud de refresco de token recibida");
