@@ -3,6 +3,7 @@ package grit.sistema.backend.controller;
 import grit.sistema.backend.dto.*;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.service.AtletaService;
+import grit.sistema.backend.service.EntrenadorService;
 import grit.sistema.backend.service.JwtService;
 import grit.sistema.backend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,6 +25,7 @@ import java.util.UUID;
 public class AuthController {
     private final UsuarioService usuarioService;
     private final AtletaService atletaService;
+    private final EntrenadorService entrenadorService;
     private final JwtService jwtService;
 
     // Inyectamos las mismas variables que en JwtService
@@ -35,6 +34,23 @@ public class AuthController {
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
+
+    @PostMapping(value = "/registro/entrenador", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(@Valid @ModelAttribute EntrenadorRequestDTO dto) {
+        log.info(">>> Solicitud de registro de ENTRENADOR recibida: {}", dto.email());
+
+        EntrenadorResponseDTO data = entrenadorService.registrarEntrenador(dto);
+
+        ApiResponseDTO<EntrenadorResponseDTO> respuesta = ApiResponseDTO.success(
+                data,
+                "Solicitud recibida. Revisaremos tus credenciales en un plazo máximo de 48h y te notificaremos por correo."
+        );
+
+        log.info("<<< Entrenador registrado exitosamente en estado PENDIENTE: {}", dto.email());
+
+        // Retornamos 201 Created sin cookies de sesión
+        return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+    }
 
     @PostMapping("/registro/atleta")
     public ResponseEntity<AtletaResponseDTO> registrarAtleta(@Valid @RequestBody AtletaRequestDTO dto) {
