@@ -1,5 +1,5 @@
-# ETAPA 1: Construcción (Usamos JDK 17)
-FROM eclipse-temurin:17-jdk-jammy AS build
+# ETAPA 1: Construcción (Usamos JDK 21)
+FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 
 # 1. Copiamos solo lo necesario para descargar dependencias
@@ -16,7 +16,7 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 # ETAPA 2: Ejecución (JRE ligero para producción)
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copiamos el JAR generado en la etapa anterior

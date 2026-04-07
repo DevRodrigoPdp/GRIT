@@ -8,6 +8,7 @@ import grit.sistema.backend.service.JwtService;
 import grit.sistema.backend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,8 +46,8 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Solicitud recibida correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o falta de documentos"),
-            @ApiResponse(responseCode = "409", description = "El email ya está registrado")
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o falta de documentos",content = @Content),
+            @ApiResponse(responseCode = "409", description = "El email ya está registrado",content = @Content)
     })
     @PostMapping(value = "/registro/entrenador", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(
@@ -77,7 +78,7 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Atleta creado y sesión iniciada"),
-            @ApiResponse(responseCode = "400", description = "Error en los datos de validación")
+            @ApiResponse(responseCode = "400", description = "Error en los datos de validación",content = @Content)
     })
     @PostMapping("/registro/atleta")
     public ResponseEntity<AtletaResponseDTO> registrarAtleta(@Valid @RequestBody AtletaRequestDTO dto) {
@@ -101,7 +102,7 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login exitoso"),
-            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas")
+            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas",content = @Content)
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDto) {
@@ -146,7 +147,7 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Token refrescado exitosamente"),
-            @ApiResponse(responseCode = "401", description = "Refresh token inválido o expirado")
+            @ApiResponse(responseCode = "401", description = "Refresh token inválido o expirado",content = @Content)
     })
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDTO> refresh(

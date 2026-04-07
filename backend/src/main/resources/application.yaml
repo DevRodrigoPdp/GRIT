@@ -5,6 +5,9 @@ spring:
     name: grit-backend
   jpa:
     open-in-view: false # Buena práctica: evitar consultas extra en la vista
+  threads:
+    virtual:
+      enabled: true
 
   # Configuración para que los DTO (Records) se serialicen bien
   jackson:
