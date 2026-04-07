@@ -27,9 +27,13 @@ export interface RegistroAtletaPayload {
 }
 
 export interface RegistroEntrenadorPayload {
-  username:   string;
-  email:    string;
+  nombre: string;
+  email: string;
   password: string;
+  codigoProfesional?: string | null;
+  titulacionEntrenamiento?: string | null;
+  titulacionNutricion?: string | null;
+  documentos: File[];
 }
 
 // ── Respuestas del backend ───────────────────────────────────────────────────
@@ -95,7 +99,6 @@ export class AuthService {
   /**
    * Registra un nuevo atleta.
    * Normaliza los valores del formulario (lowercase → UPPERCASE) antes de enviar.
-   * TODO: descomentar llamada real y eliminar bloque mock cuando haya backend.
    */
   registroAtleta(payload: RegistroAtletaPayload): Observable<RegistroResponse> {
     return this.http
@@ -127,40 +130,41 @@ export class AuthService {
    *   - Solo entrenamiento → /dashboard/entrenador
    *   - Solo nutrición     → /dashboard/entrenador/solo-nutricion
    *   - Ambas              → /dashboard/entrenador/nutricion
-   * TODO: descomentar llamada real y eliminar bloque mock cuando haya backend.
    */
-  // registroEntrenador(payload: RegistroEntrenadorPayload): void {
-  //   this.loading.set(true);
-  //   const formData = new FormData();
-  //   formData.append('nombre', payload.nombre);
-  //   formData.append('correo', payload.correo);
-  //   if (payload.codigoProfesional) {
-  //     formData.append('codigoProfesional', payload.codigoProfesional);
-  //   }
-  //   if (payload.titulacionEntrenamiento) {
-  //     formData.append('titulacionEntrenamiento', payload.titulacionEntrenamiento);
-  //   }
-  //   if (payload.titulacionNutricion) {
-  //     formData.append('titulacionNutricion', payload.titulacionNutricion);
-  //   }
-  //   payload.documentos.forEach((file, index) => {
-  //     formData.append('documentos', file);
-  //   });
+  registroEntrenador(payload: RegistroEntrenadorPayload): Observable<RegistroResponse> {
+    this.loading.set(true);
+    const formData = new FormData();
+    formData.append('nombre', payload.nombre);
+    formData.append('email', payload.email);
+    formData.append('password', payload.password);
+    if (payload.codigoProfesional) {
+      formData.append('codigoProfesional', payload.codigoProfesional);
+    }
+    if (payload.titulacionEntrenamiento) {
+      formData.append('titulacionEntrenamiento', payload.titulacionEntrenamiento);
+    }
+    if (payload.titulacionNutricion) {
+      formData.append('titulacionNutricion', payload.titulacionNutricion);
+    }
+    payload.documentos.forEach((file) => {
+      formData.append('documentos', file);
+    });
 
-  //   this.http
-  //     .post<RegistroResponse>(`${this.API}/register`, formData, { withCredentials: true })
-  //     .pipe(
-  //       tap({
-  //         next: (res) => {
-  //           this.loading.set(false);
-  //           this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
-  //           this.redirigir(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
-  //         },
-  //         error: () => this.loading.set(false),
-  //       })
-  //     )
-  //     .subscribe();
-  // }
+    return this.http
+      .post<RegistroResponse>(`${this.API}/registro/entrenador`, formData, { withCredentials: true })
+      .pipe(
+        tap({
+          next: (res) => {
+            this.loading.set(false);
+            const tituloEntrenamiento = !!payload.titulacionEntrenamiento;
+            const tituloNutricion = !!payload.titulacionNutricion;
+            this.setSession(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion, null, payload.nombre);
+            this.redirigir(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion);
+          },
+          error: () => this.loading.set(false),
+        })
+      );
+  }
 
   // ── Login ────────────────────────────────────────────────────────────────
 

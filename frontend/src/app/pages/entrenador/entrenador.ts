@@ -230,14 +230,20 @@ export class EntrenadorPage {
     }
 
     const v = this.form.value;
-    // this.auth.registroEntrenador({
-    //   nombre: v.nombre,
-    //   correo: v.correo,
-    //   codigoProfesional: v.codigoColegiado || null,
-    //   titulacionEntrenamiento: v.titulacionEntrenamiento,
-    //   titulacionNutricion: v.titulacionNutricion,
-    //   documentos: this.archivos().map(a => a.file),
-    // });
+    this.auth.registroEntrenador({
+      nombre: v.nombre,
+      email: v.correo,
+      password: v.password,
+      codigoProfesional: v.codigoColegiado || null,
+      titulacionEntrenamiento: v.titulacionEntrenamiento || null,
+      titulacionNutricion: v.titulacionNutricion || null,
+      documentos: this.archivos().map(a => a.file),
+    })
+    .subscribe({
+      error: () => {
+        // El servicio maneja el loading; en caso de error la validación del formulario ya está activa.
+      },
+    });
   }
 
   fieldError(campo: string): boolean {
