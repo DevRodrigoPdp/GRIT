@@ -1,7 +1,8 @@
 import { Component, signal, computed, inject, ElementRef, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 export type TipoTitulacionEntrenamiento =
   | 'GRADO_CAFYD'
@@ -13,6 +14,7 @@ export type TipoTitulacionNutricion =
   | 'TSD';
 
 interface ArchivoSubido {
+  file: File;
   nombre: string;
   size: string;
   tipo: string;
@@ -33,6 +35,7 @@ interface InfoCampoNumero {
 })
 export class EntrenadorPage {
   private el = inject(ElementRef);
+  private auth = inject(AuthService);
   readonly form: FormGroup;
   readonly mostrarScrollTop = signal(false);
 
@@ -56,9 +59,11 @@ export class EntrenadorPage {
     { value: 'TSD',                       label: 'TSD — Técnico Superior en Dietética' },
   ];
 
-  readonly archivos  = signal<ArchivoSubido[]>([]);
-  readonly dragOver  = signal(false);
-  readonly submitted = signal(false);
+  readonly archivos            = signal<ArchivoSubido[]>([]);
+  readonly dragOver            = signal(false);
+  readonly submitted           = signal(false);
+  readonly showPassword        = signal(false);
+  readonly showConfirmPassword = signal(false);
 
   // Signals que reflejan las titulaciones seleccionadas para poder usar computed()
   private readonly _titEnt  = signal<string | null>(null);
@@ -132,10 +137,22 @@ export class EntrenadorPage {
     this.form = this.fb.group({
       nombre:                  ['', [Validators.required, Validators.minLength(3)]],
       correo:                  ['', [Validators.required, Validators.email]],
-      codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],  // required se añade dinámicamente
+      password:                ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword:         ['', Validators.required],
+      codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
       titulacionEntrenamiento: [null],
       titulacionNutricion:     [null],
-    });
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  passwordMatchValidator(group: FormGroup): ValidationErrors | null {
+    const password        = group.get('password');
+    const confirmPassword = group.get('confirmPassword');
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      confirmPassword.setErrors({ mismatch: true });
+      return { mismatch: true };
+    }
+    return null;
   }
 
   /**
@@ -186,7 +203,7 @@ export class EntrenadorPage {
       if (file.size > 10 * 1024 * 1024) return;
       const kb     = file.size / 1024;
       const tamaño = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
-      this.archivos.update(list => [...list, { nombre: file.name, size: tamaño, tipo: file.type }]);
+      this.archivos.update(list => [...list, { file, nombre: file.name, size: tamaño, tipo: file.type }]);
     });
   }
 
@@ -211,8 +228,22 @@ export class EntrenadorPage {
       }, 50);
       return;
     }
-    // TODO: enviar al backend
-    console.log({ ...this.form.value, archivos: this.archivos() });
+
+    const v = this.form.value;
+    this.auth.registroEntrenador({
+      nombre: v.nombre,
+      email: v.correo,
+      password: v.password,
+      codigoProfesional: v.codigoColegiado || null,
+      titulacionEntrenamiento: v.titulacionEntrenamiento || null,
+      titulacionNutricion: v.titulacionNutricion || null,
+      documentos: this.archivos().map(a => a.file),
+    })
+    .subscribe({
+      error: () => {
+        // El servicio maneja el loading; en caso de error la validación del formulario ya está activa.
+      },
+    });
   }
 
   fieldError(campo: string): boolean {

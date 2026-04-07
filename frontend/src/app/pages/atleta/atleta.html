@@ -118,6 +118,42 @@
               }
             </div>
 
+            <!-- Contraseña -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                Contraseña <span class="text-[#2ED38D]">*</span>
+              </label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="Mínimo 8 caracteres"
+                class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
+                [class.border-red-400]="fieldError('password')"
+              />
+              @if (fieldError('password')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Contraseña requerida, mínimo 8 caracteres</span>
+              }
+            </div>
+
+            <!-- Confirmar Contraseña -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                Confirmar contraseña <span class="text-[#2ED38D]">*</span>
+              </label>
+              <input
+                type="password"
+                formControlName="confirmPassword"
+                placeholder="Repite la contraseña"
+                class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
+                [class.border-red-400]="fieldError('confirmPassword')"
+              />
+              @if (form.get('confirmPassword')?.hasError('mismatch')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Las contraseñas no coinciden</span>
+              } @else if (fieldError('confirmPassword')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Confirma tu contraseña</span>
+              }
+            </div>
+
             <!-- Fecha + Género -->
             <div class="grid grid-cols-2 gap-6">
               <div class="flex flex-col gap-2">
@@ -349,6 +385,24 @@
           </div>
         }
 
+        <!-- ── BANNER ERROR REGISTRO ── -->
+        @if (registroError()) {
+          <div class="border border-red-400 bg-red-50 px-5 py-4 flex items-start gap-3 mb-6">
+            <svg class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none">
+              <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+              <rect x="1.5" y="1.5" width="13" height="13"/>
+            </svg>
+            <div>
+              <p class="text-xs font-black tracking-[0.15em] uppercase text-red-500 mb-0.5">
+                ERROR AL REGISTRAR
+              </p>
+              <p class="text-xs font-light text-red-400">
+                {{ registroError() }}
+              </p>
+            </div>
+          </div>
+        }
+
         <!-- ── Submit ── -->
         <div class="border-t border-[#E5E7EB] pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p class="text-xs font-light text-gray-400 max-w-xs">
@@ -356,9 +410,10 @@
           </p>
           <button
             type="submit"
-            class="inline-flex items-center gap-3 bg-black text-white px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-[#2ED38D] hover:text-black transition-all duration-300 flex-shrink-0"
+            [disabled]="loading()"
+            class="inline-flex items-center gap-3 bg-black text-white px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-[#2ED38D] hover:text-black transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            CREAR PERFIL
+            {{ loading() ? 'REGISTRANDO...' : 'CREAR PERFIL' }}
             <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
               <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
             </svg>

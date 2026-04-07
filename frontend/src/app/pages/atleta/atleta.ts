@@ -1,8 +1,8 @@
 import { Component, signal, computed, inject, ElementRef, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, ServicioAtleta } from '../../services/auth.service';
 
 export type Objetivo = 'rendimiento' | 'masa_muscular' | 'perder_peso' | 'salud' | 'resistencia';
 export type Nivel     = 'principiante' | 'intermedio' | 'avanzado' | 'elite';
@@ -21,6 +21,8 @@ export class AtletaPage {
   readonly form: FormGroup;
   readonly submitted = signal(false);
   readonly mostrarScrollTop = signal(false);
+  readonly registroError = signal<string | null>(null);
+  readonly loading = signal(false);
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -61,6 +63,8 @@ export class AtletaPage {
     this.form = this.fb.group({
       nombre:    ['', [Validators.required, Validators.minLength(3)]],
       correo:    ['', [Validators.required, Validators.email]],
+      password:  ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
       fechaNac:  ['', Validators.required],
       genero:    ['', Validators.required],
       peso:      ['', [Validators.required, Validators.min(30), Validators.max(300)]],
@@ -69,7 +73,17 @@ export class AtletaPage {
       nivel:     ['', Validators.required],
       objetivo:  ['', Validators.required],
       servicio:  ['', Validators.required],
-    });
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  passwordMatchValidator(group: FormGroup): ValidationErrors | null {
+    const password = group.get('password');
+    const confirmPassword = group.get('confirmPassword');
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      confirmPassword.setErrors({ mismatch: true });
+      return { mismatch: true };
+    }
+    return null;
   }
 
   selectObjetivo(value: Objetivo): void {
@@ -101,6 +115,7 @@ export class AtletaPage {
   onSubmit(): void {
     this.submitted.set(true);
     this.form.markAllAsTouched();
+    this.registroError.set(null);
 
     if (this.form.invalid) {
       setTimeout(() => {
@@ -110,19 +125,35 @@ export class AtletaPage {
       return;
     }
 
+    this.loading.set(true);
     const v = this.form.value;
     this.auth.registroAtleta({
       nombre:   v.nombre,
-      correo:   v.correo,
+      email:    v.correo,
       password: v.password,
       fechaNac: v.fechaNac,
-      genero:   (v.genero as string).toUpperCase() as 'HOMBRE' | 'MUJER' | 'OTRO',
-      peso:     v.peso,
-      altura:   v.altura,
+      genero:   v.genero,
+      pesoKg:   v.peso,
+      alturaCm: v.altura,
       deporte:  v.deporte,
-      nivel:    (v.nivel as string).toUpperCase() as 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE',
-      servicio: (v.servicio as string).toUpperCase() as 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS',
-      objetivo: v.objetivo ? (v.objetivo as string).toUpperCase() as any : null,
+      nivel:    (v.nivel as string).toUpperCase(),
+      servicio: (v.servicio as Servicio).toUpperCase() as ServicioAtleta,
+      objetivo: v.objetivo ? (v.objetivo as string).toUpperCase() : null,
+    }).subscribe({
+      next: () => {
+        this.loading.set(false);
+        // Redirección ya manejada en auth.service.ts
+      },
+      error: (err) => {
+        this.loading.set(false);
+        if (err.status === 409) {
+          this.registroError.set('El correo electrónico ya está registrado.');
+        } else if (err.status === 400) {
+          this.registroError.set('Datos inválidos. Revisa los campos.');
+        } else {
+          this.registroError.set('Error al registrar. Inténtalo de nuevo.');
+        }
+      },
     });
   }
 }
