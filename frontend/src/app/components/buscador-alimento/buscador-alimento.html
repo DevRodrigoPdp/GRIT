@@ -1,0 +1,153 @@
+<!-- Overlay backdrop -->
+<div class="fixed inset-0 bg-black/60 z-40 flex items-end md:items-center justify-center">
+
+  <!-- Panel -->
+  <div class="bg-white w-full max-w-lg max-h-[90vh] flex flex-col z-50 border border-black">
+
+    <!-- Cabecera -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
+      <span class="text-xs font-black tracking-[0.25em] uppercase">BUSCAR ALIMENTO</span>
+      <button (click)="cancelado.emit()" class="text-gray-400 hover:text-black text-lg leading-none">✕</button>
+    </div>
+
+    <!-- Toggle modo -->
+    <div class="flex border-b border-[#E5E7EB]">
+      <button
+        (click)="cambiarModo('nombre')"
+        [class]="modo() === 'nombre'
+          ? 'flex-1 py-2.5 text-xs font-black tracking-[0.2em] uppercase bg-black text-white'
+          : 'flex-1 py-2.5 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black'"
+      >
+        POR NOMBRE
+      </button>
+      <button
+        (click)="cambiarModo('barras')"
+        [class]="modo() === 'barras'
+          ? 'flex-1 py-2.5 text-xs font-black tracking-[0.2em] uppercase bg-black text-white'
+          : 'flex-1 py-2.5 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black'"
+      >
+        CÓDIGO DE BARRAS
+      </button>
+    </div>
+
+    <!-- Input búsqueda -->
+    <div class="px-5 py-3 border-b border-[#E5E7EB]">
+      <input
+        [value]="query()"
+        (input)="onQueryChange($any($event.target).value)"
+        [placeholder]="modo() === 'nombre' ? 'Ej: pechuga de pollo...' : 'Ej: 8410188040601'"
+        class="w-full text-sm font-light placeholder:text-gray-300 outline-none border-b border-black pb-1 focus:border-[#2ED38D] transition-colors"
+      />
+    </div>
+
+    <!-- Resultados / Estado -->
+    <div class="flex-1 overflow-y-auto">
+
+      @if (cargando()) {
+        <div class="flex items-center justify-center py-10">
+          <span class="text-xs font-bold tracking-[0.2em] uppercase text-[#2ED38D] animate-pulse">BUSCANDO...</span>
+        </div>
+      }
+
+      @if (!cargando() && error()) {
+        <div class="px-5 py-6 text-center">
+          <p class="text-xs font-light text-gray-400">{{ error() }}</p>
+        </div>
+      }
+
+      @if (!cargando() && !error() && resultados().length === 0 && query().length > 0) {
+        <div class="px-5 py-6 text-center">
+          <p class="text-xs font-light text-gray-400">Escribe para buscar...</p>
+        </div>
+      }
+
+      @if (!seleccion()) {
+        @for (alimento of resultados(); track alimento.codigo) {
+          <button
+            (click)="elegir(alimento)"
+            class="w-full px-5 py-3 text-left border-b border-[#E5E7EB] hover:bg-[#F9F9F9] transition-colors"
+          >
+            <p class="text-xs font-bold uppercase tracking-tight text-black">{{ alimento.nombre }}</p>
+            @if (alimento.marca) {
+              <p class="text-[10px] font-light text-gray-400 mt-0.5">{{ alimento.marca }}</p>
+            }
+            <div class="flex gap-3 mt-1.5 text-[10px] font-bold text-gray-500">
+              <span>{{ alimento.kcalPor100g | number:'1.0-0' }} kcal</span>
+              <span>P {{ alimento.proteinasPor100g | number:'1.0-1' }}g</span>
+              <span>C {{ alimento.carbsPor100g | number:'1.0-1' }}g</span>
+              <span>G {{ alimento.grasasPor100g | number:'1.0-1' }}g</span>
+              <span class="text-[#9CA3AF]">/ 100g</span>
+            </div>
+          </button>
+        }
+      }
+
+      <!-- Detalle + cantidad cuando hay selección -->
+      @if (seleccion(); as al) {
+        <div class="px-5 py-5">
+          <div class="mb-4">
+            <p class="text-xs font-black uppercase tracking-tight text-black">{{ al.nombre }}</p>
+            @if (al.marca) {
+              <p class="text-[10px] font-light text-gray-400 mt-0.5">{{ al.marca }}</p>
+            }
+          </div>
+
+          <!-- Macros por 100g -->
+          <div class="grid grid-cols-4 gap-2 mb-5">
+            <div class="border border-[#E5E7EB] p-2 text-center">
+              <p class="text-[10px] font-light text-gray-400 uppercase">Kcal</p>
+              <p class="text-sm font-black text-black">{{ al.kcalPor100g | number:'1.0-0' }}</p>
+            </div>
+            <div class="border border-[#E5E7EB] p-2 text-center">
+              <p class="text-[10px] font-light text-gray-400 uppercase">Prot</p>
+              <p class="text-sm font-black text-black">{{ al.proteinasPor100g | number:'1.0-1' }}g</p>
+            </div>
+            <div class="border border-[#E5E7EB] p-2 text-center">
+              <p class="text-[10px] font-light text-gray-400 uppercase">Carbs</p>
+              <p class="text-sm font-black text-black">{{ al.carbsPor100g | number:'1.0-1' }}g</p>
+            </div>
+            <div class="border border-[#E5E7EB] p-2 text-center">
+              <p class="text-[10px] font-light text-gray-400 uppercase">Grasa</p>
+              <p class="text-sm font-black text-black">{{ al.grasasPor100g | number:'1.0-1' }}g</p>
+            </div>
+          </div>
+
+          <!-- Input cantidad -->
+          <div class="mb-4">
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">CANTIDAD (g)</label>
+            <div class="flex items-center gap-3">
+              <input
+                type="number"
+                min="1"
+                max="2000"
+                [value]="cantidadG()"
+                (input)="cantidadG.set(+$any($event.target).value)"
+                class="w-24 border-b border-black text-sm font-bold text-black outline-none pb-1 focus:border-[#2ED38D] transition-colors text-center"
+              />
+              <span class="text-xs font-light text-gray-400">
+                = <strong class="text-black">{{ kcalParaCantidad() | number:'1.0-0' }} kcal</strong>
+              </span>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="flex gap-2">
+            <button
+              (click)="seleccion.set(null)"
+              class="flex-1 border border-[#E5E7EB] py-2.5 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:border-black hover:text-black transition-colors"
+            >
+              VOLVER
+            </button>
+            <button
+              (click)="confirmar()"
+              class="flex-1 bg-[#2ED38D] py-2.5 text-xs font-black tracking-[0.2em] uppercase text-black hover:bg-[#25b878] transition-colors"
+            >
+              AÑADIR
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>
