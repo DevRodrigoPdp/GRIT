@@ -1,5 +1,5 @@
 # GRIT — Frontend realizado hasta hoy
-**Período:** 21 Mar → 31 Mar 2026
+**Período:** 21 Mar → 08 Abr 2026
 
 ```mermaid
 gantt
@@ -15,6 +15,7 @@ gantt
     Login page (formulario + validación)            :done, 2026-03-21, 1d
     AuthService (cookies JWT, signals, redirección) :done, 2026-03-21, 1d
     Página pendiente (en revisión + rechazado)      :done, 2026-03-31, 1d
+    me() mock restaura sesión demo tras F5          :done, 2026-04-08, 1d
 
     section 🏠 Landing
     Landing page (hero, scroll-video, splash)       :done, 2026-03-24, 1d
@@ -27,8 +28,8 @@ gantt
     section 📋 Registro Entrenador
     Formulario datos personales + correo            :done, 2026-03-24, 1d
     Selector titulación entrenamiento (oficial ES)  :done, 2026-03-26, 1d
-    Selector titulación nutrición (opcional, oficial ES) :done, 2026-03-26, 1d
-    Subida de documentos (drag & drop, PDF/JPG/PNG) :done, 2026-03-24, 1d
+    Selector titulación nutrición (opcional)        :done, 2026-03-26, 1d
+    Subida de documentos (drag & drop)              :done, 2026-03-24, 1d
     Validación + error banner + scroll to top       :done, 2026-03-26, 1d
 
     section 📋 Registro Atleta
@@ -45,9 +46,28 @@ gantt
     Spinner de carga animado                        :done, 2026-03-26, 1d
     Conexión formulario → AuthService → dashboard   :done, 2026-03-26, 1d
 
+    section 🏋️ Dashboard Entrenador
+    Lista de atletas con avatar e iniciales         :done, 2026-04-08, 1d
+    Filtro por nombre + chips ENTR/NUTR             :done, 2026-04-08, 1d
+    Detalle atleta con sidebar y tabs dinámicas     :done, 2026-04-08, 1d
+    Lógica tabs: intersección títulos × servicio    :done, 2026-04-08, 1d
+    Modelo AtletaAsignado con servicio AMBOS        :done, 2026-04-08, 1d
+
+    section 🥗 Módulo Nutrición
+    Servicio USDA FoodData Central + MyMemory ES-EN :done, 2026-04-08, 1d
+    BuscadorAlimentoComponent (nombre + código)     :done, 2026-04-08, 1d
+    GestionNutricionComponent (lista y crear plan)  :done, 2026-04-08, 1d
+    Comidas dinámicas con nombre editable           :done, 2026-04-08, 1d
+    Últimos alimentos usados por comida (localStorage):done, 2026-04-08, 1d
+    Macros en tiempo real (computed signals)        :done, 2026-04-08, 1d
+    RecetasService con persistencia localStorage   :done, 2026-04-08, 1d
+    Panel creador de recetas con ingredientes       :done, 2026-04-08, 1d
+    Recetas añadibles a comidas como alimento       :done, 2026-04-08, 1d
+
     section 📄 Especificación Backend
     Endpoints admin verificación credenciales       :done, 2026-03-31, 1d
-    Modelo datos documentos (status, rejection_reason, auditoría) :done, 2026-03-31, 1d
+    Modelo datos documentos (status, auditoría)     :done, 2026-03-31, 1d
+    Endpoints nutrición documentados en NAVIGATION  :done, 2026-04-08, 1d
 ```
 
 ---
@@ -60,7 +80,8 @@ gantt
 | 24 Mar | Landing, footer, registro entrenador, registro atleta |
 | 25 Mar | Reestructuración de archivos, navigation flow |
 | 26 Mar | Proxy, campo servicio + objetivo condicional, titulaciones oficiales, scroll to top, dashboard atleta completo |
-| 31 Mar | Hero responsive (media queries portátil, titular fluido, ticker oculto en <xl), indicador de scroll animado, scrollbar oculta, página pendiente con estado RECHAZADO diferenciado, BACKEND.md con endpoints admin y modelo de auditoría de documentos |
+| 31 Mar | Hero responsive, indicador scroll animado, scrollbar oculta, página pendiente con estado RECHAZADO, BACKEND.md endpoints admin |
+| 08 Abr | Dashboard entrenador reconstruido (lista atletas + filtros + tabs dinámicas). Módulo de nutrición completo: búsqueda USDA con traducción MyMemory, buscador por nombre y código de barras, creación de planes con comidas dinámicas, últimos usados por comida, macros en tiempo real, recetas propias reutilizables. NAVIGATION_FLOW actualizado con secciones 6 y 7. |
 
 ---
 
@@ -74,8 +95,9 @@ gantt
 | `pages/atleta` | ✅ |
 | `pages/pendiente` | ✅ en revisión + rechazado |
 | `pages/dashboard-atleta` | ✅ estructura + tabs |
-| `pages/dashboard-entrenador` | 🔲 placeholder |
-| `pages/dashboard-entrenador-nutricion` | 🔲 placeholder |
+| `pages/dashboard-entrenador` | ✅ lista atletas + tabs + nutrición |
+| `pages/dashboard-entrenador-nutricion` | 🔲 pendiente unificación |
+| `pages/dashboard-entrenador-solo-nutricion` | 🔲 pendiente unificación |
 | `components/footer` | ✅ |
 | `components/hero` | ✅ responsive portátil |
 | `components/splash` | ✅ |
@@ -83,8 +105,14 @@ gantt
 | `components/verification` | ✅ |
 | `components/role-selector` | ✅ |
 | `components/grit-loader` | ✅ |
+| `components/buscador-alimento` | ✅ USDA + código de barras |
+| `components/gestion-nutricion` | ✅ planes + comidas + recetas |
 | `services/auth.service` | ✅ signals + mock |
+| `services/entrenador.service` | ✅ mock con AMBOS |
+| `services/nutricion.service` | ✅ planes + últimos usados |
+| `services/open-food-facts.service` | ✅ USDA + MyMemory |
+| `services/recetas.service` | ✅ localStorage |
 
 ---
 
-> **Hoy:** 31 de Marzo de 2026
+> **Hoy:** 08 de Abril de 2026
