@@ -9,11 +9,10 @@ import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +23,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class UsuarioService {
-    private final JwtService jwtService;
     private final UsuarioMapper usuarioMapper;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
+
+    @Value("${application.security.pepper}")
+    private String pepper;
 
     public List<UsuarioDTO> findAll() {
         return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
@@ -52,7 +52,8 @@ public class UsuarioService {
 
         Usuario usuario = usuarioMapper.toEntity(usuarioDTO);
 
-        usuario.setPassword(passwordEncoder.encode(usuarioDTO.password()));
+        String passwordWithPepper = usuarioDTO.password() + pepper;
+        usuario.setPassword(passwordEncoder.encode(passwordWithPepper));
 
         Usuario guardado = usuarioRepository.save(usuario);
 
@@ -68,8 +69,11 @@ public class UsuarioService {
     public LoginResponseDTO login(LoginRequestDTO loginDto) {
         log.info(">>> Intentando autenticar usuario: {}", loginDto.email());
 
+        String passwordWithPepper = loginDto.password() + pepper;
+
         var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
+                new UsernamePasswordAuthenticationToken(loginDto.email(),
+                        passwordWithPepper)
         );
 
         Usuario usuario = (Usuario) auth.getPrincipal();
@@ -79,19 +83,6 @@ public class UsuarioService {
         log.info("<<< Autenticación exitosa para: {}", usuario.getEmail());
 
         return new LoginResponseDTO(true, data);
-    }
-
-    public void registrar(RegistroRequestDTO registroDto) {
-        if (usuarioRepository.existsByEmail(registroDto.email())) {
-            throw new UsuarioExistenteException("Usuario existente");
-        }
-
-        Usuario usuario = new Usuario();
-        usuario.setNombre(registroDto.username());
-        usuario.setEmail(registroDto.email());
-        usuario.setPassword(passwordEncoder.encode(registroDto.password()));
-        usuario.setRol(Rol.ATLETA);
-        usuarioRepository.save(usuario);
     }
 
     public UsuarioDTO obtenerUsuarioActual() {

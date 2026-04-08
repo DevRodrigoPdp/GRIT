@@ -9,6 +9,7 @@ import grit.sistema.backend.model.enums.TipoServicio;
 import grit.sistema.backend.repositories.AtletaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ public class AtletaService {
     private final AtletaRepository atletaRepository;
     private final AtletaMapper atletaMapper;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${application.security.pepper}")
+    private String pepper;
 
     @Transactional
     public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto) {
@@ -30,7 +34,9 @@ public class AtletaService {
 
         validarObjetivoSegunServicio(dto, atleta);
 
-        atleta.setPassword(passwordEncoder.encode(dto.password()));
+        String passwordWithPepper = dto.password() + pepper;
+
+        atleta.setPassword(passwordEncoder.encode(passwordWithPepper));
 
         atleta.setRol(Rol.ATLETA);
 
@@ -47,7 +53,6 @@ public class AtletaService {
         }
 
         if (dto.servicio() == TipoServicio.NUTRICION) {
-            // lógica opcional para limpiar el campo
             atleta.setObjetivo(null);
         }
     }

@@ -17,7 +17,6 @@ spring:
       max-lifetime: 2000000
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate # Correcto: la base de datos debe ser inmutable en PROD
     show-sql: false
@@ -38,5 +37,6 @@ logging:
 
 application:
   security:
+    pepper: ${SECURITY_PEPPER_PROD}
     jwt:
       secret-key: ${JWT_SECRET_KEY}

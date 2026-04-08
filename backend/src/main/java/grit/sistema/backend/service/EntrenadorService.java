@@ -15,6 +15,7 @@ import grit.sistema.backend.repositories.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,9 @@ public class EntrenadorService {
     private final EntrenadorMapper entrenadorMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${application.security.pepper}")
+    private String pepper;
+
     @Transactional
     public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request) {
         validarRequisitosProfesionales(request);
@@ -37,11 +41,11 @@ public class EntrenadorService {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
 
-        // 1. Crear y PERSISTIR el Usuario primero
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre());
         usuario.setEmail(request.getEmail());
-        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        String passwordWithPepper = request.getPassword() + pepper;
+        usuario.setPassword(passwordEncoder.encode(passwordWithPepper));
         usuario.setRol(Rol.ENTRENADOR);
         usuario.setEstado(EstadoUsuario.PENDIENTE_REVISION);
 
@@ -54,9 +58,8 @@ public class EntrenadorService {
 
         Entrenador entrenador = entrenadorMapper.toEntity(request, usuario, urls);
 
-        // VINCULACIÓN MANUAL CRÍTICA:
         entrenador.setUsuario(usuario);
-        entrenador.setId(usuario.getId()); // Aseguramos que el ID coincida antes de entrar al repo
+        entrenador.setId(usuario.getId());
 
 
         try {

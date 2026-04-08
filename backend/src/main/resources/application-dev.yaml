@@ -18,7 +18,6 @@ spring:
     baseline-on-migrate: true
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate # Flyway manda, Hibernate solo valida que todo coincida
     show-sql: false
@@ -31,9 +30,11 @@ logging:
     grit.sistema.backend: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.SQL: DEBUG
+    org.flywaydb.core.internal.database.base.Database: ERROR
 
 application:
     security:
+      pepper: ${SECURITY_PEPPER_PROD:pepper_dev_local_secret_2026}
       jwt:
         # Clave de desarrollo (puede ser conocida por el equipo)
         secret-key: ${JWT_SECRET_KEY:clave_de_desarrollo_muy_larga_y_segura_1234567890}

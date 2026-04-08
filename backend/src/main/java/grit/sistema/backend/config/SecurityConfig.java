@@ -52,6 +52,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        .requestMatchers("/api/v1/diagnostic/**").permitAll()
+
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         .requestMatchers("/api/v1/entrenamientos/**").hasAnyRole("ATLETA", "ADMIN")
