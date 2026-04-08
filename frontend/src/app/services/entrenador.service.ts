@@ -21,7 +21,8 @@ export interface AtletaAsignado {
   nombre: string;
   deporte: string;
   nivel: 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE';
-  servicio: 'ENTRENAMIENTO' | 'NUTRICION'; // el servicio que cubre este entrenador
+  /** Servicios contratados por el atleta con este entrenador */
+  servicio: 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
   tienePlanActivo: boolean;
 }
 
@@ -32,11 +33,18 @@ const MOCK_PERFIL: PerfilEntrenador = {
   nombre: 'Entrenador Demo',
   correo: 'entrenador@demo.com',
   titulacionEntrenamiento: 'GRADO_CAFYD',
-  titulacionNutricion: null,
+  titulacionNutricion: 'GRADO_NUTRICION_DIETETICA',
   experienciaAnos: 5,
   descripcion: 'Especialista en rendimiento deportivo.',
   estado: 'ACTIVO',
 };
+
+const MOCK_ATLETAS: AtletaAsignado[] = [
+  { id: 'atleta-1', nombre: 'Carlos Ruiz',     deporte: 'Fútbol',    nivel: 'AVANZADO',    servicio: 'AMBOS',          tienePlanActivo: true  },
+  { id: 'atleta-2', nombre: 'Laura Sánchez',   deporte: 'CrossFit',  nivel: 'INTERMEDIO',  servicio: 'ENTRENAMIENTO',  tienePlanActivo: true  },
+  { id: 'atleta-3', nombre: 'Marcos Ibáñez',   deporte: 'Natación',  nivel: 'ELITE',       servicio: 'NUTRICION',      tienePlanActivo: false },
+  { id: 'atleta-4', nombre: 'Sara Molina',     deporte: 'Atletismo', nivel: 'PRINCIPIANTE',servicio: 'AMBOS',          tienePlanActivo: false },
+];
 
 // ── Servicio ─────────────────────────────────────────────────────────────────
 
@@ -66,14 +74,10 @@ export class EntrenadorService {
    * Filtra por servicio: 'ENTRENAMIENTO' | 'NUTRICION' | undefined (todos)
    * TODO: descomentar llamada real cuando haya backend.
    */
-  getMisAtletas(servicio?: 'ENTRENAMIENTO' | 'NUTRICION'): Observable<AtletaAsignado[]> {
+  getMisAtletas(): Observable<AtletaAsignado[]> {
     // ── REAL ──────────────────────────────────────────────────────────────
-    // const params = servicio ? `?servicio=${servicio}` : '';
-    // return this.http.get<AtletaAsignado[]>(
-    //   `${this.API}/atletas${params}`,
-    //   { withCredentials: true }
-    // );
+    // return this.http.get<AtletaAsignado[]>(`${this.API}/atletas`, { withCredentials: true });
     // ── MOCK ──────────────────────────────────────────────────────────────
-    return of([]); // sin atletas asignados por defecto
+    return of(MOCK_ATLETAS);
   }
 }

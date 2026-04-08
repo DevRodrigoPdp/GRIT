@@ -212,7 +212,15 @@ export class AuthService {
     //     })
     //   );
     // ── MOCK ──────────────────────────────────────────────────────────────
-    return of(null); // los signals ya tienen datos del registro/login
+    // Restaura sesión demo tras F5 (entrenador con ambos títulos)
+    if (!this.rol()) {
+      this.rol.set('ENTRENADOR');
+      this.estado.set('ACTIVO');
+      this.tituloEntrenamiento.set(true);
+      this.tituloNutricion.set(true);
+      this.nombre.set('Entrenador Demo');
+    }
+    return of(null);
   }
 
   // ── Logout ───────────────────────────────────────────────────────────────
