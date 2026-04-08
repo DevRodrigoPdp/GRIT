@@ -1,6 +1,5 @@
 package grit.sistema.backend.security;
 
-import grit.sistema.backend.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -24,7 +23,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtService jwtService;
+    private final JwtUtils jwtUtils;
 
     @Override
     protected void doFilterInternal(
@@ -55,12 +54,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            userEmail = jwtService.extraerEmail(jwt);
+            userEmail = jwtUtils.extraerEmail(jwt);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                if (jwtService.esTokenValido(jwt, userEmail)) {
+                if (jwtUtils.esTokenValido(jwt, userEmail)) {
 
-                    String rol = jwtService.extraerRol(jwt);
+                    String rol = jwtUtils.extraerRol(jwt);
 
                     String authorityName = rol.startsWith("ROLE_") ? rol : "ROLE_" + rol;
                     var authority = new SimpleGrantedAuthority(authorityName);

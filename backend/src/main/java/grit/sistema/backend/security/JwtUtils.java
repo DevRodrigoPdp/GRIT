@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JwtService {
+public class JwtUtils {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;

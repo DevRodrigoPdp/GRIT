@@ -4,7 +4,7 @@ import grit.sistema.backend.dto.*;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.service.AtletaService;
 import grit.sistema.backend.service.EntrenadorService;
-import grit.sistema.backend.service.JwtService;
+import grit.sistema.backend.security.JwtUtils;
 import grit.sistema.backend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,12 +15,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @Tag(name = "Autenticación")
 @RestController
@@ -31,7 +28,7 @@ public class AuthController {
     private final UsuarioService usuarioService;
     private final AtletaService atletaService;
     private final EntrenadorService entrenadorService;
-    private final JwtService jwtService;
+    private final JwtUtils jwtUtils;
 
     // Inyectamos las mismas variables que en JwtService
     @Value("${application.security.jwt.expiration}")
@@ -86,8 +83,8 @@ public class AuthController {
 
         AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto);
 
-        String accessToken = jwtService.generarAccessToken(dto.email(), Rol.ATLETA.name());
-        String refreshToken = jwtService.generarRefreshToken(dto.email());
+        String accessToken = jwtUtils.generarAccessToken(dto.email(), Rol.ATLETA.name());
+        String refreshToken = jwtUtils.generarRefreshToken(dto.email());
 
         HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
 
@@ -112,8 +109,8 @@ public class AuthController {
 
         // Para cumplir con el requerimiento de cookies en el login:
         // Suponiendo que 'response' tiene los tokens que generó el usuarioService
-        String refreshToken = jwtService.generarRefreshToken(loginDto.email());
-        String accessToken = jwtService.generarAccessToken(loginDto.email(), response.data().rol());
+        String refreshToken = jwtUtils.generarRefreshToken(loginDto.email());
+        String accessToken = jwtUtils.generarAccessToken(loginDto.email(), response.data().rol());
 
         HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
 
@@ -156,13 +153,13 @@ public class AuthController {
 
         log.info(">>> Solicitud de refresco de token recibida");
 
-        if (refreshToken == null || !jwtService.esTokenValido(refreshToken, jwtService.extraerEmail(refreshToken))) {
+        if (refreshToken == null || !jwtUtils.esTokenValido(refreshToken, jwtUtils.extraerEmail(refreshToken))) {
             log.warn("Refresh token ausente o inválido");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         // 1. Extraer datos del token actual
-        String email = jwtService.extraerEmail(refreshToken);
+        String email = jwtUtils.extraerEmail(refreshToken);
 
         // 2. Obtener los datos del usuario para el nuevo Access Token y el Body
         // Usamos el servicio para asegurar que el usuario sigue activo y con el mismo rol
@@ -170,7 +167,7 @@ public class AuthController {
         // Nota: Asegúrate de tener findByEmail en tu Service que devuelva los datos necesarios
 
         // 3. Generar nuevo Access Token
-        String newAccessToken = jwtService.generarAccessToken(email, usuarioDto.rol());
+        String newAccessToken = jwtUtils.generarAccessToken(email, usuarioDto.rol());
 
         // 4. Generar las headers (el Refresh Token se mantiene o se puede rotar)
         // En este caso, reutilizamos el mismo Refresh para no cerrar sesión al usuario
