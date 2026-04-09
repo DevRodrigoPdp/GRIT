@@ -4,6 +4,7 @@ import grit.sistema.backend.dto.LoginData;
 import grit.sistema.backend.dto.LoginResponseDTO;
 import grit.sistema.backend.dto.UsuarioDTO;
 import grit.sistema.backend.model.Atleta;
+import grit.sistema.backend.model.Entrenador;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.Rol;
 import org.springframework.stereotype.Component;
@@ -31,12 +32,12 @@ public class UsuarioMapper {
 
 //        if (usuario instanceof Entrenador entrenador) {
 //            // Si es instancia de Entrenador, tenemos acceso a los títulos
-//            return new LoginDataResponse(
+//            return new LoginData(
 //                    rol,
 //                    estado,
 //                    nombre,
-//                    entrenador.getTituloEntrenamiento(),
-//                    entrenador.getTituloNutricion(),
+//                    entrenador.getTieneTituloEntrenamiento(),
+//                    entrenador.getTieneTituloNutricion(),
 //                    null // servicio (Entrenador -> null)
 //            );
 //        }
