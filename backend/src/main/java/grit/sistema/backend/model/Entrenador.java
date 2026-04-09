@@ -71,7 +71,8 @@ public class Entrenador implements org.springframework.data.domain.Persistable<U
     }
 
     @Override
+    @Transient
     public boolean isNew() {
-        return fechaSolicitud == null;
+        return true; // Solo para esta prueba, fuerza a que siempre sea un INSERT
     }
 }
