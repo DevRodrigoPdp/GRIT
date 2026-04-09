@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,8 +48,13 @@ public class UsuarioService {
         return usuarioMapper.toDTO(usuario);
     }
 
+    @Transactional
     public UsuarioDTO guardar(UsuarioDTO usuarioDTO) {
         log.info("Iniciando creación de usuario para: {}", usuarioDTO.email());
+
+        if (usuarioRepository.existsByEmail(usuarioDTO.email())) {
+            throw new UsuarioExistenteException("El correo electrónico ya está registrado");
+        }
 
         Usuario usuario = usuarioMapper.toEntity(usuarioDTO);
 

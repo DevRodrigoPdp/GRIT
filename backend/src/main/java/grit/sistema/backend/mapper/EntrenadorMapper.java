@@ -16,6 +16,7 @@ public class EntrenadorMapper {
         if (request == null || usuario == null) return null;
 
         Entrenador entrenador = Entrenador.builder()
+                .id(usuario.getId())
                 .usuario(usuario)
                 .codigoProfesional(request.getCodigoProfesional())
                 .titulacionEntrenamiento(request.getTitulacionEntrenamiento())
@@ -46,8 +47,8 @@ public class EntrenadorMapper {
                 nombre,
                 rol,
                 entrenador.getEstado(),
-                entrenador.isTieneTituloEntrenamiento(),
-                entrenador.isTieneTituloNutricion()
+                entrenador.getTieneTituloEntrenamiento(),
+                entrenador.getTieneTituloNutricion()
         );
     }
 }

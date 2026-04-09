@@ -12,6 +12,8 @@ import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.model.enums.TitulacionNutricion;
 import grit.sistema.backend.repositories.EntrenadorRepository;
 import grit.sistema.backend.repositories.UsuarioRepository;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class EntrenadorService {
+    private final EntityManager entityManager;
+
     private final UsuarioRepository usuarioRepository;
     private final EntrenadorRepository entrenadorRepository;
     private final EntrenadorMapper entrenadorMapper;
@@ -63,7 +67,10 @@ public class EntrenadorService {
 
 
         try {
-            entrenador = entrenadorRepository.save(entrenador);
+            entrenador = entrenadorRepository.saveAndFlush(entrenador);
+
+            // 2. Refrescamos la entidad desde la DB para cargar los campos @Generated (Boolean)
+            entityManager.refresh(entrenador);
         } catch (Exception e) {
             log.error("Fallo al guardar entrenador: {}", e.getMessage());
             throw e;

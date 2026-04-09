@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     }
 
     // 3. Errores de Validación (400) - REFACTORIZADO
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorRespuestaDTO> handleValidationErrors(MethodArgumentNotValidException e, HttpServletRequest request) {
         // Unificamos los errores en un solo string o podrías mejorar el DTO para aceptar una lista
         String mensaje = e.getBindingResult().getFieldErrors()
@@ -43,6 +43,17 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         return buildErrorResponse("Error de validación: " + mensaje, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorRespuestaDTO> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        ErrorRespuestaDTO error = new ErrorRespuestaDTO(
+                LocalDateTime.now(),
+                "Datos de entrada inválidos: " + ex.getMessage(),
+                request.getRequestURI(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     // 4. Errores de Recursos No Encontrados (404)

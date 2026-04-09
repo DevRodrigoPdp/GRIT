@@ -1,6 +1,5 @@
 package grit.sistema.backend;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc // Configura el cliente HTTP de prueba
 @ActiveProfiles("test") // Usa el profile de test (H2 en memoria)
-public class ManagementSecurityTest {
+public class ActuatorSecurityTest {
 
     @Autowired // La inyección DEBE ser así en los tests de Spring
     private MockMvc mockMvc;
@@ -36,4 +35,5 @@ public class ManagementSecurityTest {
         mockMvc.perform(get("/management/metrics"))
                 .andExpect(status().isUnauthorized());
     }
+
 }

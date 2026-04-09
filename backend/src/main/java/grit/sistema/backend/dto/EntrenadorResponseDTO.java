@@ -10,8 +10,7 @@ public record EntrenadorResponseDTO(
         String nombre,
         Rol rol,
         EstadoRevision estado,
-        boolean tituloEntrenamiento,
-        boolean tituloNutricion
-
+        Boolean tituloEntrenamiento,
+        Boolean tituloNutricion
 ) {
 }

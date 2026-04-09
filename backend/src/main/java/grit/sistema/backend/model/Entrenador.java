@@ -39,11 +39,11 @@ public class Entrenador implements org.springframework.data.domain.Persistable<U
     // Solo lectura: PostgreSQL los gestiona
     @Column(name = "tiene_titulo_entrenamiento", insertable = false, updatable = false)
     @org.hibernate.annotations.Generated
-    private boolean tieneTituloEntrenamiento;
+    private Boolean tieneTituloEntrenamiento;
 
     @Column(name = "tiene_titulo_nutricion", insertable = false, updatable = false)
     @org.hibernate.annotations.Generated
-    private boolean tieneTituloNutricion;
+    private Boolean tieneTituloNutricion;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -72,9 +72,6 @@ public class Entrenador implements org.springframework.data.domain.Persistable<U
 
     @Override
     public boolean isNew() {
-        // Si el ID es el del usuario y acabamos de crearlo,
-        // podemos usar un flag o simplemente retornar true
-        // si sabemos que en el registro siempre es nuevo.
-        return true;
+        return fechaSolicitud == null;
     }
 }
