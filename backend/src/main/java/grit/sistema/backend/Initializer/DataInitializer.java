@@ -7,6 +7,7 @@ import grit.sistema.backend.model.enums.*;
 import grit.sistema.backend.repositories.AtletaRepository;
 import grit.sistema.backend.repositories.EntrenadorRepository;
 import grit.sistema.backend.repositories.UsuarioRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 
 @Component
 @Profile("dev") // Solo se ejecuta en modo desarrollo
+@Slf4j
 public class DataInitializer implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
@@ -42,15 +44,20 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        // 1. Crear Admin primero (independiente)
-        crearAdminSiNoExiste();
-        // 2. Forzar envío a DB para limpiar el contexto
-        usuarioRepository.flush();
+        if (usuarioRepository.count() == 0) {
+            log.info("Base de datos vacía. Creando usuarios iniciales...");
+            // 1. Crear Admin primero (independiente)
+            crearAdminSiNoExiste();
+            // 2. Forzar envío a DB para limpiar el contexto
+            usuarioRepository.flush();
 
-        crearEntrenadorSiNoExiste();
-        usuarioRepository.flush();
+            crearEntrenadorSiNoExiste();
+            usuarioRepository.flush();
 
-        crearAtletaSiNoExiste();
+            crearAtletaSiNoExiste();
+        } else {
+            log.info("La base de datos ya tiene datos. Saltando inicialización.");
+        }
     }
 
     private void crearAdminSiNoExiste() {
