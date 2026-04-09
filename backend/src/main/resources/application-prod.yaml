@@ -15,12 +15,10 @@ spring:
       connection-timeout: 20000 # Aumentamos a 20s para el arranque inicial en la nube
       idle-timeout: 30000
       max-lifetime: 2000000
-
   jpa:
     hibernate:
       ddl-auto: validate # Correcto: la base de datos debe ser inmutable en PROD
     show-sql: false
-
   flyway:
     enabled: true
     # Simplificación: usar las mismas credenciales que la app para evitar bloqueos
@@ -40,3 +38,12 @@ application:
     pepper: ${SECURITY_PEPPER_PROD}
     jwt:
       secret-key: ${JWT_SECRET_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info" # Solo salud e info
+  endpoint:
+    health:
+      show-details: when_authorized # Solo si el usuario está autenticado

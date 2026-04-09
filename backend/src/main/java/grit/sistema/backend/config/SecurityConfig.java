@@ -39,25 +39,27 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth-> auth
-                        //Documentación Swagger
+                        // 1. Recursos totalmente públicos (Swagger, Auth, Health)
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/v1/auth/**",
+                                "/api/v1/diagnostic/**",
+                                "/management/health" // Salud pública para monitoreo
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated() // Cualquier logueado ve SU perfil
-                        .requestMatchers( "/api/v1/usuarios/**").hasRole("ADMIN")
+                        // 2. Endpoints específicos de Actuator para ADMIN
+                        .requestMatchers("/management/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-
-                        .requestMatchers("/api/v1/diagnostic/**").permitAll()
-
+                        // 3. Lógica de negocio específica
+                        .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated()
+                        .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-
                         .requestMatchers("/api/v1/entrenamientos/**").hasAnyRole("ATLETA", "ADMIN")
 
+                        // 4. Todo lo demás requiere estar autenticado
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -8,7 +8,6 @@ spring:
   threads:
     virtual:
       enabled: true
-
   # Configuración para que los DTO (Records) se serialicen bien
   jackson:
     serialization:
@@ -25,3 +24,11 @@ application:
       expiration: 900000
       refresh-token:
         expiration: 604800000
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+  info:
+    env:
+      enabled: true
