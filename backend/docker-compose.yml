@@ -21,6 +21,24 @@ services:
       - backend-network
     restart: unless-stopped
 
+  backend-app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: grit-backend
+      ports:
+        - "9090:8080"
+      environment:
+        - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/grit_db
+        - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+        - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+        - SPRING_JPA_HIBERNATE_DDL_AUTO=validate # Flyway gestionará la estructura
+      depends_on:
+        postgres-db:
+          condition: service_healthy
+      networks:
+        - backend-network
+
 networks:
   backend-network:
     name: grit-postgres-net
