@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { EntrenadorService, AtletaAsignado } from '../../services/entrenador.service';
 import { GestionNutricionComponent } from '../../components/gestion-nutricion/gestion-nutricion';
+import { GestionEntrenamientoComponent } from '../../components/gestion-entrenamiento/gestion-entrenamiento';
 
 type Tab = 'ENTRENAMIENTO' | 'NUTRICION';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
@@ -10,7 +11,7 @@ type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
 @Component({
   selector: 'app-dashboard-entrenador',
   standalone: true,
-  imports: [GestionNutricionComponent, FormsModule],
+  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule],
   templateUrl: './dashboard-entrenador.html',
 })
 export class DashboardEntrenadorPage implements OnInit {

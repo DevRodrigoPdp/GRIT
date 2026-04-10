@@ -1,0 +1,255 @@
+<!-- ── OVERLAY: Buscador de ejercicios ───────────────────────────────────────── -->
+@if (buscadorAbierto()) {
+<app-buscador-ejercicio (seleccionado)="agregarEjercicio($event)" (cancelado)="buscadorAbierto.set(false)" />
+}
+
+<!-- ── LISTA DE RUTINAS ───────────────────────────────────────────────────── -->
+@if (vista() === 'lista') {
+<div class="flex-1 overflow-y-auto py-6">
+
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-3 h-px bg-black"></div>
+        <span class="text-xs font-bold tracking-[0.25em] uppercase text-black">ENTRENAMIENTO</span>
+      </div>
+      <h2 class="text-2xl font-black uppercase tracking-tighter text-black">RUTINAS</h2>
+    </div>
+    <button (click)="iniciarCreacion()"
+      class="bg-black text-white text-sm font-black tracking-[0.15em] uppercase px-4 py-2.5 hover:bg-[#2ED38D] hover:text-black transition-colors">
+      + NUEVA RUTINA
+    </button>
+  </div>
+
+  @if (rutinas().length === 0) {
+  <div class="border border-dashed border-[#E5E7EB] p-10 text-center">
+    <div class="w-1.5 h-1.5 bg-gray-200 mx-auto mb-3"></div>
+    <p class="text-sm font-black tracking-[0.15em] uppercase text-gray-300 mb-1">SIN RUTINAS</p>
+    <p class="text-sm font-light text-gray-400">Crea la primera rutina de entrenamiento para este atleta.</p>
+  </div>
+  }
+
+  @for (rutina of rutinas(); track rutina.id) {
+  <div class="border border-[#E5E7EB] mb-3 hover:border-black transition-colors group">
+    <!-- Header rutina -->
+    <div class="p-5 pb-4">
+      <div class="flex items-start justify-between">
+        <div class="flex-1 min-w-0 mr-4">
+          <p class="text-sm font-black uppercase tracking-tight text-black">{{ rutina.nombre }}</p>
+          @if (rutina.descripcion) {
+          <p class="text-sm font-light text-gray-400 mt-0.5">{{ rutina.descripcion }}</p>
+          }
+        </div>
+        <button (click)="eliminarRutina(rutina.id)"
+          class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100">ELIMINAR</button>
+      </div>
+    </div>
+
+    <!-- Sesiones (chips) -->
+    <div class="px-5 pb-5">
+      <div class="flex flex-wrap gap-2">
+        @for (sesion of rutina.sesiones; track sesion.id) {
+        <div class="border border-[#E5E7EB] px-3 py-2 flex flex-col gap-0.5">
+          <p class="text-sm font-black uppercase tracking-tight text-black leading-none">{{ sesion.nombre }}</p>
+          <p class="text-[11px] font-light text-gray-400">{{ sesion.ejercicios.length }} ejerc.</p>
+        </div>
+        }
+        <div class="ml-auto self-end text-right">
+          <p class="text-sm font-light text-gray-400">{{ entrenamiento.totalEjercicios(rutina) }} total</p>
+          <p class="text-[11px] font-light text-gray-300">{{ rutina.creadoEn | date:'dd/MM/yy' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+}
+
+<!-- ── CREAR RUTINA ────────────────────────────────────────────────────────── -->
+@if (vista() === 'crear') {
+<div class="flex-1 min-h-0 flex flex-col">
+
+  <!-- Cabecera con nombre + volver -->
+  <div class="flex items-start gap-4 pt-6 pb-4 flex-shrink-0">
+    <div class="flex-1">
+      <input [value]="nombreRutina()" (input)="nombreRutina.set($any($event.target).value)"
+        placeholder="Nombre de la rutina..."
+        class="w-full text-2xl font-black uppercase tracking-tighter placeholder:text-gray-200 outline-none border-b-2 border-black pb-1 focus:border-[#2ED38D] transition-colors bg-transparent" />
+      <input [value]="descripcionRutina()" (input)="descripcionRutina.set($any($event.target).value)"
+        placeholder="Descripción opcional..."
+        class="w-full text-sm font-light placeholder:text-gray-300 outline-none mt-2 border-b border-[#E5E7EB] pb-1 focus:border-black transition-colors bg-transparent" />
+    </div>
+    <button (click)="vista.set('lista')"
+      class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors flex-shrink-0 mt-1">←
+      VOLVER</button>
+  </div>
+
+  <!-- Tabs de sesiones -->
+  <div class="flex items-end gap-0 border-b border-[#E5E7EB] mb-0 flex-shrink-0 flex-wrap">
+    @for (sesion of sesiones(); track sesion.id; let si = $index) {
+    <button (click)="sesionActivaIdx.set(si); editandoNombreSesion.set(false)"
+      [class]="sesionActivaIdx() === si
+            ? 'px-5 py-3 text-xs font-black tracking-[0.15em] uppercase border-b-2 border-black text-black -mb-px whitespace-nowrap flex-shrink-0'
+            : 'px-5 py-3 text-xs font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors whitespace-nowrap flex-shrink-0'">
+      {{ sesion.nombre }}
+    </button>
+    }
+    <!-- Añadir sesión -->
+    <button (click)="agregarSesion()"
+      class="px-4 py-3 text-xs font-bold tracking-[0.15em] text-gray-300 hover:text-black transition-colors whitespace-nowrap flex-shrink-0">+
+      SESIÓN</button>
+  </div>
+
+  <!-- Contenido sesión activa -->
+  @if (sesionActiva(); as sesion) {
+  <div class="flex-1 min-h-0 overflow-y-auto pb-4">
+
+    <!-- Cabecera sesión activa: nombre editable + botones -->
+    <div class="flex items-center gap-3 py-3 border-b border-[#E5E7EB] mb-4">
+      @if (editandoNombreSesion()) {
+      <input [value]="sesion.nombre" (input)="actualizarNombreSesion(sesionActivaIdx(), $any($event.target).value)"
+        (blur)="editandoNombreSesion.set(false)" (keydown.enter)="editandoNombreSesion.set(false)"
+        class="flex-1 text-xs font-black tracking-[0.15em] uppercase outline-none border-b border-black pb-0.5 bg-transparent focus:border-[#2ED38D] transition-colors"
+        autofocus />
+      } @else {
+      <button (click)="editandoNombreSesion.set(true)"
+        class="flex-1 text-left text-xs font-black tracking-[0.15em] uppercase text-black hover:text-gray-500 transition-colors"
+        title="Click para renombrar">
+        {{ sesion.nombre }} <span class="text-gray-300 font-normal text-[11px] ml-1">✎</span>
+      </button>
+      }
+
+      <div class="flex items-center gap-2 flex-shrink-0">
+        @if (sesiones().length > 1) {
+        <button (click)="eliminarSesion(sesionActivaIdx())"
+          class="text-[11px] font-bold tracking-[0.1em] uppercase text-gray-300 hover:text-red-400 transition-colors">BORRAR
+          SESIÓN</button>
+        }
+        <button (click)="buscadorAbierto.set(true)"
+          class="text-[11px] font-black tracking-[0.15em] uppercase bg-black text-white px-4 py-2 hover:bg-[#2ED38D] hover:text-black transition-colors">+
+          EJERCICIO</button>
+      </div>
+    </div>
+
+    <!-- Últimos usados -->
+    @let recientes = entrenamiento.ultimosDeSesion(sesion.nombre);
+    @if (recientes.length > 0) {
+    <div class="mb-4">
+      <p class="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">ÚLTIMOS USADOS</p>
+      <div class="flex flex-wrap gap-1.5">
+        @for (reciente of recientes; track reciente.id) {
+        <button (click)="agregarReciente(reciente)" [disabled]="yaEnSesion(sesionActivaIdx(), reciente.id)" class="text-[11px] font-bold tracking-[0.1em] uppercase px-2.5 py-1.5 border transition-colors max-w-[200px] truncate
+                    disabled:border-[#E5E7EB] disabled:text-gray-200 disabled:cursor-not-allowed
+                    enabled:border-[#E5E7EB] enabled:text-gray-500 enabled:hover:border-black enabled:hover:text-black"
+          [title]="reciente.nombre + ' · ' + reciente.categoria">+ {{ reciente.nombre }}</button>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Sin ejercicios -->
+    @if (sesion.ejercicios.length === 0) {
+    <div class="border border-dashed border-[#E5E7EB] p-10 text-center my-4">
+      <div class="w-1.5 h-1.5 bg-gray-200 mx-auto mb-3"></div>
+      <p class="text-sm font-black tracking-[0.15em] uppercase text-gray-300 mb-1">SIN EJERCICIOS</p>
+      <p class="text-sm font-light text-gray-400 mb-4">Añade ejercicios a esta sesión.</p>
+      <button (click)="buscadorAbierto.set(true)"
+        class="bg-black text-white text-[11px] font-black tracking-[0.2em] uppercase px-5 py-2.5 hover:bg-[#2ED38D] hover:text-black transition-colors">BUSCAR
+        EJERCICIO</button>
+    </div>
+    }
+
+    <!-- Tarjetas de ejercicio -->
+    @for (item of sesion.ejercicios; track $index; let ei = $index) {
+    @let si = sesionActivaIdx();
+    <div class="border border-[#E5E7EB] mb-2 hover:border-gray-300 transition-colors group/card">
+      <div class="flex gap-0">
+
+        <!-- Imagen del ejercicio -->
+        @if (item.ejercicio.imagenes[0]) {
+        <div class="w-20 h-20 overflow-hidden border-r border-[#E5E7EB] flex-shrink-0">
+          <img [src]="item.ejercicio.imagenes[0]" [alt]="item.ejercicio.nombre" class="w-full h-full object-cover"
+            loading="lazy" />
+        </div>
+        } @else {
+        <div class="w-20 h-20 flex-shrink-0 bg-[#FAFAFA] border-r border-[#E5E7EB] flex items-center justify-center">
+          <span class="text-2xl text-gray-200">◈</span>
+        </div>
+        }
+
+        <!-- Info + controles -->
+        <div class="flex-1 px-4 py-3 min-w-0">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                <p class="text-sm font-black uppercase tracking-tight text-black leading-tight">
+                  {{ item.ejercicio.nombre }}
+                </p>
+                <span
+                  class="text-[11px] font-black tracking-[0.15em] uppercase px-1.5 py-0.5 bg-black text-white flex-shrink-0">
+                  {{ item.ejercicio.categoria }}
+                </span>
+              </div>
+              @if (item.ejercicio.musculoPrincipal !== '—') {
+              <p class="text-[11px] font-light text-gray-400">{{ item.ejercicio.musculoPrincipal }}</p>
+              }
+            </div>
+            <button (click)="quitarEjercicio(si, ei)"
+              class="text-gray-300 hover:text-red-400 transition-colors text-sm flex-shrink-0">✕</button>
+          </div>
+
+          <!-- Controles inline: series × reps · descanso -->
+          <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+
+            <!-- Series -->
+            <div class="flex items-center gap-1">
+              <button (click)="actualizarEjercicio(si, ei, 'series', item.series > 1 ? item.series - 1 : 1)"
+                class="w-5 h-5 border border-[#E5E7EB] text-xs text-gray-400 hover:border-black hover:text-black transition-colors flex items-center justify-center leading-none">−</button>
+              <span class="text-xs font-black w-4 text-center">{{ item.series }}</span>
+              <button (click)="actualizarEjercicio(si, ei, 'series', item.series + 1)"
+                class="w-5 h-5 border border-[#E5E7EB] text-xs text-gray-400 hover:border-black hover:text-black transition-colors flex items-center justify-center leading-none">+</button>
+            </div>
+            <span class="text-sm font-light text-gray-400">series</span>
+
+            <span class="text-gray-300 text-xs">×</span>
+
+            <!-- Reps -->
+            <input [value]="item.reps" (change)="actualizarEjercicio(si, ei, 'reps', $any($event.target).value)"
+              class="w-14 text-xs font-black text-black text-center border-b border-[#E5E7EB] outline-none pb-0.5 focus:border-black transition-colors bg-transparent" />
+            <span class="text-sm font-light text-gray-400">reps</span>
+
+
+          </div>
+
+          <!-- Notas inline -->
+          <input [value]="item.notas" (change)="actualizarEjercicio(si, ei, 'notas', $any($event.target).value)"
+            placeholder="Notas... (opcional)"
+            class="w-full text-sm font-light text-gray-400 placeholder:text-gray-200 outline-none mt-1.5 border-b border-transparent focus:border-[#E5E7EB] transition-colors bg-transparent" />
+        </div>
+      </div>
+    </div>
+    }
+
+  </div>
+  }
+
+  <!-- Footer: resumen + guardar -->
+  <div class="flex-shrink-0 py-4 border-t border-[#E5E7EB] flex items-center justify-between gap-4">
+    <div class="flex items-center gap-5">
+      <div>
+        <p class="text-[11px] font-light text-gray-400 uppercase">Sesiones</p>
+        <p class="text-xl font-black text-black leading-none">{{ sesiones().length }}</p>
+      </div>
+      <div>
+        <p class="text-[11px] font-light text-gray-400 uppercase">Ejercicios</p>
+        <p class="text-xl font-black text-black leading-none">{{ totalEjerciciosBorrador() }}</p>
+      </div>
+    </div>
+    <button (click)="guardarRutina()" [disabled]="!nombreRutina().trim() || guardando()"
+      class="bg-black text-white text-sm font-black tracking-[0.15em] uppercase px-8 py-3 hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+      @if (guardando()) { GUARDANDO... } @else { GUARDAR RUTINA }
+    </button>
+  </div>
+
+</div>
+}
