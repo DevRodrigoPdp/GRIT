@@ -23,7 +23,7 @@ services:
 
   backend-app:
       build:
-        context: .
+        context: ./backend
         dockerfile: Dockerfile
       container_name: grit-backend
       ports:
@@ -42,6 +42,18 @@ services:
       networks:
         - backend-network
 
+  frontend-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: grit-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend-app
+    networks:
+      - backend-network
+    restart: unless-stopped
 networks:
   backend-network:
     name: grit-postgres-net

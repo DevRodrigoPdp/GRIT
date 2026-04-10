@@ -15,6 +15,6 @@ docker/postgres-data/
 # Ignorar archivos de ayuda o logs
 README.md
 *.log
-.env
+../.env
 
 # NO IGNORAR .mvn ni mvnw (son necesarios para el build dentro de Docker)
