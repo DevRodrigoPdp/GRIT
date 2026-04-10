@@ -92,7 +92,10 @@
                 [class.error-field]="fieldError('nombre')"
               />
               @if (fieldError('nombre')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Introduce tu nombre completo</span>
+                <span class="text-xs font-bold text-red-400 tracking-wide">
+                  @if (form.get('nombre')?.hasError('pattern')) { Solo se permiten letras y espacios }
+                  @else { Introduce tu nombre completo (mínimo 3 letras) }
+                </span>
               }
             </div>
 
@@ -145,8 +148,17 @@
                   }
                 </button>
               </div>
-              @if (fieldError('password')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Mínimo 8 caracteres</span>
+              @if (form.get('password')?.dirty || submitted()) {
+                <div class="flex flex-col gap-1 mt-1">
+                  @for (regla of passwordReglas(); track regla.label) {
+                    <span class="text-xs font-bold tracking-wide flex items-center gap-2 transition-colors duration-200"
+                      [class.text-[#2ED38D]]="regla.ok"
+                      [class.text-gray-300]="!regla.ok"
+                    >
+                      {{ regla.ok ? '✓' : '○' }} {{ regla.label }}
+                    </span>
+                  }
+                </div>
               }
             </div>
 
@@ -182,7 +194,7 @@
                   }
                 </button>
               </div>
-              @if (form.get('confirmPassword')?.hasError('mismatch')) {
+              @if (form.get('confirmPassword')?.hasError('mismatch') && (form.get('confirmPassword')?.dirty || submitted())) {
                 <span class="text-xs font-bold text-red-400 tracking-wide">Las contraseñas no coinciden</span>
               } @else if (fieldError('confirmPassword')) {
                 <span class="text-xs font-bold text-red-400 tracking-wide">Confirma tu contraseña</span>
