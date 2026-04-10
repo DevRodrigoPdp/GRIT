@@ -1,5 +1,5 @@
 # =================================================================
-# GLOBAL / SISTEMA OPERATIVO
+# 1. SISTEMA OPERATIVO E IDEs
 # =================================================================
 .DS_Store
 Thumbs.db
@@ -7,21 +7,14 @@ Thumbs.db
 *.tmp
 *.bak
 
-# =================================================================
-# IDEs (Entornos de Desarrollo)
-# =================================================================
-# IntelliJ IDEA
+# IntelliJ / VS Code / Eclipse
 .idea/
 *.iws
 *.iml
 *.ipr
 out/
-
-# VS Code
 .vscode/
 .history/
-
-# Eclipse / STS
 .apt_generated
 .classpath
 .factorypath
@@ -31,47 +24,57 @@ out/
 .sts4-cache
 
 # =================================================================
-# INFRAESTRUCTURA Y SEGURIDAD (CRÍTICO)
+# 2. SEGURIDAD Y VARIABLES DE ENTORNO (CRÍTICO)
 # =================================================================
-# Nunca subir credenciales ni datos persistentes de contenedores
+# Jamás subir secretos al repositorio [cite: 25]
 .env
 .env.local
 .env.*.local
-backend/docker/postgres-data/
-bbdd/*.sql.bak
-bbdd/*.dump
-
-# Docker adicionales
-.docker/
+backend/.env
 *.pem
 *.key
 
 # =================================================================
-# BACKEND (Spring Boot / Maven)
+# 3. BACKEND (Spring Boot / Maven / Python)
 # =================================================================
-# Binarios y carpetas de compilación
+# Binarios y compilación
 **/target/
 **/build/
 *.jar
 *.war
 *.ear
 
-# Maven Wrapper
-# IMPORTANTE: NO ignorar el .jar para que Docker/CI-CD funcionen
-# .mvn/wrapper/maven-wrapper.jar  <-- COMENTADO para permitir el build
+# Python (si existe en el backend)
+backend/node_modules/
+backend/__pycache__/
+backend/*.pyc
+backend/venv/
+backend/.venv/
+
+# Datos persistentes de contenedores
+backend/docker/postgres-data/
 
 # =================================================================
-# FRONTEND (React / Angular / Node)
+# 4. FRONTEND (React / Angular / Node)
 # =================================================================
 **/node_modules/
 **/dist/
 .npm/
 .eslintcache
 .angular/
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+
+# =================================================================
+# 5. BASE DE DATOS Y HERRAMIENTAS
+# =================================================================
+bbdd/*.sql.bak
+bbdd/*.dump
 .claude/
 
 # =================================================================
-# DOCUMENTACIÓN Y OTROS
+# 6. DOCUMENTACIÓN Y LEGACY
 # =================================================================
 HELP.md
 grit-landing/
