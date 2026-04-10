@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { VerificationItem } from '../../models/grit.models';
 
 @Component({
@@ -6,6 +6,7 @@ import { VerificationItem } from '../../models/grit.models';
   standalone: true,
   imports: [],
   templateUrl: './verification.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerificationComponent {
   readonly items = signal<VerificationItem[]>([

@@ -11,6 +11,7 @@
       @for (link of navLinks; track link.label) {
         <a
           [href]="link.href"
+          (click)="scrollTo($event, link.href)"
           class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors duration-200 no-underline"
         >
           {{ link.label }}
@@ -20,6 +21,12 @@
 
     <!-- CTA + Mobile Toggle -->
     <div class="flex items-center gap-4">
+      <a
+        routerLink="/login"
+        class="hidden md:inline-flex items-center text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors duration-200 no-underline"
+      >
+        INICIAR SESIÓN
+      </a>
       <a
         routerLink="/empezar"
         class="hidden md:inline-flex items-center border border-black px-6 py-2 text-sm font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all duration-200 no-underline"
@@ -47,14 +54,22 @@
         <a
           [href]="link.href"
           class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors no-underline"
-          (click)="toggleMenu()"
+          (click)="scrollTo($event, link.href); toggleMenu()"
         >
           {{ link.label }}
         </a>
       }
       <a
+        routerLink="/login"
+        class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors no-underline"
+        (click)="toggleMenu()"
+      >
+        INICIAR SESIÓN
+      </a>
+      <a
         routerLink="/empezar"
         class="inline-flex items-center border border-black px-6 py-2 text-sm font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all duration-200 no-underline w-fit"
+        (click)="toggleMenu()"
       >
         EMPEZAR
       </a>

@@ -17,7 +17,7 @@
   <div class="flex flex-1">
 
     <!-- Left panel — info fija -->
-    <aside class="hidden lg:flex flex-col justify-between w-80 xl:w-96 border-r border-[#E5E7EB] p-12 flex-shrink-0">
+    <aside class="hidden lg:flex flex-col justify-between w-80 xl:w-96 border-r border-[#E5E7EB] p-12 flex-shrink-0 sticky top-0 self-start h-screen">
       <div>
         <div class="flex items-center gap-3 mb-8">
           <div class="w-5 h-px bg-[#2ED38D]"></div>
@@ -61,7 +61,7 @@
     </aside>
 
     <!-- Right panel — formulario -->
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1">
       <form
         [formGroup]="form"
         (ngSubmit)="onSubmit()"
@@ -89,6 +89,7 @@
                 placeholder="Ej. Carlos Martínez García"
                 class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
                 [class.border-red-400]="fieldError('nombre')"
+                [class.error-field]="fieldError('nombre')"
               />
               @if (fieldError('nombre')) {
                 <span class="text-xs font-bold text-red-400 tracking-wide">Introduce tu nombre completo</span>
@@ -112,6 +113,82 @@
               }
             </div>
 
+            <!-- Contraseña -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                Contraseña <span class="text-[#2ED38D]">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Mínimo 8 caracteres"
+                  autocomplete="new-password"
+                  class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D] pr-10"
+                  [class.border-red-400]="fieldError('password')"
+                />
+                <button
+                  type="button"
+                  (click)="showPassword.set(!showPassword())"
+                  class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors duration-200 p-1"
+                  [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  @if (showPassword()) {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M3 3l18 18M10.5 10.677A2 2 0 0113.323 13.5M6.362 6.227C4.31 7.65 2.66 9.64 2 12c1.135 4.01 4.947 7 9 7a9.6 9.6 0 005.638-1.862M9 5.341A9.6 9.6 0 0112 5c4.053 0 7.865 2.99 9 7a10.07 10.07 0 01-1.944 3.342" stroke-linecap="square"/>
+                    </svg>
+                  } @else {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M2 12c1.135-4.01 4.947-7 9-7s7.865 2.99 9 7c-1.135 4.01-4.947 7-9 7s-7.865-2.99-9-7z" stroke-linecap="square"/>
+                      <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+              @if (fieldError('password')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Mínimo 8 caracteres</span>
+              }
+            </div>
+
+            <!-- Confirmar contraseña -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                Confirmar contraseña <span class="text-[#2ED38D]">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  [type]="showConfirmPassword() ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  placeholder="Repite la contraseña"
+                  autocomplete="new-password"
+                  class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D] pr-10"
+                  [class.border-red-400]="fieldError('confirmPassword')"
+                />
+                <button
+                  type="button"
+                  (click)="showConfirmPassword.set(!showConfirmPassword())"
+                  class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors duration-200 p-1"
+                  [attr.aria-label]="showConfirmPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  @if (showConfirmPassword()) {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M3 3l18 18M10.5 10.677A2 2 0 0113.323 13.5M6.362 6.227C4.31 7.65 2.66 9.64 2 12c1.135 4.01 4.947 7 9 7a9.6 9.6 0 005.638-1.862M9 5.341A9.6 9.6 0 0112 5c4.053 0 7.865 2.99 9 7a10.07 10.07 0 01-1.944 3.342" stroke-linecap="square"/>
+                    </svg>
+                  } @else {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M2 12c1.135-4.01 4.947-7 9-7s7.865 2.99 9 7c-1.135 4.01-4.947 7-9 7s-7.865-2.99-9-7z" stroke-linecap="square"/>
+                      <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+              @if (form.get('confirmPassword')?.hasError('mismatch')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Las contraseñas no coinciden</span>
+              } @else if (fieldError('confirmPassword')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Confirma tu contraseña</span>
+              }
+            </div>
+
           </div>
         </div>
 
@@ -124,37 +201,48 @@
 
           <div class="flex flex-col gap-6">
 
-            <!-- Código colegiado -->
+            <!-- Número de colegiado / registro (dinámico según titulación) -->
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
-                Código de colegiado <span class="text-[#2ED38D]">*</span>
+                {{ infoCampoNumero().label }}
+                @if (infoCampoNumero().obligatorio) {
+                  <span class="text-[#2ED38D]">*</span>
+                } @else {
+                  <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
+                }
               </label>
               <input
                 type="text"
                 formControlName="codigoColegiado"
-                placeholder="Ej. MAD-12345"
+                [placeholder]="infoCampoNumero().placeholder"
                 class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D] uppercase"
                 [class.border-red-400]="fieldError('codigoColegiado')"
               />
               @if (fieldError('codigoColegiado')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Código inválido (letras y números, 4–20 caracteres)</span>
+                <span class="text-xs font-bold text-red-400 tracking-wide">
+                  @if (infoCampoNumero().obligatorio) { Introduce tu número de colegiado (letras y números, 4–20 caracteres) }
+                  @else { Formato inválido (letras y números, 4–20 caracteres) }
+                </span>
+              } @else {
+                <span class="text-xs font-light text-gray-400 tracking-wide">{{ infoCampoNumero().hint }}</span>
               }
             </div>
 
-            <!-- Tipo de titulación -->
+            <!-- Titulación de entrenamiento -->
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
-                Tipo de titulación <span class="text-[#2ED38D]">*</span>
+                Titulación en entrenamiento
+                <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
               </label>
               <div class="relative">
                 <select
-                  formControlName="titulacion"
+                  formControlName="titulacionEntrenamiento"
+                  (change)="onTitulacionChange()"
                   class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black outline-none appearance-none cursor-pointer transition-colors duration-200 focus:border-[#2ED38D] pr-8"
-                  [class.border-red-400]="fieldError('titulacion')"
-                  [class.text-gray-300]="!form.get('titulacion')?.value"
+                  [class.text-gray-300]="!form.get('titulacionEntrenamiento')?.value"
                 >
-                  <option value="" disabled selected class="text-gray-300">Selecciona tu titulación</option>
-                  @for (op of titulacionOpciones; track op.value) {
+                  <option [value]="null" class="text-gray-300">No tengo titulación en entrenamiento</option>
+                  @for (op of titulacionesEntrenamiento; track op.value) {
                     <option [value]="op.value" class="text-black">{{ op.label }}</option>
                   }
                 </select>
@@ -162,42 +250,43 @@
                   <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
                 </svg>
               </div>
-              @if (fieldError('titulacion')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Selecciona una titulación</span>
+              @if (sinTitulacion()) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Debes tener al menos una titulación</span>
+              }
+              @if (form.get('titulacionEntrenamiento')?.value) {
+                <span class="text-xs font-light text-gray-400 tracking-wide">
+                  Tendrás acceso al módulo de entrenamiento una vez verificada tu titulación.
+                </span>
               }
             </div>
 
-            <!-- Título de nutrición -->
-            <div class="flex flex-col gap-3">
+            <!-- Titulación en nutrición (opcional) -->
+            <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
-                ¿Tienes título de nutrición?
+                Titulación en dietética y nutrición
+                <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
               </label>
-              <div class="flex gap-3">
-                <button
-                  type="button"
-                  (click)="form.get('tituloNutricion')?.setValue(true)"
-                  class="flex-1 py-3 text-xs font-bold tracking-[0.2em] uppercase border transition-all duration-200"
-                  [class.bg-black]="form.get('tituloNutricion')?.value === true"
-                  [class.text-[#2ED38D]]="form.get('tituloNutricion')?.value === true"
-                  [class.border-black]="form.get('tituloNutricion')?.value === true"
-                  [class.text-gray-400]="form.get('tituloNutricion')?.value !== true"
-                  [class.border-[#E5E7EB]]="form.get('tituloNutricion')?.value !== true"
+              <div class="relative">
+                <select
+                  formControlName="titulacionNutricion"
+                  (change)="onTitulacionChange()"
+                  class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black outline-none appearance-none cursor-pointer transition-colors duration-200 focus:border-[#2ED38D] pr-8"
+                  [class.text-gray-300]="!form.get('titulacionNutricion')?.value"
                 >
-                  SÍ
-                </button>
-                <button
-                  type="button"
-                  (click)="form.get('tituloNutricion')?.setValue(false)"
-                  class="flex-1 py-3 text-xs font-bold tracking-[0.2em] uppercase border transition-all duration-200"
-                  [class.bg-black]="form.get('tituloNutricion')?.value === false"
-                  [class.text-white]="form.get('tituloNutricion')?.value === false"
-                  [class.border-black]="form.get('tituloNutricion')?.value === false"
-                  [class.text-gray-400]="form.get('tituloNutricion')?.value !== false"
-                  [class.border-[#E5E7EB]]="form.get('tituloNutricion')?.value !== false"
-                >
-                  NO
-                </button>
+                  <option [value]="null" class="text-gray-300">No tengo titulación en nutrición</option>
+                  @for (op of titulacionesNutricion; track op.value) {
+                    <option [value]="op.value" class="text-black">{{ op.label }}</option>
+                  }
+                </select>
+                <svg class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+                </svg>
               </div>
+              @if (form.get('titulacionNutricion')?.value) {
+                <span class="text-xs font-light text-gray-400 tracking-wide">
+                  Tendrás acceso al módulo de nutrición una vez verificada tu titulación.
+                </span>
+              }
             </div>
 
           </div>
@@ -278,6 +367,24 @@
           }
         </div>
 
+        <!-- ── BANNER ERROR GENERAL ── -->
+        @if (submitted() && camposConError() > 0) {
+          <div class="error-field border border-red-400 bg-red-50 px-5 py-4 flex items-start gap-3 mb-6">
+            <svg class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none">
+              <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+              <rect x="1.5" y="1.5" width="13" height="13"/>
+            </svg>
+            <div>
+              <p class="text-xs font-black tracking-[0.15em] uppercase text-red-500 mb-0.5">
+                {{ camposConError() }} {{ camposConError() === 1 ? 'campo sin completar' : 'campos sin completar' }}
+              </p>
+              <p class="text-xs font-light text-red-400">
+                Revisa los campos marcados en rojo antes de enviar la solicitud.
+              </p>
+            </div>
+          </div>
+        }
+
         <!-- ── SUBMIT ── -->
         <div class="border-t border-[#E5E7EB] pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p class="text-xs font-light text-gray-400 max-w-xs">
@@ -298,4 +405,18 @@
     </main>
 
   </div>
+
+  <!-- Scroll to top -->
+  <button
+    (click)="scrollTop()"
+    class="fixed bottom-8 right-8 w-11 h-11 bg-black text-white flex items-center justify-center transition-all duration-300 hover:bg-[#2ED38D] hover:text-black z-50"
+    [class.opacity-0]="!mostrarScrollTop()"
+    [class.pointer-events-none]="!mostrarScrollTop()"
+    [class.translate-y-4]="!mostrarScrollTop()"
+    aria-label="Volver arriba"
+  >
+    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
+      <path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+    </svg>
+  </button>
 </div>

@@ -7,6 +7,16 @@ export const routes: Routes = [
       import('./pages/landing/landing').then(m => m.LandingPage),
   },
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login').then(m => m.LoginPage),
+  },
+  {
+    path: 'pendiente',
+    loadComponent: () =>
+      import('./pages/pendiente/pendiente').then(m => m.PendientePage),
+  },
+  {
     path: 'empezar',
     children: [
       {
@@ -23,6 +33,36 @@ export const routes: Routes = [
         path: 'atleta',
         loadComponent: () =>
           import('./pages/atleta/atleta').then(m => m.AtletaPage),
+      },
+    ],
+  },
+  {
+    path: 'dashboard',
+    children: [
+      {
+        path: 'atleta',
+        loadComponent: () =>
+          import('./pages/dashboard-atleta/dashboard-atleta').then(m => m.DashboardAtletaPage),
+      },
+      {
+        path: 'entrenador',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./pages/dashboard-entrenador/dashboard-entrenador').then(m => m.DashboardEntrenadorPage),
+          },
+          {
+            path: 'nutricion',
+            loadComponent: () =>
+              import('./pages/dashboard-entrenador-nutricion/dashboard-entrenador-nutricion').then(m => m.DashboardEntrenadorNutricionPage),
+          },
+          {
+            path: 'solo-nutricion',
+            loadComponent: () =>
+              import('./pages/dashboard-entrenador-solo-nutricion/dashboard-entrenador-solo-nutricion').then(m => m.DashboardEntrenadorSoloNutricionPage),
+          },
+        ],
       },
     ],
   },

@@ -1,0 +1,125 @@
+<div class="min-h-screen bg-white flex flex-col">
+
+  <!-- ── Spinner de carga ── -->
+  @if (cargando()) {
+    <div class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center gap-8">
+      <span class="font-black tracking-tighter text-2xl text-black uppercase select-none">GRIT</span>
+
+      <div class="flex flex-col items-center gap-4">
+        <div class="relative w-10 h-10">
+          <svg class="w-10 h-10 animate-spin" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="17" stroke="#E5E7EB" stroke-width="2.5"/>
+            <path
+              d="M20 3 a17 17 0 0 1 17 17"
+              stroke="#2ED38D"
+              stroke-width="2.5"
+              stroke-linecap="square"
+            />
+          </svg>
+        </div>
+        <span class="text-[10px] font-bold tracking-[0.35em] uppercase text-gray-400">
+          CARGANDO PERFIL...
+        </span>
+      </div>
+    </div>
+  }
+
+  <!-- ── Top bar ── -->
+  <header class="border-b border-[#E5E7EB] px-6 md:px-12 h-14 flex items-center justify-between flex-shrink-0">
+    <span class="font-black tracking-tighter text-lg text-black uppercase select-none">GRIT</span>
+    <div class="flex items-center gap-6">
+      <span class="text-xs font-bold tracking-[0.2em] uppercase text-[#2ED38D]">● ACTIVO</span>
+      <button
+        (click)="auth.logout()"
+        class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors duration-200"
+      >
+        CERRAR SESIÓN
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Perfil strip ── -->
+  <div class="border-b border-[#E5E7EB] px-6 md:px-12 py-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-1">ATLETA</p>
+      <h1 class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-black leading-none">
+        {{ auth.nombre() }}
+      </h1>
+    </div>
+    <div>
+      <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SERVICIO</span>
+      <span class="text-xs font-black tracking-[0.15em] uppercase text-black">
+        @switch (auth.servicio()) {
+          @case ('ENTRENAMIENTO') { ENTRENAMIENTO }
+          @case ('NUTRICION')     { NUTRICIÓN }
+          @case ('AMBOS')         { ENTRENAMIENTO + NUTRICIÓN }
+        }
+      </span>
+    </div>
+  </div>
+
+  <!-- ── Tabs ── -->
+  @if (tabs().length > 1) {
+    <div class="border-b border-[#E5E7EB] px-6 md:px-12 flex">
+      @for (t of tabs(); track t) {
+        <button
+          type="button"
+          (click)="seleccionarTab(t)"
+          class="relative py-4 px-6 text-xs font-black tracking-[0.25em] uppercase transition-colors duration-200"
+          [class.text-black]="tabActiva() === t"
+          [class.text-gray-400]="tabActiva() !== t"
+        >
+          {{ labelTab[t] }}
+          @if (tabActiva() === t) {
+            <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+          }
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="border-b border-[#E5E7EB] px-6 md:px-12 flex">
+      <div class="relative py-4 px-6 text-xs font-black tracking-[0.25em] uppercase text-black">
+        {{ labelTab[tabs()[0]] }}
+        <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+      </div>
+    </div>
+  }
+
+  <!-- ── Contenido ── -->
+  <main class="flex-1 px-6 md:px-12 py-12">
+
+    @if (tabActiva() === 'entrenamiento') {
+      <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">ENTRENAMIENTO</span>
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+        </div>
+        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
+          TU PLAN DE<br>ENTRENAMIENTO
+        </h2>
+        <p class="text-sm font-light text-gray-400 max-w-sm">
+          Aquí aparecerán tus sesiones, métricas de rendimiento y progreso hacia tus objetivos.
+        </p>
+      </div>
+    }
+
+    @if (tabActiva() === 'dieta') {
+      <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">DIETA</span>
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+        </div>
+        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
+          TU PLAN<br>NUTRICIONAL
+        </h2>
+        <p class="text-sm font-light text-gray-400 max-w-sm">
+          Aquí aparecerán tus pautas dietéticas, seguimiento calórico y recomendaciones de tu nutricionista.
+        </p>
+      </div>
+    }
+
+  </main>
+
+</div>

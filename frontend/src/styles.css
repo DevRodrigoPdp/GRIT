@@ -198,3 +198,25 @@ body {
 @keyframes barFill {
   to { width: 100%; }
 }
+
+@media (max-width: 639px) {
+  .peak-label { display: none; }
+}
+
+/* Scroll hint: punto animado dentro del ratón */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50%       { transform: translateY(6px); opacity: 0.3; }
+}
+
+.scroll-dot {
+  animation: scrollBounce 1.6s ease-in-out infinite;
+}
+
+/* Ocultar scrollbar manteniendo scroll funcional */
+html {
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}

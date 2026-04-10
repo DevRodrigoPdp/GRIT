@@ -1,4 +1,4 @@
-# GRIT — Visión de Producto y Roadmap Frontend
+GIT # GRIT — Visión de Producto y Roadmap Frontend
 
 ## El problema real que resuelve GRIT
 
