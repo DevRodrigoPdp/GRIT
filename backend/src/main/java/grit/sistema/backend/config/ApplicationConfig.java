@@ -38,6 +38,7 @@ public class ApplicationConfig {
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Definimos un costo de 12 para ser más robustos que el default
+        return new BCryptPasswordEncoder(12);
     }
 }
