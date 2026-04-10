@@ -45,8 +45,8 @@
           <!-- Selección de cantidad cuando hay una receta pendiente -->
           @if (recetaPendiente(); as receta) {
             <div class="px-5 py-5">
-              <p class="text-xs font-black uppercase tracking-tight text-black mb-1">{{ receta.nombre }}</p>
-              <p class="text-[10px] font-light text-gray-400 mb-4">
+              <p class="text-sm font-black uppercase tracking-tight text-black mb-1">{{ receta.nombre }}</p>
+              <p class="text-sm font-light text-gray-400 mb-4">
                 {{ receta.ingredientes.length }} ingredientes · {{ receta.gramosTotal }}g totales
               </p>
 
@@ -54,26 +54,26 @@
               @let ma = recetas.comoAlimento(receta);
               <div class="grid grid-cols-4 gap-2 mb-5">
                 <div class="border border-[#E5E7EB] p-2 text-center">
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Kcal</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Kcal</p>
                   <p class="text-sm font-black">{{ ma.kcalPor100g | number:'1.0-0' }}</p>
                 </div>
                 <div class="border border-[#E5E7EB] p-2 text-center">
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Prot</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Prot</p>
                   <p class="text-sm font-black">{{ ma.proteinasPor100g | number:'1.0-1' }}g</p>
                 </div>
                 <div class="border border-[#E5E7EB] p-2 text-center">
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Carbs</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Carbs</p>
                   <p class="text-sm font-black">{{ ma.carbsPor100g | number:'1.0-1' }}g</p>
                 </div>
                 <div class="border border-[#E5E7EB] p-2 text-center">
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Grasa</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Grasa</p>
                   <p class="text-sm font-black">{{ ma.grasasPor100g | number:'1.0-1' }}g</p>
                 </div>
               </div>
-              <p class="text-[9px] text-gray-400 mb-1">por 100g</p>
+              <p class="text-[11px] text-gray-400 mb-1">por 100g</p>
 
               <div class="mb-5">
-                <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">CANTIDAD (g)</label>
+                <label class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">CANTIDAD (g)</label>
                 <input
                   type="number" min="1"
                   [value]="recetaCantidadG()"
@@ -89,7 +89,7 @@
                 >VOLVER</button>
                 <button
                   (click)="confirmarReceta()"
-                  class="flex-1 bg-[#2ED38D] py-2.5 text-xs font-black tracking-[0.2em] uppercase text-black hover:bg-[#25b878] transition-colors"
+                  class="flex-1 bg-[#2ED38D] py-2.5 text-sm font-black tracking-[0.15em] uppercase text-black hover:bg-[#25b878] transition-colors"
                 >AÑADIR</button>
               </div>
             </div>
@@ -101,24 +101,24 @@
               <div class="px-5 py-10 text-center">
                 <div class="w-1.5 h-1.5 bg-gray-200 mx-auto mb-3"></div>
                 <p class="text-xs font-bold tracking-[0.2em] uppercase text-gray-300 mb-1">SIN RECETAS</p>
-                <p class="text-xs font-light text-gray-400">Crea tu primera receta para reutilizarla en los planes.</p>
+                <p class="text-sm font-light text-gray-400">Crea tu primera receta para reutilizarla en los planes.</p>
               </div>
             }
 
             @for (receta of recetas.recetas(); track receta.id) {
               <div class="border-b border-[#E5E7EB] px-5 py-4 flex items-center justify-between gap-3">
                 <button (click)="seleccionarReceta(receta)" class="flex-1 text-left group">
-                  <p class="text-xs font-black uppercase tracking-tight text-black group-hover:text-[#2ED38D] transition-colors">
+                  <p class="text-sm font-black uppercase tracking-tight text-black group-hover:text-[#2ED38D] transition-colors">
                     {{ receta.nombre }}
                   </p>
-                  <p class="text-[10px] font-light text-gray-400 mt-0.5">
+                  <p class="text-sm font-light text-gray-400 mt-0.5">
                     {{ receta.ingredientes.length }} ingredientes · {{ receta.gramosTotal }}g
                     · {{ recetas.comoAlimento(receta).kcalPor100g | number:'1.0-0' }} kcal/100g
                   </p>
                 </button>
                 <button
                   (click)="recetas.eliminar(receta.id)"
-                  class="text-[10px] font-bold text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"
+                  class="text-xs font-bold text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"
                 >✕</button>
               </div>
             }
@@ -127,7 +127,7 @@
             <div class="px-5 py-4">
               <button
                 (click)="iniciarCrearReceta()"
-                class="w-full border border-dashed border-[#E5E7EB] py-3 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 hover:border-black hover:text-black transition-colors"
+                class="w-full border border-dashed border-[#E5E7EB] py-3 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:border-black hover:text-black transition-colors"
               >
                 + NUEVA RECETA
               </button>
@@ -141,36 +141,36 @@
 
             <!-- Nombre receta -->
             <div class="mb-5">
-              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">NOMBRE *</label>
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">NOMBRE *</label>
               <input
                 [value]="recetaNombre()"
                 (input)="recetaNombre.set($any($event.target).value)"
                 placeholder="Ej: Tortilla de patatas"
-                class="w-full border-b border-black text-sm font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors placeholder:text-gray-300"
+                class="w-full border-b border-black text-base font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors placeholder:text-gray-300"
               />
             </div>
 
             <!-- Ingredientes -->
             <div class="mb-4">
               <div class="flex items-center justify-between mb-2">
-                <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500">INGREDIENTES</p>
+                <p class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500">INGREDIENTES</p>
                 <button
                   (click)="buscandoIngrediente.set(true)"
-                  class="text-[9px] font-black tracking-[0.15em] uppercase bg-black text-white px-3 py-1.5 hover:bg-[#2ED38D] hover:text-black transition-colors"
+                  class="text-[11px] font-black tracking-[0.15em] uppercase bg-black text-white px-3 py-1.5 hover:bg-[#2ED38D] hover:text-black transition-colors"
                 >
                   + AÑADIR
                 </button>
               </div>
 
               @if (recetaIngredientes().length === 0) {
-                <p class="text-[10px] font-light text-gray-300 italic py-2">Sin ingredientes aún.</p>
+                <p class="text-sm font-light text-gray-300 italic py-2">Sin ingredientes aún.</p>
               }
 
               @for (ing of recetaIngredientes(); track $index; let ii = $index) {
                 <div class="flex items-center justify-between py-2 border-t border-[#E5E7EB] first:border-t-0">
                   <div class="flex-1 min-w-0 mr-2">
-                    <p class="text-xs font-bold text-black truncate">{{ ing.alimento.nombre }}</p>
-                    <p class="text-[10px] font-light text-gray-400">
+                    <p class="text-sm font-bold text-black truncate">{{ ing.alimento.nombre }}</p>
+                    <p class="text-sm font-light text-gray-400">
                       {{ ing.cantidadG }}g ·
                       {{ (ing.alimento.kcalPor100g * ing.cantidadG / 100) | number:'1.0-0' }} kcal
                     </p>
@@ -188,27 +188,27 @@
               @let mr = macrosReceta(recetaIngredientes());
               <div class="border border-[#E5E7EB] p-3 mb-4 grid grid-cols-4 gap-2 text-center">
                 <div>
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Kcal</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Kcal</p>
                   <p class="text-sm font-black">{{ mr.kcal | number:'1.0-0' }}</p>
                 </div>
                 <div>
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Prot</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Prot</p>
                   <p class="text-sm font-black">{{ mr.prot | number:'1.0-1' }}g</p>
                 </div>
                 <div>
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Carbs</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Carbs</p>
                   <p class="text-sm font-black">{{ mr.carbs | number:'1.0-1' }}g</p>
                 </div>
                 <div>
-                  <p class="text-[9px] font-light text-gray-400 uppercase">Grasa</p>
+                  <p class="text-[11px] font-light text-gray-400 uppercase">Grasa</p>
                   <p class="text-sm font-black">{{ mr.grasa | number:'1.0-1' }}g</p>
                 </div>
               </div>
-              <p class="text-[9px] text-gray-400 mb-4">totales del plato</p>
+              <p class="text-[11px] text-gray-400 mb-4">totales del plato</p>
 
               <!-- Peso total ajustable -->
               <div class="mb-5">
-                <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">
+                <label class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">
                   PESO TOTAL DEL PLATO (g)
                 </label>
                 <div class="flex items-center gap-3">
@@ -218,7 +218,7 @@
                     (input)="recetaGramosTotal.set(+$any($event.target).value)"
                     class="w-24 border-b border-black text-sm font-bold text-black outline-none pb-1 text-center focus:border-[#2ED38D] transition-colors"
                   />
-                  <span class="text-[10px] font-light text-gray-400">
+                  <span class="text-sm font-light text-gray-400">
                     Auto: {{ recetaGramosAuto() }}g
                     <button
                       (click)="recetaGramosTotal.set(recetaGramosAuto())"
@@ -226,7 +226,7 @@
                     >usar</button>
                   </span>
                 </div>
-                <p class="text-[9px] text-gray-400 mt-1">
+                <p class="text-[11px] text-gray-400 mt-1">
                   Ajusta si el plato pierde peso al cocinarse.
                 </p>
               </div>
@@ -236,7 +236,7 @@
             <button
               (click)="guardarReceta()"
               [disabled]="!recetaNombre().trim() || recetaIngredientes().length === 0"
-              class="w-full bg-black text-white text-xs font-black tracking-[0.2em] uppercase py-3 hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              class="w-full bg-black text-white text-sm font-black tracking-[0.15em] uppercase py-3 hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               GUARDAR RECETA
             </button>
@@ -256,13 +256,13 @@
       <div>
         <div class="flex items-center gap-2 mb-1">
           <div class="w-3 h-px bg-[#2ED38D]"></div>
-          <span class="text-[10px] font-bold tracking-[0.25em] uppercase text-[#2ED38D]">NUTRICIÓN</span>
+          <span class="text-xs font-bold tracking-[0.25em] uppercase text-[#2ED38D]">NUTRICIÓN</span>
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tighter text-black">PLANES</h2>
       </div>
       <button
         (click)="iniciarCreacion()"
-        class="bg-black text-white text-[10px] font-black tracking-[0.2em] uppercase px-4 py-2.5 hover:bg-[#2ED38D] hover:text-black transition-colors"
+        class="bg-black text-white text-sm font-black tracking-[0.15em] uppercase px-4 py-2.5 hover:bg-[#2ED38D] hover:text-black transition-colors"
       >
         + NUEVO PLAN
       </button>
@@ -271,8 +271,8 @@
     @if (planes().length === 0) {
       <div class="border border-dashed border-[#E5E7EB] p-8 text-center">
         <div class="w-1.5 h-1.5 bg-gray-200 mx-auto mb-3"></div>
-        <p class="text-xs font-black tracking-[0.2em] uppercase text-gray-300 mb-1">SIN PLANES</p>
-        <p class="text-xs font-light text-gray-400">Crea el primer plan de nutrición para este atleta.</p>
+        <p class="text-sm font-black tracking-[0.15em] uppercase text-gray-300 mb-1">SIN PLANES</p>
+        <p class="text-sm font-light text-gray-400">Crea el primer plan de nutrición para este atleta.</p>
       </div>
     }
 
@@ -282,36 +282,36 @@
           <div>
             <p class="text-sm font-black uppercase tracking-tight text-black">{{ plan.nombre }}</p>
             @if (plan.descripcion) {
-              <p class="text-xs font-light text-gray-400 mt-0.5">{{ plan.descripcion }}</p>
+              <p class="text-sm font-light text-gray-400 mt-0.5">{{ plan.descripcion }}</p>
             }
           </div>
           <button
             (click)="eliminarPlan(plan.id)"
-            class="text-[10px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors ml-4"
+            class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors ml-4"
           >ELIMINAR</button>
         </div>
 
         @let macros = nutricion.calcularMacros(plan.comidas);
         <div class="flex gap-4 mt-3 pt-3 border-t border-[#E5E7EB]">
           <div class="text-center">
-            <p class="text-[10px] font-light text-gray-400 uppercase">Kcal</p>
+            <p class="text-sm font-light text-gray-400 uppercase">Kcal</p>
             <p class="text-sm font-black text-black">{{ macros.kcal | number:'1.0-0' }}</p>
           </div>
           <div class="text-center">
-            <p class="text-[10px] font-light text-gray-400 uppercase">Prot</p>
+            <p class="text-sm font-light text-gray-400 uppercase">Prot</p>
             <p class="text-sm font-black text-black">{{ macros.prot | number:'1.0-1' }}g</p>
           </div>
           <div class="text-center">
-            <p class="text-[10px] font-light text-gray-400 uppercase">Carbs</p>
+            <p class="text-sm font-light text-gray-400 uppercase">Carbs</p>
             <p class="text-sm font-black text-black">{{ macros.carbs | number:'1.0-1' }}g</p>
           </div>
           <div class="text-center">
-            <p class="text-[10px] font-light text-gray-400 uppercase">Grasa</p>
+            <p class="text-sm font-light text-gray-400 uppercase">Grasa</p>
             <p class="text-sm font-black text-black">{{ macros.grasa | number:'1.0-1' }}g</p>
           </div>
           <div class="ml-auto text-right">
-            <p class="text-[10px] font-light text-gray-400">{{ plan.comidas.length }} comidas</p>
-            <p class="text-[10px] font-light text-gray-400">{{ plan.creadoEn | date:'dd/MM/yyyy' }}</p>
+            <p class="text-sm font-light text-gray-400">{{ plan.comidas.length }} comidas</p>
+            <p class="text-sm font-light text-gray-400">{{ plan.creadoEn | date:'dd/MM/yyyy' }}</p>
           </div>
         </div>
       </div>
@@ -327,7 +327,7 @@
       <div>
         <div class="flex items-center gap-2 mb-1">
           <div class="w-3 h-px bg-[#2ED38D]"></div>
-          <span class="text-[10px] font-bold tracking-[0.25em] uppercase text-[#2ED38D]">NUEVO PLAN</span>
+          <span class="text-xs font-bold tracking-[0.25em] uppercase text-[#2ED38D]">NUEVO PLAN</span>
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tighter text-black">CREAR PLAN</h2>
       </div>
@@ -338,22 +338,22 @@
     </div>
 
     <div class="mb-5">
-      <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">NOMBRE DEL PLAN *</label>
+      <label class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">NOMBRE DEL PLAN *</label>
       <input
         [value]="nombrePlan()"
         (input)="nombrePlan.set($any($event.target).value)"
         placeholder="Ej: Plan volumen semana 1"
-        class="w-full border-b border-black text-sm font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors placeholder:text-gray-300"
+        class="w-full border-b border-black text-base font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors placeholder:text-gray-300"
       />
     </div>
     <div class="mb-8">
-      <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">DESCRIPCIÓN</label>
+      <label class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 block mb-1.5">DESCRIPCIÓN</label>
       <textarea
         [value]="descripcionPlan()"
         (input)="descripcionPlan.set($any($event.target).value)"
         rows="2"
         placeholder="Notas para el atleta..."
-        class="w-full border-b border-[#E5E7EB] text-sm font-light pb-1.5 outline-none focus:border-black transition-colors placeholder:text-gray-300 resize-none"
+        class="w-full border-b border-[#E5E7EB] text-base font-light pb-1.5 outline-none focus:border-black transition-colors placeholder:text-gray-300 resize-none"
       ></textarea>
     </div>
 
@@ -371,18 +371,18 @@
           />
           <div class="flex items-center gap-2 flex-shrink-0">
             @if (comida.alimentos.length > 0) {
-              <span class="text-[10px] text-gray-400 font-light hidden sm:block">
+              <span class="text-xs text-gray-400 font-light hidden sm:block">
                 {{ macrosComida(comida).kcal | number:'1.0-0' }} kcal
               </span>
             }
             <!-- Botones añadir alimento / receta -->
             <button
               (click)="buscadorEnComida.set(ci)"
-              class="text-[9px] font-black tracking-[0.15em] uppercase bg-black text-white px-3 py-1.5 hover:bg-[#2ED38D] hover:text-black transition-colors"
+              class="text-[11px] font-black tracking-[0.15em] uppercase bg-black text-white px-3 py-1.5 hover:bg-[#2ED38D] hover:text-black transition-colors"
             >+ ALIMENTO</button>
             <button
               (click)="abrirRecetas(ci)"
-              class="text-[9px] font-black tracking-[0.15em] uppercase border border-black text-black px-3 py-1.5 hover:bg-black hover:text-white transition-colors"
+              class="text-[11px] font-black tracking-[0.15em] uppercase border border-black text-black px-3 py-1.5 hover:bg-black hover:text-white transition-colors"
             >RECETA</button>
             @if (comidas().length > 1) {
               <button
@@ -398,13 +398,13 @@
           @let recientes = nutricion.ultimosDeComida(comida.nombre);
           @if (recientes.length > 0) {
             <div class="mb-3 pb-3 border-b border-[#E5E7EB]">
-              <p class="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">ÚLTIMOS USADOS</p>
+              <p class="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">ÚLTIMOS USADOS</p>
               <div class="flex flex-wrap gap-1.5">
                 @for (reciente of recientes; track reciente.codigo) {
                   <button
                     (click)="agregarReciente(ci, reciente)"
                     [disabled]="yaEnComida(ci, reciente.codigo)"
-                    class="text-[9px] font-bold tracking-[0.1em] uppercase px-2.5 py-1.5 border transition-colors max-w-[180px] truncate
+                    class="text-[11px] font-bold tracking-[0.1em] uppercase px-2.5 py-1.5 border transition-colors max-w-[180px] truncate
                       disabled:border-[#E5E7EB] disabled:text-gray-200 disabled:cursor-not-allowed
                       enabled:border-[#E5E7EB] enabled:text-gray-500 enabled:hover:border-black enabled:hover:text-black"
                     [title]="reciente.nombre + ' · ' + reciente.kcalPor100g + ' kcal/100g'"
@@ -416,18 +416,18 @@
 
           <!-- Alimentos -->
           @if (comida.alimentos.length === 0) {
-            <p class="text-[10px] font-light text-gray-300 italic">Sin alimentos aún.</p>
+            <p class="text-sm font-light text-gray-300 italic">Sin alimentos aún.</p>
           }
           @for (item of comida.alimentos; track $index; let ai = $index) {
             <div class="flex items-center justify-between py-2 border-t border-[#E5E7EB] first:border-t-0">
               <div class="flex-1 min-w-0 mr-3">
                 <div class="flex items-center gap-1.5">
-                  <p class="text-xs font-bold text-black leading-tight truncate">{{ item.alimento.nombre }}</p>
+                  <p class="text-sm font-bold text-black leading-tight truncate">{{ item.alimento.nombre }}</p>
                   @if (item.alimento.marca === 'Receta propia') {
-                    <span class="text-[8px] font-black tracking-[0.1em] uppercase px-1.5 py-0.5 bg-[#2ED38D] text-black flex-shrink-0">RECETA</span>
+                    <span class="text-[11px] font-black tracking-[0.1em] uppercase px-1.5 py-0.5 bg-[#2ED38D] text-black flex-shrink-0">RECETA</span>
                   }
                 </div>
-                <p class="text-[10px] font-light text-gray-400">
+                <p class="text-sm font-light text-gray-400">
                   {{ item.cantidadG }}g ·
                   {{ (item.alimento.kcalPor100g * item.cantidadG / 100) | number:'1.0-0' }} kcal ·
                   P {{ (item.alimento.proteinasPor100g * item.cantidadG / 100) | number:'1.0-1' }}g ·
@@ -437,7 +437,7 @@
               </div>
               <button
                 (click)="quitarAlimento(ci, ai)"
-                class="text-[10px] font-bold text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"
+                class="text-xs font-bold text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"
               >✕</button>
             </div>
           }
@@ -447,30 +447,30 @@
 
     <button
       (click)="agregarComida()"
-      class="w-full border border-dashed border-[#E5E7EB] py-3 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 hover:border-black hover:text-black transition-colors mb-8"
+      class="w-full border border-dashed border-[#E5E7EB] py-3 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:border-black hover:text-black transition-colors mb-8"
     >
       + AÑADIR COMIDA
     </button>
 
     <!-- Totales del día -->
     <div class="border border-black p-4 mb-6">
-      <p class="text-[10px] font-black tracking-[0.2em] uppercase text-black mb-3">TOTALES DEL DÍA</p>
+      <p class="text-sm font-black tracking-[0.15em] uppercase text-black mb-3">TOTALES DEL DÍA</p>
       <div class="grid grid-cols-4 gap-3">
         <div class="text-center">
-          <p class="text-[10px] font-light text-gray-400 uppercase mb-0.5">Kcal</p>
+          <p class="text-sm font-light text-gray-400 uppercase mb-0.5">Kcal</p>
           <p class="text-xl font-black text-black">{{ totales().kcal | number:'1.0-0' }}</p>
         </div>
         <div class="text-center">
-          <p class="text-[10px] font-light text-gray-400 uppercase mb-0.5">Proteínas</p>
-          <p class="text-xl font-black text-black">{{ totales().prot | number:'1.0-1' }}<span class="text-xs font-light">g</span></p>
+          <p class="text-sm font-light text-gray-400 uppercase mb-0.5">Proteínas</p>
+          <p class="text-xl font-black text-black">{{ totales().prot | number:'1.0-1' }}<span class="text-sm font-light">g</span></p>
         </div>
         <div class="text-center">
-          <p class="text-[10px] font-light text-gray-400 uppercase mb-0.5">Carbos</p>
-          <p class="text-xl font-black text-black">{{ totales().carbs | number:'1.0-1' }}<span class="text-xs font-light">g</span></p>
+          <p class="text-sm font-light text-gray-400 uppercase mb-0.5">Carbos</p>
+          <p class="text-xl font-black text-black">{{ totales().carbs | number:'1.0-1' }}<span class="text-sm font-light">g</span></p>
         </div>
         <div class="text-center">
-          <p class="text-[10px] font-light text-gray-400 uppercase mb-0.5">Grasa</p>
-          <p class="text-xl font-black text-black">{{ totales().grasa | number:'1.0-1' }}<span class="text-xs font-light">g</span></p>
+          <p class="text-sm font-light text-gray-400 uppercase mb-0.5">Grasa</p>
+          <p class="text-xl font-black text-black">{{ totales().grasa | number:'1.0-1' }}<span class="text-sm font-light">g</span></p>
         </div>
       </div>
     </div>
@@ -478,7 +478,7 @@
     <button
       (click)="guardarPlan()"
       [disabled]="!nombrePlan().trim() || guardando()"
-      class="w-full bg-black text-white text-xs font-black tracking-[0.2em] uppercase py-4 hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      class="w-full bg-black text-white text-sm font-black tracking-[0.15em] uppercase py-4 hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
     >
       @if (guardando()) { GUARDANDO... } @else { GUARDAR PLAN }
     </button>
