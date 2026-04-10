@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ElementRef, HostListener } from '@angular/core';
+import { Component, signal, computed, inject, ElementRef, HostListener, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -15,7 +15,7 @@ export type Servicio  = 'entrenamiento' | 'nutricion' | 'ambos';
   imports: [RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './atleta.html',
 })
-export class AtletaPage {
+export class AtletaPage implements OnInit {
   private el = inject(ElementRef);
   private auth = inject(AuthService);
   readonly form: FormGroup;
@@ -23,6 +23,7 @@ export class AtletaPage {
   readonly mostrarScrollTop = signal(false);
   readonly registroError = signal<string | null>(null);
   readonly loading = signal(false);
+  private readonly _passwordValue = signal('');
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -54,6 +55,17 @@ export class AtletaPage {
     { value: 'elite',        label: 'ÉLITE — Más de 6 años / competición' },
   ];
 
+  readonly passwordReglas = computed(() => {
+    const v = this._passwordValue();
+    return [
+      { label: 'Mínimo 8 caracteres',  ok: v.length >= 8 },
+      { label: 'Una mayúscula',         ok: /[A-Z]/.test(v) },
+      { label: 'Una minúscula',         ok: /[a-z]/.test(v) },
+      { label: 'Un número',            ok: /\d/.test(v) },
+      { label: 'Un carácter especial', ok: /[^a-zA-Z\d]/.test(v) },
+    ];
+  });
+
   readonly camposConError = computed(() => {
     if (!this.submitted()) return 0;
     return Object.keys(this.form.controls).filter(k => this.form.get(k)?.invalid).length;
@@ -61,9 +73,9 @@ export class AtletaPage {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      nombre:    ['', [Validators.required, Validators.minLength(3)]],
-      correo:    ['', [Validators.required, Validators.email]],
-      password:  ['', [Validators.required, Validators.minLength(8)]],
+      nombre:    ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
+      correo:    ['', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
+      password:  ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/)]],
       confirmPassword: ['', Validators.required],
       fechaNac:  ['', Validators.required],
       genero:    ['', Validators.required],
@@ -74,6 +86,10 @@ export class AtletaPage {
       objetivo:  ['', Validators.required],
       servicio:  ['', Validators.required],
     }, { validators: this.passwordMatchValidator });
+  }
+
+  ngOnInit(): void {
+    this.form.get('password')!.valueChanges.subscribe(v => this._passwordValue.set(v ?? ''));
   }
 
   passwordMatchValidator(group: FormGroup): ValidationErrors | null {
@@ -109,7 +125,7 @@ export class AtletaPage {
 
   fieldError(campo: string): boolean {
     const ctrl = this.form.get(campo);
-    return !!(ctrl?.invalid && (ctrl.touched || this.submitted()));
+    return !!(ctrl?.invalid && (ctrl.dirty || this.submitted()));
   }
 
   onSubmit(): void {
