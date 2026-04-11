@@ -232,7 +232,8 @@
               />
               @if (fieldError('codigoColegiado')) {
                 <span class="text-xs font-bold text-red-400 tracking-wide">
-                  @if (infoCampoNumero().obligatorio) { Introduce tu número de colegiado (letras y números, 4–20 caracteres) }
+                  @if (form.get('codigoColegiado')?.hasError('codigoExists')) { Este código de colegiado ya está registrado }
+                  @else if (infoCampoNumero().obligatorio) { Introduce tu número de colegiado (letras y números, 4–20 caracteres) }
                   @else { Formato inválido (letras y números, 4–20 caracteres) }
                 </span>
               } @else {
