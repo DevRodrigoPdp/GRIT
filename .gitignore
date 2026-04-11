@@ -52,6 +52,8 @@ backend/.venv/
 
 # Datos persistentes de contenedores
 backend/docker/postgres-data/
+docker/postgres-data/
+**/postgres-data/
 
 # =================================================================
 # 4. FRONTEND (React / Angular / Node)
