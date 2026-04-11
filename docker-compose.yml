@@ -49,6 +49,9 @@ services:
     container_name: grit-frontend
     ports:
       - "3000:80"
+    environment:
+      - BACKEND_URL=http://grit-backend:8080
+      - PORT=80
     depends_on:
       - backend-app
     networks:
