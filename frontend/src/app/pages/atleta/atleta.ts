@@ -73,23 +73,41 @@ export class AtletaPage implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      nombre:    ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
-      correo:    ['', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
+      nombre:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
+      correo:    ['', [Validators.required, Validators.email, Validators.maxLength(100), Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
       password:  ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/)]],
       confirmPassword: ['', Validators.required],
-      fechaNac:  ['', Validators.required],
+      fechaNac:  ['', [Validators.required, this.fechaNacValidator]],
       genero:    ['', Validators.required],
-      peso:      ['', [Validators.required, Validators.min(30), Validators.max(300)]],
-      altura:    ['', [Validators.required, Validators.min(100), Validators.max(250)]],
-      deporte:   ['', [Validators.required, Validators.minLength(3)]],
+      peso:      ['', [Validators.required, Validators.min(40), Validators.max(300), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      altura:    ['', [Validators.required, Validators.min(130), Validators.max(240), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      deporte:   ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
       nivel:     ['', Validators.required],
       objetivo:  ['', Validators.required],
       servicio:  ['', Validators.required],
-    }, { validators: this.passwordMatchValidator });
+    }, { validators: [this.passwordMatchValidator, this.imcValidator] });
   }
 
   ngOnInit(): void {
     this.form.get('password')!.valueChanges.subscribe(v => this._passwordValue.set(v ?? ''));
+  }
+
+  private fechaNacValidator(control: any): ValidationErrors | null {
+    if (!control.value) return null;
+    const fecha = new Date(control.value);
+    if (isNaN(fecha.getTime())) return { invalidDate: true };
+    const hoy = new Date();
+    if (fecha > hoy) return { futureDate: true };
+    const edad = hoy.getFullYear() - fecha.getFullYear();
+    const mes = hoy.getMonth() - fecha.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fecha.getDate())) {
+      if (edad - 1 < 13) return { tooYoung: true };
+      if (edad - 1 > 120) return { tooOld: true };
+    } else {
+      if (edad < 13) return { tooYoung: true };
+      if (edad > 120) return { tooOld: true };
+    }
+    return null;
   }
 
   passwordMatchValidator(group: FormGroup): ValidationErrors | null {
@@ -98,6 +116,22 @@ export class AtletaPage implements OnInit {
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ mismatch: true });
       return { mismatch: true };
+    }
+    return null;
+  }
+
+  imcValidator(group: FormGroup): ValidationErrors | null {
+    const peso = group.get('peso');
+    const altura = group.get('altura');
+    if (peso && altura && peso.value && altura.value) {
+      const p = parseFloat(peso.value);
+      const a = parseFloat(altura.value) / 100; // en metros
+      if (!isNaN(p) && !isNaN(a) && a > 0) {
+        const imc = p / (a * a);
+        if (imc < 15 || imc > 40) {
+          return { imcInvalid: true };
+        }
+      }
     }
     return null;
   }

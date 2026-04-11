@@ -99,6 +99,7 @@
               @if (fieldError('nombre')) {
                 <span class="text-xs font-bold text-red-400 tracking-wide">
                   @if (form.get('nombre')?.hasError('pattern')) { Solo se permiten letras y espacios }
+                  @else if (form.get('nombre')?.hasError('maxlength')) { Máximo 50 caracteres }
                   @else { Introduce tu nombre completo (mínimo 3 letras) }
                 </span>
               }
@@ -179,7 +180,17 @@
                   [class.border-red-400]="fieldError('fechaNac')"
                 />
                 @if (fieldError('fechaNac')) {
-                  <span class="text-xs font-bold text-red-400 tracking-wide">Requerido</span>
+                  @if (form.get('fechaNac')?.hasError('invalidDate')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Fecha inválida</span>
+                  } @else if (form.get('fechaNac')?.hasError('futureDate')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">La fecha no puede ser futura</span>
+                  } @else if (form.get('fechaNac')?.hasError('tooYoung')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Debes tener al menos 13 años</span>
+                  } @else if (form.get('fechaNac')?.hasError('tooOld')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Edad máxima permitida: 120 años</span>
+                  } @else {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Requerido</span>
+                  }
                 }
               </div>
 
@@ -230,12 +241,18 @@
                   type="number"
                   formControlName="peso"
                   placeholder="75"
-                  min="30" max="300"
+                  min="40" max="200"
                   class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
                   [class.border-red-400]="fieldError('peso')"
                 />
                 @if (fieldError('peso')) {
-                  <span class="text-xs font-bold text-red-400 tracking-wide">Valor entre 30 y 300 kg</span>
+                  @if (form.get('peso')?.hasError('pattern')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Formato inválido (ej. 75.5)</span>
+                  } @else if (form.get('peso')?.hasError('min') || form.get('peso')?.hasError('max')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Valor entre 40 y 200 kg</span>
+                  } @else {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Requerido</span>
+                  }
                 }
               </div>
 
@@ -247,12 +264,18 @@
                   type="number"
                   formControlName="altura"
                   placeholder="175"
-                  min="100" max="250"
+                  min="130" max="220"
                   class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
                   [class.border-red-400]="fieldError('altura')"
                 />
                 @if (fieldError('altura')) {
-                  <span class="text-xs font-bold text-red-400 tracking-wide">Valor entre 100 y 250 cm</span>
+                  @if (form.get('altura')?.hasError('pattern')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Formato inválido (ej. 175.5)</span>
+                  } @else if (form.get('altura')?.hasError('min') || form.get('altura')?.hasError('max')) {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Valor entre 130 y 220 cm</span>
+                  } @else {
+                    <span class="text-xs font-bold text-red-400 tracking-wide">Requerido</span>
+                  }
                 }
               </div>
             </div>
@@ -270,7 +293,11 @@
                 [class.border-red-400]="fieldError('deporte')"
               />
               @if (fieldError('deporte')) {
-                <span class="text-xs font-bold text-red-400 tracking-wide">Indica tu deporte principal</span>
+                <span class="text-xs font-bold text-red-400 tracking-wide">
+                  @if (form.get('deporte')?.hasError('pattern')) { Solo se permiten letras y espacios }
+                  @else if (form.get('deporte')?.hasError('maxlength')) { Máximo 50 caracteres }
+                  @else { Indica tu deporte principal }
+                </span>
               }
             </div>
 
@@ -392,6 +419,24 @@
               </p>
               <p class="text-xs font-light text-red-400">
                 Revisa los campos marcados en rojo antes de continuar.
+              </p>
+            </div>
+          </div>
+        }
+
+        <!-- ── BANNER ERROR IMC ── -->
+        @if (submitted() && form.hasError('imcInvalid')) {
+          <div class="border border-red-400 bg-red-50 px-5 py-4 flex items-start gap-3 mb-6">
+            <svg class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none">
+              <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+              <rect x="1.5" y="1.5" width="13" height="13"/>
+            </svg>
+            <div>
+              <p class="text-xs font-black tracking-[0.15em] uppercase text-red-500 mb-0.5">
+                DATOS FÍSICOS INCOHERENTES
+              </p>
+              <p class="text-xs font-light text-red-400">
+                El índice de masa corporal (IMC) calculado con tu peso y altura no es realista para un atleta (debe estar entre 15 y 40). Revisa los valores.
               </p>
             </div>
           </div>
