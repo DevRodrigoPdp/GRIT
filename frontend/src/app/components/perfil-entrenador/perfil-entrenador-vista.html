@@ -1,0 +1,105 @@
+<div class="flex-1 min-h-0 overflow-y-auto px-6 md:px-10 py-10 w-full">
+
+  <!-- Volver -->
+  <button
+    (click)="volver.emit()"
+    class="flex items-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-gray-400 hover:text-black transition-colors mb-10"
+  >
+    <span>←</span><span>MIS ATLETAS</span>
+  </button>
+
+  <!-- Cabecera -->
+  <div class="mb-10">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-5 h-px bg-[#2ED38D]"></div>
+      <span class="text-xs font-bold tracking-[0.35em] uppercase text-[#2ED38D]">DASHBOARD / ENTRENADOR</span>
+    </div>
+    <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-black leading-none">
+      MI<br>PERFIL
+    </h1>
+  </div>
+
+  <!-- Grid principal -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Columna izquierda: identidad -->
+    <div class="lg:col-span-1 flex flex-col gap-4">
+
+      <!-- Avatar + nombre -->
+      <div class="border border-[#E5E7EB]">
+        <div class="h-1 bg-black"></div>
+        <div class="p-6 flex flex-col items-center text-center gap-4">
+          <div class="w-24 h-24 bg-black flex items-center justify-center">
+            <span class="text-3xl font-black text-[#2ED38D]">{{ iniciales() }}</span>
+          </div>
+          <div>
+            <h2 class="text-xl font-black uppercase tracking-tighter text-black leading-tight mb-1">
+              {{ nombre() }}
+            </h2>
+            @if (correo()) {
+              <p class="text-xs font-light text-gray-400 mb-2">{{ correo() }}</p>
+            }
+            <span class="text-[11px] font-bold tracking-[0.2em] uppercase text-[#2ED38D]">● VERIFICADO</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Experiencia -->
+      @if (experiencia()) {
+        <div class="border border-[#E5E7EB] p-6">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300 mb-2">EXPERIENCIA</p>
+          <p class="text-4xl font-black text-black">{{ experiencia() }}<span class="text-lg font-light text-gray-400 ml-1">año{{ experiencia() === 1 ? '' : 's' }}</span></p>
+        </div>
+      }
+
+    </div>
+
+    <!-- Columna derecha: módulos + descripción -->
+    <div class="lg:col-span-2 flex flex-col gap-4">
+
+      <!-- Módulos -->
+      <div class="border border-[#E5E7EB] p-6">
+        <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300 mb-4">MÓDULOS ACTIVOS</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          @if (auth.tituloEntrenamiento()) {
+            <div class="border border-[#E5E7EB] p-4">
+              <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-black text-white inline-block mb-2">
+                ENTRENAMIENTO
+              </span>
+              @if (titulacionEntLabel()) {
+                <p class="text-xs font-light text-gray-400 leading-relaxed">{{ titulacionEntLabel() }}</p>
+              }
+            </div>
+          }
+          @if (auth.tituloNutricion()) {
+            <div class="border border-[#E5E7EB] p-4">
+              <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-[#2ED38D] text-black inline-block mb-2">
+                NUTRICIÓN
+              </span>
+              @if (titulacionNutrLabel()) {
+                <p class="text-xs font-light text-gray-400 leading-relaxed">{{ titulacionNutrLabel() }}</p>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      @if (descripcion()) {
+        <div class="border border-[#E5E7EB] p-6 flex-1">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300 mb-3">SOBRE MÍ</p>
+          <p class="text-sm font-light text-gray-600 leading-relaxed">{{ descripcion() }}</p>
+        </div>
+      }
+
+      <!-- Edición futura -->
+      <div class="border border-dashed border-[#E5E7EB] p-6 text-center">
+        <p class="text-xs font-black tracking-[0.25em] uppercase text-gray-300 mb-1">PRÓXIMAMENTE</p>
+        <p class="text-sm font-light text-gray-400">Edición de perfil disponible en la siguiente versión.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

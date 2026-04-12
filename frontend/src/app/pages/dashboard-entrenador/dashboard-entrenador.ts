@@ -1,17 +1,20 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { EntrenadorService, AtletaAsignado } from '../../services/entrenador.service';
+import { EntrenadorService, AtletaAsignado, PerfilEntrenador } from '../../services/entrenador.service';
 import { GestionNutricionComponent } from '../../components/gestion-nutricion/gestion-nutricion';
 import { GestionEntrenamientoComponent } from '../../components/gestion-entrenamiento/gestion-entrenamiento';
+import { PerfilEntrenadorComponent } from '../../components/perfil-entrenador/perfil-entrenador';
+import { PerfilEntrenadorVistaComponent } from '../../components/perfil-entrenador/perfil-entrenador-vista';
 
 type Tab = 'ENTRENAMIENTO' | 'NUTRICION';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
+type Vista = 'atletas' | 'perfil';
 
 @Component({
   selector: 'app-dashboard-entrenador',
   standalone: true,
-  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule],
+  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule, PerfilEntrenadorComponent, PerfilEntrenadorVistaComponent],
   templateUrl: './dashboard-entrenador.html',
 })
 export class DashboardEntrenadorPage implements OnInit {
@@ -21,6 +24,8 @@ export class DashboardEntrenadorPage implements OnInit {
   atletas      = signal<AtletaAsignado[]>([]);
   atletaActivo = signal<AtletaAsignado | null>(null);
   tabActiva    = signal<Tab>('NUTRICION');
+  vistaActual  = signal<Vista>('atletas');
+  perfil       = signal<PerfilEntrenador | null>(null);
 
   busqueda      = signal('');
   filtroServicio = signal<Filtro>('TODOS');
@@ -62,6 +67,7 @@ export class DashboardEntrenadorPage implements OnInit {
 
   ngOnInit() {
     this.auth.me().subscribe();
+    this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
     this.entrenador.getMisAtletas().subscribe(a => this.atletas.set(a));
   }
 

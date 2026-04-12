@@ -1,0 +1,45 @@
+<aside class="flex flex-col gap-6 w-56 xl:w-64 flex-shrink-0">
+
+  <!-- Avatar + nombre -->
+  <div class="flex flex-col items-start gap-3">
+    <div class="w-14 h-14 bg-black flex items-center justify-center flex-shrink-0">
+      <span class="text-base font-black text-[#2ED38D]">{{ iniciales() }}</span>
+    </div>
+    <div>
+      <p class="text-base font-black uppercase tracking-tighter text-black leading-tight">
+        {{ nombre() }}
+      </p>
+      <span class="text-[11px] font-bold tracking-[0.2em] uppercase text-[#2ED38D]">● VERIFICADO</span>
+    </div>
+  </div>
+
+  <!-- Módulos activos -->
+  <div class="flex flex-col gap-2">
+    <span class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300">MÓDULOS</span>
+    <div class="flex flex-col gap-1.5">
+      @if (auth.tituloEntrenamiento()) {
+      <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-black text-white w-fit">
+        ENTRENAMIENTO
+      </span>
+      }
+      @if (auth.tituloNutricion()) {
+      <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-[#2ED38D] text-black w-fit">
+        NUTRICIÓN
+      </span>
+      }
+    </div>
+  </div>
+
+  <!-- Separador -->
+  <div class="w-full h-px bg-[#E5E7EB]"></div>
+
+  <!-- Acciones -->
+  <div class="flex flex-col gap-2">
+    <button
+      (click)="verPerfil.emit()"
+      class="text-left text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors">
+      MI PERFIL →
+    </button>
+  </div>
+
+</aside>

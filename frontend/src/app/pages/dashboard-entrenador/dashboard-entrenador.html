@@ -21,9 +21,23 @@
 
   <main class="flex-1 min-h-0 overflow-hidden flex flex-col">
 
+    <!-- ── PERFIL ─────────────────────────────────────────────────────────── -->
+    @if (!atletaActivo() && vistaActual() === 'perfil') {
+      <app-perfil-entrenador-vista class="flex-1 min-h-0 overflow-hidden flex flex-col" [perfil]="perfil()" (volver)="vistaActual.set('atletas')" />
+    }
+
     <!-- ── LISTA DE ATLETAS ───────────────────────────────────────────────── -->
-    @if (!atletaActivo()) {
-    <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10 w-full">
+    @if (!atletaActivo() && vistaActual() === 'atletas') {
+    <div class="flex-1 overflow-y-auto w-full">
+    <div class="flex gap-10 px-6 md:px-10 py-10">
+
+      <!-- Perfil entrenador (sidebar izquierdo) -->
+      <div class="hidden lg:block flex-shrink-0 pt-2">
+        <app-perfil-entrenador [perfil]="perfil()" (verPerfil)="vistaActual.set('perfil')" />
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="flex-1 min-w-0">
 
       <!-- Título -->
       <div class="mb-10">
@@ -157,7 +171,10 @@
           </button>
         }
       </div>
-    </div>
+
+      </div><!-- fin contenido principal -->
+    </div><!-- fin flex gap-10 -->
+    </div><!-- fin overflow-y-auto -->
     }
 
     <!-- ── DETALLE DE ATLETA ───────────────────────────────────────────────── -->
