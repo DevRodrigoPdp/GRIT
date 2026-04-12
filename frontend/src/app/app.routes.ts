@@ -17,7 +17,7 @@ export const routes: Routes = [
       import('./pages/pendiente/pendiente').then(m => m.PendientePage),
   },
   {
-    path: 'empezar',
+    path: 'registro',
     children: [
       {
         path: '',
