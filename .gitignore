@@ -52,6 +52,7 @@ backend/.venv/
 
 # Datos persistentes de contenedores
 backend/docker/postgres-data/
+backend/docker/minio-data/
 docker/postgres-data/
 **/postgres-data/
 
