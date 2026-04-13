@@ -12,6 +12,11 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+  servlet:
+    multipart:
+      max-file-size: 10MB          # Límite por archivo
+      max-request-size: 15MB       # Límite total de la petición (archivo + otros campos)
+      enabled: true
 
 server:
   port: ${PORT:8080}
@@ -24,6 +29,13 @@ application:
       expiration: 900000
       refresh-token:
         expiration: 604800000
+  storage:
+    # Configuración personalizada para nuestro Service
+    bucket-name: certificaciones-entrenadores
+    endpoint: http://localhost:9000
+    access-key: ${MINIO_ROOT_USER}
+    secret-key: ${MINIO_ROOT_PASSWORD}
+    region: us-east-1
 
 management:
   endpoints:

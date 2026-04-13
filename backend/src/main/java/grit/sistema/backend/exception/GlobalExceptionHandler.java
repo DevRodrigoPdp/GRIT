@@ -8,13 +8,16 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -75,7 +78,20 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(mensaje, HttpStatus.CONFLICT, request);
     }
 
-    // 6. El "Caza-todo" (500)
+    // 6. Error de Archivos - CORREGIDO
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ErrorRespuestaDTO> handleFileStorage(FileStorageException ex, HttpServletRequest request) {
+        // Usamos el método buildErrorResponse que ya definiste para mantener la consistencia del JSON
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    // Captura errores de tamaño de Maven/Spring
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorRespuestaDTO> handleMaxSize(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return buildErrorResponse("El archivo excede el límite permitido (Máximo 10MB)", HttpStatus.PAYLOAD_TOO_LARGE, request);
+    }
+
+    // 7. El "Caza-todo" (500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorRespuestaDTO> handleGlobalException(Exception ex, HttpServletRequest request) {
         // Loguear el error real para el desarrollador, pero ocultarlo al cliente

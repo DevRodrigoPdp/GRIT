@@ -17,67 +17,63 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EntrenadorService {
-    private final EntityManager entityManager;
-
+    private final EntrenadorPersistenceService persistenceService;
     private final UsuarioRepository usuarioRepository;
-    private final EntrenadorRepository entrenadorRepository;
+    private final StorageService storageService;
     private final EntrenadorMapper entrenadorMapper;
-    private final PasswordEncoder passwordEncoder;
 
-    @Value("${application.security.pepper}")
-    private String pepper;
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    @Transactional
     public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request) {
         validarRequisitosProfesionales(request);
+        validarTamanoArchivos(request.getDocumentos());
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
 
-        Usuario usuario = new Usuario();
-        usuario.setNombre(request.getNombre());
-        usuario.setEmail(request.getEmail());
-        String passwordWithPepper = request.getPassword() + pepper;
-        usuario.setPassword(passwordEncoder.encode(passwordWithPepper));
-        usuario.setRol(Rol.ENTRENADOR);
-        usuario.setEstado(EstadoUsuario.PENDIENTE_REVISION);
-
-        usuario = usuarioRepository.saveAndFlush(usuario);
-
-        // 2. Procesar documentos
-        List<String> urls = (request.getDocumentos() == null) ? List.of() : request.getDocumentos().stream()
-                .map(file -> "MOCK_S3_PATH/" + System.currentTimeMillis() + "_" + file.getOriginalFilename())
+        // 1. IO Externa (MinIO) - Fuera de transacción
+        List<String> urls = Optional.ofNullable(request.getDocumentos())
+                .orElse(List.of())
+                .stream()
+                .map(storageService::uploadFile)
                 .toList();
 
-        Entrenador entrenador = entrenadorMapper.toEntity(request, usuario, urls);
-
-        entrenador.setUsuario(usuario);
-        entrenador.setId(usuario.getId());
-
-
+        // 2. Persistencia - Dentro de transacción
         try {
-            entrenador = entrenadorRepository.saveAndFlush(entrenador);
-
-            // 2. Refrescamos la entidad desde la DB para cargar los campos @Generated (Boolean)
-            entityManager.refresh(entrenador);
+            Entrenador entrenador = persistenceService.guardarEntrenador(request, urls);
+            return entrenadorMapper.toResponse(entrenador);
         } catch (Exception e) {
-            log.error("Fallo al guardar entrenador: {}", e.getMessage());
+            log.error("Error en persistencia. Iniciando compensación de archivos en MinIO...");
+            // SI LA DB FALLA, BORRAMOS LO SUBIDO
+            urls.forEach(storageService::deleteFile);
             throw e;
         }
+    }
 
-        log.info("Registro exitoso: Entrenador con ID {} guardado", entrenador.getId());
-        return entrenadorMapper.toResponse(entrenador);
+    private void validarTamanoArchivos(List<MultipartFile> archivos) {
+        if (archivos == null || archivos.isEmpty()) return;
+
+        long totalSize = archivos.stream()
+                .mapToLong(MultipartFile::getSize)
+                .sum();
+
+        if (totalSize > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("El tamaño total de los archivos excede el límite de 10MB");
+        }
     }
 
     private void validarRequisitosProfesionales(EntrenadorRequestDTO request) {
