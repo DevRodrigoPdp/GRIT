@@ -4,6 +4,7 @@ build/
 
 # Ignorar datos de persistencia de Docker local
 docker/postgres-data/
+docker/minio-data/
 
 # Ignorar configuración de Git e IDE
 .git
