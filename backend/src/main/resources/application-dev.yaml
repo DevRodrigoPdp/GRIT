@@ -37,6 +37,12 @@ application:
       jwt:
         # Clave de desarrollo (puede ser conocida por el equipo)
         secret-key: ${JWT_SECRET_KEY:clave_de_desarrollo_muy_larga_y_segura_1234567890}
+    storage:
+      # Configuración personalizada para nuestro Service
+      endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+      access-key: ${STORAGE_ACCESS_KEY:minioadmin}
+      secret-key: ${STORAGE_SECRET_KEY:minioadmin}
+      bucket-name: grit-certificaciones-entrenadores
 
 management:
   endpoints:

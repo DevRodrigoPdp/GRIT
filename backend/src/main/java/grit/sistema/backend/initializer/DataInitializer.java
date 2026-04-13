@@ -1,4 +1,4 @@
-package grit.sistema.backend.Initializer;
+package grit.sistema.backend.initializer;
 
 import grit.sistema.backend.model.Atleta;
 import grit.sistema.backend.model.Entrenador;
