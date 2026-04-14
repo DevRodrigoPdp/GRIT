@@ -25,6 +25,26 @@ Thumbs.db
 .env.local
 .env.*.local
 
+# ─── IDE ──────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# ─── Java / Spring Boot ───────────────────────────────────────────
+target/
+*.jar
+*.war
+*.class
+*.ear
+.mvn/
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+application-local.yml
+application-local.properties
+
 # ─── Claude Code ──────────────────────────────────────────────────
 .claude/
 
