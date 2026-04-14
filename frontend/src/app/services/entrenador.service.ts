@@ -62,18 +62,14 @@ export class EntrenadorService {
   }
 
   /**
-   * Devuelve la lista de atletas asignados al entrenador.
-   * Filtra por servicio: 'ENTRENAMIENTO' | 'NUTRICION' | undefined (todos)
+   * Verifica si un código de colegiado ya existe en la base de datos.
    * TODO: descomentar llamada real cuando haya backend.
    */
-  getMisAtletas(servicio?: 'ENTRENAMIENTO' | 'NUTRICION'): Observable<AtletaAsignado[]> {
+  checkCodigoColegiadoExists(codigo: string): Observable<boolean> {
     // ── REAL ──────────────────────────────────────────────────────────────
-    // const params = servicio ? `?servicio=${servicio}` : '';
-    // return this.http.get<AtletaAsignado[]>(
-    //   `${this.API}/atletas${params}`,
-    //   { withCredentials: true }
-    // );
+    // return this.http.get<boolean>(`${this.API}/check-codigo/${codigo}`, { withCredentials: true });
     // ── MOCK ──────────────────────────────────────────────────────────────
-    return of([]); // sin atletas asignados por defecto
+    // Simula que códigos como 'MAD-12345' ya existen
+    return of(codigo === 'MAD-12345' || codigo === 'AND-00123');
   }
 }
