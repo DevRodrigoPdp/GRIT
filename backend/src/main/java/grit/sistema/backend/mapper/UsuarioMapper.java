@@ -2,7 +2,7 @@ package grit.sistema.backend.mapper;
 
 import grit.sistema.backend.dto.login.LoginData;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
-import grit.sistema.backend.model.Atleta;
+import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.Rol;
 import org.springframework.stereotype.Component;

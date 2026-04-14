@@ -1,25 +1,26 @@
-package grit.sistema.backend.model.nutrition;
+package grit.sistema.backend.model.training;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "comidas")
+@Table(name = "sesiones_rutina")
 @Getter
 @Setter
-public class Comida {
+public class SesionRutina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plan_id", nullable = false)
-    private PlanNutricion plan;
+    @JoinColumn(name = "rutina_id", nullable = false)
+    private Rutina rutina;
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -27,6 +28,7 @@ public class Comida {
     @Column(nullable = false)
     private Short orden;
 
-    @OneToMany(mappedBy = "comida", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AlimentoEnComida> alimentos;
+    @OneToMany(mappedBy = "sesion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orden ASC")
+    private List<EjercicioEnSesion> ejercicios = new ArrayList<>();
 }

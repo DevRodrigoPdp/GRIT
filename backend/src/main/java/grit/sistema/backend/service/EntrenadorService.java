@@ -4,7 +4,7 @@ import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.EntrenadorMapper;
-import grit.sistema.backend.model.Entrenador;
+import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.model.enums.TitulacionNutricion;
 import grit.sistema.backend.repositories.UsuarioRepository;

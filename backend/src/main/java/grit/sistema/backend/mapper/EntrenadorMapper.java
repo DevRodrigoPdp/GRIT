@@ -2,7 +2,7 @@ package grit.sistema.backend.mapper;
 
 import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
-import grit.sistema.backend.model.Entrenador;
+import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.EstadoRevision;
 import org.springframework.stereotype.Component;

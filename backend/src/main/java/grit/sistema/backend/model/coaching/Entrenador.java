@@ -1,5 +1,6 @@
-package grit.sistema.backend.model;
+package grit.sistema.backend.model.coaching;
 
+import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.EstadoRevision;
 import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.model.enums.TitulacionNutricion;

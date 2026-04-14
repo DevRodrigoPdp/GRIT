@@ -1,6 +1,6 @@
 package grit.sistema.backend.repositories;
 
-import grit.sistema.backend.model.Atleta;
+import grit.sistema.backend.model.coaching.Atleta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

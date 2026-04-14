@@ -1,7 +1,7 @@
 package grit.sistema.backend.initializer;
 
-import grit.sistema.backend.model.Atleta;
-import grit.sistema.backend.model.Entrenador;
+import grit.sistema.backend.model.coaching.Atleta;
+import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.*;
 import grit.sistema.backend.repositories.AtletaRepository;
