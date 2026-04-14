@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ElementRef, HostListener } from '@angular/core';
+import { Component, signal, computed, inject, ElementRef, HostListener, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -15,14 +15,17 @@ export type Servicio  = 'entrenamiento' | 'nutricion' | 'ambos';
   imports: [RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './atleta.html',
 })
-export class AtletaPage {
+export class AtletaPage implements OnInit {
   private el = inject(ElementRef);
   private auth = inject(AuthService);
   readonly form: FormGroup;
-  readonly submitted = signal(false);
+  readonly submitted        = signal(false);
+  readonly showPassword     = signal(false);
+  readonly showConfirmPass  = signal(false);
   readonly mostrarScrollTop = signal(false);
   readonly registroError = signal<string | null>(null);
   readonly loading = signal(false);
+  private readonly _passwordValue = signal('');
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -54,6 +57,17 @@ export class AtletaPage {
     { value: 'elite',        label: 'ÉLITE — Más de 6 años / competición' },
   ];
 
+  readonly passwordReglas = computed(() => {
+    const v = this._passwordValue();
+    return [
+      { label: 'Mínimo 8 caracteres',  ok: v.length >= 8 },
+      { label: 'Una mayúscula',         ok: /[A-Z]/.test(v) },
+      { label: 'Una minúscula',         ok: /[a-z]/.test(v) },
+      { label: 'Un número',            ok: /\d/.test(v) },
+      { label: 'Un carácter especial', ok: /[^a-zA-Z\d]/.test(v) },
+    ];
+  });
+
   readonly camposConError = computed(() => {
     if (!this.submitted()) return 0;
     return Object.keys(this.form.controls).filter(k => this.form.get(k)?.invalid).length;
@@ -61,19 +75,41 @@ export class AtletaPage {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      nombre:    ['', [Validators.required, Validators.minLength(3)]],
-      correo:    ['', [Validators.required, Validators.email]],
-      password:  ['', [Validators.required, Validators.minLength(8)]],
+      nombre:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
+      correo:    ['', [Validators.required, Validators.email, Validators.maxLength(100), Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
+      password:  ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/)]],
       confirmPassword: ['', Validators.required],
-      fechaNac:  ['', Validators.required],
+      fechaNac:  ['', [Validators.required, this.fechaNacValidator]],
       genero:    ['', Validators.required],
-      peso:      ['', [Validators.required, Validators.min(30), Validators.max(300)]],
-      altura:    ['', [Validators.required, Validators.min(100), Validators.max(250)]],
-      deporte:   ['', [Validators.required, Validators.minLength(3)]],
+      peso:      ['', [Validators.required, Validators.min(40), Validators.max(300), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      altura:    ['', [Validators.required, Validators.min(130), Validators.max(240), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      deporte:   ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
       nivel:     ['', Validators.required],
       objetivo:  ['', Validators.required],
       servicio:  ['', Validators.required],
-    }, { validators: this.passwordMatchValidator });
+    }, { validators: [this.passwordMatchValidator, this.imcValidator] });
+  }
+
+  ngOnInit(): void {
+    this.form.get('password')!.valueChanges.subscribe(v => this._passwordValue.set(v ?? ''));
+  }
+
+  private fechaNacValidator(control: any): ValidationErrors | null {
+    if (!control.value) return null;
+    const fecha = new Date(control.value);
+    if (isNaN(fecha.getTime())) return { invalidDate: true };
+    const hoy = new Date();
+    if (fecha > hoy) return { futureDate: true };
+    const edad = hoy.getFullYear() - fecha.getFullYear();
+    const mes = hoy.getMonth() - fecha.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fecha.getDate())) {
+      if (edad - 1 < 13) return { tooYoung: true };
+      if (edad - 1 > 120) return { tooOld: true };
+    } else {
+      if (edad < 13) return { tooYoung: true };
+      if (edad > 120) return { tooOld: true };
+    }
+    return null;
   }
 
   passwordMatchValidator(group: FormGroup): ValidationErrors | null {
@@ -82,6 +118,22 @@ export class AtletaPage {
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ mismatch: true });
       return { mismatch: true };
+    }
+    return null;
+  }
+
+  imcValidator(group: FormGroup): ValidationErrors | null {
+    const peso = group.get('peso');
+    const altura = group.get('altura');
+    if (peso && altura && peso.value && altura.value) {
+      const p = parseFloat(peso.value);
+      const a = parseFloat(altura.value) / 100; // en metros
+      if (!isNaN(p) && !isNaN(a) && a > 0) {
+        const imc = p / (a * a);
+        if (imc < 15 || imc > 40) {
+          return { imcInvalid: true };
+        }
+      }
     }
     return null;
   }
@@ -109,7 +161,7 @@ export class AtletaPage {
 
   fieldError(campo: string): boolean {
     const ctrl = this.form.get(campo);
-    return !!(ctrl?.invalid && (ctrl.touched || this.submitted()));
+    return !!(ctrl?.invalid && (ctrl.dirty || this.submitted()));
   }
 
   onSubmit(): void {
