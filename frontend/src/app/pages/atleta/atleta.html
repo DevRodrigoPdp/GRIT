@@ -127,13 +127,27 @@
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
                 Contraseña <span class="text-[#2ED38D]">*</span>
               </label>
-              <input
-                type="password"
-                formControlName="password"
-                placeholder="Mínimo 8 caracteres"
-                class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
-                [class.border-red-400]="fieldError('password')"
-              />
+              <div class="relative">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Mínimo 8 caracteres"
+                  class="w-full border-b border-black bg-transparent py-3 pr-10 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
+                  [class.border-red-400]="fieldError('password')"
+                />
+                <button
+                  type="button"
+                  (click)="showPassword.update(v => !v)"
+                  class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors p-1"
+                  tabindex="-1"
+                >
+                  @if (showPassword()) {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
+                  } @else {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square"/><circle cx="12" cy="12" r="3"/></svg>
+                  }
+                </button>
+              </div>
               @if (form.get('password')?.dirty || submitted()) {
                 <div class="flex flex-col gap-1 mt-1">
                   @for (regla of passwordReglas(); track regla.label) {
@@ -153,13 +167,27 @@
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
                 Confirmar contraseña <span class="text-[#2ED38D]">*</span>
               </label>
-              <input
-                type="password"
-                formControlName="confirmPassword"
-                placeholder="Repite la contraseña"
-                class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
-                [class.border-red-400]="fieldError('confirmPassword')"
-              />
+              <div class="relative">
+                <input
+                  [type]="showConfirmPass() ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  placeholder="Repite la contraseña"
+                  class="w-full border-b border-black bg-transparent py-3 pr-10 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
+                  [class.border-red-400]="fieldError('confirmPassword')"
+                />
+                <button
+                  type="button"
+                  (click)="showConfirmPass.update(v => !v)"
+                  class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors p-1"
+                  tabindex="-1"
+                >
+                  @if (showConfirmPass()) {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
+                  } @else {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square"/><circle cx="12" cy="12" r="3"/></svg>
+                  }
+                </button>
+              </div>
               @if (form.get('confirmPassword')?.hasError('mismatch') && (form.get('confirmPassword')?.dirty || submitted())) {
                 <span class="text-xs font-bold text-red-400 tracking-wide">Las contraseñas no coinciden</span>
               } @else if (fieldError('confirmPassword')) {

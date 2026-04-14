@@ -19,7 +19,9 @@ export class AtletaPage implements OnInit {
   private el = inject(ElementRef);
   private auth = inject(AuthService);
   readonly form: FormGroup;
-  readonly submitted = signal(false);
+  readonly submitted        = signal(false);
+  readonly showPassword     = signal(false);
+  readonly showConfirmPass  = signal(false);
   readonly mostrarScrollTop = signal(false);
   readonly registroError = signal<string | null>(null);
   readonly loading = signal(false);
