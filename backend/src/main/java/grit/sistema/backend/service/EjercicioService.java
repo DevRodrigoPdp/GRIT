@@ -1,7 +1,7 @@
 package grit.sistema.backend.service;
 
 import grit.sistema.backend.model.Ejercicio;
-import grit.sistema.backend.repositories.EjercicioRepository;
+import grit.sistema.backend.repository.EjercicioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

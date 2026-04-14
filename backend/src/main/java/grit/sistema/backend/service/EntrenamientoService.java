@@ -1,13 +1,13 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.entrenador.EntrenamientoRequestDTO;
+import grit.sistema.backend.dto.EntrenamientoRequestDTO;
 import grit.sistema.backend.dto.EntrenamientoResponseDTO;
 import grit.sistema.backend.exception.AccesoDenegadoException;
 import grit.sistema.backend.mapper.EntrenamientoMapper;
 import grit.sistema.backend.model.Entrenamiento;
 import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.repositories.EntrenamientoRepository;
-import grit.sistema.backend.repositories.UsuarioRepository;
+import grit.sistema.backend.repository.EntrenamientoRepository;
+import grit.sistema.backend.repository.UsuarioRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;

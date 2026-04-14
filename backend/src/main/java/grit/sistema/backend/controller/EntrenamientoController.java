@@ -1,6 +1,6 @@
 package grit.sistema.backend.controller;
 
-import grit.sistema.backend.dto.entrenador.EntrenamientoRequestDTO;
+import grit.sistema.backend.dto.EntrenamientoRequestDTO;
 import grit.sistema.backend.dto.EntrenamientoResponseDTO;
 import grit.sistema.backend.service.EntrenamientoService;
 import io.swagger.v3.oas.annotations.Operation;

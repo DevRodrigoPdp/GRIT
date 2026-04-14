@@ -3,7 +3,7 @@ package grit.sistema.backend;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.model.enums.Rol;
-import grit.sistema.backend.repositories.UsuarioRepository;
+import grit.sistema.backend.repository.UsuarioRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

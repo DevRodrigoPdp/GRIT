@@ -7,7 +7,7 @@ import grit.sistema.backend.mapper.EntrenadorMapper;
 import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.model.enums.TitulacionNutricion;
-import grit.sistema.backend.repositories.UsuarioRepository;
+import grit.sistema.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

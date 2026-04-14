@@ -1,6 +1,6 @@
 package grit.sistema.backend.config;
 
-import grit.sistema.backend.repositories.UsuarioRepository;
+import grit.sistema.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

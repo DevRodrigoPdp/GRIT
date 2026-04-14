@@ -6,8 +6,8 @@ import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.model.enums.Rol;
-import grit.sistema.backend.repositories.EntrenadorRepository;
-import grit.sistema.backend.repositories.UsuarioRepository;
+import grit.sistema.backend.repository.EntrenadorRepository;
+import grit.sistema.backend.repository.UsuarioRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,6 @@ public class EntrenadorPersistenceService {
 
         // Mapeo y vinculación
         Entrenador entrenador = entrenadorMapper.toEntity(request, usuario, urls);
-        entrenador.setUsuario(usuario);
         entrenador.setId(usuario.getId()); // Coherencia con @MapsId
 
         try {

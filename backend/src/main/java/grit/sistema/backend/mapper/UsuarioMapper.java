@@ -4,70 +4,55 @@ import grit.sistema.backend.dto.login.LoginData;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.enums.Rol;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
+@Mapper(componentModel = "spring")
+public interface UsuarioMapper {
 
-@Component
-public class UsuarioMapper {
-    public LoginData toLoginData(Usuario usuario) {
-        // 1. Extraemos lo común de la clase Usuario
-        String nombre = usuario.getNombre();
-        String rol = usuario.getRol().name();
-        String estado = usuario.getEstado().name();
+    // 1. Mapeo para el Login (La parte compleja)
+    @Mapping(target = "rol", expression = "java(usuario.getRol().name())")
+    @Mapping(target = "estado", expression = "java(usuario.getEstado().name())")
+    @Mapping(target = "nombre", source = "nombre")
+    @Mapping(target = "tituloEntrenamiento", source = "usuario", qualifiedByName = "mapTituloEnt")
+    @Mapping(target = "tituloNutricion", source = "usuario", qualifiedByName = "mapTituloNut")
+    @Mapping(target = "servicio", source = "usuario", qualifiedByName = "mapServicio")
+    LoginData toLoginData(Usuario usuario);
 
-        // 2. Usamos Pattern Matching (Java 17+) para verificar la subclase
-        if (usuario instanceof Atleta atleta) {
-            // Si es instancia de Atleta, tenemos acceso a .getServicio()
-            return new LoginData(
-                    rol,
-                    estado,
-                    nombre,
-                    null, // tituloEntrenamiento (Atleta -> null)
-                    null, // tituloNutricion (Atleta -> null)
-                    atleta.getServicio() != null ? atleta.getServicio().name() : null
-            );
-        }
+    // 2. Mapeo estándar DTO
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "id", expression = "java(usuario.getId() != null ? usuario.getId().toString() : null)")
+    UsuarioDTO toDTO(Usuario usuario);
 
-//        if (usuario instanceof Entrenador entrenador) {
-//            // Si es instancia de Entrenador, tenemos acceso a los títulos
-//            return new LoginData(
-//                    rol,
-//                    estado,
-//                    nombre,
-//                    entrenador.getTieneTituloEntrenamiento(),
-//                    entrenador.getTieneTituloNutricion(),
-//                    null // servicio (Entrenador -> null)
-//            );
-//        }
+    // 3. Mapeo hacia Entidad
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    Usuario toEntity(UsuarioDTO dto);
 
-        // Caso por defecto (por si tuvieras un Admin puro u otro rol)
-        return new LoginData(rol, estado, nombre, null, null, null);
+    // --- MÉTODOS DE SOPORTE POLIMÓRFICO ---
+
+    @Named("mapTituloEnt")
+    default Boolean mapTituloEnt(Usuario u) {
+        if (u instanceof Entrenador e) return e.getTitulacionEntrenamiento() != null;
+        return null;
     }
 
-    public UsuarioDTO toDTO(Usuario usuario) {
-        if (usuario == null) return null;
-
-        return new UsuarioDTO(
-                usuario.getId() != null ? usuario.getId().toString() : null,
-                usuario.getNombre(),
-                null, // IMPORTANTE: Enviamos null en el password por seguridad
-                usuario.getEmail(),
-                usuario.getRol() != null ? usuario.getRol().name() : null
-        );
+    @Named("mapTituloNut")
+    default Boolean mapTituloNut(Usuario u) {
+        if (u instanceof Entrenador e) return e.getTitulacionNutricion() != null;
+        return null;
     }
 
-    public Usuario toEntity(UsuarioDTO usuarioDTO) {
-        if (usuarioDTO == null) return null;
-
-        Usuario usuario = new Usuario();
-        usuario.setNombre(usuarioDTO.nombre());
-        usuario.setEmail(usuarioDTO.email());
-
-        // Falta el ROL si quieres crearlo desde el DTO
-        if (usuarioDTO.rol() != null) {
-            usuario.setRol(Rol.valueOf(usuarioDTO.rol()));
+    @Named("mapServicio")
+    default String mapServicio(Usuario u) {
+        if (u instanceof Atleta a && a.getServicio() != null) {
+            return a.getServicio().name();
         }
-
-        return usuario;
+        return null;
     }
 }

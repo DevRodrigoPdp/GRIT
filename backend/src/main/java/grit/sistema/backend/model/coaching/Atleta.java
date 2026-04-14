@@ -1,6 +1,7 @@
 package grit.sistema.backend.model.coaching;
 
 import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.model.enums.GeneroTipo;
 import grit.sistema.backend.model.enums.NivelAtleta;
 import grit.sistema.backend.model.enums.Objetivo;
 import grit.sistema.backend.model.enums.TipoServicio;
@@ -26,13 +27,13 @@ public class Atleta extends Usuario {
     @Column(name = "fecha_nac", nullable = false)
     private LocalDate fechaNac;
 
-    @NotBlank(message = "El género es obligatorio")
-    @Column(length = 20)
-    private String genero;
+    @NotNull(message = "El género es obligatorio")
+    @Column(name = "genero", columnDefinition = "genero_tipo", length = 20)
+    private GeneroTipo genero;
 
     @DecimalMin(value = "30.0", message = "El peso debe ser mayor a 30kg")
     @DecimalMax(value = "300.0", message = "El peso no puede exceder los 300kg")
-    @Column(name = "peso_kg", columnDefinition = "numeric(5,2)")
+    @Column(name = "peso_kg", precision = 5, scale = 2)
     private Double pesoKg;
 
     @JdbcTypeCode(Types.SMALLINT)
@@ -46,15 +47,15 @@ public class Atleta extends Usuario {
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "El nivel es obligatorio")
-    @Column(length = 20)
+    @Column(name = "nivel", columnDefinition = "nivel_atleta", length = 20)
     private NivelAtleta nivel;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "El servicio es obligatorio")
-    @Column(length = 20, nullable = false)
+    @Column(name = "servicio", columnDefinition = "servicio_tipo", length = 20, nullable = false)
     private TipoServicio servicio;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(name = "objetivo", columnDefinition = "objetivo_tipo", length = 20)
     private Objetivo objetivo;
 }

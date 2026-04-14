@@ -13,67 +13,27 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "entrenadores")
+@PrimaryKeyJoinColumn(name = "id")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Entrenador implements org.springframework.data.domain.Persistable<UUID>{
-
-    @Id
-    private UUID id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+public class Entrenador extends Usuario {
 
     @Column(name = "codigo_profesional", unique = true)
     private String codigoProfesional;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "titulacion_entrenamiento")
     private TitulacionEntrenamiento titulacionEntrenamiento;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "titulacion_nutricion")
     private TitulacionNutricion titulacionNutricion;
 
-    // Solo lectura: PostgreSQL los gestiona
-    @Column(name = "tiene_titulo_entrenamiento", insertable = false, updatable = false)
-    @org.hibernate.annotations.Generated
-    private Boolean tieneTituloEntrenamiento;
-
-    @Column(name = "tiene_titulo_nutricion", insertable = false, updatable = false)
-    @org.hibernate.annotations.Generated
-    private Boolean tieneTituloNutricion;
-
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     private EstadoRevision estado = EstadoRevision.PENDIENTE_REVISION;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "documentos_entrenador",
-            joinColumns = @JoinColumn(name = "entrenador_id"))
-    @Column(name = "url_documento", length = 512)
-    private List<String> documentosUrls;
 
-    private LocalDateTime fechaSolicitud;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.fechaSolicitud == null) {
-            this.fechaSolicitud = LocalDateTime.now();
-        }
-    }
-
-    @Override
-    public UUID getId() {
-        return id;
-    }
-
-    @Override
-    @Transient
-    public boolean isNew() {
-        return true; // Solo para esta prueba, fuerza a que siempre sea un INSERT
-    }
+    @OneToMany(mappedBy = "entrenador", cascade = CascadeType.ALL)
+    private List<DocumentoEntrenador> documentos;
 }

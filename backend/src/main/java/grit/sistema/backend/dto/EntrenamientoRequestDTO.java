@@ -1,6 +1,5 @@
-package grit.sistema.backend.dto.entrenador;
+package grit.sistema.backend.dto;
 
-import grit.sistema.backend.dto.EjercicioRequestDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

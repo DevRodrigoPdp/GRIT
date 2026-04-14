@@ -1,7 +1,7 @@
 package grit.sistema.backend.mapper;
 
 import grit.sistema.backend.dto.EjercicioReponseDTO;
-import grit.sistema.backend.dto.entrenador.EntrenamientoRequestDTO;
+import grit.sistema.backend.dto.EntrenamientoRequestDTO;
 import grit.sistema.backend.dto.EntrenamientoResponseDTO;
 import grit.sistema.backend.model.Ejercicio;
 import grit.sistema.backend.model.Entrenamiento;

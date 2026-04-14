@@ -8,7 +8,7 @@ import grit.sistema.backend.exception.SesionActivaException;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.UsuarioMapper;
 import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.repositories.UsuarioRepository;
+import grit.sistema.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

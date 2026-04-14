@@ -39,28 +39,31 @@ public class Usuario implements UserDetails {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Rol rol = Rol.ATLETA;
+    @Column(nullable = false, columnDefinition = "usuario_rol")
+    private Rol rol;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "usuario_estado")
     private EstadoUsuario estado = EstadoUsuario.ACTIVO;
 
     // --- AUDITORÍA BÁSICA ---
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     // --- HOOKS DE JPA ---
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
         if (this.estado == null) {
-            this.estado = EstadoUsuario.ACTIVO; // Valor por defecto si no viene del registro
+            this.estado = EstadoUsuario.ACTIVO;
         }
     }
 
     // --- MÉTODOS DE USERDETAILS ---
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));

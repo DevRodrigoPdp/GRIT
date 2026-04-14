@@ -6,7 +6,7 @@ import grit.sistema.backend.mapper.AtletaMapper;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.model.enums.TipoServicio;
-import grit.sistema.backend.repositories.AtletaRepository;
+import grit.sistema.backend.repository.AtletaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
