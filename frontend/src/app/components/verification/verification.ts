@@ -12,21 +12,21 @@ export class VerificationComponent {
   readonly items = signal<VerificationItem[]>([
     {
       number: '01',
-      title: 'NUTRICIÓN CON CREDENCIALES',
+      title: 'CREA TU PERFIL',
       description:
-        'Acceso exclusivo a planes nutricionales diseñados por especialistas certificados. Cada macro calculado con precisión científica para maximizar tu composición corporal.',
+        'Regístrate indicando si eres entrenador o atleta. Los entrenadores aportan su titulación oficial para acceder a la gestión completa de sus atletas.',
     },
     {
       number: '02',
-      title: 'INTEGRACIÓN BIOMÉTRICA',
+      title: 'VERIFICAMOS TUS CREDENCIALES',
       description:
-        'Métricas sincronizadas en tiempo real desde tus dispositivos. Frecuencia cardíaca, VFC, sueño y recuperación muscular unificados en un único dashboard de mando.',
+        'Validamos cada titulación para garantizar que solo profesionales certificados gestionan atletas en la plataforma. Tu seguridad como atleta, nuestra prioridad.',
     },
     {
       number: '03',
-      title: 'ANÁLISIS DE VÍDEO TÉCNICO',
+      title: 'ENTRENA Y PROGRESA',
       description:
-        'Procesamiento de vídeo con IA para analizar biomecánica de movimiento. Corrección postural automatizada y detección de patrones de fatiga neuro-muscular.',
+        'Tu entrenador diseña y ajusta planes personalizados de entrenamiento y nutrición desde un panel centralizado. Tú solo te centras en rendir.',
       isLast: true,
     },
   ]);

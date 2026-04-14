@@ -12,9 +12,8 @@ export class HeaderComponent {
   readonly isMenuOpen = signal(false);
 
   readonly navLinks: NavLink[] = [
-    { label: 'ARQUITECTURA', href: '#arquitectura' },
-    { label: 'CAPACIDADES', href: '#capacidades' },
-    { label: 'VERIFICACIÓN', href: '#verificacion' },
+    { label: 'CÓMO FUNCIONA', href: '#como-funciona' },
+    { label: 'PARA QUIÉN', href: '#para-quien' },
   ];
 
   toggleMenu(): void {

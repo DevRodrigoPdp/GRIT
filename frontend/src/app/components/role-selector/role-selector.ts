@@ -23,6 +23,6 @@ export class RoleSelectorComponent {
   continuar(): void {
     const role = this.selectedRole();
     if (!role) return;
-    this.router.navigate(['empezar', role]);
+    this.router.navigate(['registro', role]);
   }
 }
