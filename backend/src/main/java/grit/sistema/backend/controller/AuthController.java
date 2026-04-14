@@ -1,6 +1,14 @@
 package grit.sistema.backend.controller;
 
 import grit.sistema.backend.dto.*;
+import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
+import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
+import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
+import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
+import grit.sistema.backend.dto.login.LoginData;
+import grit.sistema.backend.dto.login.LoginRequestDTO;
+import grit.sistema.backend.dto.login.LoginResponseDTO;
+import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.service.AtletaService;
 import grit.sistema.backend.service.EntrenadorService;

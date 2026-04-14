@@ -1,4 +1,4 @@
-package grit.sistema.backend.security;
+package grit.sistema.backend.security.generator;
 
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;

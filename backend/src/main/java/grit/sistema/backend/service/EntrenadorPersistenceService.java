@@ -1,6 +1,6 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.EntrenadorRequestDTO;
+import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.mapper.EntrenadorMapper;
 import grit.sistema.backend.model.Entrenador;
 import grit.sistema.backend.model.Usuario;

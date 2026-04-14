@@ -1,7 +1,7 @@
-package grit.sistema.backend.security;
+package grit.sistema.backend.security.errorHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import grit.sistema.backend.dto.ErrorRespuestaDTO;
+import grit.sistema.backend.dto.error.ErrorRespuestaDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

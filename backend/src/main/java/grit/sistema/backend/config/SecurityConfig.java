@@ -1,7 +1,7 @@
 package grit.sistema.backend.config;
 
-import grit.sistema.backend.security.CustomAccessDeniedHandler;
-import grit.sistema.backend.security.JwtAuthenticationEntryPoint;
+import grit.sistema.backend.security.errorHandler.CustomAccessDeniedHandler;
+import grit.sistema.backend.security.errorHandler.JwtAuthenticationEntryPoint;
 import grit.sistema.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

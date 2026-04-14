@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto;
+package grit.sistema.backend.dto.atleta;
 
 import grit.sistema.backend.model.enums.NivelAtleta;
 import grit.sistema.backend.model.enums.Objetivo;

@@ -1,8 +1,8 @@
 package grit.sistema.backend.mapper;
 
-import grit.sistema.backend.dto.AtletaData;
-import grit.sistema.backend.dto.AtletaRequestDTO;
-import grit.sistema.backend.dto.AtletaResponseDTO;
+import grit.sistema.backend.dto.atleta.AtletaData;
+import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
+import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
 import grit.sistema.backend.model.Atleta;
 import grit.sistema.backend.model.enums.TipoServicio;
 import org.springframework.stereotype.Component;

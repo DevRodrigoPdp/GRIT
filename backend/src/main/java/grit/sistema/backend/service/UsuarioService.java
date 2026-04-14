@@ -1,11 +1,13 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.*;
+import grit.sistema.backend.dto.login.LoginData;
+import grit.sistema.backend.dto.login.LoginRequestDTO;
+import grit.sistema.backend.dto.login.LoginResponseDTO;
+import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.exception.SesionActivaException;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.UsuarioMapper;
 import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

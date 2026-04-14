@@ -1,4 +1,4 @@
-package grit.sistema.backend.security;
+package grit.sistema.backend.security.generator;
 
 import java.security.SecureRandom;
 import java.util.Base64;

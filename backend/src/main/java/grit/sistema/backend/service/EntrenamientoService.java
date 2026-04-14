@@ -1,6 +1,6 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.EntrenamientoRequestDTO;
+import grit.sistema.backend.dto.entrenador.EntrenamientoRequestDTO;
 import grit.sistema.backend.dto.EntrenamientoResponseDTO;
 import grit.sistema.backend.exception.AccesoDenegadoException;
 import grit.sistema.backend.mapper.EntrenamientoMapper;

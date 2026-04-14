@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto;
+package grit.sistema.backend.dto.error;
 
 
 import java.time.LocalDateTime;

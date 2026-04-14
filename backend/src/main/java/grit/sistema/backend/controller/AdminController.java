@@ -1,6 +1,6 @@
 package grit.sistema.backend.controller;
 
-import grit.sistema.backend.dto.UsuarioDTO;
+import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

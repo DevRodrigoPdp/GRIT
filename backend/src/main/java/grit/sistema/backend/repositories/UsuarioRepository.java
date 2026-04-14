@@ -1,6 +1,5 @@
 package grit.sistema.backend.repositories;
 
-import grit.sistema.backend.dto.UsuarioDTO;
 import grit.sistema.backend.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

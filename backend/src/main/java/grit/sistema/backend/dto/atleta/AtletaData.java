@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto;
+package grit.sistema.backend.dto.atleta;
 
 import java.util.UUID;
 

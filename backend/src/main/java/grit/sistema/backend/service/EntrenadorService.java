@@ -1,25 +1,15 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.EntrenadorRequestDTO;
-import grit.sistema.backend.dto.EntrenadorResponseDTO;
+import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
+import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.EntrenadorMapper;
 import grit.sistema.backend.model.Entrenador;
-import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.model.enums.EstadoUsuario;
-import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.model.enums.TitulacionNutricion;
-import grit.sistema.backend.repositories.EntrenadorRepository;
 import grit.sistema.backend.repositories.UsuarioRepository;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
