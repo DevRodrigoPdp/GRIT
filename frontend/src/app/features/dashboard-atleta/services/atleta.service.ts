@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { AuthService, RegistroAtletaPayload } from './auth.service';
+import { AuthService, RegistroAtletaPayload } from '../../../core/services/auth.service';
 
 // ── Tipos de respuesta del backend ─────────────────────────────────────────
 

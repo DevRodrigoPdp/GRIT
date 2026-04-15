@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NavLink } from '../../models/grit.models';
+import { NavLink } from '../models/grit.models';
 
 @Component({
   selector: 'app-header',
