@@ -71,6 +71,12 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'admin',
+    canActivate: [rolGuard('ADMIN')],
+    loadComponent: () =>
+      import('./pages/admin/admin').then(m => m.AdminPage),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

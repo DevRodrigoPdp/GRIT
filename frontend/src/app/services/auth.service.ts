@@ -6,7 +6,7 @@ import { tap, catchError } from 'rxjs/operators';
 
 // ── Tipos compartidos ────────────────────────────────────────────────────────
 
-export type Rol            = 'ATLETA' | 'ENTRENADOR';
+export type Rol            = 'ATLETA' | 'ENTRENADOR' | 'ADMIN';
 export type EstadoCuenta   = 'ACTIVO' | 'PENDIENTE_REVISION' | 'RECHAZADO';
 export type ServicioAtleta = 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
 
@@ -292,6 +292,10 @@ export class AuthService {
       } else {
         this.router.navigate(['/dashboard/entrenador']);
       }
+      return;
+    }
+    if (rol === 'ADMIN') {
+      this.router.navigate(['/admin']);
     }
   }
 }
