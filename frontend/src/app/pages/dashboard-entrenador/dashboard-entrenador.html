@@ -1,259 +1,280 @@
 <div class="h-screen bg-white flex flex-col overflow-hidden">
 
   <!-- Top bar -->
-  <header class="border-b border-[#E5E7EB] px-6 md:px-10 h-14 flex items-center justify-between flex-shrink-0">
+  <header class="border-b border-[#E5E7EB] px-6 h-14 flex items-center justify-between flex-shrink-0">
     <span class="font-black tracking-tighter text-lg text-black uppercase select-none">GRIT</span>
-    <div class="flex items-center gap-6">
-      @if (auth.nombre()) {
-        <span class="text-xs font-bold tracking-[0.15em] uppercase text-gray-400 hidden sm:block">
-          {{ auth.nombre() }}
-        </span>
-      }
-      <span class="text-xs font-bold tracking-[0.2em] uppercase text-[#2ED38D]">● VERIFICADO</span>
-      <button
-        (click)="auth.logout()"
-        class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors"
-      >
-        CERRAR SESIÓN
-      </button>
-    </div>
+    @if (auth.nombre()) {
+      <span class="text-xs font-bold tracking-[0.15em] uppercase text-gray-400">
+        {{ auth.nombre() }}
+      </span>
+    }
   </header>
 
-  <main class="flex-1 min-h-0 overflow-hidden flex flex-col">
+  <div class="flex-1 min-h-0 flex overflow-hidden">
 
-    <!-- ── PERFIL ─────────────────────────────────────────────────────────── -->
-    @if (!atletaActivo() && vistaActual() === 'perfil') {
-      <app-perfil-entrenador-vista class="flex-1 min-h-0 overflow-hidden flex flex-col" [perfil]="perfil()" (volver)="vistaActual.set('atletas')" />
-    }
+    <!-- ── Aside lateral ─────────────────────────────────────────────────── -->
+    <aside class="flex-shrink-0 w-14 lg:w-56 border-r border-[#E5E7EB] flex flex-col py-4">
 
-    <!-- ── LISTA DE ATLETAS ───────────────────────────────────────────────── -->
-    @if (!atletaActivo() && vistaActual() === 'atletas') {
-    <div class="flex-1 overflow-y-auto w-full">
-    <div class="flex gap-10 px-6 md:px-10 py-10">
-
-      <!-- Perfil entrenador (sidebar izquierdo) -->
-      <div class="hidden lg:block flex-shrink-0 pt-2">
-        <app-perfil-entrenador [perfil]="perfil()" (verPerfil)="vistaActual.set('perfil')" />
-      </div>
-
-      <!-- Contenido principal -->
-      <div class="flex-1 min-w-0">
-
-      <!-- Título -->
-      <div class="mb-10">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-5 h-px bg-[#2ED38D]"></div>
-          <span class="text-xs font-bold tracking-[0.35em] uppercase text-[#2ED38D]">DASHBOARD / ENTRENADOR</span>
-        </div>
-        <div class="flex items-end justify-between">
-          <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-black leading-none">
-            MIS<br>ATLETAS
-          </h1>
-          @if (atletas().length > 0) {
-            <span class="text-sm font-light text-gray-400 mb-2">
-              {{ atletas().length }} atleta{{ atletas().length === 1 ? '' : 's' }}
-            </span>
-          }
-        </div>
-      </div>
-
-      <!-- Filtros -->
-      <div class="flex flex-col sm:flex-row gap-3 mb-8">
-
-        <!-- Búsqueda por nombre -->
-        <div class="relative flex-1">
-          <input
-            [ngModel]="busqueda()"
-            (ngModelChange)="busqueda.set($event)"
-            placeholder="Buscar atleta..."
-            class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors"
-          />
-          @if (busqueda()) {
-            <button
-              (click)="busqueda.set('')"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors text-sm"
-            >✕</button>
-          }
-        </div>
-
-        <!-- Chips de servicio (solo si el entrenador tiene ambos títulos) -->
-        @if (auth.tituloEntrenamiento() && auth.tituloNutricion()) {
-          <div class="flex gap-1.5">
-            @for (opcion of [['TODOS','TODOS'],['ENTRENAMIENTO','ENTR'],['NUTRICION','NUTR']] ; track opcion[0]) {
-              <button
-                (click)="filtroServicio.set($any(opcion[0]))"
-                [class]="filtroServicio() === opcion[0]
-                  ? (opcion[0] === 'NUTRICION'     ? 'px-3 py-2.5 text-[11px] font-black tracking-[0.15em] uppercase bg-[#2ED38D] text-black' :
-                     opcion[0] === 'ENTRENAMIENTO' ? 'px-3 py-2.5 text-[11px] font-black tracking-[0.15em] uppercase bg-black text-white' :
-                                                     'px-3 py-2.5 text-[11px] font-black tracking-[0.15em] uppercase bg-black text-white')
-                  : 'px-3 py-2.5 text-[11px] font-bold tracking-[0.15em] uppercase border border-[#E5E7EB] text-gray-400 hover:border-black hover:text-black transition-colors'"
-              >
-                {{ opcion[1] }}
-              </button>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- Lista vacía -->
-      @if (atletas().length === 0) {
-        <div class="border border-dashed border-[#E5E7EB] p-16 text-center">
-          <div class="w-2 h-2 bg-gray-200 mx-auto mb-4"></div>
-          <p class="text-xs font-black tracking-[0.25em] uppercase text-gray-300 mb-1">SIN ATLETAS</p>
-          <p class="text-sm font-light text-gray-400">Todavía no tienes atletas asignados.</p>
-        </div>
-      }
-
-      <!-- Sin resultados tras filtrar -->
-      @if (atletas().length > 0 && atletasFiltrados().length === 0) {
-        <div class="border border-dashed border-[#E5E7EB] p-10 text-center">
-          <p class="text-sm font-light text-gray-400">Sin resultados para los filtros aplicados.</p>
-        </div>
-      }
-
-      <!-- Grid de tarjetas -->
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        @for (atleta of atletasFiltrados(); track atleta.id) {
-          <button
-            (click)="seleccionarAtleta(atleta)"
-            class="text-left border border-[#E5E7EB] hover:border-black transition-all duration-200 group"
-          >
-            <!-- Franja superior de color por servicio -->
-            <div class="h-1"
-              [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D]' :
-                       atleta.servicio === 'ENTRENAMIENTO' ? 'bg-black' :
-                       'bg-gradient-to-r from-black to-[#2ED38D]'">
-            </div>
-
-            <div class="p-6">
-              <!-- Avatar + nombre -->
-              <div class="flex items-center gap-4 mb-5">
-                <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center font-black text-sm"
-                  [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D] text-black' :
-                           atleta.servicio === 'ENTRENAMIENTO' ? 'bg-black text-white' :
-                           'bg-black text-[#2ED38D]'">
-                  {{ iniciales(atleta.nombre) }}
-                </div>
-                <div>
-                  <p class="text-sm font-black uppercase tracking-tight text-black leading-none mb-1">
-                    {{ atleta.nombre }}
-                  </p>
-                  <p class="text-sm font-light text-gray-400">
-                    {{ atleta.deporte }} · {{ nivelLabel(atleta.nivel) }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Servicios + estado -->
-              <div class="flex items-center justify-between">
-                <div class="flex gap-1.5">
-                  @if (atleta.servicio === 'ENTRENAMIENTO' || atleta.servicio === 'AMBOS') {
-                    <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2 py-1 bg-black text-white">
-                      ENTR
-                    </span>
-                  }
-                  @if (atleta.servicio === 'NUTRICION' || atleta.servicio === 'AMBOS') {
-                    <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2 py-1 bg-[#2ED38D] text-black">
-                      NUTR
-                    </span>
-                  }
-                </div>
-                <div class="flex items-center gap-3">
-                  @if (atleta.tienePlanActivo) {
-                    <span class="text-[11px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● ACTIVO</span>
-                  } @else {
-                    <span class="text-[11px] font-bold tracking-[0.1em] uppercase text-gray-300">○ SIN PLAN</span>
-                  }
-                  <span class="text-gray-200 group-hover:text-black transition-colors">→</span>
-                </div>
-              </div>
-            </div>
-          </button>
-        }
-      </div>
-
-      </div><!-- fin contenido principal -->
-    </div><!-- fin flex gap-10 -->
-    </div><!-- fin overflow-y-auto -->
-    }
-
-    <!-- ── DETALLE DE ATLETA ───────────────────────────────────────────────── -->
-    @if (atletaActivo(); as atleta) {
-    <div class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
-
-      <!-- Sidebar izquierdo: info atleta -->
-      <aside class="flex-shrink-0 lg:w-64 lg:overflow-y-auto px-6 md:px-10 lg:px-8 pt-8 pb-6 border-b lg:border-b-0 lg:border-r border-[#E5E7EB]">
-
-        <!-- Volver -->
+      @for (item of navItems; track item.id) {
         <button
-          (click)="volver()"
-          class="flex items-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-gray-400 hover:text-black transition-colors mb-8"
+          (click)="navegarA(item.id)"
+          [class]="vistaActual() === item.id
+            ? 'flex items-center gap-3 px-4 lg:px-5 py-3.5 text-black border-r-2 border-black bg-[#F9FAFB] w-full'
+            : 'flex items-center gap-3 px-4 lg:px-5 py-3.5 text-gray-400 hover:text-black hover:bg-[#F9FAFB] transition-colors w-full'"
         >
-          <span>←</span><span>MIS ATLETAS</span>
-        </button>
-
-        <!-- Avatar grande -->
-        <div class="w-20 h-20 flex items-center justify-center font-black text-2xl mb-5"
-          [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D] text-black' :
-                   atleta.servicio === 'ENTRENAMIENTO' ? 'bg-black text-white' :
-                   'bg-black text-[#2ED38D]'">
-          {{ iniciales(atleta.nombre) }}
-        </div>
-
-        <h1 class="text-3xl font-black uppercase tracking-tighter text-black leading-tight mb-1">
-          {{ atleta.nombre }}
-        </h1>
-        <p class="text-sm font-light text-gray-400 mb-5">
-          {{ atleta.deporte }} · {{ nivelLabel(atleta.nivel) }}
-        </p>
-
-        <!-- Servicios -->
-        <div class="flex flex-wrap gap-1.5">
-          @if (atleta.servicio === 'ENTRENAMIENTO' || atleta.servicio === 'AMBOS') {
-            <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-black text-white">
-              ENTRENAMIENTO
-            </span>
-          }
-          @if (atleta.servicio === 'NUTRICION' || atleta.servicio === 'AMBOS') {
-            <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-[#2ED38D] text-black">
-              NUTRICIÓN
-            </span>
-          }
-        </div>
-      </aside>
-
-      <!-- Contenido principal -->
-      <div class="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
-
-        <!-- Tabs (solo si hay más de una) -->
-        @if (tabsDisponibles().length > 1) {
-          <div class="flex border-b border-[#E5E7EB] flex-shrink-0 px-6 md:px-10">
-            @for (tab of tabsDisponibles(); track tab) {
-              <button
-                (click)="tabActiva.set(tab)"
-                [class]="tabActiva() === tab
-                  ? 'px-6 py-3 text-sm font-black tracking-[0.15em] uppercase border-b-2 border-black text-black -mb-px'
-                  : 'px-6 py-3 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors'"
-              >
-                {{ tab === 'ENTRENAMIENTO' ? 'ENTRENAMIENTO' : 'NUTRICIÓN' }}
-              </button>
+          <!-- Icono -->
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            @if (item.id === 'atletas') {
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="square"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="square"/>
             }
+            @if (item.id === 'perfil') {
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke-linecap="square"/>
+              <circle cx="12" cy="7" r="4"/>
+            }
+            @if (item.id === 'ajustes') {
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            }
+          </svg>
+          <span class="hidden lg:block text-xs font-black tracking-[0.2em] uppercase">{{ item.label }}</span>
+        </button>
+      }
+
+      <!-- Cerrar sesión al fondo -->
+      <div class="mt-auto border-t border-[#E5E7EB] pt-4">
+        <button
+          (click)="auth.logout()"
+          class="flex items-center gap-3 px-4 lg:px-5 py-3.5 text-gray-300 hover:text-black transition-colors w-full"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="square"/>
+          </svg>
+          <span class="hidden lg:block text-xs font-bold tracking-[0.2em] uppercase">CERRAR SESIÓN</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Contenido principal ────────────────────────────────────────────── -->
+    <main class="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col">
+
+      <!-- ════ ATLETAS ════════════════════════════════════════════════════ -->
+      @if (vistaActual() === 'atletas') {
+
+        <!-- Lista -->
+        @if (!atletaActivo()) {
+          <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10">
+
+            <div class="mb-10">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-5 h-px bg-[#2ED38D]"></div>
+                <span class="text-xs font-bold tracking-[0.35em] uppercase text-[#2ED38D]">ENTRENADOR / ATLETAS</span>
+              </div>
+              <div class="flex items-end justify-between">
+                <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-black leading-none">
+                  MIS<br>ATLETAS
+                </h1>
+                @if (atletas().length > 0) {
+                  <span class="text-sm font-light text-gray-400 mb-2">
+                    {{ atletas().length }} atleta{{ atletas().length === 1 ? '' : 's' }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="flex flex-col sm:flex-row gap-3 mb-8">
+              <div class="relative flex-1">
+                <input
+                  [ngModel]="busqueda()"
+                  (ngModelChange)="busqueda.set($event)"
+                  placeholder="Buscar atleta..."
+                  class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors"
+                />
+                @if (busqueda()) {
+                  <button
+                    (click)="busqueda.set('')"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors text-sm"
+                  >✕</button>
+                }
+              </div>
+
+              @if (auth.tituloEntrenamiento() && auth.tituloNutricion()) {
+                <div class="flex gap-1.5">
+                  @for (opcion of [['TODOS','TODOS'],['ENTRENAMIENTO','ENTR'],['NUTRICION','NUTR']]; track opcion[0]) {
+                    <button
+                      (click)="filtroServicio.set($any(opcion[0]))"
+                      [class]="filtroServicio() === opcion[0]
+                        ? (opcion[0] === 'NUTRICION' ? 'px-3 py-2.5 text-[11px] font-black tracking-[0.15em] uppercase bg-[#2ED38D] text-black' : 'px-3 py-2.5 text-[11px] font-black tracking-[0.15em] uppercase bg-black text-white')
+                        : 'px-3 py-2.5 text-[11px] font-bold tracking-[0.15em] uppercase border border-[#E5E7EB] text-gray-400 hover:border-black hover:text-black transition-colors'"
+                    >{{ opcion[1] }}</button>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (atletas().length === 0) {
+              <div class="border border-dashed border-[#E5E7EB] p-16 text-center">
+                <div class="w-2 h-2 bg-gray-200 mx-auto mb-4"></div>
+                <p class="text-xs font-black tracking-[0.25em] uppercase text-gray-300 mb-1">SIN ATLETAS</p>
+                <p class="text-sm font-light text-gray-400">Todavía no tienes atletas asignados.</p>
+              </div>
+            }
+
+            @if (atletas().length > 0 && atletasFiltrados().length === 0) {
+              <div class="border border-dashed border-[#E5E7EB] p-10 text-center">
+                <p class="text-sm font-light text-gray-400">Sin resultados para los filtros aplicados.</p>
+              </div>
+            }
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              @for (atleta of atletasFiltrados(); track atleta.id) {
+                <button
+                  (click)="seleccionarAtleta(atleta)"
+                  class="text-left border border-[#E5E7EB] hover:border-black transition-all duration-200 group"
+                >
+                  <div class="h-1"
+                    [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D]' :
+                             atleta.servicio === 'ENTRENAMIENTO' ? 'bg-black' :
+                             'bg-gradient-to-r from-black to-[#2ED38D]'">
+                  </div>
+                  <div class="p-6">
+                    <div class="flex items-center gap-4 mb-5">
+                      <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center font-black text-sm"
+                        [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D] text-black' :
+                                 atleta.servicio === 'ENTRENAMIENTO' ? 'bg-black text-white' :
+                                 'bg-black text-[#2ED38D]'">
+                        {{ iniciales(atleta.nombre) }}
+                      </div>
+                      <div>
+                        <p class="text-sm font-black uppercase tracking-tight text-black leading-none mb-1">
+                          {{ atleta.nombre }}
+                        </p>
+                        <p class="text-sm font-light text-gray-400">
+                          {{ atleta.deporte }} · {{ nivelLabel(atleta.nivel) }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <div class="flex gap-1.5">
+                        @if (incluyeEntrenamiento(atleta.servicio)) {
+                          <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2 py-1 bg-black text-white">ENTR</span>
+                        }
+                        @if (incluyeNutricion(atleta.servicio)) {
+                          <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2 py-1 bg-[#2ED38D] text-black">NUTR</span>
+                        }
+                      </div>
+                      <div class="flex items-center gap-3">
+                        @if (atleta.tienePlanActivo) {
+                          <span class="text-[11px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● ACTIVO</span>
+                        } @else {
+                          <span class="text-[11px] font-bold tracking-[0.1em] uppercase text-gray-300">○ SIN PLAN</span>
+                        }
+                        <span class="text-gray-200 group-hover:text-black transition-colors">→</span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              }
+            </div>
+
           </div>
         }
 
-        <!-- Contenido tab -->
-        @if (tabActiva() === 'NUTRICION') {
-          <app-gestion-nutricion class="flex-1 min-h-0 overflow-y-auto block px-6 md:px-10" [atletaId]="atleta.id" />
+        <!-- Detalle de atleta -->
+        @if (atletaActivo(); as atleta) {
+          <div class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+
+            <aside class="flex-shrink-0 lg:w-64 lg:overflow-y-auto px-6 md:px-8 pt-8 pb-6 border-b lg:border-b-0 lg:border-r border-[#E5E7EB]">
+              <button
+                (click)="volver()"
+                class="flex items-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-gray-400 hover:text-black transition-colors mb-8"
+              >
+                <span>←</span><span>MIS ATLETAS</span>
+              </button>
+
+              <div class="w-20 h-20 flex items-center justify-center font-black text-2xl mb-5"
+                [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D] text-black' :
+                         atleta.servicio === 'ENTRENAMIENTO' ? 'bg-black text-white' :
+                         'bg-black text-[#2ED38D]'">
+                {{ iniciales(atleta.nombre) }}
+              </div>
+
+              <h1 class="text-3xl font-black uppercase tracking-tighter text-black leading-tight mb-1">
+                {{ atleta.nombre }}
+              </h1>
+              <p class="text-sm font-light text-gray-400 mb-5">
+                {{ atleta.deporte }} · {{ nivelLabel(atleta.nivel) }}
+              </p>
+
+              <div class="flex flex-wrap gap-1.5">
+                @if (incluyeEntrenamiento(atleta.servicio)) {
+                  <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-black text-white">ENTRENAMIENTO</span>
+                }
+                @if (incluyeNutricion(atleta.servicio)) {
+                  <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-[#2ED38D] text-black">NUTRICIÓN</span>
+                }
+              </div>
+            </aside>
+
+            <div class="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
+              @if (tabsDisponibles().length > 1) {
+                <div class="flex border-b border-[#E5E7EB] flex-shrink-0 px-6 md:px-10">
+                  @for (tab of tabsDisponibles(); track tab) {
+                    <button
+                      (click)="tabActiva.set(tab)"
+                      [class]="tabActiva() === tab
+                        ? 'px-6 py-3 text-sm font-black tracking-[0.15em] uppercase border-b-2 border-black text-black -mb-px'
+                        : 'px-6 py-3 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors'"
+                    >
+                      {{ tab === 'ENTRENAMIENTO' ? 'ENTRENAMIENTO' : 'NUTRICIÓN' }}
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (tabActiva() === 'NUTRICION') {
+                <app-gestion-nutricion class="flex-1 min-h-0 overflow-y-auto block px-6 md:px-10" [atletaId]="atleta.id" />
+              }
+              @if (tabActiva() === 'ENTRENAMIENTO') {
+                <app-gestion-entrenamiento class="flex-1 min-h-0 flex flex-col overflow-hidden block px-6 md:px-10" [atletaId]="atleta.id" />
+              }
+            </div>
+
+          </div>
         }
 
-        @if (tabActiva() === 'ENTRENAMIENTO') {
-          <app-gestion-entrenamiento class="flex-1 min-h-0 flex flex-col overflow-hidden block px-6 md:px-10" [atletaId]="atleta.id" />
-        }
+      }
 
-      </div>
-    </div>
-    }
+      <!-- ════ MI PERFIL ══════════════════════════════════════════════════ -->
+      @if (vistaActual() === 'perfil') {
+        <app-perfil-entrenador-vista
+          class="flex-1 min-h-0 overflow-hidden flex flex-col"
+          [perfil]="perfil()"
+          (volver)="navegarA('atletas')"
+        />
+      }
 
-  </main>
+      <!-- ════ AJUSTES ════════════════════════════════════════════════════ -->
+      @if (vistaActual() === 'ajustes') {
+        <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10">
+          <div class="mb-10">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-5 h-px bg-[#2ED38D]"></div>
+              <span class="text-xs font-bold tracking-[0.35em] uppercase text-[#2ED38D]">ENTRENADOR / AJUSTES</span>
+            </div>
+            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-black leading-none">
+              AJUSTES
+            </h1>
+          </div>
+          <div class="border border-dashed border-[#E5E7EB] p-16 text-center">
+            <div class="w-2 h-2 bg-gray-200 mx-auto mb-4"></div>
+            <p class="text-xs font-black tracking-[0.25em] uppercase text-gray-300">PRÓXIMAMENTE</p>
+          </div>
+        </div>
+      }
 
+    </main>
+  </div>
 </div>

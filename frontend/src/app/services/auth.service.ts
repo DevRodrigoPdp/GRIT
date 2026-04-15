@@ -115,7 +115,7 @@ export class AuthService {
               payload.servicio as ServicioAtleta,
               payload.nombre
             );
-            this.redirigir(data.rol, data.estado, null, null);
+            this.redirigir(data.rol, data.estado);
           },
         })
       );
@@ -159,7 +159,7 @@ export class AuthService {
             const tituloEntrenamiento = !!payload.titulacionEntrenamiento;
             const tituloNutricion = !!payload.titulacionNutricion;
             this.setSession(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion, null, payload.nombre);
-            this.redirigir(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion);
+            this.redirigir(res.data.rol, res.data.estado);
           },
           error: () => this.loading.set(false),
         })
@@ -179,7 +179,7 @@ export class AuthService {
           next: (res) => {
             this.loading.set(false);
             this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
-            this.redirigir(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
+            this.redirigir(res.data.rol, res.data.estado);
           },
           error: (err) => {
             this.loading.set(false);
@@ -262,12 +262,7 @@ export class AuthService {
     this.nombre.set(null);
   }
 
-  private redirigir(
-    rol: Rol,
-    estado: EstadoCuenta,
-    tituloEntrenamiento: boolean | null,
-    tituloNutricion: boolean | null
-  ) {
+  private redirigir(rol: Rol, estado: EstadoCuenta) {
     if (estado === 'PENDIENTE_REVISION') {
       this.router.navigate(['/pendiente']);
       return;
@@ -281,13 +276,7 @@ export class AuthService {
       return;
     }
     if (rol === 'ENTRENADOR') {
-      if (tituloEntrenamiento && tituloNutricion) {
-        this.router.navigate(['/dashboard/entrenador/nutricion']);
-      } else if (tituloNutricion) {
-        this.router.navigate(['/dashboard/entrenador/solo-nutricion']);
-      } else {
-        this.router.navigate(['/dashboard/entrenador']);
-      }
+      this.router.navigate(['/dashboard/entrenador']);
     }
   }
 }
