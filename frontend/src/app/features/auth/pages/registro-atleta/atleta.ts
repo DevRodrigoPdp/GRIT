@@ -2,7 +2,7 @@ import { Component, signal, computed, inject, ElementRef, HostListener, OnInit }
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService, ServicioAtleta } from '../../services/auth.service';
+import { AuthService, ServicioAtleta } from '../../../../core/services/auth.service';
 
 export type Objetivo = 'rendimiento' | 'masa_muscular' | 'perder_peso' | 'salud' | 'resistencia';
 export type Nivel     = 'principiante' | 'intermedio' | 'avanzado' | 'elite';

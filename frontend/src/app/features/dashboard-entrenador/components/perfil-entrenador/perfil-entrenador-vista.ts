@@ -1,5 +1,5 @@
 import { Component, inject, computed, output, input } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { PerfilEntrenador } from '../../services/entrenador.service';
 
 const TITULACION_ENT_LABEL: Record<string, string> = {

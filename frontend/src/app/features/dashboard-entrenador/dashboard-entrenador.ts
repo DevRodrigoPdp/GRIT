@@ -1,10 +1,10 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
-import { EntrenadorService, AtletaAsignado, PerfilEntrenador } from '../../services/entrenador.service';
-import { GestionNutricionComponent } from '../../components/gestion-nutricion/gestion-nutricion';
-import { GestionEntrenamientoComponent } from '../../components/gestion-entrenamiento/gestion-entrenamiento';
-import { PerfilEntrenadorVistaComponent } from '../../components/perfil-entrenador/perfil-entrenador-vista';
+import { AuthService } from '../../core/services/auth.service';
+import { EntrenadorService, AtletaAsignado, PerfilEntrenador } from './services/entrenador.service';
+import { GestionNutricionComponent } from './components/gestion-nutricion/gestion-nutricion';
+import { GestionEntrenamientoComponent } from './components/gestion-entrenamiento/gestion-entrenamiento';
+import { PerfilEntrenadorVistaComponent } from './components/perfil-entrenador/perfil-entrenador-vista';
 
 type Tab    = 'ENTRENAMIENTO' | 'NUTRICION';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';

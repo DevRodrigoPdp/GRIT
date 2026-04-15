@@ -2,8 +2,8 @@ import { Component, signal, computed, inject, ElementRef, HostListener, OnInit }
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
-import { EntrenadorService } from '../../services/entrenador.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { EntrenadorService } from '../../../dashboard-entrenador/services/entrenador.service';
 import { Observable, map, catchError, of } from 'rxjs';
 
 export type TipoTitulacionEntrenamiento =

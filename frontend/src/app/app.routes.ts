@@ -1,22 +1,22 @@
 import { Routes } from '@angular/router';
-import { rolGuard } from './guards/auth.guard';
+import { rolGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/landing/landing').then(m => m.LandingPage),
+      import('./features/landing/landing').then(m => m.LandingPage),
   },
   {
     path: 'login',
     loadComponent: () =>
-      import('./pages/login/login').then(m => m.LoginPage),
+      import('./features/auth/pages/login/login').then(m => m.LoginPage),
   },
   {
     path: 'pendiente',
     canActivate: [rolGuard('ENTRENADOR')],
     loadComponent: () =>
-      import('./pages/pendiente/pendiente').then(m => m.PendientePage),
+      import('./features/auth/pages/pendiente/pendiente').then(m => m.PendientePage),
   },
   {
     path: 'registro',
@@ -24,17 +24,17 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./pages/onboarding/onboarding').then(m => m.OnboardingPage),
+          import('./features/auth/pages/onboarding/onboarding').then(m => m.OnboardingPage),
       },
       {
         path: 'entrenador',
         loadComponent: () =>
-          import('./pages/entrenador/entrenador').then(m => m.EntrenadorPage),
+          import('./features/auth/pages/registro-entrenador/entrenador').then(m => m.EntrenadorPage),
       },
       {
         path: 'atleta',
         loadComponent: () =>
-          import('./pages/atleta/atleta').then(m => m.AtletaPage),
+          import('./features/auth/pages/registro-atleta/atleta').then(m => m.AtletaPage),
       },
     ],
   },
@@ -45,13 +45,13 @@ export const routes: Routes = [
         path: 'atleta',
         canActivate: [rolGuard('ATLETA')],
         loadComponent: () =>
-          import('./pages/dashboard-atleta/dashboard-atleta').then(m => m.DashboardAtletaPage),
+          import('./features/dashboard-atleta/dashboard-atleta').then(m => m.DashboardAtletaPage),
       },
       {
         path: 'entrenador',
         canActivate: [rolGuard('ENTRENADOR')],
         loadComponent: () =>
-          import('./pages/dashboard-entrenador/dashboard-entrenador').then(m => m.DashboardEntrenadorPage),
+          import('./features/dashboard-entrenador/dashboard-entrenador').then(m => m.DashboardEntrenadorPage),
       },
     ],
   },
