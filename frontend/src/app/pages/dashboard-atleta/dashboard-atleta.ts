@@ -28,7 +28,7 @@ export class DashboardAtletaPage implements OnInit {
   };
 
   ngOnInit(): void {
-    setTimeout(() => this.cargando.set(false), 2200);
+    this.auth.me().subscribe(() => this.cargando.set(false));
   }
 
   seleccionarTab(t: Tab): void {

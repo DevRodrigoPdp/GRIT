@@ -1,8 +1,8 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, of, EMPTY } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 // ── Tipos compartidos ────────────────────────────────────────────────────────
 
@@ -203,28 +203,40 @@ export class AuthService {
    * TODO: descomentar llamada real y eliminar bloque mock cuando haya backend.
    */
   me(): Observable<MeResponse | null> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http
-    //   .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
-    //   .pipe(
-    //     tap((res) => {
-    //       this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
-    //     })
-    //   );
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    return of(null); // los signals ya tienen datos del registro/login
+    return this.http
+      .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
+      .pipe(
+        tap((res) => {
+          this.setSession(
+            res.data.rol,
+            res.data.estado,
+            res.data.tituloEntrenamiento,
+            res.data.tituloNutricion,
+            res.data.servicio,
+            res.data.nombre
+          );
+        }),
+        catchError((err) => {
+          // Cookie expirada o inválida → limpiar sesión y redirigir al login
+          if (err.status === 401) {
+            this.clearSession();
+            this.router.navigate(['/login']);
+          }
+          return of(null);
+        })
+      );
   }
 
   // ── Logout ───────────────────────────────────────────────────────────────
 
   logout() {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // this.http
-    //   .post(`${this.API}/logout`, {}, { withCredentials: true })
-    //   .subscribe(() => this.clearSession());
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    this.clearSession();
-    this.router.navigate(['/']);
+    this.http
+      .post(`${this.API}/logout`, {}, { withCredentials: true })
+      .pipe(catchError(() => EMPTY))
+      .subscribe(() => {
+        this.clearSession();
+        this.router.navigate(['/']);
+      });
   }
 
   // ── Helpers privados ─────────────────────────────────────────────────────
