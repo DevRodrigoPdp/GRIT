@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { VerificationItem } from '../../../shared/models/grit.models';
+import { VerificationItem } from '../../../../shared/models/grit.models';
 
 @Component({
   selector: 'app-verification',
