@@ -2,7 +2,89 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 10 de abril de 2026 — añadidos módulos de Recetas y Alimentos Recientes (secciones 3.15 y 3.16)
+> **Última actualización:** 15 de abril de 2026 — reorganización de arquitectura frontend y simplificación de rutas del entrenador
+
+---
+
+## 0. Arquitectura Frontend
+
+### 0.1 Estructura de carpetas
+
+```
+frontend/src/app/
+├── core/                          ← Global: guards, interceptors, auth
+│   ├── guards/
+│   │   └── auth.guard.ts          — Protección de rutas por rol
+│   ├── interceptors/
+│   │   └── auth.interceptor.ts    — Refresco automático de access_token
+│   └── services/
+│       └── auth.service.ts        — Sesión, login, registro, me(), logout()
+│
+├── shared/                        ← Componentes reutilizables globales
+│   ├── splash/
+│   ├── header/
+│   └── footer/
+│
+└── features/                      ← Módulos por dominio
+    ├── landing/                   — Página de inicio pública
+    │   └── components/
+    │       ├── hero/
+    │       ├── dashboard/
+    │       └── verification/
+    │
+    ├── auth/                      — Autenticación y registro
+    │   ├── pages/
+    │   │   ├── login/
+    │   │   ├── onboarding/
+    │   │   ├── registro-atleta/
+    │   │   ├── registro-entrenador/
+    │   │   └── pendiente/
+    │   └── components/
+    │       └── role-selector/
+    │
+    ├── dashboard-entrenador/      — Dashboard del entrenador (ruta única)
+    │   ├── dashboard-entrenador.ts/.html
+    │   ├── services/
+    │   │   ├── entrenador.service.ts
+    │   │   ├── entrenamiento.service.ts
+    │   │   ├── nutricion.service.ts
+    │   │   ├── recetas.service.ts
+    │   │   ├── ejercicio.service.ts
+    │   │   └── open-food-facts.service.ts
+    │   └── components/
+    │       ├── perfil-entrenador/
+    │       ├── gestion-entrenamiento/
+    │       ├── gestion-nutricion/
+    │       ├── buscador-alimento/
+    │       └── buscador-ejercicio/
+    │
+    └── dashboard-atleta/          — Dashboard del atleta
+        ├── dashboard-atleta.ts/.html
+        └── services/
+            └── atleta.service.ts
+```
+
+### 0.2 Rutas frontend
+
+| Ruta | Componente | Guard | Descripción |
+|---|---|---|---|
+| `/` | `LandingPage` | — | Página pública de inicio |
+| `/login` | `LoginPage` | — | Inicio de sesión |
+| `/registro` | `OnboardingPage` | — | Selector de rol |
+| `/registro/atleta` | `AtletaPage` | — | Formulario registro atleta |
+| `/registro/entrenador` | `EntrenadorPage` | — | Formulario registro entrenador |
+| `/pendiente` | `PendientePage` | `ENTRENADOR` | Cuenta pendiente de revisión |
+| `/dashboard/atleta` | `DashboardAtletaPage` | `ATLETA` | Dashboard del atleta |
+| `/dashboard/entrenador` | `DashboardEntrenadorPage` | `ENTRENADOR` | Dashboard único del entrenador |
+| `/admin` | `AdminPage` | `ADMIN` | Panel de administración |
+
+> **Cambio respecto a versión anterior:** Las rutas `/dashboard/entrenador/nutricion` y `/dashboard/entrenador/solo-nutricion` han sido eliminadas. Ahora existe una única ruta `/dashboard/entrenador` que adapta su contenido en función de los signals `tituloEntrenamiento` y `tituloNutricion` recibidos del backend.
+
+### 0.3 Autenticación
+
+- Las cookies `access_token` (15 min) y `refresh_token` (7 días, `Path=/api/v1/auth/refresh`) son **HttpOnly** — el frontend nunca las lee directamente.
+- El interceptor `auth.interceptor.ts` detecta respuestas `401` y llama automáticamente a `POST /api/v1/auth/refresh` antes de reintentar la petición original.
+- Las rutas protegidas usan `rolGuard(rol)` que, si los signals están vacíos (recarga de página), llama a `GET /api/v1/auth/me` para restaurar la sesión desde la cookie.
 
 ---
 
@@ -12,18 +94,18 @@ GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de u
 
 | Rol | Titulaciones | Dashboard | Descripción |
 |---|---|---|---|
-| **Entrenador** | Entrenamiento + Nutrición | `/dashboard/entrenador/nutricion` | Acceso completo: entrenamiento + planes nutricionales |
+| **Entrenador** | Entrenamiento + Nutrición | `/dashboard/entrenador` | Acceso completo: entrenamiento + planes nutricionales |
 | **Entrenador** | Solo Entrenamiento | `/dashboard/entrenador` | Solo entrenamiento. Sin acceso a módulos de nutrición |
-| **Entrenador** | Solo Nutrición | `/dashboard/entrenador/solo-nutricion` | Solo nutrición. Sin acceso a módulos de entrenamiento |
+| **Entrenador** | Solo Nutrición | `/dashboard/entrenador` | Solo nutrición. Sin acceso a módulos de entrenamiento |
 | **Atleta** | — | `/dashboard/atleta` | Métricas, planes y seguimiento personal |
 
-El dashboard al que se redirige a un entrenador (tras login o registro aprobado) se determina combinando `tituloEntrenamiento` y `tituloNutricion`:
+Todos los entrenadores van a la misma ruta `/dashboard/entrenador`. El contenido que se muestra dentro del dashboard se adapta en función de `tituloEntrenamiento` y `tituloNutricion` que devuelve el backend:
 
-| `tituloEntrenamiento` | `tituloNutricion` | Redirección |
+| `tituloEntrenamiento` | `tituloNutricion` | Módulos visibles |
 |---|---|---|
-| `true` | `true` | `/dashboard/entrenador/nutricion` |
-| `true` | `false` | `/dashboard/entrenador` |
-| `false` | `true` | `/dashboard/entrenador/solo-nutricion` |
+| `true` | `true` | Entrenamiento + Nutrición |
+| `true` | `false` | Solo Entrenamiento |
+| `false` | `true` | Solo Nutrición |
 
 > **Principio clave — No intrusión laboral:** Un entrenador solo puede acceder a los módulos para los que tiene titulación acreditada. Esta restricción se aplica tanto en frontend (rutas protegidas) como en backend (validación en cada endpoint de entrenamiento y nutrición).
 
