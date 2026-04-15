@@ -11,28 +11,34 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring") //
+@Mapper(componentModel = "spring")
 public interface AtletaMapper {
 
-    @Mapping(target = "password", ignore = true) //  Nunca mapear password desde un DTO simple
+    // 1. De DTO a Entidad
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "authorities", ignore = true) // Ignorar de UserDetails
+    @Mapping(target = "rol", ignore = true)        // Se asigna en el Service: Rol.ATLETA
+    @Mapping(target = "estado", ignore = true)     // Valor por defecto en la Entidad
+    // Mapeo de lógica personalizada
     @Mapping(target = "objetivo", source = "dto", qualifiedByName = "mapObjetivo")
+    // MapStruct mapeará nombre, email y password automáticamente
+    // porque los nombres coinciden entre el Record y la Entidad Usuario.
     Atleta toEntity(AtletaRequestDTO dto);
 
+    // 2. De Entidad a ResponseDTO
     @Mapping(target = "ok", constant = "true")
     @Mapping(target = "message", constant = "Perfil creado correctamente.")
     @Mapping(target = "data", source = "atleta")
     AtletaResponseDTO toResponseDTO(Atleta atleta);
 
-    // Mapeo interno para el objeto record AtletaData
+    // 3. Mapeo interno para el Record AtletaData
     @Mapping(target = "id", source = "id")
     @Mapping(target = "estado", expression = "java(atleta.getEstado().name())")
     @Mapping(target = "rol", expression = "java(atleta.getRol().name())")
     AtletaData toAtletaData(Atleta atleta);
 
-    // Lógica personalizada que tenías en el manual
     @Named("mapObjetivo")
     default Objetivo mapObjetivo(AtletaRequestDTO dto) {
         if (dto.servicio() == TipoServicio.NUTRICION) {

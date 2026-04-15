@@ -6,6 +6,8 @@ import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.model.enums.TitulacionNutricion;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,15 +25,19 @@ public class Entrenador extends Usuario {
     private String codigoProfesional;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "titulacion_entrenamiento")
     private TitulacionEntrenamiento titulacionEntrenamiento;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "titulacion_nutricion")
     private TitulacionNutricion titulacionNutricion;
 
     @Enumerated(EnumType.STRING)
-    private EstadoRevision estado = EstadoRevision.PENDIENTE_REVISION;
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "estado_revision")
+    private EstadoRevision estadoRevision = EstadoRevision.PENDIENTE_REVISION;
 
 
     @OneToMany(mappedBy = "entrenador", cascade = CascadeType.ALL)

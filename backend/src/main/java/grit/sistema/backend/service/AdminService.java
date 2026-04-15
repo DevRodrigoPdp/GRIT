@@ -58,7 +58,7 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("Entrenador no encontrado"));
 
         // 2. Cambiar estado
-        entrenador.setEstado(EstadoRevision.RECHAZADO);
+        entrenador.setEstadoRevision(EstadoRevision.RECHAZADO);
          // Atributo en la Entity
 
         // 3. Persistir

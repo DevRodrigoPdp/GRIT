@@ -17,10 +17,9 @@ public interface EntrenadorRepository  extends JpaRepository<Entrenador, UUID> {
     boolean existsByCodigoProfesional(String codigoProfesional);
 
     // 2. Buscar entrenador por el correo del usuario asociado (muy útil para el login/perfil)
-    Optional<Entrenador> findByUsuarioEmail(String usuarioEmail);
+    Optional<Entrenador> findByEmail(String email);
 
-    List<Entrenador> findByEstado(EstadoRevision estado);
+    List<Entrenador> findByEstadoRevision(EstadoRevision estado);
 
-    // 3. Verificar si un usuario ya tiene un perfil de entrenador creado
-    boolean existsByUsuarioId(UUID usuarioId);
+    boolean existsById(UUID id);
 }

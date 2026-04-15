@@ -10,32 +10,34 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
+
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
 
-    // 1. Mapeo para el Login (La parte compleja)
+    // 1. Mapeo para LoginData
     @Mapping(target = "rol", expression = "java(usuario.getRol().name())")
     @Mapping(target = "estado", expression = "java(usuario.getEstado().name())")
-    @Mapping(target = "nombre", source = "nombre")
+    // 'nombre' se mapea automáticamente si coinciden los nombres en Entity y Record
     @Mapping(target = "tituloEntrenamiento", source = "usuario", qualifiedByName = "mapTituloEnt")
     @Mapping(target = "tituloNutricion", source = "usuario", qualifiedByName = "mapTituloNut")
     @Mapping(target = "servicio", source = "usuario", qualifiedByName = "mapServicio")
     LoginData toLoginData(Usuario usuario);
 
-    // 2. Mapeo estándar DTO
+    // 2. Mapeo a UsuarioDTO (Hacia el Frontend)
+    @Mapping(target = "idPublico", source = "id") // CORRECCIÓN: 'id' es el campo de la entidad
     @Mapping(target = "password", ignore = true)
-    @Mapping(target = "id", expression = "java(usuario.getId() != null ? usuario.getId().toString() : null)")
     UsuarioDTO toDTO(Usuario usuario);
 
-    // 3. Mapeo hacia Entidad
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
+    // 3. Mapeo hacia Entidad (Desde el Frontend)
+    @Mapping(target = "id", ignore = true)        // El ID lo genera la DB
+    @Mapping(target = "createdAt", ignore = true) // Auditoría protegida
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "estado", ignore = true)    // El estado se controla en Service
+    @Mapping(target = "authorities", ignore = true)
+    // Ignorar campos de UserDetails
     Usuario toEntity(UsuarioDTO dto);
 
-    // --- MÉTODOS DE SOPORTE POLIMÓRFICO ---
-
+    // --- MÉTODOS DE SOPORTE ---
     @Named("mapTituloEnt")
     default Boolean mapTituloEnt(Usuario u) {
         if (u instanceof Entrenador e) return e.getTitulacionEntrenamiento() != null;
@@ -56,3 +58,4 @@ public interface UsuarioMapper {
         return null;
     }
 }
+

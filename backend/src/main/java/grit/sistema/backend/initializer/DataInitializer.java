@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -63,71 +64,71 @@ public class DataInitializer implements CommandLineRunner {
     private void crearAdminSiNoExiste() {
         String email = "admin@test.com";
         if (!usuarioRepository.existsByEmail(email)) {
-            Usuario user = new Usuario();
-            user.setNombre("Admin de Prueba");
-            user.setEmail(email);
-            user.setRol(Rol.ADMIN);
-            user.setEstado(EstadoUsuario.ACTIVO);
-            user.setPassword(passwordEncoder.encode("password123" + pepper));
-
-            usuarioRepository.save(user);
-            System.out.println(">>>>Usuario Admin creado: admin@test.com / password123");
+            Usuario admin = new Usuario();
+            admin.setNombre("Admin de Prueba");
+            admin.setEmail(email);
+            admin.setRol(Rol.ADMIN);
+            admin.setEstado(EstadoUsuario.ACTIVO);
+            admin.setPassword(passwordEncoder.encode("password123" + pepper));
+            usuarioRepository.save(admin);
         }
     }
 
     private void crearEntrenadorSiNoExiste() {
         String email = "coach@test.com";
         if (!usuarioRepository.existsByEmail(email)) {
-            Usuario user = new Usuario();
-            user.setNombre("Coach de Prueba");
-            user.setEmail(email);
-            user.setRol(Rol.ENTRENADOR);
-            user.setEstado(EstadoUsuario.ACTIVO);
-            user.setPassword(passwordEncoder.encode("password123" + pepper));
-
-            user = usuarioRepository.saveAndFlush(user);
-
+            // CORRECCIÓN: Instanciamos al hijo directamente
             Entrenador coach = new Entrenador();
-            coach.setUsuario(user); // @MapsId tomará el ID de aquí automáticamente
-            coach.setId(user.getId()); // Reforzamos el ID
+
+            // Campos del PADRE (Heredados)
+            coach.setNombre("Coach de Prueba");
+            coach.setEmail(email);
+            coach.setRol(Rol.ENTRENADOR);
+            coach.setEstado(EstadoUsuario.ACTIVO); // Estado de cuenta
+            coach.setPassword(passwordEncoder.encode("password123" + pepper));
+
+            // Campos del HIJO (Específicos de Entrenador)
             coach.setCodigoProfesional("COL-00000");
             coach.setTitulacionEntrenamiento(TitulacionEntrenamiento.GRADO_CAFYD);
-            coach.setEstado(EstadoRevision.APROBADO);
-            coach.setFechaSolicitud(LocalDateTime.now());
-            coach.setTieneTituloEntrenamiento(true);
+
+            // CORRECCIÓN: Usamos el nuevo nombre del campo de negocio
+            coach.setEstadoRevision(EstadoRevision.APROBADO);
+
+            // Eliminamos setFechaSolicitud y setTieneTituloEntrenamiento
+            // ya que no están en tu entidad física actual.
 
             entrenadorRepository.save(coach);
-            System.out.println(">>>>Usuario Entrenador creado: coach@test.com / password123");
+            log.info(">>>> Usuario Entrenador creado: coach@test.com");
         }
     }
 
     private void crearAtletaSiNoExiste() {
         String email = "atleta@test.com";
         if (!usuarioRepository.existsByEmail(email)) {
-            // IMPORTANTE: Instanciamos directamente el HIJO
             Atleta atleta = new Atleta();
 
-            // Seteamos los campos del PADRE (Usuario)
+            // Campos PADRE
             atleta.setNombre("Atleta de Prueba");
             atleta.setEmail(email);
             atleta.setRol(Rol.ATLETA);
             atleta.setEstado(EstadoUsuario.ACTIVO);
             atleta.setPassword(passwordEncoder.encode("password123" + pepper));
 
-            // Seteamos los campos del HIJO (Atleta)
-            atleta.setPesoKg(80.0);
+            // Campos HIJO
+            atleta.setPesoKg(new BigDecimal("80.0"));
             atleta.setAlturaCm(180);
             atleta.setDeporte("Gimnasio");
             atleta.setObjetivo(Objetivo.PERDER_PESO);
             atleta.setServicio(TipoServicio.AMBOS);
-            atleta.setGenero("hombre");
+
+            // CORRECCIÓN: Usar el Enum GeneroTipo en lugar de String
+            atleta.setGenero(GeneroTipo.HOMBRE);
+
             atleta.setFechaNac(LocalDate.of(1990, 1, 1));
             atleta.setNivel(NivelAtleta.INTERMEDIO);
 
-            // Guardamos UNA sola vez usando el repositorio del hijo (o el del padre, JPA lo entiende)
             atletaRepository.save(atleta);
-
-            System.out.println(">>>>Usuario Atleta creado: atleta@test.com / password123");
+            log.info(">>>> Usuario Atleta creado: atleta@test.com");
         }
     }
 }

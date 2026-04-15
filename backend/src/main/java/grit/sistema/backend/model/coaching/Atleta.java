@@ -11,7 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.math.BigDecimal;
 import java.sql.Types;
 import java.time.LocalDate;
 
@@ -27,14 +29,16 @@ public class Atleta extends Usuario {
     @Column(name = "fecha_nac", nullable = false)
     private LocalDate fechaNac;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull(message = "El género es obligatorio")
-    @Column(name = "genero", columnDefinition = "genero_tipo", length = 20)
+    @Column(name = "genero", columnDefinition = "genero_tipo")
     private GeneroTipo genero;
 
     @DecimalMin(value = "30.0", message = "El peso debe ser mayor a 30kg")
     @DecimalMax(value = "300.0", message = "El peso no puede exceder los 300kg")
     @Column(name = "peso_kg", precision = 5, scale = 2)
-    private Double pesoKg;
+    private BigDecimal pesoKg;
 
     @JdbcTypeCode(Types.SMALLINT)
     @Min(value = 100, message = "La altura mínima es 100cm")
@@ -46,16 +50,19 @@ public class Atleta extends Usuario {
     private String deporte;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull(message = "El nivel es obligatorio")
     @Column(name = "nivel", columnDefinition = "nivel_atleta", length = 20)
     private NivelAtleta nivel;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull(message = "El servicio es obligatorio")
     @Column(name = "servicio", columnDefinition = "servicio_tipo", length = 20, nullable = false)
     private TipoServicio servicio;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "objetivo", columnDefinition = "objetivo_tipo", length = 20)
     private Objetivo objetivo;
 }

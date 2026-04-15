@@ -6,6 +6,7 @@ import grit.sistema.backend.model.enums.TipoServicio;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record AtletaRequestDTO(
@@ -32,7 +33,7 @@ public record AtletaRequestDTO(
         String genero,
 
         @DecimalMin(value = "30.0", message = "El peso mínimo es 30.0 kg")
-        Double pesoKg,
+        BigDecimal pesoKg,
 
         @Min(value = 100, message = "La altura mínima es 100 cm")
         Integer alturaCm,

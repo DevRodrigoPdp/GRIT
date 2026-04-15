@@ -4,6 +4,7 @@ import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.mapper.EntrenadorMapper;
 import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.model.enums.EstadoRevision;
 import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.repository.EntrenadorRepository;
@@ -39,7 +40,7 @@ public class EntrenadorPersistenceService {
         usuario.setEmail(request.getEmail());
         usuario.setPassword(passwordEncoder.encode(request.getPassword() + pepper));
         usuario.setRol(Rol.ENTRENADOR);
-        usuario.setEstado(EstadoUsuario.PENDIENTE_REVISION);
+        usuario.setEstado(EstadoUsuario.ACTIVO);
 
         // Usamos save() normal; @Transactional se encarga del flush al final [cite: 17]
         usuario = usuarioRepository.save(usuario);
