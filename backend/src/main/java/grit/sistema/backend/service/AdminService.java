@@ -1,20 +1,23 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.ApiResponseDTO;
 import grit.sistema.backend.dto.entrenador.DocumentoDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorPendienteDTO;
-import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
-import grit.sistema.backend.dto.entrenador.RechazoDTO;
-import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.model.coaching.DocumentoEntrenador;
 import grit.sistema.backend.model.coaching.Entrenador;
+import grit.sistema.backend.model.enums.DocStatus;
 import grit.sistema.backend.model.enums.EstadoRevision;
 import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.repository.EntrenadorRepository;
-import grit.sistema.backend.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -22,47 +25,110 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+
 public class AdminService {
     private final EntrenadorRepository entrenadorRepository;
     private final StorageService storageService;
 
-    public List<EntrenadorPendienteDTO> listarEntrenadoresPorEstado(String estado) {
-        EstadoRevision estadoEnum = EstadoRevision.valueOf(estado.toUpperCase());
+    @Transactional(readOnly = true)
+    public Page<EntrenadorPendienteDTO> obtenerPendientes(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-//        List<EntrenadorResponseDTO> data = entrenadorRepository.findByEstado(estadoEnum)
-//                .stream()
-//                .map(u -> new EntrenadorResponseDTO(
-//                        u.getId(),
-//                        u.getUsuario(),
-//                        u.getCorreo(),
-//                        u.getTitulacionEntrenamiento(),
-//                        u.getTitulacionNutricion(),
-//                        u.getCodigoProfesional(),
-//                        u.getCreatedAt(),
-//                        u.getDocumentos().stream().map(doc -> new DocumentoDTO(
-//                                doc.getId(),
-//                                doc.getNombreArchivo(),
-//                                s3Service.generatePresignedUrl(doc.getS3Key()), // URL firmada de 15 min
-//                                doc.getUploadedAt()
-//                        )).toList()
-//                )).toList();
-//
-//        return new ApiResponseDTO<>(true, data);
-        return List.of();
+        return entrenadorRepository
+                .findByEstadoRevision(EstadoRevision.PENDIENTE_REVISION, pageable)
+                .map(this::mapToDTO);
     }
 
+    /**
+     * Procesa la decisión del administrador sobre un perfil pendiente.
+     */
     @Transactional
-    public void rechazarEntrenador(UUID id, String motivo) {
-        // 1. Buscar con Optional para evitar NullPointerException
+    public void procesarAprobacion(UUID id, boolean aprobado, String motivo) {
         Entrenador entrenador = entrenadorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entrenador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado con ID: " + id));
 
-        // 2. Cambiar estado
+        if (aprobado) {
+            aprobarEntrenador(entrenador);
+        } else {
+            rechazarEntrenador(entrenador, motivo);
+        }
+
+        entrenadorRepository.save(entrenador);
+        log.info("Entrenador {} procesado. Resultado: {}", id, aprobado ? "APROBADO" : "RECHAZADO");
+    }
+
+    /**
+     * Elimina completamente a un entrenador del sistema y sus archivos asociados.
+     * ¡CUIDADO!: Esta operación es irreversible.
+     */
+    @Transactional
+    public void eliminarEntrenadorDefinitivo(UUID id) {
+        Entrenador entrenador = entrenadorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No se puede eliminar: Entrenador no encontrado"));
+
+        // 1. Recolectamos las keys de S3 antes de borrar de la DB
+        List<String> archivosABorrar = entrenador.getDocumentos().stream()
+                .map(DocumentoEntrenador::getUrlS3) // Asumiendo que urlS3 guarda la Key
+                .toList();
+
+        // 2. Borramos de la base de datos
+        // Al tener CascadeType.ALL en la relación con documentos, se borran automáticamente de la DB
+        entrenadorRepository.delete(entrenador);
+
+        // 3. Borramos de S3/MinIO
+        // Lo hacemos después del delete de la DB para asegurar que si la DB falla,
+        // los archivos sigan ahí para reintentar.
+        archivosABorrar.forEach(storageService::deleteFile);
+
+        log.warn("Entrenador {} y sus {} archivos han sido eliminados permanentemente", id, archivosABorrar.size());
+    }
+
+    // --- MÉTODOS PRIVADOS DE APOYO (ENCAPSULAMIENTO) ---
+
+    private void aprobarEntrenador(Entrenador entrenador) {
+        entrenador.setEstadoRevision(EstadoRevision.APROBADO);
+        entrenador.setEstado(EstadoUsuario.ACTIVO);
+
+        entrenador.getDocumentos().forEach(d -> {
+            d.setStatus(DocStatus.verified);
+            d.setReviewedAt(java.time.OffsetDateTime.now());
+        });
+    }
+
+    private void rechazarEntrenador(Entrenador entrenador, String motivo) {
+        if (motivo == null || motivo.isBlank()) {
+            throw new IllegalArgumentException("El motivo de rechazo es obligatorio para informar al usuario");
+        }
+
         entrenador.setEstadoRevision(EstadoRevision.RECHAZADO);
-         // Atributo en la Entity
+        entrenador.setEstado(EstadoUsuario.SUSPENDIDO);
 
-        // 3. Persistir
-//        usuarioRepository.save(entrenador);
+        entrenador.getDocumentos().forEach(d -> {
+            d.setStatus(DocStatus.rejected);
+            d.setRejectionReason(motivo);
+            d.setReviewedAt(java.time.OffsetDateTime.now());
+        });
+    }
 
+    private EntrenadorPendienteDTO mapToDTO(Entrenador e) {
+        var docs = e.getDocumentos().stream()
+                .map(d -> new DocumentoDTO(
+                        d.getId(),
+                        d.getNombreArchivo(),
+                        storageService.getPresignedUrl(d.getUrlS3()), // URL de 15 min
+                        d.getUploadedAt(),
+                        d.getStatus().name()))
+                .toList();
+
+        return new EntrenadorPendienteDTO(
+                e.getId(),
+                e.getNombre(),
+                e.getEmail(),
+                e.getTitulacionEntrenamiento().name(),
+                e.getTitulacionNutricion().name(),
+                e.getCodigoProfesional(),
+                e.getCreatedAt(),
+                docs
+        );
     }
 }

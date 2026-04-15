@@ -27,26 +27,20 @@ import java.util.UUID;
 public class StorageService {
 
     private final S3Client s3Client;
-
-    @Value("${application.storage.endpoint}")
-    private String endpoint;
-
-    @Value("${application.storage.access-key}")
-    private String accessKey;
-
-    @Value("${application.storage.secret-key}")
-    private String secretKey;
+    private final S3Presigner s3Presigner;
 
     @Value("${application.storage.bucket-name}")
     private String bucketName;
 
+    /**
+     * Sube un archivo validando su integridad.
+     */
     public String uploadFile(MultipartFile file) {
-        if (file.isEmpty()) {
-            // Error común de junior: No validar tipos de contenido (MIME types)
-            throw new FileStorageException("No se puede subir un archivo vacío");
-        }
+        if (file.isEmpty()) throw new FileStorageException("Archivo vacío");
 
-        // Generar nombre único para evitar colisiones en el bucket
+        // [Mejora Senior]: Validar que sea PDF o imagen antes de subir
+        validarMimeType(file.getContentType());
+
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ", "_");
 
         try {
@@ -56,86 +50,73 @@ public class StorageService {
                     .contentType(file.getContentType())
                     .build();
 
-            // Usamos el InputStream directamente para eficiencia de memoria
             s3Client.putObject(putObjectRequest,
                     RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-            log.info("Archivo subido a MinIO por compensación: {}", fileName);
             return fileName;
-        } catch (IOException e) {
-            log.error("No se pudo subir el archivo {} de MinIO al leer el archivo: {}", fileName, e.getMessage());
-            throw new FileStorageException("Error técnico al leer el flujo de datos", e);
-        } catch (S3Exception e) {
-            log.error("No se pudo subir el archivo {} de MinIO por problema: {}", fileName, e.getMessage());
-            throw new FileStorageException("Error en la comunicación con el servidor de almacenamiento", e);
+        } catch (IOException | S3Exception e) {
+            log.error("Error al subir archivo {}: {}", fileName, e.getMessage());
+            throw new FileStorageException("Error en el almacenamiento persistente", e);
         }
     }
 
-    // En StorageService.java
-    public void deleteFile(String fileName) {
+    /**
+     * Elimina un archivo del bucket de forma definitiva.
+     * @param objectKey La clave (key) única del archivo en S3/MinIO.
+     */
+    public void deleteFile(String objectKey) {
+        if (objectKey == null || objectKey.isBlank()) {
+            log.warn("Se intentó eliminar un archivo con nombre nulo o vacío");
+            return;
+        }
+
         try {
-            s3Client.deleteObject(DeleteObjectRequest.builder()
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(fileName)
-                    .build());
-            log.info("Archivo eliminado de MinIO por compensación: {}", fileName);
+                    .key(objectKey)
+                    .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
+            log.info("Archivo eliminado correctamente del almacenamiento: {}", objectKey);
+
         } catch (S3Exception e) {
-            log.error("No se pudo eliminar el archivo {} de MinIO: {}", fileName, e.getMessage());
-            // En un entorno real, aquí podrías enviar esto a una cola de reintentos
+            // [Nota Senior]: No lanzamos excepción para no romper la transacción de BD,
+            // pero logueamos con ERROR para que salte en nuestros sistemas de monitoreo.
+            log.error("Error crítico al eliminar el archivo {} de S3: {}", objectKey, e.awsErrorDetails().errorMessage());
+
+            // Opcional: Podrías insertar esto en una tabla de "limpieza_pendiente"
+            // para que un proceso programado (Cron/Job) lo intente borrar más tarde.
         }
     }
 
-    // En StorageService.java
-    public String generatePresignedUrl(String fileName) {
-        if (fileName == null || fileName.isBlank()) return null;
+    /**
+     * Genera una URL temporal de 15 minutos.
+     * Este es el único método que el AdminService debería llamar.
+     */
+    public String getPresignedUrl(String objectKey) {
+        if (objectKey == null || objectKey.isBlank()) return null;
 
-        // Configuración de expiración (ej. 15 minutos)
-        Duration expiration = Duration.ofMinutes(15);
-
-        try (S3Presigner presigner = S3Presigner.builder()
-                .endpointOverride(URI.create(endpoint))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
-                .region(Region.US_EAST_1)
-                .build()) {
-
+        try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(fileName)
+                    .key(objectKey)
                     .build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(expiration)
+                    .signatureDuration(Duration.ofMinutes(15))
                     .getObjectRequest(getObjectRequest)
                     .build();
 
-            return presigner.presignGetObject(presignRequest).url().toString();
+            return s3Presigner.presignGetObject(presignRequest).url().toString();
+        } catch (Exception e) {
+            log.error("Error generando URL firmada para {}: {}", objectKey, e.getMessage());
+            return null;
         }
     }
 
-    /**
-     * Genera una URL firmada para que el frontend pueda visualizar el archivo
-     * sin que el bucket sea público. Seguridad ante todo.
-     */
-    public String getPresignedUrl(String fileName) {
-        // Para generar URLs firmadas en SDK v2 se usa S3Presigner
-        // Por brevedad, aquí simulamos la lógica:
-        return endpoint + "/" + bucketName + "/" + fileName;
-        // Nota Senior: En producción, usa S3Presigner para URLs temporales (e.g., 15 min)
-    }
-
-    /**
-     * Lista todos los objetos para auditoría o gestión interna
-     */
-    public List<String> listFiles() {
-        try {
-            ListObjectsV2Response result = s3Client.listObjectsV2(ListObjectsV2Request.builder()
-                    .bucket(bucketName)
-                    .build());
-            return result.contents().stream()
-                    .map(S3Object::key)
-                    .toList(); // Java 17 syntax
-        } catch (S3Exception e) {
-            throw new FileStorageException("Error al listar archivos", e);
+    private void validarMimeType(String contentType) {
+        List<String> validTypes = List.of("application/pdf", "image/jpeg", "image/png");
+        if (!validTypes.contains(contentType)) {
+            throw new FileStorageException("Tipo de archivo no permitido: " + contentType);
         }
     }
 }

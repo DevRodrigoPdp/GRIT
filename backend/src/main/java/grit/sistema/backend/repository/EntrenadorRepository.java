@@ -2,12 +2,12 @@ package grit.sistema.backend.repository;
 
 import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.enums.EstadoRevision;
-import grit.sistema.backend.model.enums.EstadoUsuario;
-import io.micrometer.common.KeyValues;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public interface EntrenadorRepository  extends JpaRepository<Entrenador, UUID> {
     // 2. Buscar entrenador por el correo del usuario asociado (muy útil para el login/perfil)
     Optional<Entrenador> findByEmail(String email);
 
-    List<Entrenador> findByEstadoRevision(EstadoRevision estado);
+    Page<Entrenador> findByEstadoRevision(EstadoRevision estado, Pageable pageable);
 
     boolean existsById(UUID id);
 }

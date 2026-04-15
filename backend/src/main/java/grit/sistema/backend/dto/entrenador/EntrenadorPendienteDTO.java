@@ -1,6 +1,6 @@
 package grit.sistema.backend.dto.entrenador;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ public record EntrenadorPendienteDTO(
         String titulacionEntrenamiento,
         String titulacionNutricion,
         String codigoProfesional,
-        LocalDateTime uploaded_at,
+        OffsetDateTime createdAt,
         List<DocumentoDTO> documentos
 ) {
 }
