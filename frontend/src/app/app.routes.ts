@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { rolGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -13,6 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'pendiente',
+    canActivate: [rolGuard('ENTRENADOR')],
     loadComponent: () =>
       import('./pages/pendiente/pendiente').then(m => m.PendientePage),
   },
@@ -41,11 +43,13 @@ export const routes: Routes = [
     children: [
       {
         path: 'atleta',
+        canActivate: [rolGuard('ATLETA')],
         loadComponent: () =>
           import('./pages/dashboard-atleta/dashboard-atleta').then(m => m.DashboardAtletaPage),
       },
       {
         path: 'entrenador',
+        canActivate: [rolGuard('ENTRENADOR')],
         children: [
           {
             path: '',
