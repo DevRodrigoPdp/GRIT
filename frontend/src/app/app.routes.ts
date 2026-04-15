@@ -50,23 +50,8 @@ export const routes: Routes = [
       {
         path: 'entrenador',
         canActivate: [rolGuard('ENTRENADOR')],
-        children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('./pages/dashboard-entrenador/dashboard-entrenador').then(m => m.DashboardEntrenadorPage),
-          },
-          {
-            path: 'nutricion',
-            loadComponent: () =>
-              import('./pages/dashboard-entrenador-nutricion/dashboard-entrenador-nutricion').then(m => m.DashboardEntrenadorNutricionPage),
-          },
-          {
-            path: 'solo-nutricion',
-            loadComponent: () =>
-              import('./pages/dashboard-entrenador-solo-nutricion/dashboard-entrenador-solo-nutricion').then(m => m.DashboardEntrenadorSoloNutricionPage),
-          },
-        ],
+        loadComponent: () =>
+          import('./pages/dashboard-entrenador/dashboard-entrenador').then(m => m.DashboardEntrenadorPage),
       },
     ],
   },
