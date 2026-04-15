@@ -9,6 +9,9 @@ spring:
     virtual:
       enabled: true
   # Configuración para que los DTO (Records) se serialicen bien
+  data:
+    web:
+      page-serialization-mode: via-dto
   jackson:
     serialization:
       write-dates-as-timestamps: false

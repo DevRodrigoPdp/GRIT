@@ -1,5 +1,6 @@
 package grit.sistema.backend.service;
 
+import grit.sistema.backend.dto.auth.MeResponseDTO;
 import grit.sistema.backend.dto.login.LoginData;
 import grit.sistema.backend.dto.login.LoginRequestDTO;
 import grit.sistema.backend.dto.login.LoginResponseDTO;
@@ -8,7 +9,10 @@ import grit.sistema.backend.exception.SesionActivaException;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.UsuarioMapper;
 import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.model.coaching.Atleta;
+import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,6 +76,53 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(uuid).orElseThrow(() -> new RuntimeException("Usuario no encontrado con el UUID: " + uuid));
 
         return usuarioMapper.toDTO(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public MeResponseDTO obtenerMiInformacion(String email) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SesionActivaException("No hay sesión activa");
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        MeResponseDTO.MeData meData;
+
+        if (usuario instanceof Entrenador e) {
+            meData = new MeResponseDTO.MeData(
+                    e.getId(),
+                    e.getNombre(),
+                    e.getRol().name(),
+                    e.getEstado().name(),
+                    null, // servicio es null para entrenadores
+                    e.getTitulacionEntrenamiento() != null,
+                    e.getTitulacionNutricion() != null,
+                    e.getTitulacionEntrenamiento() != null ? e.getTitulacionEntrenamiento().name() : null,
+                    e.getTitulacionNutricion() != null ? e.getTitulacionNutricion().name() : null
+            );
+        } else if (usuario instanceof Atleta a) {
+            meData = new MeResponseDTO.MeData(
+                    a.getId(),
+                    a.getNombre(),
+                    a.getRol().name(),
+                    a.getEstado().name(),
+                    a.getServicio() != null ? a.getServicio().name() : null,
+                    null, // tituloEntrenamiento es null para atletas
+                    null, // tituloNutricion es null para atletas
+                    null,
+                    null
+            );
+        } else {
+            // Caso genérico (Admin)
+            meData = new MeResponseDTO.MeData(
+                    usuario.getId(), usuario.getNombre(), usuario.getRol().name(),
+                    usuario.getEstado().name(), null, null, null, null, null
+            );
+        }
+
+        return new MeResponseDTO(true, meData);
     }
 
     public LoginResponseDTO login(LoginRequestDTO loginDto) {

@@ -3,6 +3,7 @@ package grit.sistema.backend.controller;
 import grit.sistema.backend.dto.*;
 import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
 import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
+import grit.sistema.backend.dto.auth.MeResponseDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
 import grit.sistema.backend.dto.login.LoginData;
@@ -25,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Autenticación")
@@ -188,6 +191,25 @@ public class AuthController {
 
         log.info("<<< Token refrescado exitosamente para: {}", email);
         return ResponseEntity.ok().headers(headers).body(response);
+    }
+
+    @Operation(
+            summary = "Restaurar sesión (Me)",
+            description = "Obtiene los datos del usuario autenticado a partir del access_token en la cookie."
+    )
+    @GetMapping("/me")
+    public ResponseEntity<MeResponseDTO> getCurrentUser(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            log.warn("Intento de acceso a /me sin autenticación válida");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        log.info(">>> Restaurando sesión para: {}", userDetails.getUsername());
+
+        MeResponseDTO response = usuarioService.obtenerMiInformacion(userDetails.getUsername());
+
+        return ResponseEntity.ok(response);
     }
 
     // --- MÉTODOS DE APOYO PRIVADOS ---
