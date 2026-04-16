@@ -2,6 +2,7 @@ package grit.sistema.backend.config;
 
 import grit.sistema.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
     private final UsuarioRepository usuarioRepository;
+
+    @Value("${application.security.pepper}")
+    private String pepper;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -38,7 +42,19 @@ public class ApplicationConfig {
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
+        final BCryptPasswordEncoder bCrypt = new BCryptPasswordEncoder(12);
         // Definimos un costo de 12 para ser más robustos que el default
-        return new BCryptPasswordEncoder(12);
+        // Retornamos una implementación personalizada que aplique el pepper
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return bCrypt.encode(rawPassword + pepper);
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return bCrypt.matches(rawPassword + pepper, encodedPassword);
+            }
+        };
     }
 }

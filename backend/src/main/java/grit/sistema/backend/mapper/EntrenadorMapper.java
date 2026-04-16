@@ -18,25 +18,13 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface EntrenadorMapper {
 
-    // 1. De DTO/Usuario a Entidad (Registro)
-    @Mapping(target = "id", source = "usuario.id")
-    @Mapping(target = "nombre", source = "usuario.nombre")
-    @Mapping(target = "email", source = "usuario.email")
-    @Mapping(target = "rol", source = "usuario.rol")
-    @Mapping(target = "password", source = "usuario.password")
-    // Campos del Request
-    @Mapping(target = "codigoProfesional", source = "request.codigoProfesional")
-    @Mapping(target = "titulacionEntrenamiento", source = "request.titulacionEntrenamiento")
-    @Mapping(target = "titulacionNutricion", source = "request.titulacionNutricion")
-    // Lógica fija
-    @Mapping(target = "estadoRevision", constant = "PENDIENTE_REVISION")
+    // Ya NO recibimos el objeto Usuario.
+    // Solo el Request (que tiene los datos) y las URLs.
     @Mapping(target = "documentos", source = "urls", qualifiedByName = "mapUrlsToDocumentos")
-    // Ignorar campos de auditoría y UserDetails
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "estado", ignore = true) // Ignoramos el del padre porque ya viene en el objeto 'usuario'
-    Entrenador toEntity(EntrenadorRequestDTO request, Usuario usuario, List<String> urls);
+    @Mapping(target = "estadoRevision", constant = "PENDIENTE_REVISION")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true) // Lo hacemos en el Service por seguridad
+    Entrenador toEntity(EntrenadorRequestDTO request, List<String> urls);
 
     // 2. De Entidad a ResponseDTO (Lectura)
     @Mapping(target = "id", source = "entrenador.id")

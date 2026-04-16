@@ -20,8 +20,7 @@ public class AtletaService {
     private final AtletaMapper atletaMapper;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${application.security.pepper}")
-    private String pepper;
+
 
     @Transactional
     public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto) {
@@ -34,7 +33,7 @@ public class AtletaService {
 
         validarObjetivoSegunServicio(dto, atleta);
 
-        String passwordWithPepper = dto.password() + pepper;
+        String passwordWithPepper = dto.password();
 
         atleta.setPassword(passwordEncoder.encode(passwordWithPepper));
 

@@ -1,6 +1,7 @@
 package grit.sistema.backend.service;
 
 import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
+import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.EntrenadorMapper;
 import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.Usuario;
@@ -25,40 +26,32 @@ import java.util.List;
 public class EntrenadorPersistenceService {
     private final UsuarioRepository usuarioRepository;
     private final EntrenadorRepository entrenadorRepository;
-    private final EntityManager entityManager;
     private final PasswordEncoder passwordEncoder;
     private final EntrenadorMapper entrenadorMapper;
 
-    @Value("${application.security.pepper}")
-    private String pepper;
-
     @Transactional
     public Entrenador guardarEntrenador(EntrenadorRequestDTO request, List<String> urls) {
-        // Creación del Usuario
-        Usuario usuario = new Usuario();
-        usuario.setNombre(request.getNombre());
-        usuario.setEmail(request.getEmail());
-        usuario.setPassword(passwordEncoder.encode(request.getPassword() + pepper));
-        usuario.setRol(Rol.ENTRENADOR);
-        usuario.setEstado(EstadoUsuario.ACTIVO);
-
-        // Usamos save() normal; @Transactional se encarga del flush al final [cite: 17]
-        usuario = usuarioRepository.save(usuario);
-
-        // Mapeo y vinculación
-        Entrenador entrenador = entrenadorMapper.toEntity(request, usuario, urls);
-        entrenador.setId(usuario.getId()); // Coherencia con @MapsId
-
-        try {
-            entrenador = entrenadorRepository.save(entrenador);
-            entrenadorRepository.flush(); // Forzamos para que los triggers de DB actúen
-
-            entityManager.refresh(entrenador); // Cargamos campos @Generated de Hibernate [cite: 14]
-        } catch (Exception e) {
-            log.error("Fallo crítico en DB para entrenador: {}", e.getMessage());
-            throw e;
+        // 1. Verificación defensiva
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
 
-        return entrenador;
+        // 2. Mapeo (Nace el objeto hijo)
+        Entrenador entrenador = entrenadorMapper.toEntity(request, urls);
+
+        // 3. Lógica de negocio y seguridad manual
+        entrenador.setNombre(request.getNombre());
+        entrenador.setEmail(request.getEmail());
+        entrenador.setPassword(passwordEncoder.encode(request.getPassword()));
+        entrenador.setRol(Rol.ENTRENADOR);
+        entrenador.setEstado(EstadoUsuario.ACTIVO);
+
+        // IMPORTANTE: Vincular los documentos al entrenador (Relación bidireccional)
+        if (entrenador.getDocumentos() != null) {
+            entrenador.getDocumentos().forEach(doc -> doc.setEntrenador(entrenador));
+        }
+
+        // 4. Persistencia única
+        return entrenadorRepository.save(entrenador);
     }
 }
