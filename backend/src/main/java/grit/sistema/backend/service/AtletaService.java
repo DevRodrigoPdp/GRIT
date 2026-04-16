@@ -1,17 +1,20 @@
 package grit.sistema.backend.service;
 
+import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
 import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
 import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
+import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
 import grit.sistema.backend.mapper.AtletaMapper;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.model.enums.TipoServicio;
 import grit.sistema.backend.repository.AtletaRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +22,6 @@ public class AtletaService {
     private final AtletaRepository atletaRepository;
     private final AtletaMapper atletaMapper;
     private final PasswordEncoder passwordEncoder;
-
-
 
     @Transactional
     public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto) {
@@ -42,6 +43,19 @@ public class AtletaService {
         Atleta atletaGuardado = atletaRepository.save(atleta);
 
         return atletaMapper.toResponseDTO(atletaGuardado);
+    }
+
+    @Transactional(readOnly = true)
+    public AtletaPerfilDTO obtenerPerfil(String email) {
+        Atleta a = atletaRepository.findByEmail(email)
+                .orElseThrow(()->new EntityNotFoundException("Atleta no encontrado"));
+
+        return new AtletaPerfilDTO(
+                a.getId(), a.getNombre(), a.getEmail(),
+                a.getFechaNac(), a.getGenero(), a.getPesoKg(),
+                a.getAlturaCm(), a.getDeporte(), a.getNivel(),
+                a.getServicio(), a.getObjetivo()
+        );
     }
 
     private void validarObjetivoSegunServicio(AtletaRequestDTO dto, Atleta atleta) {

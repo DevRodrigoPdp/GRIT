@@ -18,11 +18,13 @@ public class Asignacion {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "entrenador_id", nullable = false)
-    private UUID entrenadorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "entrenador_id", nullable = false)
+    private Entrenador entrenador;
 
-    @Column(name = "atleta_id", nullable = false)
-    private UUID atletaId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "atleta_id", nullable = false)
+    private Atleta atleta;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "servicio", nullable = false, length = 20)

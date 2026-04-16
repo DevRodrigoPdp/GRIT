@@ -21,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Entrenador extends Usuario {
 
-    @Column(name = "codigo_profesional", unique = true)
+    @Column(name = "codigo_profesional", unique = true, length = 20)
     private String codigoProfesional;
 
     @Enumerated(EnumType.STRING)
@@ -33,6 +33,12 @@ public class Entrenador extends Usuario {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "titulacion_nutricion")
     private TitulacionNutricion titulacionNutricion;
+
+    @Column(name = "experiencia_anos")
+    private Short experienciaAnos;
+
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)

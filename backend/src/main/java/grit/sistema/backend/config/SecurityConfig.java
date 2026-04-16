@@ -54,6 +54,7 @@ public class SecurityConfig {
 
                         // 2. Endpoints específicos de Actuator para ADMIN
                         .requestMatchers("/management/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/entrenador/**").hasRole("ENTRENADOR")
 
                         // 3. Lógica de negocio específica
                         .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated()
