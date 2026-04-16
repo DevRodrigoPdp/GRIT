@@ -197,7 +197,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Restaurar sesión (Me)",
+            summary = "Devuelve los datos del usuario a través del access_token",
             description = "Obtiene los datos del usuario autenticado a partir del access_token en la cookie."
     )
     @GetMapping("/me")
@@ -215,7 +215,6 @@ public class AuthController {
     }
 
     // --- MÉTODOS DE APOYO PRIVADOS ---
-
     private HttpHeaders generarCookiesHeaders(String access, String refresh) {
         // Convertimos milisegundos a segundos para la cookie
         long accessSeconds = jwtExpiration / 1000;
