@@ -10,6 +10,7 @@ import grit.sistema.backend.dto.login.LoginData;
 import grit.sistema.backend.dto.login.LoginRequestDTO;
 import grit.sistema.backend.dto.login.LoginResponseDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
+import grit.sistema.backend.exception.SesionActivaException;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.service.AtletaService;
 import grit.sistema.backend.service.EntrenadorService;
@@ -153,10 +154,12 @@ public class AuthController {
             summary = "Refrescar Access Token",
             description = "Utiliza la cookie 'refresh_token' para emitir un nuevo 'access_token' sin pedir credenciales."
     )
+
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Token refrescado exitosamente"),
             @ApiResponse(responseCode = "401", description = "Refresh token inválido o expirado",content = @Content)
     })
+
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDTO> refresh(
             @Parameter(hidden = true)
@@ -198,11 +201,10 @@ public class AuthController {
             description = "Obtiene los datos del usuario autenticado a partir del access_token en la cookie."
     )
     @GetMapping("/me")
-    public ResponseEntity<MeResponseDTO> getCurrentUser(
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MeResponseDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             log.warn("Intento de acceso a /me sin autenticación válida");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new SesionActivaException("Intento de acceso a /me inválido");
         }
 
         log.info(">>> Restaurando sesión para: {}", userDetails.getUsername());
