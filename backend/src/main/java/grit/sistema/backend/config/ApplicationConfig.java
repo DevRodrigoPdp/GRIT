@@ -1,6 +1,7 @@
 package grit.sistema.backend.config;
 
 import grit.sistema.backend.repository.UsuarioRepository;
+import grit.sistema.backend.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,9 +26,9 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> usuarioRepository.findByEmail(username)
+                .map(UserPrincipal::new) // <--- CRÍTICO: Mapeamos la entidad al Principal de seguridad
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
-
     @Bean
     public AuthenticationProvider  authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

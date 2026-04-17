@@ -18,7 +18,6 @@ public interface AtletaMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "authorities", ignore = true) // Ignorar de UserDetails
     @Mapping(target = "rol", ignore = true)        // Se asigna en el Service: Rol.ATLETA
     @Mapping(target = "estado", ignore = true)     // Valor por defecto en la Entidad
     // Mapeo de lógica personalizada

@@ -1,6 +1,8 @@
 package grit.sistema.backend.exception;
 
-public class AccesoDenegadoException extends org.springframework.security.access.AccessDeniedException{
+import org.springframework.security.access.AccessDeniedException;
+
+public class AccesoDenegadoException extends AccessDeniedException {
     public AccesoDenegadoException(String mensaje){
         super(mensaje);
     }

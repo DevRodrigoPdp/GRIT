@@ -27,7 +27,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Usuario implements UserDetails {
+public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -63,45 +63,10 @@ public class Usuario implements UserDetails {
     protected void onCreate() {
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
-        if (this.estado == null) {
-            this.estado = EstadoUsuario.ACTIVO;
-        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = OffsetDateTime.now();
-    }
-
-    // --- MÉTODOS DE USERDETAILS ---
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        // La cuenta solo está habilitada si el estado es ACTIVO
-        return EstadoUsuario.ACTIVO.equals(this.estado);
     }
 }
