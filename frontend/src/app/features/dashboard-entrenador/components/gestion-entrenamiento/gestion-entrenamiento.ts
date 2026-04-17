@@ -162,6 +162,14 @@ export class GestionEntrenamientoComponent implements OnInit {
       });
   }
 
+  activarRutina(rutinaId: string) {
+    const id = this.atletaId();
+    if (!id) return;
+    this.entrenamiento.activarRutina(id, rutinaId).subscribe(() => {
+      this.rutinas.update(r => r.map(x => ({ ...x, activa: x.id === rutinaId })));
+    });
+  }
+
   eliminarRutina(rutinaId: string) {
     const id = this.atletaId();
     if (!id) return;

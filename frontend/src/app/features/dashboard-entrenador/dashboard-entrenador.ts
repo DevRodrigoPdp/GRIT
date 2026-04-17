@@ -5,15 +5,16 @@ import { EntrenadorService, AtletaAsignado, PerfilEntrenador } from './services/
 import { GestionNutricionComponent } from './components/gestion-nutricion/gestion-nutricion';
 import { GestionEntrenamientoComponent } from './components/gestion-entrenamiento/gestion-entrenamiento';
 import { PerfilEntrenadorVistaComponent } from './components/perfil-entrenador/perfil-entrenador-vista';
+import { ComunicacionComponent } from './components/comunicacion/comunicacion';
 
-type Tab    = 'ENTRENAMIENTO' | 'NUTRICION';
+type Tab    = 'ENTRENAMIENTO' | 'NUTRICION' | 'SEGUIMIENTO';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
 type Vista  = 'atletas' | 'perfil' | 'ajustes';
 
 @Component({
   selector: 'app-dashboard-entrenador',
   standalone: true,
-  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule, PerfilEntrenadorVistaComponent],
+  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule, PerfilEntrenadorVistaComponent, ComunicacionComponent],
   templateUrl: './dashboard-entrenador.html',
 })
 export class DashboardEntrenadorPage implements OnInit {
@@ -36,15 +37,21 @@ export class DashboardEntrenadorPage implements OnInit {
   ];
 
   readonly atletasFiltrados = computed(() => {
-    const q      = this.busqueda().toLowerCase().trim();
-    const filtro = this.filtroServicio();
+    const q           = this.busqueda().toLowerCase().trim();
+    const filtro      = this.filtroServicio();
+    const tieneEntr   = this.auth.tituloEntrenamiento();
+    const tieneNutr   = this.auth.tituloNutricion();
     return this.atletas().filter(a => {
       const coincideNombre   = !q || a.nombre.toLowerCase().includes(q);
       const coincideServicio =
         filtro === 'TODOS' ||
         a.servicio === filtro ||
         a.servicio === 'AMBOS';
-      return coincideNombre && coincideServicio;
+      // Ocultar atletas cuyo servicio no cubre ninguna titulación del profesional
+      const esRelevante =
+        (tieneEntr && (a.servicio === 'ENTRENAMIENTO' || a.servicio === 'AMBOS')) ||
+        (tieneNutr && (a.servicio === 'NUTRICION'     || a.servicio === 'AMBOS'));
+      return coincideNombre && coincideServicio && esRelevante;
     });
   });
 
@@ -63,13 +70,18 @@ export class DashboardEntrenadorPage implements OnInit {
     const tabs: Tab[] = [];
     if (tieneEntrenamiento) tabs.push('ENTRENAMIENTO');
     if (tieneNutricion)     tabs.push('NUTRICION');
+    tabs.push('SEGUIMIENTO');
     return tabs;
   });
 
   ngOnInit() {
     this.auth.me().subscribe();
     this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
-    this.entrenador.getMisAtletas().subscribe(a => this.atletas.set(a));
+    this.entrenador.getMisAtletas().subscribe(a => {
+      this.atletas.set(a);
+      const primero = a.find(x => x.servicio === 'AMBOS') ?? a[0];
+      if (primero) this.seleccionarAtleta(primero);
+    });
   }
 
   navegarA(vista: Vista): void {

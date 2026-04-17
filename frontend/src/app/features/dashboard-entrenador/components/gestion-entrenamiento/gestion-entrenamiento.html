@@ -40,8 +40,16 @@
           <p class="text-sm font-light text-gray-400 mt-0.5">{{ rutina.descripcion }}</p>
           }
         </div>
-        <button (click)="eliminarRutina(rutina.id)"
-          class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100">ELIMINAR</button>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          @if (rutina.activa) {
+            <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D]">● ACTIVA</span>
+          } @else {
+            <button (click)="activarRutina(rutina.id)"
+              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
+          }
+          <button (click)="eliminarRutina(rutina.id)"
+            class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">ELIMINAR</button>
+        </div>
       </div>
     </div>
 

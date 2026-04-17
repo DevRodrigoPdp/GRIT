@@ -24,6 +24,7 @@ export interface Rutina {
   descripcion: string;
   sesiones:    Sesion[];
   creadoEn:    Date;
+  activa:      boolean;
 }
 
 // ── Servicio ──────────────────────────────────────────────────────────────────
@@ -98,6 +99,7 @@ export class EntrenamientoService {
       descripcion,
       sesiones,
       creadoEn:    new Date(),
+      activa:      false,
     };
     const existentes = this.rutinasMap.get(atletaId) ?? [];
     this.rutinasMap.set(atletaId, [...existentes, rutina]);
@@ -115,6 +117,18 @@ export class EntrenamientoService {
     // ── MOCK ──────────────────────────────────────────────────────────────
     const existentes = this.rutinasMap.get(atletaId) ?? [];
     this.rutinasMap.set(atletaId, existentes.filter(r => r.id !== rutinaId));
+    this.persistirRutinas();
+    return of(undefined);
+  }
+
+  /**
+   * Marca una rutina como activa (desactiva el resto del atleta).
+   * TODO: reemplazar por PUT /api/v1/entrenamiento/rutinas/:id/activar
+   */
+  activarRutina(atletaId: string, rutinaId: string): Observable<void> {
+    // return this.http.put<void>(`/api/v1/entrenamiento/rutinas/${rutinaId}/activar`, {}, { withCredentials: true });
+    const existentes = this.rutinasMap.get(atletaId) ?? [];
+    this.rutinasMap.set(atletaId, existentes.map(r => ({ ...r, activa: r.id === rutinaId })));
     this.persistirRutinas();
     return of(undefined);
   }

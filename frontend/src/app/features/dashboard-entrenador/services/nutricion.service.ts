@@ -21,6 +21,7 @@ export interface PlanNutricion {
   descripcion: string;
   comidas: Comida[];
   creadoEn: Date;
+  activo: boolean;
 }
 
 export interface MacrosTotales {
@@ -98,6 +99,7 @@ export class NutricionService {
       descripcion,
       comidas,
       creadoEn: new Date(),
+      activo: false,
     };
     const existentes = this.planes.get(atletaId) ?? [];
     this.planes.set(atletaId, [...existentes, plan]);
@@ -114,6 +116,17 @@ export class NutricionService {
     // ── MOCK ──────────────────────────────────────────────────────────────
     const existentes = this.planes.get(atletaId) ?? [];
     this.planes.set(atletaId, existentes.filter(p => p.id !== planId));
+    return of(undefined);
+  }
+
+  /**
+   * Marca un plan como activo (desactiva el resto del atleta).
+   * TODO: reemplazar por PUT /api/v1/nutricion/planes/:id/activar
+   */
+  activarPlan(atletaId: string, planId: string): Observable<void> {
+    // return this.http.put<void>(`/api/v1/nutricion/planes/${planId}/activar`, {}, { withCredentials: true });
+    const existentes = this.planes.get(atletaId) ?? [];
+    this.planes.set(atletaId, existentes.map(p => ({ ...p, activo: p.id === planId })));
     return of(undefined);
   }
 
