@@ -193,6 +193,14 @@ export class GestionNutricionComponent implements OnInit {
       });
   }
 
+  activarPlan(planId: string) {
+    const id = this.atletaId();
+    if (!id) return;
+    this.nutricion.activarPlan(id, planId).subscribe(() => {
+      this.planes.update(p => p.map(x => ({ ...x, activo: x.id === planId })));
+    });
+  }
+
   eliminarPlan(planId: string) {
     const id = this.atletaId();
     if (!id) return;

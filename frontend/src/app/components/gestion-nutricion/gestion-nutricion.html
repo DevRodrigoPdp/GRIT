@@ -277,18 +277,24 @@
     }
 
     @for (plan of planes(); track plan.id) {
-      <div class="border border-[#E5E7EB] mb-3 p-5">
+      <div class="border border-[#E5E7EB] mb-3 p-5 hover:border-black transition-colors group">
         <div class="flex items-start justify-between">
-          <div>
+          <div class="flex-1 min-w-0 mr-4">
             <p class="text-sm font-black uppercase tracking-tight text-black">{{ plan.nombre }}</p>
             @if (plan.descripcion) {
               <p class="text-sm font-light text-gray-400 mt-0.5">{{ plan.descripcion }}</p>
             }
           </div>
-          <button
-            (click)="eliminarPlan(plan.id)"
-            class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors ml-4"
-          >ELIMINAR</button>
+          <div class="flex items-center gap-3 flex-shrink-0">
+            @if (plan.activo) {
+              <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D]">● ACTIVO</span>
+            } @else {
+              <button (click)="activarPlan(plan.id)"
+                class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
+            }
+            <button (click)="eliminarPlan(plan.id)"
+              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">ELIMINAR</button>
+          </div>
         </div>
 
         @let macros = nutricion.calcularMacros(plan.comidas);

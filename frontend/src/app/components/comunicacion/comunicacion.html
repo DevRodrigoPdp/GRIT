@@ -1,0 +1,137 @@
+<div class="flex flex-col h-full py-6 gap-10">
+
+  <!-- ── CHAT ────────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-5 h-px bg-[#2ED38D]"></div>
+      <span class="text-xs font-bold tracking-[0.35em] uppercase text-[#2ED38D]">CHAT</span>
+    </div>
+
+    <div class="flex flex-col border border-[#E5E7EB]" style="height: 420px;">
+
+      <!-- Mensajes -->
+      <div class="flex-1 overflow-y-auto no-scrollbar p-5 flex flex-col gap-4">
+        @for (msg of mensajes(); track msg.id) {
+          <div [class]="msg.de === 'entrenador' ? 'flex justify-end' : 'flex justify-start'">
+            <div class="max-w-[70%]">
+              @if (msg.de === 'atleta') {
+                <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-1">{{ atletaNombre() }}</p>
+              }
+              <div [class]="msg.de === 'entrenador'
+                ? 'bg-black text-white px-4 py-3'
+                : 'bg-[#F9FAFB] border border-[#E5E7EB] text-black px-4 py-3'">
+                <p class="text-sm font-light leading-relaxed">{{ msg.texto }}</p>
+              </div>
+              <p class="text-[10px] font-light text-gray-300 mt-1"
+                [class]="msg.de === 'entrenador' ? 'text-right' : 'text-left'">
+                {{ formatearHora(msg.fecha) }}
+              </p>
+            </div>
+          </div>
+        }
+        @if (mensajes().length === 0) {
+          <div class="flex-1 flex items-center justify-center text-center py-16">
+            <div>
+              <div class="w-2 h-2 bg-gray-200 mx-auto mb-4"></div>
+              <p class="text-xs font-black tracking-[0.25em] uppercase text-gray-300 mb-1">SIN MENSAJES</p>
+              <p class="text-sm font-light text-gray-400">Escribe el primer mensaje a {{ atletaNombre() }}.</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Input -->
+      <div class="flex-shrink-0 border-t border-[#E5E7EB] p-4 flex gap-3">
+        <input
+          [(ngModel)]="nuevoMensaje"
+          (keydown.enter)="enviar()"
+          placeholder="Escribe un mensaje..."
+          class="flex-1 border border-[#E5E7EB] px-4 py-2.5 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors"
+        />
+        <button
+          (click)="enviar()"
+          [disabled]="!nuevoMensaje.trim()"
+          class="px-5 py-2.5 text-[11px] font-black tracking-[0.2em] uppercase bg-black text-white disabled:bg-gray-100 disabled:text-gray-300 transition-colors"
+        >ENVIAR</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SEGUIMIENTO DE PESO ──────────────────────────────────────────────── -->
+  <section>
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-5 h-px bg-black"></div>
+      <span class="text-xs font-bold tracking-[0.35em] uppercase text-black">SEGUIMIENTO DE PESO</span>
+    </div>
+
+    <!-- Solicitar check-in -->
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        @if (checkInPendiente()) {
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 bg-[#2ED38D] rounded-full"></div>
+            <p class="text-xs font-bold tracking-[0.15em] uppercase text-[#2ED38D]">SOLICITUD ENVIADA</p>
+          </div>
+          <p class="text-xs font-light text-gray-400 mt-0.5">Esperando respuesta de {{ atletaNombre() }}</p>
+        } @else {
+          <p class="text-xs font-light text-gray-400">Solicita a {{ atletaNombre() }} que registre su peso actual.</p>
+        }
+      </div>
+      <button
+        (click)="solicitarPeso()"
+        [disabled]="checkInPendiente() || solicitando()"
+        class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+      >
+        @if (solicitando()) { ENVIANDO... } @else { SOLICITAR PESO }
+      </button>
+    </div>
+
+    <!-- Gráfica -->
+    @if (chartData(); as chart) {
+      <div class="border border-[#E5E7EB] p-4 mb-4">
+        <svg viewBox="0 -8 460 76" class="w-full" preserveAspectRatio="none">
+          <polyline
+            [attr.points]="chart.polyline"
+            fill="none" stroke="#2ED38D" stroke-width="1.5"
+          />
+          @for (p of chart.points; track p.fecha) {
+            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3" fill="#2ED38D" />
+          }
+        </svg>
+        <div class="flex justify-between mt-1">
+          <p class="text-[10px] font-light text-gray-300">{{ chart.points[0].fecha }}</p>
+          <p class="text-[10px] font-light text-gray-300">{{ chart.points[chart.points.length - 1].fecha }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- Historial -->
+    @if (historialPesos().length > 0) {
+      <div class="flex flex-col gap-1">
+        @for (entry of historialPesos().slice().reverse(); track entry.id; let first = $first) {
+          <div class="flex items-center justify-between py-2 border-b border-[#E5E7EB]"
+            [class.border-b-black]="first">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-light text-gray-400">{{ entry.fecha }}</span>
+              @if (servicio() !== 'AMBOS') {
+                <span class="text-[10px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5"
+                  [class]="entry.solicitadoPor === 'ENTRENADOR'
+                    ? 'bg-black text-white'
+                    : 'bg-[#2ED38D] text-black'">
+                  {{ entry.solicitadoPor === 'ENTRENADOR' ? 'ENTR.' : 'NUTR.' }}
+                </span>
+              }
+            </div>
+            <p class="text-sm font-black text-black">{{ entry.pesoKg }} kg</p>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="border border-dashed border-[#E5E7EB] p-8 text-center">
+        <p class="text-xs font-black tracking-[0.15em] uppercase text-gray-300 mb-1">SIN REGISTROS</p>
+        <p class="text-sm font-light text-gray-400">Solicita el primer check-in de peso.</p>
+      </div>
+    }
+  </section>
+
+</div>
