@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,9 +31,21 @@ public class GlobalExceptionHandler {
     }
 
     // 2. Errores de Seguridad (403) - CORREGIDO EL IMPORT INTERNO
-    @ExceptionHandler(AccesoDenegadoException.class)
+    @ExceptionHandler({AccessDeniedException.class, AccesoDenegadoException.class, AuthorizationDeniedException.class})
     public ResponseEntity<ErrorRespuestaDTO> handleAccessDenied(Exception ex, HttpServletRequest request) {
-        return buildErrorResponse("No tienes permisos para acceder a este recurso.", HttpStatus.FORBIDDEN, request);
+        log.warn("Intento de acceso no autorizado en {}: {}", request.getRequestURI(), ex.getMessage());
+
+        String mensaje = (ex instanceof TituloFaltanteException)
+                ? ex.getMessage()
+                : "No tienes permisos para acceder a este recurso.";
+
+        return buildErrorResponse(mensaje, HttpStatus.FORBIDDEN, request);
+    }
+
+    // Este captura EXCLUSIVAMENTE tus errores de lógica de negocio (los títulos)
+    @ExceptionHandler(TituloFaltanteException.class)
+    public ResponseEntity<ErrorRespuestaDTO> handleTituloFaltante(TituloFaltanteException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN, request);
     }
 
     // 3. Errores de Validación (400) - REFACTORIZADO

@@ -1,6 +1,8 @@
 package grit.sistema.backend.security;
 
 
+import grit.sistema.backend.exception.AccesoDenegadoException;
+import grit.sistema.backend.exception.TituloFaltanteException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -15,18 +17,26 @@ public class SecurityUtils {
      * Verifica si el usuario autenticado tiene título de nutrición.
      */
     public boolean tieneTituloNutricion() {
-        return getUsuarioActual()
-                .map(UserPrincipal::isTieneTituloNutricion)
-                .orElse(false);
+        UserPrincipal principal = getUsuarioActual()
+                .orElseThrow(() -> new AccesoDenegadoException("Usuario no autenticado"));
+
+        if (!principal.isTieneTituloNutricion()) {
+            throw new TituloFaltanteException("Se requiere certificación en Nutrición para esta operación.");
+        }
+        return true;
     }
 
     /**
      * Verifica si el usuario autenticado tiene título de entrenamiento.
      */
     public boolean tieneTituloEntrenamiento() {
-        return getUsuarioActual()
-                .map(UserPrincipal::isTieneTituloEntrenamiento)
-                .orElse(false);
+        UserPrincipal principal = getUsuarioActual()
+                .orElseThrow(() -> new AccesoDenegadoException("Usuario no autenticado"));
+
+        if (!principal.isTieneTituloEntrenamiento()) {
+            throw new TituloFaltanteException("Se requiere certificación en Entrenamiento para esta operación.");
+        }
+        return true;
     }
 
     /**
