@@ -4,22 +4,14 @@
   @if (cargando()) {
     <div class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center gap-8">
       <span class="font-black tracking-tighter text-2xl text-black uppercase select-none">GRIT</span>
-
       <div class="flex flex-col items-center gap-4">
         <div class="relative w-10 h-10">
           <svg class="w-10 h-10 animate-spin" viewBox="0 0 40 40" fill="none">
             <circle cx="20" cy="20" r="17" stroke="#E5E7EB" stroke-width="2.5"/>
-            <path
-              d="M20 3 a17 17 0 0 1 17 17"
-              stroke="#2ED38D"
-              stroke-width="2.5"
-              stroke-linecap="square"
-            />
+            <path d="M20 3 a17 17 0 0 1 17 17" stroke="#2ED38D" stroke-width="2.5" stroke-linecap="square"/>
           </svg>
         </div>
-        <span class="text-[10px] font-bold tracking-[0.35em] uppercase text-gray-400">
-          CARGANDO PERFIL...
-        </span>
+        <span class="text-[10px] font-bold tracking-[0.35em] uppercase text-gray-400">CARGANDO PERFIL...</span>
       </div>
     </div>
   }
@@ -58,65 +50,771 @@
     </div>
   </div>
 
-  <!-- ── Tabs ── -->
-  @if (tabs().length > 1) {
-    <div class="border-b border-[#E5E7EB] px-6 md:px-12 flex">
-      @for (t of tabs(); track t) {
-        <button
-          type="button"
-          (click)="seleccionarTab(t)"
-          class="relative py-4 px-6 text-xs font-black tracking-[0.25em] uppercase transition-colors duration-200"
-          [class.text-black]="tabActiva() === t"
-          [class.text-gray-400]="tabActiva() !== t"
-        >
-          {{ labelTab[t] }}
-          @if (tabActiva() === t) {
-            <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
-          }
-        </button>
-      }
-    </div>
-  } @else {
-    <div class="border-b border-[#E5E7EB] px-6 md:px-12 flex">
-      <div class="relative py-4 px-6 text-xs font-black tracking-[0.25em] uppercase text-black">
-        {{ labelTab[tabs()[0]] }}
-        <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
-      </div>
-    </div>
-  }
+  <!-- ── Navegación ── -->
+  <div class="border-b border-[#E5E7EB] px-6 md:px-12 flex overflow-x-auto">
+    @for (item of navItems(); track item.id) {
+      <button
+        type="button"
+        (click)="navegarA(item.id)"
+        class="relative py-4 px-5 text-xs font-black tracking-[0.2em] uppercase whitespace-nowrap transition-colors duration-200 flex-shrink-0"
+        [class.text-black]="vistaActual() === item.id"
+        [class.text-gray-400]="vistaActual() !== item.id"
+      >
+        {{ item.label }}
+        @if (vistaActual() === item.id) {
+          <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+        }
+      </button>
+    }
+  </div>
 
   <!-- ── Contenido ── -->
-  <main class="flex-1 px-6 md:px-12 py-12">
+  <main class="flex-1 px-6 md:px-12 py-10">
 
-    @if (tabActiva() === 'entrenamiento') {
-      <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-5 h-px bg-[#2ED38D]"></div>
-          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">ENTRENAMIENTO</span>
-          <div class="w-5 h-px bg-[#2ED38D]"></div>
+    <!-- ─── ENTRENAMIENTO ────────────────────────────────────────────────── -->
+    @if (vistaActual() === 'entrenamiento') {
+
+      @if (solicitudCheckIn()) {
+        <div class="mb-8 border border-[#2ED38D] p-5">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <p class="text-[10px] font-black tracking-[0.25em] uppercase text-[#2ED38D] mb-1">● REGISTRO DE PESO SOLICITADO</p>
+              <p class="text-sm text-gray-600">
+                Tu entrenador <span class="font-bold text-black">{{ solicitudCheckIn()!.solicitadoPor }}</span> solicita que registres tu peso actual.
+              </p>
+            </div>
+            <span class="text-[10px] text-gray-400 flex-shrink-0">{{ formatFecha(solicitudCheckIn()!.fecha) }}</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <input
+              type="number" step="0.1" min="30" max="300" placeholder="79.5"
+              [value]="pesoInputValor()"
+              (input)="pesoInputValor.set($any($event.target).value)"
+              class="border border-[#E5E7EB] px-3 py-2 text-sm w-28 focus:outline-none focus:border-black font-mono"
+            />
+            <span class="text-sm text-gray-400">kg</span>
+            <button
+              (click)="registrarPeso()"
+              [disabled]="!pesoInputValido() || enviandoPeso()"
+              class="px-6 py-2 text-xs font-black tracking-[0.2em] uppercase transition-colors"
+              [class]="pesoInputValido() && !enviandoPeso() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
+            >
+              REGISTRAR
+            </button>
+          </div>
         </div>
-        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
-          TU PLAN DE<br>ENTRENAMIENTO
-        </h2>
-        <p class="text-sm font-light text-gray-400 max-w-sm">
-          Aquí aparecerán tus sesiones, métricas de rendimiento y progreso hacia tus objetivos.
-        </p>
+      }
+
+      @if (!planEntrenamiento()) {
+        <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-5 h-px bg-[#2ED38D]"></div>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">ENTRENAMIENTO</span>
+            <div class="w-5 h-px bg-[#2ED38D]"></div>
+          </div>
+          <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
+            TU PLAN DE<br>ENTRENAMIENTO
+          </h2>
+          <p class="text-sm font-light text-gray-400 max-w-sm">
+            Tu entrenador aún no ha creado tu plan. Aparecerá aquí en cuanto esté listo.
+          </p>
+        </div>
+
+      } @else {
+
+        <div class="mb-10 pb-8 border-b border-[#E5E7EB]">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-2">PLAN ACTIVO</p>
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">{{ planEntrenamiento()!.nombre }}</h2>
+              <p class="text-sm text-gray-400 mt-1 max-w-lg">{{ planEntrenamiento()!.descripcion }}</p>
+            </div>
+            <div class="flex items-center gap-6 flex-shrink-0">
+              <div>
+                <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SEMANA</span>
+                <span class="text-lg font-black text-black leading-none">
+                  {{ planEntrenamiento()!.semanaActual }}<span class="text-gray-300 text-sm font-bold">/{{ planEntrenamiento()!.semanas }}</span>
+                </span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SESIONES</span>
+                <span class="text-lg font-black text-black leading-none">{{ planEntrenamiento()!.sesiones.length }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">SESIONES DE LA SEMANA</p>
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            @for (sesion of planEntrenamiento()!.sesiones; track sesion.dia) {
+              <div class="border border-[#E5E7EB] p-5">
+                <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.dia }}</p>
+                <div class="flex flex-col gap-1">
+                  @for (ej of sesion.ejercicios; track ej.nombre) {
+                    @let activo = ejercicioActivo()?.dia === sesion.dia && ejercicioActivo()?.nombre === ej.nombre;
+                    <button
+                      type="button"
+                      (click)="abrirEjercicio(sesion.dia, ej.nombre)"
+                      class="flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors rounded-sm"
+                      [class]="activo ? 'bg-black' : 'hover:bg-[#F9FAFB]'"
+                    >
+                      <span class="text-sm leading-tight" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                      <div class="flex-shrink-0 text-right">
+                        <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
+                        @if (ej.descanso) { <span class="text-[10px]" [class]="activo ? 'text-gray-400' : 'text-gray-400'">{{ ej.descanso }}</span> }
+                      </div>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Hilo del ejercicio activo -->
+          @if (ejercicioActivo()) {
+            <div #hiloRef class="mt-6 border border-[#E5E7EB]">
+
+              <!-- Cabecera del hilo -->
+              <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-black">
+                <div>
+                  <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ ejercicioActivo()!.nombre }}</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">{{ ejercicioActivo()!.dia }}</p>
+                </div>
+                <button type="button" (click)="ejercicioActivo.set(null)" class="text-gray-400 hover:text-white transition-colors text-xs font-bold tracking-widest uppercase">
+                  CERRAR
+                </button>
+              </div>
+
+              @if (cargandoHilo()) {
+                <div class="px-5 py-8 flex items-center justify-center">
+                  <span class="text-xs text-gray-400 uppercase tracking-widest">Cargando...</span>
+                </div>
+              } @else if (hiloActivo()) {
+                @let hilo = hiloActivo()!;
+
+                <!-- Nota del entrenador -->
+                @if (hilo.notaEntrenador) {
+                  <div class="px-5 py-4 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                    <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-2">NOTA DEL ENTRENADOR</p>
+                    <p class="text-sm text-black leading-relaxed">{{ hilo.notaEntrenador }}</p>
+                  </div>
+                }
+
+                <!-- Media adjunta -->
+                <div class="px-5 py-4 border-b border-[#E5E7EB]">
+                  <div class="flex items-center gap-3 flex-wrap">
+                    @for (media of hilo.media; track media.id) {
+                      <div class="w-20 h-20 bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                        @if (media.url) {
+                          @if (media.tipo === 'foto') {
+                            <img [src]="media.url" alt="Técnica" class="w-full h-full object-cover"/>
+                          } @else {
+                            <video [src]="media.url" class="w-full h-full object-cover"></video>
+                          }
+                        } @else {
+                          <div class="flex flex-col items-center gap-1">
+                            <span class="text-lg">{{ media.tipo === 'foto' ? '🖼' : '🎥' }}</span>
+                            <span class="text-[8px] text-gray-400 uppercase">{{ media.tipo }}</span>
+                          </div>
+                        }
+                        <span class="absolute bottom-0 left-0 right-0 text-[7px] font-bold text-center bg-black/50 text-white py-0.5">
+                          {{ formatFecha(media.fecha) }}
+                        </span>
+                      </div>
+                    }
+
+                    <!-- Botón adjuntar -->
+                    <label class="w-20 h-20 border border-dashed border-[#D1D5DB] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-black hover:bg-[#F9FAFB] transition-colors flex-shrink-0">
+                      <span class="text-lg text-gray-400">+</span>
+                      <span class="text-[8px] font-bold uppercase text-gray-400">ADJUNTAR</span>
+                      <input type="file" accept="image/*,video/*" class="hidden" (change)="adjuntarMediaHilo($event)"/>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Mensajes -->
+                <div class="flex flex-col divide-y divide-[#F3F4F6] max-h-72 overflow-y-auto no-scrollbar">
+                  @if (hilo.mensajes.length === 0) {
+                    <div class="px-5 py-6 text-center">
+                      <p class="text-sm text-gray-400">Sin mensajes aún. Deja una nota sobre este ejercicio.</p>
+                    </div>
+                  }
+                  @for (msg of hilo.mensajes; track msg.id) {
+                    <div class="px-5 py-4 flex gap-3" [class]="msg.esAtleta ? 'flex-row-reverse' : ''">
+                      <div class="w-7 h-7 flex items-center justify-center flex-shrink-0 text-[9px] font-black text-white"
+                        [class]="msg.esAtleta ? 'bg-[#2ED38D]' : 'bg-black'">
+                        {{ msg.esAtleta ? 'TÚ' : msg.autor[0] }}
+                      </div>
+                      <div [class]="msg.esAtleta ? 'items-end' : 'items-start'" class="flex flex-col gap-0.5 max-w-[75%]">
+                        <div class="flex items-center gap-2">
+                          <span class="text-[10px] font-bold text-gray-400">{{ msg.esAtleta ? 'Tú' : msg.autor }}</span>
+                          <span class="text-[9px] text-gray-300">{{ formatFecha(msg.fecha) }}</span>
+                        </div>
+                        <p class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
+                          [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'">
+                          {{ msg.texto }}
+                        </p>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <!-- Input mensaje -->
+                <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center gap-3">
+                  <input
+                    type="text"
+                    placeholder="Escribe un mensaje..."
+                    [value]="mensajeHiloInput()"
+                    (input)="mensajeHiloInput.set($any($event.target).value)"
+                    (keydown.enter)="enviarMensajeHilo()"
+                    class="flex-1 border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:border-black"
+                  />
+                  <button
+                    type="button"
+                    (click)="enviarMensajeHilo()"
+                    [disabled]="!mensajeHiloInput().trim() || enviandoMensajeHilo()"
+                    class="px-5 py-2 text-[10px] font-black tracking-[0.2em] uppercase transition-colors flex-shrink-0"
+                    [class]="mensajeHiloInput().trim() && !enviandoMensajeHilo() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
+                  >
+                    ENVIAR
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        @if (historialPesos().length > 0) {
+          <div class="max-w-2xl">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">EVOLUCIÓN DEL PESO</p>
+            <div class="border border-[#E5E7EB] p-5">
+              <div class="flex items-center gap-8 mb-6">
+                <div>
+                  <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">INICIAL</span>
+                  <span class="text-xl font-black text-black">{{ historialPesos()[0].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">ACTUAL</span>
+                  <span class="text-xl font-black text-black">{{ historialPesos()[historialPesos().length - 1].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">DIFERENCIA</span>
+                  @let diff = historialPesos()[historialPesos().length - 1].pesoKg - historialPesos()[0].pesoKg;
+                  <span class="text-xl font-black" [class]="diff <= 0 ? 'text-[#2ED38D]' : 'text-red-500'">
+                    {{ diff > 0 ? '+' : '' }}{{ diff.toFixed(1) }}<span class="text-xs ml-0.5">kg</span>
+                  </span>
+                </div>
+              </div>
+              @if (chartData()) {
+                <svg viewBox="0 0 500 76" class="w-full mb-4" preserveAspectRatio="none">
+                  <polyline [attr.points]="chartData()!.polyline" stroke="#2ED38D" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+                  @for (pt of chartData()!.points; track pt.fecha; let last = $last) {
+                    <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="last ? 5 : 3" [attr.fill]="last ? '#000' : '#2ED38D'"/>
+                  }
+                </svg>
+              }
+              <div class="flex flex-col divide-y divide-[#F3F4F6]">
+                @for (entrada of historialPesos(); track entrada.id; let last = $last) {
+                  <div class="flex items-center justify-between py-2.5">
+                    <span class="text-xs text-gray-400">{{ formatFecha(entrada.fecha) }}</span>
+                    <span class="text-sm font-black" [class]="last ? 'text-black' : 'text-gray-400'">{{ entrada.pesoKg }} kg</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+    }
+
+    <!-- ─── DIETA ─────────────────────────────────────────────────────────── -->
+    @if (vistaActual() === 'dieta') {
+
+      @if (!planNutricion()) {
+        <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-5 h-px bg-[#2ED38D]"></div>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">DIETA</span>
+            <div class="w-5 h-px bg-[#2ED38D]"></div>
+          </div>
+          <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
+            TU PLAN<br>NUTRICIONAL
+          </h2>
+          <p class="text-sm font-light text-gray-400 max-w-sm">
+            Tu nutricionista aún no ha creado tu plan. Aparecerá aquí en cuanto esté listo.
+          </p>
+        </div>
+
+      } @else {
+
+        <div class="mb-10 pb-8 border-b border-[#E5E7EB]">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-2">PLAN NUTRICIONAL ACTIVO</p>
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">{{ planNutricion()!.nombre }}</h2>
+              <p class="text-sm text-gray-400 mt-1 max-w-lg">{{ planNutricion()!.descripcion }}</p>
+            </div>
+            <div class="flex items-center gap-6 flex-shrink-0">
+              <div>
+                <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">KCAL / DÍA</span>
+                <span class="text-lg font-black text-black leading-none">{{ planNutricion()!.kcalDiarias }}</span>
+              </div>
+              @if (planNutricion()!.proteinas) {
+                <div>
+                  <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">PROTEÍNA</span>
+                  <span class="text-lg font-black text-black leading-none">{{ planNutricion()!.proteinas }}<span class="text-xs text-gray-400">g</span></span>
+                </div>
+              }
+              @if (planNutricion()!.carbos) {
+                <div>
+                  <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">CARBOS</span>
+                  <span class="text-lg font-black text-black leading-none">{{ planNutricion()!.carbos }}<span class="text-xs text-gray-400">g</span></span>
+                </div>
+              }
+              @if (planNutricion()!.grasas) {
+                <div>
+                  <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">GRASAS</span>
+                  <span class="text-lg font-black text-black leading-none">{{ planNutricion()!.grasas }}<span class="text-xs text-gray-400">g</span></span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        @if (notasNutricionista().length > 0) {
+          <div class="mb-10">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">NOTAS DE TU NUTRICIONISTA</p>
+            <div class="flex flex-col gap-3 max-w-2xl">
+              @for (nota of notasNutricionista(); track nota.id) {
+                <div class="border-l-2 border-[#2ED38D] pl-4 py-1">
+                  <p class="text-sm text-black leading-relaxed">{{ nota.texto }}</p>
+                  <p class="text-[10px] text-gray-400 mt-1.5">{{ formatFecha(nota.fecha) }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="mb-10">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">COMIDAS DEL DÍA</p>
+          <div class="flex flex-col gap-4 max-w-2xl">
+            @for (comida of planNutricion()!.comidas; track comida.nombre) {
+              @let abierta = comidaActiva() === comida.nombre;
+              <div class="border" [class]="abierta ? 'border-black' : 'border-[#E5E7EB]'">
+
+                <!-- Cabecera de la comida (clickable) -->
+                <button type="button" (click)="abrirComida(comida.nombre)"
+                  class="w-full px-5 py-4 flex items-center justify-between transition-colors"
+                  [class]="abierta ? 'bg-black' : 'border-b border-[#E5E7EB] hover:bg-[#F9FAFB]'">
+                  <p class="text-xs font-black tracking-[0.2em] uppercase" [class]="abierta ? 'text-white' : 'text-black'">{{ comida.nombre }}</p>
+                  <div class="flex items-center gap-4">
+                    <span class="text-[10px] font-bold" [class]="abierta ? 'text-[#2ED38D]' : 'text-gray-400'">{{ totalKcalComida(comida.alimentos) }} kcal</span>
+                    <span class="text-[10px] font-bold tracking-widest" [class]="abierta ? 'text-gray-400' : 'text-gray-300'">{{ abierta ? '▲' : '▼' }}</span>
+                  </div>
+                </button>
+
+                <!-- Alimentos -->
+                @if (!abierta) {
+                  <div class="px-5 py-3 flex flex-col divide-y divide-[#F3F4F6]">
+                    @for (alimento of comida.alimentos; track alimento.nombre) {
+                      <div class="flex items-center justify-between py-2.5 gap-4">
+                        <span class="text-sm text-black">{{ alimento.nombre }}</span>
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                          <span class="text-xs text-gray-400">{{ alimento.cantidad }}</span>
+                          @if (alimento.kcal) {
+                            <span class="text-[10px] font-black text-gray-400 w-14 text-right">{{ alimento.kcal }} kcal</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Hilo de la comida (expandido) -->
+                @if (abierta) {
+
+                  <!-- Alimentos en modo compacto -->
+                  <div class="px-5 py-3 border-b border-[#1a1a1a] flex flex-col divide-y divide-[#1a1a1a]">
+                    @for (alimento of comida.alimentos; track alimento.nombre) {
+                      <div class="flex items-center justify-between py-2 gap-4">
+                        <span class="text-sm text-gray-300">{{ alimento.nombre }}</span>
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                          <span class="text-xs text-gray-500">{{ alimento.cantidad }}</span>
+                          @if (alimento.kcal) {
+                            <span class="text-[10px] font-black text-gray-500 w-14 text-right">{{ alimento.kcal }} kcal</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  @if (cargandoHiloComida()) {
+                    <div class="px-5 py-6 flex items-center justify-center bg-white">
+                      <span class="text-xs text-gray-400 uppercase tracking-widest">Cargando...</span>
+                    </div>
+                  } @else if (hiloComidaActivo()) {
+                    @let hilo = hiloComidaActivo()!;
+
+                    <!-- Mensajes del hilo -->
+                    <div class="flex flex-col divide-y divide-[#F3F4F6] max-h-60 overflow-y-auto no-scrollbar bg-white">
+                      @if (hilo.mensajes.length === 0) {
+                        <div class="px-5 py-5 text-center">
+                          <p class="text-sm text-gray-400">Sin mensajes. Pregunta a tu nutricionista sobre esta comida.</p>
+                        </div>
+                      }
+                      @for (msg of hilo.mensajes; track msg.id) {
+                        <div class="px-5 py-3 flex gap-3" [class]="msg.esAtleta ? 'flex-row-reverse' : ''">
+                          <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 text-[8px] font-black text-white"
+                            [class]="msg.esAtleta ? 'bg-[#2ED38D]' : 'bg-black'">
+                            {{ msg.esAtleta ? 'TÚ' : msg.autor[0] }}
+                          </div>
+                          <div class="flex flex-col gap-0.5 max-w-[75%]" [class]="msg.esAtleta ? 'items-end' : 'items-start'">
+                            <div class="flex items-center gap-2">
+                              <span class="text-[10px] font-bold text-gray-400">{{ msg.esAtleta ? 'Tú' : msg.autor }}</span>
+                              <span class="text-[9px] text-gray-300">{{ formatFecha(msg.fecha) }}</span>
+                            </div>
+                            <p class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
+                              [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'">
+                              {{ msg.texto }}
+                            </p>
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Input mensaje -->
+                    <div class="px-5 py-3 border-t border-[#E5E7EB] flex items-center gap-3 bg-white">
+                      <input
+                        type="text"
+                        placeholder="Pregunta sobre esta comida..."
+                        [value]="mensajeHiloComidaInput()"
+                        (input)="mensajeHiloComidaInput.set($any($event.target).value)"
+                        (keydown.enter)="enviarMensajeHiloComida()"
+                        class="flex-1 border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:border-black"
+                      />
+                      <button
+                        type="button"
+                        (click)="enviarMensajeHiloComida()"
+                        [disabled]="!mensajeHiloComidaInput().trim() || enviandoMensajeHiloComida()"
+                        class="px-4 py-2 text-[10px] font-black tracking-[0.2em] uppercase transition-colors flex-shrink-0"
+                        [class]="mensajeHiloComidaInput().trim() && !enviandoMensajeHiloComida() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
+                      >
+                        ENVIAR
+                      </button>
+                    </div>
+                  }
+                }
+
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (listaCompra().length > 0) {
+          <div class="max-w-2xl">
+            <div class="flex items-center justify-between mb-5">
+              <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">LISTA DE LA COMPRA</p>
+              <span class="text-[10px] text-gray-400">{{ itemsCompraChecked().length }}/{{ listaCompra().length }}</span>
+            </div>
+            <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+              @for (item of listaCompra(); track item.nombre) {
+                @let checked = itemsCompraChecked().includes(item.nombre);
+                <button type="button" (click)="toggleItemCompra(item.nombre)"
+                  class="w-full flex items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-[#F9FAFB]">
+                  <div class="w-4 h-4 border flex-shrink-0 flex items-center justify-center transition-colors"
+                    [class]="checked ? 'bg-black border-black' : 'border-[#D1D5DB]'">
+                    @if (checked) { <span class="text-white text-[9px] font-black leading-none">✓</span> }
+                  </div>
+                  <span class="flex-1 text-sm transition-colors" [class]="checked ? 'line-through text-gray-300' : 'text-black'">{{ item.nombre }}</span>
+                  <span class="text-xs text-gray-400 flex-shrink-0">{{ item.cantidad }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      }
+    }
+
+    <!-- ─── CUADERNO ──────────────────────────────────────────────────────── -->
+    @if (vistaActual() === 'cuaderno') {
+      <div>
+
+        <!-- Pestañas (solo si tiene ambos servicios) -->
+        @if (auth.servicio() === 'AMBOS') {
+          <div class="flex border-b border-[#E5E7EB] mb-6">
+            <button
+              type="button"
+              (click)="setChatActivo('entrenador')"
+              class="py-3 px-5 text-xs font-black tracking-[0.2em] uppercase transition-colors relative"
+              [class.text-black]="chatActivo() === 'entrenador'"
+              [class.text-gray-400]="chatActivo() !== 'entrenador'"
+            >
+              ENTRENADOR
+              @if (chatActivo() === 'entrenador') {
+                <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+              }
+            </button>
+            <button
+              type="button"
+              (click)="setChatActivo('nutricionista')"
+              class="py-3 px-5 text-xs font-black tracking-[0.2em] uppercase transition-colors relative"
+              [class.text-black]="chatActivo() === 'nutricionista'"
+              [class.text-gray-400]="chatActivo() !== 'nutricionista'"
+            >
+              NUTRICIONISTA
+              @if (chatActivo() === 'nutricionista') {
+                <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+              }
+            </button>
+          </div>
+        }
+
+        <!-- Panel de chat -->
+        @if (chatMostrado()) {
+          @let chat = chatMostrado()!;
+          <div class="border border-[#E5E7EB] flex flex-col" style="height: 520px;">
+
+            <!-- Cabecera -->
+            <div class="px-5 py-4 border-b border-[#E5E7EB] bg-black flex items-center gap-3 flex-shrink-0">
+              <div class="w-8 h-8 bg-[#2ED38D] flex items-center justify-center flex-shrink-0">
+                <span class="text-[10px] font-black text-black">{{ chat.interlocutor[0] }}</span>
+              </div>
+              <div>
+                <p class="text-xs font-black uppercase tracking-tight text-white">{{ chat.interlocutor }}</p>
+                <p class="text-[10px] text-gray-400 capitalize">{{ chat.tipo }}</p>
+              </div>
+            </div>
+
+            <!-- Mensajes -->
+            <div #chatMessagesRef class="flex-1 overflow-y-auto no-scrollbar px-5 py-4 flex flex-col gap-4">
+              @if (chat.mensajes.length === 0) {
+                <div class="flex-1 flex items-center justify-center">
+                  <p class="text-sm text-gray-400">Sin mensajes aún. ¡Escribe lo que necesites!</p>
+                </div>
+              }
+              @for (msg of chat.mensajes; track msg.id) {
+                <div class="flex gap-3" [class]="msg.esAtleta ? 'flex-row-reverse' : ''">
+                  <div
+                    class="w-7 h-7 flex items-center justify-center flex-shrink-0 text-[9px] font-black text-white"
+                    [class]="msg.esAtleta ? 'bg-[#2ED38D]' : 'bg-black'"
+                  >
+                    {{ msg.esAtleta ? 'TÚ' : msg.autor[0] }}
+                  </div>
+                  <div class="flex flex-col gap-0.5 max-w-[72%]" [class]="msg.esAtleta ? 'items-end' : 'items-start'">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] font-bold text-gray-400">{{ msg.esAtleta ? 'Tú' : msg.autor }}</span>
+                      <span class="text-[9px] text-gray-300">{{ formatFecha(msg.fecha) }}</span>
+                    </div>
+                    <p
+                      class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
+                      [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'"
+                    >
+                      {{ msg.texto }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Input -->
+            <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center gap-3 flex-shrink-0">
+              <input
+                type="text"
+                placeholder="Escribe un mensaje..."
+                [value]="mensajeChatInput()"
+                (input)="mensajeChatInput.set($any($event.target).value)"
+                (keydown.enter)="enviarMensajeChat()"
+                class="flex-1 border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:border-black"
+              />
+              <button
+                type="button"
+                (click)="enviarMensajeChat()"
+                [disabled]="!mensajeChatInput().trim() || enviandoMensajeChat()"
+                class="px-5 py-2 text-[10px] font-black tracking-[0.2em] uppercase transition-colors flex-shrink-0"
+                [class]="mensajeChatInput().trim() && !enviandoMensajeChat() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
+              >
+                ENVIAR
+              </button>
+            </div>
+
+          </div>
+        } @else {
+          <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
+            <p class="text-sm text-gray-400">Cargando conversación...</p>
+          </div>
+        }
+
       </div>
     }
 
-    @if (tabActiva() === 'dieta') {
-      <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-5 h-px bg-[#2ED38D]"></div>
-          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">DIETA</span>
-          <div class="w-5 h-px bg-[#2ED38D]"></div>
+    <!-- ─── MI PERFIL ─────────────────────────────────────────────────────── -->
+    @if (vistaActual() === 'perfil') {
+      <div>
+        <div class="mb-8">
+          <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">MI PERFIL</h2>
+          <p class="text-sm text-gray-400 mt-1">Tus datos registrados en GRIT.</p>
         </div>
-        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
-          TU PLAN<br>NUTRICIONAL
-        </h2>
-        <p class="text-sm font-light text-gray-400 max-w-sm">
-          Aquí aparecerán tus pautas dietéticas, seguimiento calórico y recomendaciones de tu nutricionista.
-        </p>
+
+        @if (perfilAtleta()) {
+          @let p = perfilAtleta()!;
+
+          <!-- Datos personales -->
+          <div class="mb-8">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS PERSONALES</p>
+            <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Nombre</span>
+                <span class="text-sm text-black">{{ p.nombre }}</span>
+              </div>
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Correo</span>
+                <span class="text-sm text-black">{{ p.correo }}</span>
+              </div>
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Fecha de nacimiento</span>
+                <span class="text-sm text-black">{{ formatFecha(p.fechaNac) }}</span>
+              </div>
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Género</span>
+                <span class="text-sm text-black">{{ labelGenero(p.genero) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos deportivos -->
+          <div class="mb-8">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS DEPORTIVOS</p>
+            <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Deporte</span>
+                <span class="text-sm text-black">{{ p.deporte }}</span>
+              </div>
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Nivel</span>
+                <span class="text-sm text-black">{{ labelNivel(p.nivel) }}</span>
+              </div>
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Objetivo</span>
+                <span class="text-sm text-black">{{ labelObjetivo(p.objetivo) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos físicos -->
+          <div class="mb-8">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS FÍSICOS</p>
+            <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Peso inicial</span>
+                <span class="text-sm text-black">{{ p.peso }} kg</span>
+              </div>
+              <div class="px-5 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Altura</span>
+                <span class="text-sm text-black">{{ p.altura }} cm</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Mis profesionales -->
+        @if (profesionales().length > 0) {
+          <div>
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">MIS PROFESIONALES</p>
+            <div class="flex flex-col gap-4">
+              @for (prof of profesionales(); track prof.id) {
+                <div class="border border-[#E5E7EB] p-5">
+                  <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-black flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-black text-white">{{ prof.nombre[0] }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-3 flex-wrap mb-0.5">
+                        <span class="text-sm font-black uppercase tracking-tight text-black">{{ prof.nombre }}</span>
+                        <span class="text-[9px] font-black tracking-[0.2em] uppercase px-2 py-0.5"
+                          [class]="prof.rol === 'ENTRENADOR' ? 'bg-black text-white' : 'bg-[#2ED38D] text-black'">
+                          {{ prof.rol }}
+                        </span>
+                      </div>
+                      <p class="text-[10px] text-gray-400 mb-2">{{ prof.titulacion }}</p>
+                      @if (prof.descripcion) {
+                        <p class="text-sm text-gray-600 leading-relaxed">{{ prof.descripcion }}</p>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ─── AJUSTES ───────────────────────────────────────────────────────── -->
+    @if (vistaActual() === 'ajustes') {
+      <div>
+        <div class="mb-8">
+          <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">AJUSTES</h2>
+        </div>
+
+        <!-- Cambiar contraseña -->
+        <div>
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">CAMBIAR CONTRASEÑA</p>
+
+          @if (passCambiada()) {
+            <div class="border border-[#2ED38D] px-5 py-4 mb-4">
+              <p class="text-sm font-bold text-[#2ED38D]">Contraseña actualizada correctamente.</p>
+            </div>
+          }
+
+          @if (passError()) {
+            <div class="border border-red-300 px-5 py-4 mb-4">
+              <p class="text-sm text-red-500">{{ passError() }}</p>
+            </div>
+          }
+
+          <div class="flex flex-col gap-4">
+            <div>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONTRASEÑA ACTUAL</label>
+              <input
+                type="password"
+                [value]="passActual()"
+                (input)="passActual.set($any($event.target).value)"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black"
+              />
+            </div>
+            <div>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NUEVA CONTRASEÑA</label>
+              <input
+                type="password"
+                [value]="passNueva()"
+                (input)="passNueva.set($any($event.target).value)"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black"
+              />
+            </div>
+            <div>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONFIRMAR NUEVA CONTRASEÑA</label>
+              <input
+                type="password"
+                [value]="passConfirm()"
+                (input)="passConfirm.set($any($event.target).value)"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black"
+              />
+            </div>
+            <button
+              type="button"
+              (click)="cambiarPassword()"
+              [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
+              class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors"
+              [class]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
+                ? 'bg-black text-white hover:bg-[#2ED38D]'
+                : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
+            >
+              {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
+            </button>
+          </div>
+        </div>
+
       </div>
     }
 
