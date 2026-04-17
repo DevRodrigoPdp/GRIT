@@ -2,7 +2,7 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 15 de abril de 2026 — reorganización de arquitectura frontend y simplificación de rutas del entrenador
+> **Última actualización:** 17 de abril de 2026 — sección 3.14 completa: dashboard del atleta (check-in peso, hilo ejercicio, hilo comida, chat, profesionales asignados, ajustes)
 
 ---
 
@@ -951,11 +951,16 @@ Registra el uso de un alimento en una comida. Si ya existe la combinación `(usu
 
 ### 3.14 Módulo Atleta
 
-> Requieren cookie `access_token` válida con `rol === 'ATLETA'`.
+> Todos los endpoints de esta sección requieren cookie `access_token` válida con `rol === 'ATLETA'`.
+> El frontend consume la base `/api/v1/atleta`.
+
+---
+
+#### 3.14.1 Perfil
 
 **`GET /api/v1/atleta/perfil`**
 
-Devuelve el perfil del atleta autenticado.
+Devuelve el perfil completo del atleta autenticado (datos registrados en el formulario de alta).
 
 ```json
 {
@@ -976,11 +981,13 @@ Devuelve el perfil del atleta autenticado.
 }
 ```
 
+> `objetivo` puede ser `null` si el atleta contrató solo nutrición.
+
 ---
 
 **`GET /api/v1/atleta/entrenador?servicio=ENTRENAMIENTO|NUTRICION`**
 
-Devuelve el entrenador asignado al atleta para el servicio indicado. Devuelve `null` si no tiene entrenador asignado aún.
+Devuelve el entrenador asignado al atleta para el servicio indicado. Devuelve `null` si no tiene ninguno aún.
 
 ```json
 {
@@ -996,23 +1003,53 @@ Devuelve el entrenador asignado al atleta para el servicio indicado. Devuelve `n
 
 ---
 
+#### 3.14.2 Plan de Entrenamiento
+
 **`GET /api/v1/atleta/entrenamiento/plan-activo`**
 
-Devuelve el plan de entrenamiento activo del atleta (la rutina más reciente asignada por su entrenador). Devuelve `null` si no tiene ninguno.
+Devuelve la rutina activa del atleta (la más reciente). Devuelve `null` si no tiene ninguna.
+
+El campo `semanaActual` se calcula en el servidor como `FLOOR(días_desde_creacion / 7) + 1`, limitado a `semanas`.
 
 ```json
 {
   "ok": true,
   "data": {
     "id": "uuid-rutina",
-    "nombre": "Fuerza Semana A",
-    "descripcion": "...",
-    "semanas": 4,
+    "nombre": "Fuerza — Mesociclo 2",
+    "descripcion": "Bloque de hipertrofia con énfasis en tren superior.",
+    "semanas": 8,
+    "semanaActual": 3,
     "sesiones": [
       {
         "dia": "Lunes",
         "ejercicios": [
-          { "nombre": "Sentadilla con barra", "series": 4, "reps": "6" }
+          {
+            "nombre": "Press de banca",
+            "series": 4,
+            "reps": "8-10",
+            "descanso": "90s",
+            "notas": "Codos a 45° del torso"
+          },
+          {
+            "nombre": "Remo en polea baja",
+            "series": 4,
+            "reps": "10-12",
+            "descanso": "60s",
+            "notas": null
+          }
+        ]
+      },
+      {
+        "dia": "Miércoles",
+        "ejercicios": [
+          {
+            "nombre": "Sentadilla",
+            "series": 4,
+            "reps": "6-8",
+            "descanso": "120s",
+            "notas": null
+          }
         ]
       }
     ]
@@ -1020,31 +1057,528 @@ Devuelve el plan de entrenamiento activo del atleta (la rutina más reciente asi
 }
 ```
 
+**Campos de cada ejercicio:**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `nombre` | `string` | Nombre del ejercicio |
+| `series` | `number` | Número de series |
+| `reps` | `string` | Puede ser "8-10", "Máx", "Al fallo", "30s" |
+| `descanso` | `string \| null` | Ej. "90s", "2 min". Opcional |
+| `notas` | `string \| null` | Nota breve del entrenador sobre este ejercicio en la sesión |
+
+> El campo `notas` de cada ejercicio es la nota que el entrenador dejó al diseñar la rutina. Es diferente del hilo de conversación (ver sección 3.14.6).
+
 ---
+
+#### 3.14.3 Plan de Nutrición
 
 **`GET /api/v1/atleta/nutricion/plan-activo`**
 
-Devuelve el plan de nutrición activo del atleta. Devuelve `null` si no tiene ninguno.
+Devuelve el plan nutricional activo del atleta. Devuelve `null` si no tiene ninguno.
+
+Los macros a nivel de plan (`proteinas`, `carbos`, `grasas`) son opcionales — el nutricionista puede o no incluirlos. Los macros a nivel de alimento también son opcionales.
 
 ```json
 {
   "ok": true,
   "data": {
     "id": "uuid-plan",
-    "nombre": "Plan definición verano",
-    "descripcion": "...",
-    "kcalDiarias": 2200,
+    "nombre": "Definición — 2.400 kcal",
+    "descripcion": "Déficit moderado con alta proteína.",
+    "kcalDiarias": 2400,
+    "proteinas": 195,
+    "carbos": 260,
+    "grasas": 65,
     "comidas": [
       {
         "nombre": "Desayuno",
         "alimentos": [
-          { "nombre": "Avena", "cantidad": "80g" }
+          {
+            "nombre": "Avena",
+            "cantidad": "80 g",
+            "kcal": 300,
+            "proteinas": 10,
+            "carbos": 54,
+            "grasas": 6
+          },
+          {
+            "nombre": "Leche desnatada",
+            "cantidad": "200 ml",
+            "kcal": 70,
+            "proteinas": 7,
+            "carbos": 10,
+            "grasas": 0
+          }
         ]
       }
     ]
   }
 }
 ```
+
+**Notas sobre el campo `cantidad`:**
+- Es un `string` libre tal como lo escribió el nutricionista: `"80 g"`, `"200 ml"`, `"1 unidad"`, `"2 cdas"`.
+- El frontend lo muestra literalmente; no intenta parsearlo.
+
+**Notas sobre los macros por alimento:**
+- `kcal`, `proteinas`, `carbos`, `grasas` son todos opcionales (`null` si el nutricionista no los incluyó).
+- Se calculan para la cantidad indicada (no por 100 g).
+- El frontend suma las kcal de los alimentos de cada comida para mostrar el total de esa comida.
+
+---
+
+**`GET /api/v1/atleta/nutricion/notas`**
+
+Devuelve las notas que el nutricionista ha dejado al atleta (consejos, observaciones generales). Ordenadas por `fecha DESC`.
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid-nota",
+      "texto": "Intenta comer las comidas principales siempre a la misma hora.",
+      "fecha": "2026-04-10"
+    }
+  ]
+}
+```
+
+---
+
+#### 3.14.4 Check-In de Peso
+
+El registro de peso es **bajo demanda**: el atleta solo puede registrar su peso cuando el entrenador lo solicita explícitamente. El atleta no puede registrar peso libremente.
+
+**`GET /api/v1/atleta/peso/solicitud-pendiente`**
+
+Devuelve la solicitud de check-in pendiente del atleta (solo puede haber una activa a la vez). Devuelve `null` si no hay ninguna pendiente.
+
+El frontend muestra un banner en el tab ENTRENAMIENTO cuando hay una solicitud activa.
+
+```json
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-solicitud",
+    "fecha": "2026-04-16",
+    "solicitadoPor": "Carlos López"
+  }
+}
+```
+
+---
+
+**`POST /api/v1/atleta/peso`**
+
+El atleta registra su peso en respuesta a una solicitud del entrenador.
+
+```json
+// Request body
+{
+  "solicitudId": "uuid-solicitud",
+  "pesoKg": 81.5
+}
+
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-checkin",
+    "fecha": "2026-04-16",
+    "pesoKg": 81.5
+  }
+}
+```
+
+**Validaciones:**
+- `pesoKg`: entre 30 y 300
+- `solicitudId`: debe existir, estar en estado `PENDIENTE` y pertenecer al atleta autenticado
+- Al registrar el peso, marcar la solicitud como `COMPLETADA`
+
+**Response 400** si la solicitud no existe o ya fue completada:
+```json
+{ "ok": false, "error": "SOLICITUD_INVALIDA", "message": "La solicitud no existe o ya fue completada." }
+```
+
+---
+
+**`GET /api/v1/atleta/peso/historial`**
+
+Devuelve el historial de check-ins de peso del atleta, ordenados por fecha ASC. El frontend usa esto para renderizar la gráfica de evolución.
+
+```json
+{
+  "ok": true,
+  "data": [
+    { "id": "uuid-w1", "fecha": "2026-02-03", "pesoKg": 85.2 },
+    { "id": "uuid-w2", "fecha": "2026-02-17", "pesoKg": 84.0 },
+    { "id": "uuid-w3", "fecha": "2026-03-03", "pesoKg": 83.1 }
+  ]
+}
+```
+
+> La gráfica solo se muestra si hay 2 o más registros. Con 0 o 1 registros el frontend no muestra nada.
+
+---
+
+#### 3.14.5 Solicitar Check-In (Entrenador → Atleta)
+
+> Este endpoint lo llama el **entrenador** desde su dashboard, no el atleta.
+> Requiere `rol === 'ENTRENADOR'` y `titulo_entrenamiento === true`.
+
+**`POST /api/v1/entrenador/atletas/:atletaId/peso/solicitar`**
+
+Crea una nueva solicitud de check-in de peso para el atleta indicado. Si ya existe una solicitud pendiente para ese atleta, devuelve `409` (no se puede acumular más de una).
+
+```json
+// Request body: vacío
+
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-solicitud",
+    "atletaId": "uuid-atleta",
+    "fecha": "2026-04-16",
+    "estado": "PENDIENTE"
+  }
+}
+```
+
+**Response 409** si ya hay una solicitud pendiente:
+```json
+{ "ok": false, "error": "SOLICITUD_YA_PENDIENTE", "message": "Este atleta ya tiene una solicitud de peso pendiente." }
+```
+
+---
+
+#### 3.14.6 Hilo de Ejercicio
+
+Cada ejercicio del plan de entrenamiento tiene un **hilo** propio donde:
+- El entrenador puede haber dejado una **nota** al crear el plan (campo `notas` del ejercicio).
+- El atleta puede **subir fotos o vídeos** de su técnica en ese ejercicio.
+- Atleta y entrenador pueden **intercambiar mensajes** sobre ese ejercicio en particular.
+
+El hilo se identifica por el nombre del día (`sesionDia`) y el nombre del ejercicio (`ejercicioNombre`), vinculados al atleta autenticado. En BBDD se recomienda resolverlo a través del `ejercicios_en_sesion.id` correcto.
+
+---
+
+**`GET /api/v1/atleta/entrenamiento/hilo`**
+
+Query params: `?dia=Lunes&ejercicio=Press%20de%20banca`
+
+Devuelve el hilo completo del ejercicio indicado. Si el hilo no existe aún (el atleta abre un ejercicio por primera vez), devuelve un hilo vacío con `media: []` y `mensajes: []`.
+
+```json
+{
+  "ok": true,
+  "data": {
+    "sesionDia": "Lunes",
+    "ejercicioNombre": "Press de banca",
+    "notaEntrenador": "Codos a 45° del torso, baja explosivo.",
+    "media": [
+      {
+        "id": "uuid-media",
+        "tipo": "foto",
+        "url": "https://s3.../...",
+        "fecha": "2026-04-15"
+      }
+    ],
+    "mensajes": [
+      {
+        "id": "uuid-msg",
+        "texto": "¿Estoy bajando suficiente los codos?",
+        "fecha": "2026-04-15",
+        "esAtleta": true,
+        "autor": "Carlos Ruiz"
+      },
+      {
+        "id": "uuid-msg2",
+        "texto": "Sí, pero baja un poco más la barra.",
+        "fecha": "2026-04-15",
+        "esAtleta": false,
+        "autor": "Carlos López"
+      }
+    ]
+  }
+}
+```
+
+**Campos del response:**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `notaEntrenador` | `string \| null` | Viene del campo `notas` del ejercicio en la rutina activa |
+| `media` | `MediaAdjunto[]` | Archivos subidos por el atleta (fotos/vídeos en S3) |
+| `mensajes` | `MensajeHilo[]` | Mensajes de texto del hilo, ordenados por `fecha ASC` |
+| `esAtleta` | `boolean` | `true` si lo envió el atleta, `false` si lo envió el entrenador |
+
+> Las URLs de media son **pre-signed URLs de S3** con expiración corta (ej. 15 min). No URLs públicas permanentes.
+
+---
+
+**`POST /api/v1/atleta/entrenamiento/hilo/mensaje`**
+
+El atleta envía un mensaje de texto al hilo de un ejercicio.
+
+```json
+// Request body
+{
+  "sesionDia": "Lunes",
+  "ejercicioNombre": "Press de banca",
+  "texto": "¿Bajo los codos más?"
+}
+
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-msg",
+    "texto": "¿Bajo los codos más?",
+    "fecha": "2026-04-17",
+    "esAtleta": true,
+    "autor": "Carlos Ruiz"
+  }
+}
+```
+
+---
+
+**`POST /api/v1/atleta/entrenamiento/hilo/media`**
+
+El atleta sube una foto o vídeo al hilo de un ejercicio. Requiere S3.
+
+Recibe `multipart/form-data`:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `archivo` | `File` | Imagen (JPG/PNG/WEBP) o vídeo (MP4/MOV/WEBM). Max 100 MB |
+| `sesionDia` | `string` | Nombre del día ("Lunes", "Miércoles", …) |
+| `ejercicioNombre` | `string` | Nombre exacto del ejercicio |
+
+```json
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-media",
+    "tipo": "foto",
+    "url": "https://s3.presigned.../...",
+    "fecha": "2026-04-17"
+  }
+}
+```
+
+> El campo `tipo` se infiere del MIME type del archivo: `image/*` → `"foto"`, `video/*` → `"video"`.
+
+---
+
+#### 3.14.7 Chat General
+
+Chat de texto entre el atleta y su entrenador/nutricionista. Hay un chat por cada relación de servicio activa:
+- Si `servicio = ENTRENAMIENTO` → un único chat con el entrenador
+- Si `servicio = NUTRICION` → un único chat con el nutricionista
+- Si `servicio = AMBOS` → dos chats separados (uno con cada profesional)
+
+El frontend identifica el chat con `tipo: 'entrenador' | 'nutricionista'`. El backend resuelve eso al entrenador real asignado a través de la tabla `asignaciones`.
+
+---
+
+**`GET /api/v1/atleta/chat/:tipo`**
+
+`:tipo` es `entrenador` o `nutricionista`.
+
+Devuelve el historial completo del chat, ordenado por `fecha ASC`.
+
+```json
+{
+  "ok": true,
+  "data": {
+    "tipo": "entrenador",
+    "interlocutor": "Carlos López",
+    "mensajes": [
+      {
+        "id": "uuid-msg",
+        "texto": "¡Hola! ¿Cómo llevas la semana?",
+        "fecha": "2026-04-10",
+        "esAtleta": false,
+        "autor": "Carlos López"
+      },
+      {
+        "id": "uuid-msg2",
+        "texto": "Bien, aunque noto las piernas cargadas los lunes",
+        "fecha": "2026-04-10",
+        "esAtleta": true,
+        "autor": "Carlos Ruiz"
+      }
+    ]
+  }
+}
+```
+
+**Response 400** si el tipo no corresponde a un servicio contratado:
+```json
+{ "ok": false, "error": "CHAT_NO_DISPONIBLE", "message": "No tienes un servicio de nutrición activo." }
+```
+
+---
+
+**`POST /api/v1/atleta/chat/:tipo/mensaje`**
+
+El atleta envía un mensaje al chat con su entrenador o nutricionista.
+
+```json
+// Request body
+{ "texto": "¿Puedo cambiar el press militar por press inclinado?" }
+
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-msg",
+    "texto": "¿Puedo cambiar el press militar por press inclinado?",
+    "fecha": "2026-04-17",
+    "esAtleta": true,
+    "autor": "Carlos Ruiz"
+  }
+}
+```
+
+---
+
+#### 3.14.8 Ajustes de Cuenta (Atleta)
+
+**`PUT /api/v1/atleta/password`**
+
+El atleta cambia su contraseña. Se requiere la contraseña actual para verificar identidad.
+
+```json
+// Request body
+{
+  "actual": "contraseñaActual123",
+  "nueva": "contraseñaNueva456"
+}
+
+// Response 200
+{ "ok": true }
+```
+
+**Response 400** si la contraseña actual es incorrecta:
+```json
+{ "ok": false, "error": "PASSWORD_INCORRECTO", "message": "La contraseña actual no es correcta." }
+```
+
+**Validaciones:**
+- `nueva`: mínimo 8 caracteres (el frontend lo valida también, pero el backend debe confirmarlo)
+- Hashear con bcrypt antes de guardar
+
+---
+
+#### 3.14.9 Profesionales Asignados
+
+**`GET /api/v1/atleta/profesionales`**
+
+Devuelve los profesionales asignados al atleta según sus servicios contratados. Máximo 2 registros (uno por servicio). Si el mismo profesional cubre ambos servicios, puede aparecer dos veces con distinto `rol`.
+
+```json
+// Response 200
+[
+  {
+    "id": "uuid-prof-1",
+    "nombre": "Carlos López",
+    "titulacion": "Grado en Ciencias de la Actividad Física y del Deporte",
+    "rol": "ENTRENADOR",
+    "descripcion": "Especialista en fuerza e hipertrofia..."
+  },
+  {
+    "id": "uuid-prof-2",
+    "nombre": "María González",
+    "titulacion": "Dietista-Nutricionista (Graduada en Nutrición Humana y Dietética)",
+    "rol": "NUTRICIONISTA",
+    "descripcion": "Especializada en nutrición deportiva..."
+  }
+]
+```
+
+**Lógica de construcción:**
+- Consultar `asignaciones` filtrando por `atleta_id` y `estado = ACTIVO`
+- Para cada asignación, hacer JOIN con `entrenadores` → `usuarios` para obtener nombre, titulación y descripción
+- Mapear `servicio = ENTRENAMIENTO` → `rol = ENTRENADOR`, `servicio = NUTRICION` → `rol = NUTRICIONISTA`
+- Si el atleta tiene `servicio = AMBOS` con el mismo profesional, devolver dos entradas con el mismo `id` pero distinto `rol`
+
+**Campos de `entrenadores` necesarios para esta respuesta:**
+- `titulacion` (ya existe)
+- `descripcion` — campo libre que el entrenador rellena en su perfil (añadir si no existe)
+
+---
+
+#### 3.14.10 Hilo de Comida
+
+Conversación entre el atleta y su nutricionista vinculada a una comida concreta del plan nutricional.
+
+**`GET /api/v1/atleta/nutricion/hilo?comida={comidaNombre}`**
+
+```json
+// Response 200
+{
+  "comidaNombre": "Desayuno",
+  "mensajes": [
+    {
+      "id": "uuid-msg",
+      "texto": "¿Puedo sustituir la leche desnatada por bebida de avena?",
+      "fecha": "2026-04-12",
+      "esAtleta": true,
+      "autor": "Rodrigo"
+    },
+    {
+      "id": "uuid-msg-2",
+      "texto": "Sí, sin problema. Elige la variante sin azúcares añadidos.",
+      "fecha": "2026-04-12",
+      "esAtleta": false,
+      "autor": "María González"
+    }
+  ]
+}
+```
+
+**`POST /api/v1/atleta/nutricion/hilo/mensaje`**
+
+```json
+// Request body
+{
+  "comidaNombre": "Desayuno",
+  "texto": "¿Puedo sustituir la leche desnatada por bebida de avena?"
+}
+
+// Response 201
+{
+  "id": "uuid-nuevo-msg",
+  "texto": "¿Puedo sustituir la leche desnatada por bebida de avena?",
+  "fecha": "2026-04-17",
+  "esAtleta": true,
+  "autor": "Rodrigo"
+}
+```
+
+**BBDD — tabla `mensajes_hilo_comida`:**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `atleta_id` | UUID FK → atletas | |
+| `comida_nombre` | VARCHAR(100) | nombre de la comida tal como aparece en el plan (ej: "Desayuno") |
+| `texto` | TEXT | |
+| `es_atleta` | BOOLEAN | `true` si lo escribió el atleta, `false` si fue el nutricionista |
+| `autor` | VARCHAR(255) | nombre del autor para mostrar en la UI |
+| `created_at` | TIMESTAMP | se usa como `fecha` en la respuesta |
+
+**Resolución del hilo:**
+- El hilo se identifica por `(atleta_id, comida_nombre)`
+- `comida_nombre` es el valor exacto del campo `nombre` de la comida en el plan nutricional activo
+- Si no existe hilo para esa comida, devolver `{ comidaNombre, mensajes: [] }`
+- El nutricionista puede responder desde el dashboard del entrenador (endpoint pendiente de definir en sección 3.x del entrenador)
 
 ---
 
@@ -1205,6 +1739,106 @@ Historial de alimentos usados por el entrenador en cada tipo de comida. Máximo 
 
 > **Constraint único:** `(usuario_id, nombre_comida, codigo_alimento)` — evita duplicados por alimento y comida. El backend debe hacer `UPSERT` actualizando `usado_en` si ya existe.
 
+### Tabla `checkins_peso_solicitudes`
+
+Solicitudes de check-in de peso creadas por el entrenador. Solo puede haber una `PENDIENTE` por atleta a la vez.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `entrenador_id` | UUID FK → entrenadores | Quien la solicitó |
+| `atleta_id` | UUID FK → atletas | Para quien es |
+| `estado` | ENUM | `PENDIENTE`, `COMPLETADA` |
+| `creada_en` | TIMESTAMP | |
+| `completada_en` | TIMESTAMP NULLABLE | |
+
+> **Constraint:** `UNIQUE (atleta_id) WHERE estado = 'PENDIENTE'` — evita más de una solicitud pendiente por atleta.
+
+### Tabla `checkins_peso`
+
+Registros de peso enviados por el atleta en respuesta a una solicitud.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `solicitud_id` | UUID FK → checkins_peso_solicitudes | Solicitud que originó este registro |
+| `atleta_id` | UUID FK → atletas | |
+| `peso_kg` | DECIMAL(5,2) | Entre 30 y 300 |
+| `fecha` | DATE | Fecha del registro (`YYYY-MM-DD`) |
+
+### Tabla `notas_nutricionista`
+
+Notas generales que el nutricionista deja al atleta (visibles en el tab DIETA).
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `entrenador_id` | UUID FK → entrenadores | Nutricionista que la escribió |
+| `atleta_id` | UUID FK → atletas | |
+| `texto` | TEXT | |
+| `fecha` | DATE | |
+| `creada_en` | TIMESTAMP | |
+
+### Tabla `hilos_ejercicio`
+
+Un hilo por combinación (atleta, ejercicio de su rutina activa). Se crea la primera vez que el atleta abre un ejercicio.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `atleta_id` | UUID FK → atletas | |
+| `ejercicio_en_sesion_id` | UUID FK → ejercicios_en_sesion | Ejercicio concreto de la rutina |
+| `creado_en` | TIMESTAMP | |
+
+> **Constraint:** `UNIQUE (atleta_id, ejercicio_en_sesion_id)`
+>
+> Para resolver la clave (`sesionDia`, `ejercicioNombre`) del frontend a un `ejercicio_en_sesion_id`, el backend debe buscar en la rutina activa del atleta la sesión con `sesiones_rutina.nombre = sesionDia` y el ejercicio con `ejercicios_en_sesion.ejercicio_nombre = ejercicioNombre`.
+
+### Tabla `media_hilo`
+
+Fotos y vídeos subidos por el atleta a un hilo de ejercicio. Almacenados en S3.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `hilo_id` | UUID FK → hilos_ejercicio | |
+| `tipo` | ENUM | `foto`, `video` |
+| `url_s3` | TEXT | URL privada en S3 |
+| `fecha` | DATE | |
+| `subido_en` | TIMESTAMP | |
+
+### Tabla `mensajes_hilo`
+
+Mensajes de texto del hilo de un ejercicio (atleta ↔ entrenador).
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `hilo_id` | UUID FK → hilos_ejercicio | |
+| `usuario_id` | UUID FK → usuarios | Quien lo envió |
+| `texto` | TEXT | |
+| `es_atleta` | BOOLEAN | `true` si lo envió el atleta, `false` si el entrenador |
+| `autor` | VARCHAR(255) | Nombre del autor (snapshot) |
+| `enviado_en` | TIMESTAMP | |
+| `fecha` | DATE | Derivada de `enviado_en` (para el frontend) |
+
+### Tabla `mensajes_chat`
+
+Mensajes del chat general atleta ↔ entrenador/nutricionista.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `asignacion_id` | UUID FK → asignaciones | Identifica la relación entrenador-atleta-servicio |
+| `usuario_id` | UUID FK → usuarios | Quien lo envió |
+| `texto` | TEXT | |
+| `es_atleta` | BOOLEAN | `true` si lo envió el atleta |
+| `autor` | VARCHAR(255) | Nombre del autor (snapshot) |
+| `enviado_en` | TIMESTAMP | |
+| `fecha` | DATE | Derivada de `enviado_en` |
+
+> El `tipo` ('entrenador' o 'nutricionista') que envía el frontend se resuelve a un `asignacion_id` buscando en `asignaciones` por `(atleta_id, servicio)` donde `servicio = 'ENTRENAMIENTO'` para 'entrenador' y `servicio = 'NUTRICION'` para 'nutricionista'.
+
 ### Tabla `rutinas`
 
 | Campo | Tipo | Notas |
@@ -1333,9 +1967,20 @@ SENDGRID_API_KEY=...
     - Migraciones: `recetas`, `ingredientes_receta`, `alimentos_recientes`
 12. **Módulo Entrenamiento** — rutinas (sección 3.13)
     - Migraciones: `rutinas`, `sesiones_rutina`, `ejercicios_en_sesion`
-13. **Módulo Atleta** — perfil y planes activos (sección 3.14)
-13. **Rate limiting + seguridad adicional**
-14. **Tests de integración** para todos los endpoints
+13. **Módulo Atleta — bloque 1:** perfil, plan activo entrenamiento, plan activo nutrición, notas nutricionista (secciones 3.14.1–3.14.3)
+14. **Módulo Atleta — bloque 2:** check-in de peso (solicitud entrenador + registro atleta + historial) (sección 3.14.4–3.14.5)
+    - Migraciones: `checkins_peso_solicitudes`, `checkins_peso`
+15. **Módulo Atleta — bloque 3:** hilo de ejercicio con media S3 (sección 3.14.6)
+    - Migraciones: `hilos_ejercicio`, `media_hilo`, `mensajes_hilo`
+16. **Módulo Atleta — bloque 4:** chat general atleta ↔ entrenador/nutricionista (sección 3.14.7)
+    - Migración: `mensajes_chat`
+17. **Módulo Atleta — bloque 5:** ajustes de cuenta (cambiar contraseña) (sección 3.14.8)
+18. **Módulo Atleta — bloque 6:** profesionales asignados + hilo de comida (secciones 3.14.9–3.14.10)
+    - Migración: `mensajes_hilo_comida`; campo `descripcion` en `entrenadores` si no existe
+19. **Notas nutricionista** (escritura desde el dashboard del entrenador)
+    - Migración: `notas_nutricionista`
+19. **Rate limiting + seguridad adicional**
+20. **Tests de integración** para todos los endpoints
 
 ---
 
@@ -1347,6 +1992,15 @@ SENDGRID_API_KEY=...
 - **Recetas:** se almacenan en backend (sección 3.15). El frontend llama a `GET /nutricion/recetas` al cargar el picker y `POST /nutricion/recetas` al guardar. La migración desde `localStorage` es responsabilidad del frontend al conectar con la API real.
 - **Alimentos recientes:** se almacenan en backend (sección 3.16). El frontend llama a `POST /nutricion/recientes` cada vez que añade un alimento a una comida, y `GET /nutricion/recientes?comida=<nombre>` para prellenar los recientes en el buscador.
 - **`tienePlanActivo` en `/entrenador/atletas`:** calcular en BBDD si el atleta tiene alguna rutina o plan de nutrición creado por este entrenador (JOIN con `rutinas` y `planes_nutricion`).
+- **`semanaActual` en plan de entrenamiento:** el frontend lo usa solo para mostrar "Semana 3/8". Se calcula como `FLOOR((CURRENT_DATE - rutinas.creado_en::date) / 7) + 1`, con un tope de `semanas`.
+- **Check-in de peso — flujo completo:** (1) entrenador llama a `POST /entrenador/atletas/:id/peso/solicitar` → (2) atleta ve el banner via `GET /atleta/peso/solicitud-pendiente` → (3) atleta registra con `POST /atleta/peso` pasando `solicitudId` → (4) backend marca la solicitud como `COMPLETADA` → (5) el banner desaparece (el endpoint devuelve `null`).
+- **Hilo de ejercicio — identificación:** el frontend envía `dia` (nombre del día: "Lunes", "Miércoles"…) y `ejercicio` (nombre exacto: "Press de banca"). El backend debe resolver esto a un `ejercicios_en_sesion.id` haciendo JOIN: `rutinas → sesiones_rutina (nombre = dia) → ejercicios_en_sesion (ejercicio_nombre = ejercicio)` filtrando por atleta y rutina activa. Si no existe el hilo todavía, crear un registro en `hilos_ejercicio` y devolver hilo vacío.
+- **Hilo de ejercicio — campo `notaEntrenador`:** se obtiene de `ejercicios_en_sesion.notas` de la rutina activa. No es un campo de `hilos_ejercicio`, es la nota que el entrenador escribió al crear el plan.
+- **Media del hilo:** las URLs devueltas por `GET /atleta/entrenamiento/hilo` deben ser pre-signed URLs de S3 con expiración corta (15 min). El frontend las usa directamente en `<img>` y `<video>`.
+- **Chat general — resolución del `tipo`:** el frontend envía `'entrenador'` o `'nutricionista'`. El backend resuelve al entrenador asignado: buscar en `asignaciones` por `atleta_id` del autenticado y `servicio = 'ENTRENAMIENTO'` (para tipo entrenador) o `servicio = 'NUTRICION'` (para tipo nutricionista). Si no hay asignación activa, devolver `400 CHAT_NO_DISPONIBLE`.
+- **Respuesta del chat — campo `autor`:** el frontend muestra el nombre del interlocutor tal como viene en `interlocutor` (nombre del entrenador/nutricionista). Para los mensajes, `autor` es el nombre del usuario que lo envió. El frontend muestra "Tú" cuando `esAtleta === true`, ignorando el campo `autor` del mensaje — pero debe estar en la respuesta para cuando el entrenador consulte el chat desde su dashboard.
+- **Cambio de contraseña del atleta:** `PUT /api/v1/atleta/password` — verificar `actual` contra el hash en BBDD antes de actualizar. El frontend valida que `nueva` tenga al menos 8 caracteres, pero el backend debe confirmarlo también.
+- **`cantidad` en alimentos del plan nutricional:** es un campo de texto libre (`string`), no un número. El nutricionista escribe "80 g", "1 unidad", "2 cucharadas". El backend lo almacena y devuelve tal cual, sin parsear ni validar el formato.
 
 ---
 
