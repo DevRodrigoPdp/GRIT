@@ -25,7 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class StorageService {
-
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 

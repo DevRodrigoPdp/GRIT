@@ -5,11 +5,9 @@ import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.enums.Rol;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
