@@ -34,30 +34,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException{
 
-        final String jwt;
-        final String userEmail;
-
-
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            filterChain.doFilter(request, response);
-            return;
+        // 1. Extraer JWT de la cookie de forma limpia
+        String jwt = null;
+        if (request.getCookies() != null) {
+            jwt = Arrays.stream(request.getCookies())
+                    .filter(cookie -> "access_token".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
         }
 
-        jwt = Arrays.stream(cookies)
-                .filter(cookie -> "access_token".equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
-
-        // Si no hay cookie, seguimos la cadena de filtros (dará 403 si el endpoint es protegido)
+        // 2. Si no hay token, delegar a Spring Security (él decidirá si permite el paso o no) [cite: 12]
         if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            userEmail = jwtUtils.extraerEmail(jwt);
+            String userEmail = jwtUtils.extraerEmail(jwt);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);

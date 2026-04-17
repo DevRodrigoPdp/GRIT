@@ -12,6 +12,7 @@ import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.repository.UsuarioRepository;
+import grit.sistema.backend.security.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -131,15 +132,24 @@ public class UsuarioService {
         String passwordWithPepper = loginDto.password() + pepper;
 
         var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.email(),
-                        passwordWithPepper)
+                new UsernamePasswordAuthenticationToken(loginDto.email(), passwordWithPepper)
         );
 
-        Usuario usuario = (Usuario) auth.getPrincipal();
+        // 2. Obtener el Principal (Adaptador)
+        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
 
-        LoginData data = usuarioMapper.toLoginData(usuario);
+        // 3. Construir la data de respuesta directamente del principal
+        // ¡Sin tocar la base de datos otra vez!
+        LoginData data = new LoginData(
+                principal.getRol().name(),
+                principal.getUsername(),
+                principal.getEstado().name(),
+                principal.isTieneTituloNutricion(),
+                principal.isTieneTituloEntrenamiento(),
+                principal.getServicio() != null ? principal.getServicio().name() : null
+        );
 
-        log.info("<<< Autenticación exitosa para: {}", usuario.getEmail());
+        log.info("<<< Autenticación exitosa para: {}", principal.getEmail());
 
         return new LoginResponseDTO(true, data);
     }

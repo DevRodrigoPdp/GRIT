@@ -33,7 +33,6 @@ public interface UsuarioMapper {
     @Mapping(target = "createdAt", ignore = true) // Auditoría protegida
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "estado", ignore = true)    // El estado se controla en Service
-    @Mapping(target = "authorities", ignore = true)
     // Ignorar campos de UserDetails
     Usuario toEntity(UsuarioDTO dto);
 
