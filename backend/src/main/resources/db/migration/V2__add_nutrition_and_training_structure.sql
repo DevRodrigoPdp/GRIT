@@ -56,11 +56,6 @@ CREATE TABLE alimentos_recientes (
                                      nombre_comida VARCHAR(100) NOT NULL,
                                      codigo_alimento VARCHAR(50) NOT NULL,
                                      nombre VARCHAR(255) NOT NULL,
-                                     marca VARCHAR(255),
-                                     kcal_por_100g DECIMAL(7,2),
-                                     proteinas_por_100g DECIMAL(7,2),
-                                     carbs_por_100g DECIMAL(7,2),
-                                     grasas_por_100g DECIMAL(7,2),
                                      usado_en TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                                      UNIQUE(usuario_id, nombre_comida, codigo_alimento)
 );
@@ -71,7 +66,6 @@ CREATE TABLE rutinas (
                          entrenador_id UUID NOT NULL REFERENCES entrenadores(usuario_id),
                          atleta_id UUID NOT NULL REFERENCES atletas(id),
                          nombre VARCHAR(255) NOT NULL,
-                         descripcion TEXT,
                          creado_en TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
