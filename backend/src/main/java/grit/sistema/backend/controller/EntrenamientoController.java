@@ -1,15 +1,24 @@
 package grit.sistema.backend.controller;
 
+import grit.sistema.backend.dto.ApiResponseDTO;
+import grit.sistema.backend.dto.training.RutinaDTO;
+import grit.sistema.backend.dto.training.RutinaRequestDTO;
+import grit.sistema.backend.dto.training.RutinaResponseDTO;
 import grit.sistema.backend.security.UserPrincipal;
+import grit.sistema.backend.service.EntrenamientoService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/entrenamiento")
@@ -18,12 +27,38 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('ENTRENADOR') and @auth.tieneTituloEntrenamiento()")
 @Slf4j
 public class EntrenamientoController {
+    private final EntrenamientoService entrenamientoService;
 
-    // Ejemplo de endpoint profesional
-    @PostMapping("/planes")
-    public ResponseEntity<Void> crearPlanNutricional() {
-        log.info("Entrenador {} creando plan nutricional");
-        // El servicio se encarga de la magia
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @Operation(summary = "Listar rutinas de entrenamiento")
+    @GetMapping("/rutinas")
+    public ResponseEntity<ApiResponseDTO<List<RutinaDTO>>> listarRutinas(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(required = false) UUID atletaId
+    ) {
+        log.info("Listando rutinas de entrenamiento para entrenador {} y atleta {}", principal.getEmail(), atletaId);
+        List<RutinaDTO> rutinas = entrenamientoService.listarRutinas(principal.getId(), atletaId);
+        return ResponseEntity.ok(ApiResponseDTO.success(rutinas, "Rutinas encontradas"));
+    }
+
+    @Operation(summary = "Crear rutina de entrenamiento")
+    @PostMapping("/rutinas")
+    public ResponseEntity<ApiResponseDTO<RutinaResponseDTO>> crearRutina(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody RutinaRequestDTO request
+    ) {
+        log.info("Creando rutina de entrenamiento para entrenador {} y atleta {}", principal.getEmail(), request.atletaId());
+        RutinaResponseDTO response = entrenamientoService.crearRutina(principal.getId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.success(response, "Rutina creada correctamente"));
+    }
+
+    @Operation(summary = "Eliminar rutina de entrenamiento")
+    @DeleteMapping("/rutinas/{id}")
+    public ResponseEntity<ApiResponseDTO<Void>> eliminarRutina(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id
+    ) {
+        log.info("Eliminando rutina {} por entrenador {}", id, principal.getEmail());
+        entrenamientoService.eliminarRutina(principal.getId(), id);
+        return ResponseEntity.ok(ApiResponseDTO.success(null, "Rutina eliminada correctamente"));
     }
 }
