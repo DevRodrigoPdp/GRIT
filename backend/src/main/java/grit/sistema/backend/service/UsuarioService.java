@@ -50,7 +50,9 @@ public class UsuarioService {
     }
 
     public UsuarioDTO findByEmail(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuario no encontrado con el email: " + email));
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con el email: " + email));
+
 
         return usuarioMapper.toDTO(usuario);
     }
