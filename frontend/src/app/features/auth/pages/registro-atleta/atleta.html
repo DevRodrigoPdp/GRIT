@@ -396,7 +396,63 @@
           }
         </div>
 
-        <!-- ── 04: Objetivo (solo si incluye entrenamiento) ── -->
+        <!-- ── 04: Lesiones previas (solo si incluye entrenamiento) ── -->
+        <div
+          class="overflow-hidden transition-all duration-500 ease-in-out"
+          [style.max-height]="mostrarLesiones ? '400px' : '0'"
+          [style.opacity]="mostrarLesiones ? '1' : '0'"
+          [style.margin-bottom]="mostrarLesiones ? '' : '0'"
+        >
+          <div class="mb-12">
+            <div class="flex items-center gap-3 mb-8 border-b border-[#E5E7EB] pb-4">
+              <span class="text-4xl font-extrabold text-[#F3F4F6] leading-none select-none">04</span>
+              <span class="text-xs font-bold tracking-[0.3em] uppercase text-black">LESIONES PREVIAS</span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                ¿Tienes o has tenido alguna lesión relevante?
+                <span class="text-gray-400 font-normal normal-case tracking-normal ml-1">(opcional)</span>
+              </label>
+              <textarea
+                formControlName="lesiones"
+                placeholder="Ej. Rotura de ligamento cruzado (2022), tendinitis en hombro derecho..."
+                rows="3"
+                class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D] resize-none"
+              ></textarea>
+              <p class="text-xs font-light text-gray-400">Tu entrenador adaptará los ejercicios a tu historial de lesiones.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 05: Alergias e intolerancias (solo si incluye nutrición) ── -->
+        <div
+          class="overflow-hidden transition-all duration-500 ease-in-out"
+          [style.max-height]="mostrarAlergias ? '400px' : '0'"
+          [style.opacity]="mostrarAlergias ? '1' : '0'"
+          [style.margin-bottom]="mostrarAlergias ? '' : '0'"
+        >
+          <div class="mb-12">
+            <div class="flex items-center gap-3 mb-8 border-b border-[#E5E7EB] pb-4">
+              <span class="text-4xl font-extrabold text-[#F3F4F6] leading-none select-none">05</span>
+              <span class="text-xs font-bold tracking-[0.3em] uppercase text-black">ALERGIAS E INTOLERANCIAS</span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                ¿Tienes alguna alergia o intolerancia alimentaria?
+                <span class="text-gray-400 font-normal normal-case tracking-normal ml-1">(opcional)</span>
+              </label>
+              <textarea
+                formControlName="alergias"
+                placeholder="Ej. Intolerancia a la lactosa, alergia al gluten, frutos secos..."
+                rows="3"
+                class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D] resize-none"
+              ></textarea>
+              <p class="text-xs font-light text-gray-400">Tu nutricionista las tendrá en cuenta al diseñar tu plan.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 05: Objetivo (solo si incluye entrenamiento) ── -->
         <div
           class="overflow-hidden transition-all duration-500 ease-in-out"
           [style.max-height]="mostrarObjetivo ? '600px' : '0'"
@@ -405,7 +461,7 @@
         >
           <div class="mb-12">
             <div class="flex items-center gap-3 mb-8 border-b border-[#E5E7EB] pb-4">
-              <span class="text-4xl font-extrabold text-[#F3F4F6] leading-none select-none">04</span>
+              <span class="text-4xl font-extrabold text-[#F3F4F6] leading-none select-none">06</span>
               <span class="text-xs font-bold tracking-[0.3em] uppercase text-black">OBJETIVO PRINCIPAL</span>
             </div>
 
