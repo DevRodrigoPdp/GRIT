@@ -17,6 +17,8 @@ export interface PerfilAtleta {
   nivel: 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE';
   servicio: 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
   objetivo: 'RENDIMIENTO' | 'MASA_MUSCULAR' | 'PERDER_PESO' | 'SALUD' | 'RESISTENCIA' | null;
+  alergias: string[];
+  lesiones: string[];
 }
 
 
@@ -191,6 +193,8 @@ const MOCK_PERFIL: PerfilAtleta = {
   nivel: 'AVANZADO',
   servicio: 'AMBOS',
   objetivo: 'RENDIMIENTO',
+  alergias: ['Intolerancia a la lactosa'],
+  lesiones: ['Tendinitis hombro derecho (2023)'],
 };
 
 const MOCK_PLAN_ENTRENAMIENTO: PlanEntrenamiento = {

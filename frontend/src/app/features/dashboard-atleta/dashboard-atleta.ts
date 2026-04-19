@@ -78,6 +78,57 @@ export class DashboardAtletaPage implements OnInit {
 
 
 
+  // ── Alergias / lesiones ───────────────────────────────────────────────────
+  readonly nuevaAlergia       = signal('');
+  readonly nuevaLesion        = signal('');
+  readonly codigoEntrenador   = signal('');
+  readonly enviandoCodigo     = signal(false);
+  readonly codigoError        = signal('');
+  readonly codigoExito        = signal(false);
+
+  conectarConCodigo(): void {
+    const codigo = this.codigoEntrenador().trim().toUpperCase();
+    if (!codigo) return;
+    this.enviandoCodigo.set(true);
+    this.codigoError.set('');
+    this.codigoExito.set(false);
+    // TODO: conectar con POST /api/v1/atleta/conectar { codigo }
+    setTimeout(() => {
+      this.enviandoCodigo.set(false);
+      this.codigoError.set('Código no válido o ya utilizado.');
+    }, 800);
+  }
+
+  agregarAlergia(): void {
+    const texto = this.nuevaAlergia().trim();
+    if (!texto) return;
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, alergias: [...p.alergias, texto] });
+    this.nuevaAlergia.set('');
+  }
+
+  eliminarAlergia(idx: number): void {
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, alergias: p.alergias.filter((_, i) => i !== idx) });
+  }
+
+  agregarLesion(): void {
+    const texto = this.nuevaLesion().trim();
+    if (!texto) return;
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, lesiones: [...p.lesiones, texto] });
+    this.nuevaLesion.set('');
+  }
+
+  eliminarLesion(idx: number): void {
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, lesiones: p.lesiones.filter((_, i) => i !== idx) });
+  }
+
   // ── Ajustes ───────────────────────────────────────────────────────────────
   readonly passActual = signal('');
   readonly passNueva = signal('');

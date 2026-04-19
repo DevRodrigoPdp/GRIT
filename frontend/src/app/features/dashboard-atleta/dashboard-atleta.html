@@ -159,7 +159,12 @@
                       class="w-full flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors"
                       [class]="activo ? 'bg-black' : (ej.notas ? 'hover:bg-[#F9FAFB] cursor-pointer' : 'cursor-default')"
                     >
-                      <span class="text-sm leading-tight" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                      <div class="min-w-0">
+                        <span class="text-sm leading-tight block" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                        @if (ej.notas && !activo) {
+                          <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● nota</span>
+                        }
+                      </div>
                       <div class="flex-shrink-0 text-right">
                         <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
                         @if (ej.descanso) { <span class="text-[10px] text-gray-400">{{ ej.descanso }}</span> }
@@ -176,7 +181,6 @@
               </div>
             }
           </div>
-
         </div>
 
         @if (historialPesos().length > 0) {
@@ -627,6 +631,102 @@
             </div>
           </div>
         }
+
+        <!-- Alergias e intolerancias -->
+        @if (auth.servicio() === 'NUTRICION' || auth.servicio() === 'AMBOS') {
+          <div class="mb-8">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">ALERGIAS E INTOLERANCIAS</p>
+            <div class="border border-[#E5E7EB] p-5">
+              <div class="flex flex-wrap gap-2 mb-4">
+                @for (alergia of perfilAtleta()!.alergias; track $index; let i = $index) {
+                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
+                    <span class="text-xs font-medium text-black">{{ alergia }}</span>
+                    <button (click)="eliminarAlergia(i)"
+                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                  </div>
+                }
+                @if (perfilAtleta()!.alergias.length === 0) {
+                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                }
+              </div>
+              <div class="flex gap-2">
+                <input
+                  [value]="nuevaAlergia()"
+                  (input)="nuevaAlergia.set($any($event.target).value)"
+                  (keydown.enter)="agregarAlergia()"
+                  placeholder="Añadir alergia o intolerancia..."
+                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
+                />
+                <button (click)="agregarAlergia()" [disabled]="!nuevaAlergia().trim()"
+                  class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  AÑADIR
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Lesiones previas -->
+        @if (auth.servicio() === 'ENTRENAMIENTO' || auth.servicio() === 'AMBOS') {
+          <div class="mb-8">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">LESIONES PREVIAS</p>
+            <div class="border border-[#E5E7EB] p-5">
+              <div class="flex flex-wrap gap-2 mb-4">
+                @for (lesion of perfilAtleta()!.lesiones; track $index; let i = $index) {
+                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
+                    <span class="text-xs font-medium text-black">{{ lesion }}</span>
+                    <button (click)="eliminarLesion(i)"
+                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                  </div>
+                }
+                @if (perfilAtleta()!.lesiones.length === 0) {
+                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                }
+              </div>
+              <div class="flex gap-2">
+                <input
+                  [value]="nuevaLesion()"
+                  (input)="nuevaLesion.set($any($event.target).value)"
+                  (keydown.enter)="agregarLesion()"
+                  placeholder="Añadir lesión previa..."
+                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
+                />
+                <button (click)="agregarLesion()" [disabled]="!nuevaLesion().trim()"
+                  class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  AÑADIR
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Conectar con profesional -->
+        <div class="mb-8">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">CONECTAR CON PROFESIONAL</p>
+          <div class="border border-[#E5E7EB] p-5">
+            <p class="text-sm font-light text-gray-400 mb-4">Si tu entrenador o nutricionista te ha dado un código, introdúcelo aquí para conectar.</p>
+            <div class="flex gap-2">
+              <input
+                [value]="codigoEntrenador()"
+                (input)="codigoEntrenador.set($any($event.target).value.toUpperCase()); codigoError.set(''); codigoExito.set(false)"
+                (keydown.enter)="conectarConCodigo()"
+                placeholder="Ej. GRIT-A1B2C3"
+                class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-mono font-medium placeholder:text-gray-300 placeholder:font-light outline-none focus:border-black transition-colors bg-transparent uppercase"
+              />
+              <button (click)="conectarConCodigo()"
+                [disabled]="!codigoEntrenador().trim() || enviandoCodigo()"
+                class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
+                @if (enviandoCodigo()) { CONECTANDO... } @else { CONECTAR }
+              </button>
+            </div>
+            @if (codigoError()) {
+              <p class="text-xs font-bold text-red-400 mt-2">{{ codigoError() }}</p>
+            }
+            @if (codigoExito()) {
+              <p class="text-xs font-bold text-[#2ED38D] mt-2">● Conectado correctamente</p>
+            }
+          </div>
+        </div>
 
         <!-- Mis profesionales -->
         @if (profesionales().length > 0) {
