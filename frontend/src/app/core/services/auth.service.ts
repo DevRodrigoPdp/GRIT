@@ -269,8 +269,8 @@ export class AuthService {
   private redirigir(
     rol: Rol,
     estado: EstadoCuenta,
-    tituloEntrenamiento: boolean | null,
-    tituloNutricion: boolean | null
+    _tituloEntrenamiento: boolean | null,
+    _tituloNutricion: boolean | null
   ) {
     if (estado === 'PENDIENTE_REVISION') {
       this.router.navigate(['/pendiente']);
@@ -285,13 +285,7 @@ export class AuthService {
       return;
     }
     if (rol === 'ENTRENADOR') {
-      if (tituloEntrenamiento && tituloNutricion) {
-        this.router.navigate(['/dashboard/entrenador/nutricion']);
-      } else if (tituloNutricion) {
-        this.router.navigate(['/dashboard/entrenador/solo-nutricion']);
-      } else {
-        this.router.navigate(['/dashboard/entrenador']);
-      }
+      this.router.navigate(['/dashboard/entrenador']);
       return;
     }
     if (rol === 'ADMIN') {
