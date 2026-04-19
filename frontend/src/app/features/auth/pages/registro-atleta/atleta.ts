@@ -87,8 +87,9 @@ export class AtletaPage implements OnInit {
       nivel:     ['', Validators.required],
       objetivo:  ['', Validators.required],
       servicio:  ['', Validators.required],
-      alergias:  [''],
-      lesiones:  [''],
+      alergias:       [''],
+      lesiones:       [''],
+      codigoEntrenador: [''],
     }, { validators: [this.passwordMatchValidator, this.imcValidator] });
   }
 
