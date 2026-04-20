@@ -28,6 +28,9 @@ public class Rutina {
     @Column(nullable = false)
     private String nombre;
 
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
+
     @Column(name = "creado_en", updatable = false)
     private OffsetDateTime creadoEn = OffsetDateTime.now();
 

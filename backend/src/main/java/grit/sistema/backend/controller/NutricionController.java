@@ -1,14 +1,28 @@
 package grit.sistema.backend.controller;
 
+import grit.sistema.backend.dto.ApiResponseDTO;
+import grit.sistema.backend.dto.nutrition.AlimentoRecienteDTO;
+import grit.sistema.backend.dto.nutrition.AlimentoRecienteRequestDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
+import grit.sistema.backend.dto.nutrition.RecetaRequestDTO;
+import grit.sistema.backend.dto.nutrition.RecetaResponseDTO;
+import grit.sistema.backend.security.UserPrincipal;
+import grit.sistema.backend.service.NutricionService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/nutricion")
@@ -17,11 +31,92 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('ENTRENADOR') and @auth.tieneTituloNutricion()")
 @Slf4j
 public class NutricionController {
-    // Ejemplo de endpoint profesional
+    private final NutricionService nutricionService;
+
+    @Operation(summary = "Listar planes de nutrición")
+    @GetMapping("/planes")
+    public ResponseEntity<ApiResponseDTO<List<PlanNutricionDTO>>> listarPlanes(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(required = false) UUID atletaId
+    ) {
+        log.info("Listando planes de nutrición para entrenador {} y atleta {}", principal.getEmail(), atletaId);
+        List<PlanNutricionDTO> planes = nutricionService.listarPlanes(principal.getId(), atletaId);
+        return ResponseEntity.ok(ApiResponseDTO.success(planes, "Planes de nutrición encontrados"));
+    }
+
+    @Operation(summary = "Crear plan de nutrición")
     @PostMapping("/planes")
-    public ResponseEntity<Void> crearPlanNutricional() {
-        log.info("Entrenador {} creando plan nutricional");
-        // El servicio se encarga de la magia
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<ApiResponseDTO<PlanNutricionResponseDTO>> crearPlan(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody PlanNutricionRequestDTO request
+    ) {
+        log.info("Creando plan de nutrición para entrenador {} y atleta {}", principal.getEmail(), request.atletaId());
+        PlanNutricionResponseDTO response = nutricionService.crearPlan(principal.getId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.success(response, "Plan de nutrición creado correctamente"));
+    }
+
+    @Operation(summary = "Eliminar plan de nutrición")
+    @DeleteMapping("/planes/{id}")
+    public ResponseEntity<ApiResponseDTO<Void>> eliminarPlan(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id
+    ) {
+        log.info("Eliminando plan de nutrición {} por entrenador {}", id, principal.getEmail());
+        nutricionService.eliminarPlan(principal.getId(), id);
+        return ResponseEntity.ok(ApiResponseDTO.success(null, "Plan de nutrición eliminado correctamente"));
+    }
+
+    @Operation(summary = "Listar recetas de nutrición")
+    @GetMapping("/recetas")
+    public ResponseEntity<ApiResponseDTO<List<RecetaResponseDTO>>> listarRecetas(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        log.info("Listando recetas de nutrición para entrenador {}", principal.getEmail());
+        List<RecetaResponseDTO> recetas = nutricionService.listarRecetas(principal.getId());
+        return ResponseEntity.ok(ApiResponseDTO.success(recetas, "Recetas encontradas"));
+    }
+
+    @Operation(summary = "Crear receta de nutrición")
+    @PostMapping("/recetas")
+    public ResponseEntity<ApiResponseDTO<RecetaResponseDTO>> crearReceta(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody RecetaRequestDTO request
+    ) {
+        log.info("Creando receta de nutrición para entrenador {}: {}", principal.getEmail(), request.nombre());
+        RecetaResponseDTO receta = nutricionService.crearReceta(principal.getId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.success(receta, "Receta creada correctamente"));
+    }
+
+    @Operation(summary = "Eliminar receta de nutrición")
+    @DeleteMapping("/recetas/{id}")
+    public ResponseEntity<ApiResponseDTO<Void>> eliminarReceta(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id
+    ) {
+        log.info("Eliminando receta {} por entrenador {}", id, principal.getEmail());
+        nutricionService.eliminarReceta(principal.getId(), id);
+        return ResponseEntity.ok(ApiResponseDTO.success(null, "Receta eliminada correctamente"));
+    }
+
+    @Operation(summary = "Listar alimentos recientes por comida")
+    @GetMapping("/recientes")
+    public ResponseEntity<ApiResponseDTO<List<AlimentoRecienteDTO>>> listarRecientes(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam String comida
+    ) {
+        log.info("Listando alimentos recientes para entrenador {} y comida {}", principal.getEmail(), comida);
+        List<AlimentoRecienteDTO> recientes = nutricionService.listarAlimentosRecientes(principal.getId(), comida);
+        return ResponseEntity.ok(ApiResponseDTO.success(recientes, "Alimentos recientes encontrados"));
+    }
+
+    @Operation(summary = "Registrar alimento reciente")
+    @PostMapping("/recientes")
+    public ResponseEntity<ApiResponseDTO<Void>> registrarReciente(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody AlimentoRecienteRequestDTO request
+    ) {
+        log.info("Registrando alimento reciente para entrenador {} y comida {}", principal.getEmail(), request.nombreComida());
+        nutricionService.registrarAlimentoReciente(principal.getId(), request);
+        return ResponseEntity.ok(ApiResponseDTO.success(null, "Alimento reciente registrado correctamente"));
     }
 }

@@ -21,7 +21,7 @@ public class AlimentoReciente {
 
 
     @Column(name = "usuario_id", nullable = false)
-    private UUID usuario;
+    private UUID usuarioId;
 
     @Column(name = "nombre_comida", nullable = false, length = 100)
     private String nombreComida;
@@ -31,6 +31,20 @@ public class AlimentoReciente {
 
     @Column(nullable = false)
     private String nombre;
+
+    private String marca;
+
+    @Column(name = "kcal_por_100g", precision = 7, scale = 2)
+    private java.math.BigDecimal kcalPor100g;
+
+    @Column(name = "proteinas_por_100g", precision = 7, scale = 2)
+    private java.math.BigDecimal proteinasPor100g;
+
+    @Column(name = "carbs_por_100g", precision = 7, scale = 2)
+    private java.math.BigDecimal carbsPor100g;
+
+    @Column(name = "grasas_por_100g", precision = 7, scale = 2)
+    private java.math.BigDecimal grasasPor100g;
 
     @Column(name = "usado_en")
     private OffsetDateTime usadoEn = OffsetDateTime.now();
