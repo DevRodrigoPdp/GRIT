@@ -2273,3 +2273,53 @@ SENDGRID_API_KEY=...
 
 ---
 
+## 11. Base de Datos de Alimentos Propia *(opción futura)*
+
+Actualmente el frontend busca alimentos en **USDA FoodData Central** (API pública gratuita) con traducción automática ES→EN via MyMemory. Funciona bien para alimentos genéricos deportivos, pero tiene limitaciones:
+
+- Nombres solo en inglés — la traducción automática puede fallar
+- Alimentos españoles típicos no existen en USDA (jamón, chorizo, tortilla…)
+- Dependencia de un servicio externo (rate limits, posibles cambios de API)
+
+### Propuesta: tabla `alimentos_grit` propia
+
+A medio-largo plazo, GRIT puede construir su propia base de datos de alimentos en PostgreSQL, poblada inicialmente con datos de USDA + Open Food Facts y enriquecida por los propios nutricionistas de la plataforma.
+
+**BBDD — tabla `alimentos_grit`:**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `nombre` | VARCHAR(255) | En español, verificado |
+| `nombre_en` | VARCHAR(255) NULLABLE | Nombre original en inglés si viene de USDA |
+| `marca` | VARCHAR(255) NULLABLE | Null si es alimento genérico |
+| `kcal_por_100g` | DECIMAL(7,2) | |
+| `proteinas_por_100g` | DECIMAL(7,2) | |
+| `carbs_por_100g` | DECIMAL(7,2) | |
+| `grasas_por_100g` | DECIMAL(7,2) | |
+| `fuente` | ENUM | `USDA`, `OPEN_FOOD_FACTS`, `MANUAL` |
+| `codigo_barras` | VARCHAR(50) NULLABLE | Para productos envasados (EAN-13) |
+| `creado_por` | UUID FK → usuarios NULLABLE | Si lo añadió un nutricionista manualmente |
+| `verificado` | BOOLEAN | `true` si ha sido revisado por un nutricionista |
+| `creado_en` | TIMESTAMP | |
+
+**Endpoints asociados:**
+
+```
+GET  /api/v1/nutricion/alimentos?q=<texto>   — búsqueda por nombre (reemplaza a USDA)
+POST /api/v1/nutricion/alimentos             — el nutricionista añade un alimento manual
+PUT  /api/v1/nutricion/alimentos/:id         — corregir macros de un alimento existente
+```
+
+**Estrategia de migración:**
+
+1. Poblar la tabla con un script que importe los alimentos más comunes de USDA (Foundation + SR Legacy) traducidos al español
+2. Importar alimentos españoles desde Open Food Facts filtrando por país `es`
+3. El frontend sigue usando la misma interfaz `AlimentoOFF` — solo cambia la URL del endpoint de búsqueda
+4. Los nutricionistas pueden añadir alimentos nuevos desde el buscador del dashboard cuando no encuentren lo que buscan
+5. Con el tiempo la base crece con los alimentos reales que usan los clientes de GRIT
+
+> **Prioridad:** baja — USDA cubre perfectamente la nutrición deportiva estándar. Implementar cuando haya suficientes nutricionistas activos que demanden alimentos no disponibles en USDA.
+
+---
+
