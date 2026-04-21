@@ -39,6 +39,15 @@ public class EntrenadorRequestDTO {
 
     private TitulacionNutricion titulacionNutricion;
 
+    @Min(value = 0, message = "Los años de experiencia no pueden ser negativos")
+    @Max(value = 50, message = "Años de experiencia fuera de rango")
+    @Schema(example = "5", description = "Años de experiencia en el sector")
+    private Short experienciaAnos;
+
+    @Size(max = 2000, message = "La descripción no puede superar los 2000 caracteres")
+    @Schema(example = "Especialista en entrenamiento de fuerza y rehabilitación...", description = "Breve biografía profesional")
+    private String descripcion;
+
     @NotEmpty(message = "Debes adjuntar al menos un documento de identidad o titulación")
     private List<MultipartFile> documentos;
 }

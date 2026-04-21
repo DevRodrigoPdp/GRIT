@@ -23,7 +23,11 @@ public interface EntrenadorMapper {
     @Mapping(target = "documentos", source = "urls", qualifiedByName = "mapUrlsToDocumentos")
     @Mapping(target = "estadoRevision", constant = "PENDIENTE_REVISION")
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "password", ignore = true) // Lo hacemos en el Service por seguridad
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "rol", ignore = true)
+    @Mapping(target = "estado", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Entrenador toEntity(EntrenadorRequestDTO request, List<String> urls);
 
     // 2. De Entidad a ResponseDTO (Lectura)
