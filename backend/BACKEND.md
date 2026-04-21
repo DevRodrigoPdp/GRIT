@@ -770,7 +770,7 @@ Elimina un plan de nutrición. Solo puede borrarlo el entrenador que lo creó.
 
 ---
 
-**`PATCH /api/v1/nutricion/planes/:id/activar`**
+**`PUT /api/v1/nutricion/planes/:id/activar`**
 
 Marca un plan de nutrición como activo para el atleta. Desactiva automáticamente cualquier otro plan activo del mismo atleta creado por este entrenador.
 
@@ -885,7 +885,7 @@ Elimina una rutina. Solo puede borrarla el entrenador que la creó.
 
 ---
 
-**`PATCH /api/v1/entrenamiento/rutinas/:id/activar`**
+**`PUT /api/v1/entrenamiento/rutinas/:id/activar`**
 
 Marca una rutina como activa para el atleta. Desactiva automáticamente cualquier otra rutina activa del mismo atleta creada por este entrenador.
 
