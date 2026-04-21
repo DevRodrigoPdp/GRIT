@@ -50,13 +50,20 @@
             <div class="w-6 h-6 border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
               <span class="text-[10px] font-bold text-gray-300">03</span>
             </div>
+            <span class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300">Perfil profesional</span>
+          </div>
+          <div class="w-px h-4 bg-[#E5E7EB] ml-3"></div>
+          <div class="flex items-center gap-4">
+            <div class="w-6 h-6 border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
+              <span class="text-[10px] font-bold text-gray-300">04</span>
+            </div>
             <span class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300">Documentación</span>
           </div>
         </div>
       </div>
 
       <div class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300">
-        PASO 02 / 03
+        PASO 03 / 04
       </div>
     </aside>
 
@@ -305,10 +312,111 @@
           </div>
         </div>
 
-        <!-- ── SECCIÓN 03: Documentación ── -->
+        <!-- ── SECCIÓN 03: Perfil profesional ── -->
         <div class="mb-12">
           <div class="flex items-center gap-3 mb-8 border-b border-[#E5E7EB] pb-4">
             <span class="text-4xl font-extrabold text-[#F3F4F6] leading-none select-none">03</span>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase text-black">PERFIL PROFESIONAL</span>
+          </div>
+
+          <div class="flex flex-col gap-6">
+
+            <!-- Años de experiencia -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                Años de experiencia
+                <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
+              </label>
+              <input
+                type="number"
+                formControlName="anosExperiencia"
+                placeholder="Ej. 5"
+                min="0"
+                max="50"
+                class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
+                [class.border-red-400]="fieldError('anosExperiencia')"
+              />
+              @if (fieldError('anosExperiencia')) {
+                <span class="text-xs font-bold text-red-400 tracking-wide">Introduce un valor entre 0 y 50</span>
+              } @else {
+                <span class="text-xs font-light text-gray-400 tracking-wide">Años ejerciendo como profesional del deporte o la nutrición.</span>
+              }
+            </div>
+
+            <!-- Sobre mí -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                Sobre mí
+                <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
+              </label>
+              <textarea
+                formControlName="sobreMi"
+                placeholder="Cuéntanos brevemente en qué te especializas, con qué tipo de atletas trabajas y cuál es tu enfoque..."
+                rows="4"
+                class="w-full border border-[#E5E7EB] bg-transparent p-3 text-sm font-medium text-black placeholder-gray-300 outline-none resize-none transition-colors duration-200 focus:border-black"
+                [class.border-red-400]="fieldError('sobreMi')"
+              ></textarea>
+              <div class="flex items-center justify-between">
+                @if (fieldError('sobreMi')) {
+                  <span class="text-xs font-bold text-red-400 tracking-wide">Máximo 500 caracteres</span>
+                } @else {
+                  <span class="text-xs font-light text-gray-400 tracking-wide">Esta presentación será visible para los atletas en su perfil.</span>
+                }
+                <span class="text-xs text-gray-300 flex-shrink-0 ml-2">{{ (form.get('sobreMi')?.value?.length ?? 0) }}/500</span>
+              </div>
+            </div>
+
+            <!-- Másteres y formación adicional -->
+            <div class="flex flex-col gap-3">
+              <div>
+                <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                  Másteres y formación adicional
+                  <span class="text-gray-400 font-light normal-case tracking-normal ml-1">(opcional)</span>
+                </label>
+                <p class="text-xs font-light text-gray-400 mt-1">Visible para los atletas en tu perfil. No habilita módulos.</p>
+              </div>
+
+              <!-- Campo libre -->
+              <div class="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Otro máster o curso especializado..."
+                  [value]="masterPersonalizado()"
+                  (input)="masterPersonalizado.set($any($event.target).value)"
+                  (keydown.enter)="$event.preventDefault(); agregarMasterPersonalizado()"
+                  class="flex-1 border-b border-[#E5E7EB] bg-transparent py-2 text-sm font-medium text-black placeholder-gray-300 outline-none focus:border-black transition-colors"
+                />
+                <button
+                  type="button"
+                  (click)="agregarMasterPersonalizado()"
+                  [disabled]="!masterPersonalizado().trim()"
+                  class="text-xs font-black tracking-[0.15em] uppercase transition-colors flex-shrink-0"
+                  [class]="masterPersonalizado().trim() ? 'text-black hover:text-[#2ED38D]' : 'text-gray-300 cursor-not-allowed'"
+                >
+                  + AÑADIR
+                </button>
+              </div>
+
+              <!-- Chips personalizados (los que no son sugerencias) -->
+              @if (mastersSeleccionados().size > 0) {
+                <div class="flex flex-wrap gap-1.5">
+                  @for (master of mastersSeleccionados(); track master) {
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 border border-black text-[10px] font-black tracking-[0.15em] uppercase bg-black text-white">
+                      {{ master }}
+                      <button type="button" (click)="eliminarMaster(master)" class="hover:text-[#2ED38D] transition-colors leading-none">✕</button>
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── SECCIÓN 04: Documentación ── -->
+        <div class="mb-12">
+          <div class="flex items-center gap-3 mb-8 border-b border-[#E5E7EB] pb-4">
+            <span class="text-4xl font-extrabold text-[#F3F4F6] leading-none select-none">04</span>
             <span class="text-xs font-bold tracking-[0.3em] uppercase text-black">DOCUMENTACIÓN</span>
           </div>
 

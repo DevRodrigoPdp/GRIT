@@ -147,142 +147,40 @@
         <div class="mb-12">
           <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">SESIONES DE LA SEMANA</p>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            @for (sesion of planEntrenamiento()!.sesiones; track sesion.dia) {
+            @for (sesion of planEntrenamiento()!.sesiones; track sesion.nombre) {
               <div class="border border-[#E5E7EB] p-5">
-                <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.dia }}</p>
+                <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.nombre }}</p>
                 <div class="flex flex-col gap-1">
                   @for (ej of sesion.ejercicios; track ej.nombre) {
-                    @let activo = ejercicioActivo()?.dia === sesion.dia && ejercicioActivo()?.nombre === ej.nombre;
+                    @let activo = ejercicioActivo()?.sesion === sesion.nombre && ejercicioActivo()?.nombre === ej.nombre;
                     <button
                       type="button"
-                      (click)="abrirEjercicio(sesion.dia, ej.nombre)"
-                      class="flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors rounded-sm"
-                      [class]="activo ? 'bg-black' : 'hover:bg-[#F9FAFB]'"
+                      (click)="toggleEjercicio(sesion.nombre, ej.nombre)"
+                      class="w-full flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors"
+                      [class]="activo ? 'bg-black' : (ej.notas ? 'hover:bg-[#F9FAFB] cursor-pointer' : 'cursor-default')"
                     >
-                      <span class="text-sm leading-tight" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                      <div class="min-w-0">
+                        <span class="text-sm leading-tight block" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                        @if (ej.notas && !activo) {
+                          <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● nota</span>
+                        }
+                      </div>
                       <div class="flex-shrink-0 text-right">
                         <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
-                        @if (ej.descanso) { <span class="text-[10px]" [class]="activo ? 'text-gray-400' : 'text-gray-400'">{{ ej.descanso }}</span> }
+                        @if (ej.descanso) { <span class="text-[10px] text-gray-400">{{ ej.descanso }}</span> }
                       </div>
                     </button>
+                    @if (activo && ej.notas) {
+                      <div class="px-3 py-3 -mx-3 bg-black border-t border-[#1a1a1a]">
+                        <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1.5">NOTA DEL ENTRENADOR</p>
+                        <p class="text-sm text-gray-300 leading-relaxed">{{ ej.notas }}</p>
+                      </div>
+                    }
                   }
                 </div>
               </div>
             }
           </div>
-
-          <!-- Hilo del ejercicio activo -->
-          @if (ejercicioActivo()) {
-            <div #hiloRef class="mt-6 border border-[#E5E7EB]">
-
-              <!-- Cabecera del hilo -->
-              <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-black">
-                <div>
-                  <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ ejercicioActivo()!.nombre }}</p>
-                  <p class="text-[10px] text-gray-400 mt-0.5">{{ ejercicioActivo()!.dia }}</p>
-                </div>
-                <button type="button" (click)="ejercicioActivo.set(null)" class="text-gray-400 hover:text-white transition-colors text-xs font-bold tracking-widest uppercase">
-                  CERRAR
-                </button>
-              </div>
-
-              @if (cargandoHilo()) {
-                <div class="px-5 py-8 flex items-center justify-center">
-                  <span class="text-xs text-gray-400 uppercase tracking-widest">Cargando...</span>
-                </div>
-              } @else if (hiloActivo()) {
-                @let hilo = hiloActivo()!;
-
-                <!-- Nota del entrenador -->
-                @if (hilo.notaEntrenador) {
-                  <div class="px-5 py-4 border-b border-[#E5E7EB] bg-[#F9FAFB]">
-                    <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-2">NOTA DEL ENTRENADOR</p>
-                    <p class="text-sm text-black leading-relaxed">{{ hilo.notaEntrenador }}</p>
-                  </div>
-                }
-
-                <!-- Media adjunta -->
-                <div class="px-5 py-4 border-b border-[#E5E7EB]">
-                  <div class="flex items-center gap-3 flex-wrap">
-                    @for (media of hilo.media; track media.id) {
-                      <div class="w-20 h-20 bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center relative overflow-hidden flex-shrink-0">
-                        @if (media.url) {
-                          @if (media.tipo === 'foto') {
-                            <img [src]="media.url" alt="Técnica" class="w-full h-full object-cover"/>
-                          } @else {
-                            <video [src]="media.url" class="w-full h-full object-cover"></video>
-                          }
-                        } @else {
-                          <div class="flex flex-col items-center gap-1">
-                            <span class="text-lg">{{ media.tipo === 'foto' ? '🖼' : '🎥' }}</span>
-                            <span class="text-[8px] text-gray-400 uppercase">{{ media.tipo }}</span>
-                          </div>
-                        }
-                        <span class="absolute bottom-0 left-0 right-0 text-[7px] font-bold text-center bg-black/50 text-white py-0.5">
-                          {{ formatFecha(media.fecha) }}
-                        </span>
-                      </div>
-                    }
-
-                    <!-- Botón adjuntar -->
-                    <label class="w-20 h-20 border border-dashed border-[#D1D5DB] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-black hover:bg-[#F9FAFB] transition-colors flex-shrink-0">
-                      <span class="text-lg text-gray-400">+</span>
-                      <span class="text-[8px] font-bold uppercase text-gray-400">ADJUNTAR</span>
-                      <input type="file" accept="image/*,video/*" class="hidden" (change)="adjuntarMediaHilo($event)"/>
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Mensajes -->
-                <div class="flex flex-col divide-y divide-[#F3F4F6] max-h-72 overflow-y-auto no-scrollbar">
-                  @if (hilo.mensajes.length === 0) {
-                    <div class="px-5 py-6 text-center">
-                      <p class="text-sm text-gray-400">Sin mensajes aún. Deja una nota sobre este ejercicio.</p>
-                    </div>
-                  }
-                  @for (msg of hilo.mensajes; track msg.id) {
-                    <div class="px-5 py-4 flex gap-3" [class]="msg.esAtleta ? 'flex-row-reverse' : ''">
-                      <div class="w-7 h-7 flex items-center justify-center flex-shrink-0 text-[9px] font-black text-white"
-                        [class]="msg.esAtleta ? 'bg-[#2ED38D]' : 'bg-black'">
-                        {{ msg.esAtleta ? 'TÚ' : msg.autor[0] }}
-                      </div>
-                      <div [class]="msg.esAtleta ? 'items-end' : 'items-start'" class="flex flex-col gap-0.5 max-w-[75%]">
-                        <div class="flex items-center gap-2">
-                          <span class="text-[10px] font-bold text-gray-400">{{ msg.esAtleta ? 'Tú' : msg.autor }}</span>
-                          <span class="text-[9px] text-gray-300">{{ formatFecha(msg.fecha) }}</span>
-                        </div>
-                        <p class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
-                          [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'">
-                          {{ msg.texto }}
-                        </p>
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <!-- Input mensaje -->
-                <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="Escribe un mensaje..."
-                    [value]="mensajeHiloInput()"
-                    (input)="mensajeHiloInput.set($any($event.target).value)"
-                    (keydown.enter)="enviarMensajeHilo()"
-                    class="flex-1 border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:border-black"
-                  />
-                  <button
-                    type="button"
-                    (click)="enviarMensajeHilo()"
-                    [disabled]="!mensajeHiloInput().trim() || enviandoMensajeHilo()"
-                    class="px-5 py-2 text-[10px] font-black tracking-[0.2em] uppercase transition-colors flex-shrink-0"
-                    [class]="mensajeHiloInput().trim() && !enviandoMensajeHilo() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
-                  >
-                    ENVIAR
-                  </button>
-                </div>
-              }
-            </div>
-          }
         </div>
 
         @if (historialPesos().length > 0) {
@@ -385,7 +283,7 @@
         @if (notasNutricionista().length > 0) {
           <div class="mb-10">
             <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">NOTAS DE TU NUTRICIONISTA</p>
-            <div class="flex flex-col gap-3 max-w-2xl">
+            <div class="flex flex-col gap-3">
               @for (nota of notasNutricionista(); track nota.id) {
                 <div class="border-l-2 border-[#2ED38D] pl-4 py-1">
                   <p class="text-sm text-black leading-relaxed">{{ nota.texto }}</p>
@@ -398,7 +296,7 @@
 
         <div class="mb-10">
           <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">COMIDAS DEL DÍA</p>
-          <div class="flex flex-col gap-4 max-w-2xl">
+          <div class="flex flex-col gap-4">
             @for (comida of planNutricion()!.comidas; track comida.nombre) {
               @let abierta = comidaActiva() === comida.nombre;
               <div class="border" [class]="abierta ? 'border-black' : 'border-[#E5E7EB]'">
@@ -449,61 +347,14 @@
                     }
                   </div>
 
-                  @if (cargandoHiloComida()) {
-                    <div class="px-5 py-6 flex items-center justify-center bg-white">
-                      <span class="text-xs text-gray-400 uppercase tracking-widest">Cargando...</span>
-                    </div>
-                  } @else if (hiloComidaActivo()) {
-                    @let hilo = hiloComidaActivo()!;
-
-                    <!-- Mensajes del hilo -->
-                    <div class="flex flex-col divide-y divide-[#F3F4F6] max-h-60 overflow-y-auto no-scrollbar bg-white">
-                      @if (hilo.mensajes.length === 0) {
-                        <div class="px-5 py-5 text-center">
-                          <p class="text-sm text-gray-400">Sin mensajes. Pregunta a tu nutricionista sobre esta comida.</p>
-                        </div>
-                      }
-                      @for (msg of hilo.mensajes; track msg.id) {
-                        <div class="px-5 py-3 flex gap-3" [class]="msg.esAtleta ? 'flex-row-reverse' : ''">
-                          <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 text-[8px] font-black text-white"
-                            [class]="msg.esAtleta ? 'bg-[#2ED38D]' : 'bg-black'">
-                            {{ msg.esAtleta ? 'TÚ' : msg.autor[0] }}
-                          </div>
-                          <div class="flex flex-col gap-0.5 max-w-[75%]" [class]="msg.esAtleta ? 'items-end' : 'items-start'">
-                            <div class="flex items-center gap-2">
-                              <span class="text-[10px] font-bold text-gray-400">{{ msg.esAtleta ? 'Tú' : msg.autor }}</span>
-                              <span class="text-[9px] text-gray-300">{{ formatFecha(msg.fecha) }}</span>
-                            </div>
-                            <p class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
-                              [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'">
-                              {{ msg.texto }}
-                            </p>
-                          </div>
-                        </div>
-                      }
-                    </div>
-
-                    <!-- Input mensaje -->
-                    <div class="px-5 py-3 border-t border-[#E5E7EB] flex items-center gap-3 bg-white">
-                      <input
-                        type="text"
-                        placeholder="Pregunta sobre esta comida..."
-                        [value]="mensajeHiloComidaInput()"
-                        (input)="mensajeHiloComidaInput.set($any($event.target).value)"
-                        (keydown.enter)="enviarMensajeHiloComida()"
-                        class="flex-1 border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:border-black"
-                      />
-                      <button
-                        type="button"
-                        (click)="enviarMensajeHiloComida()"
-                        [disabled]="!mensajeHiloComidaInput().trim() || enviandoMensajeHiloComida()"
-                        class="px-4 py-2 text-[10px] font-black tracking-[0.2em] uppercase transition-colors flex-shrink-0"
-                        [class]="mensajeHiloComidaInput().trim() && !enviandoMensajeHiloComida() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
-                      >
-                        ENVIAR
-                      </button>
+                  <!-- Nota del nutricionista -->
+                  @if (comida.notas) {
+                    <div class="px-5 py-4 border-b border-[#1a1a1a] bg-[#111]">
+                      <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-2">NOTA DE TU NUTRICIONISTA</p>
+                      <p class="text-sm text-gray-300 leading-relaxed">{{ comida.notas }}</p>
                     </div>
                   }
+
                 }
 
               </div>
@@ -512,7 +363,7 @@
         </div>
 
         @if (listaCompra().length > 0) {
-          <div class="max-w-2xl">
+          <div>
             <div class="flex items-center justify-between mb-5">
               <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">LISTA DE LA COMPRA</p>
               <span class="text-[10px] text-gray-400">{{ itemsCompraChecked().length }}/{{ listaCompra().length }}</span>
@@ -606,19 +457,83 @@
                       <span class="text-[10px] font-bold text-gray-400">{{ msg.esAtleta ? 'Tú' : msg.autor }}</span>
                       <span class="text-[9px] text-gray-300">{{ formatFecha(msg.fecha) }}</span>
                     </div>
-                    <p
-                      class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
-                      [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'"
-                    >
-                      {{ msg.texto }}
-                    </p>
+                    @if (msg.adjunto) {
+                      <div class="border border-[#E5E7EB] overflow-hidden max-w-[220px]"
+                        [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'">
+                        @if (msg.adjunto.tipo === 'foto') {
+                          <img [src]="msg.adjunto.url" [alt]="msg.adjunto.nombre"
+                            class="w-full max-h-48 object-cover block" />
+                        } @else {
+                          <video [src]="msg.adjunto.url" controls
+                            class="w-full max-h-48 block"></video>
+                        }
+                        @if (msg.texto) {
+                          <p class="text-sm text-black leading-snug px-3 py-2">{{ msg.texto }}</p>
+                        }
+                      </div>
+                    } @else {
+                      <p
+                        class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
+                        [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'"
+                      >
+                        {{ msg.texto }}
+                      </p>
+                    }
                   </div>
                 </div>
               }
             </div>
 
+            <!-- Preview adjunto -->
+            @if (adjuntoPendiente()) {
+              @let adj = adjuntoPendiente()!;
+              <div class="px-5 pt-3 flex items-start gap-3 border-t border-[#E5E7EB] flex-shrink-0">
+                <div class="relative w-20 h-20 flex-shrink-0 border border-[#E5E7EB] overflow-hidden bg-[#F9FAFB]">
+                  @if (adj.tipo === 'foto') {
+                    <img [src]="adj.url" class="w-full h-full object-cover" />
+                  } @else {
+                    <video [src]="adj.url" class="w-full h-full object-cover"></video>
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <span class="text-white text-xs font-black">▶</span>
+                    </div>
+                  }
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[10px] font-bold text-gray-400 truncate">{{ adj.nombre }}</p>
+                  <p class="text-[10px] uppercase font-black tracking-widest"
+                    [class]="adj.tipo === 'foto' ? 'text-[#2ED38D]' : 'text-black'">
+                    {{ adj.tipo }}
+                  </p>
+                </div>
+                <button type="button" (click)="quitarAdjunto()"
+                  class="text-gray-400 hover:text-black text-lg leading-none flex-shrink-0">×</button>
+              </div>
+            }
+
             <!-- Input -->
-            <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center gap-3 flex-shrink-0">
+            <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center gap-2 flex-shrink-0"
+              [class.border-t-0]="adjuntoPendiente()">
+              <!-- Input archivo oculto -->
+              <input #fileInputChat type="file" accept="image/*,video/*" class="hidden"
+                (change)="seleccionarArchivoChat($event)" />
+
+              <!-- Botón clip -->
+              <button type="button" (click)="fileInputChat.click()"
+                [disabled]="subiendoAdjunto()"
+                class="w-9 h-9 flex items-center justify-center flex-shrink-0 border border-[#E5E7EB] transition-colors hover:border-black hover:text-black text-gray-400"
+                title="Adjuntar foto o vídeo">
+                @if (subiendoAdjunto()) {
+                  <svg class="w-4 h-4 animate-spin" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="6" stroke="#E5E7EB" stroke-width="2"/>
+                    <path d="M8 2a6 6 0 0 1 6 6" stroke="#2ED38D" stroke-width="2" stroke-linecap="square"/>
+                  </svg>
+                } @else {
+                  <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M13.5 8.5l-5 5a3.5 3.5 0 0 1-4.95-4.95l5.5-5.5a2 2 0 0 1 2.83 2.83l-5.5 5.5a.5.5 0 0 1-.71-.71l4.5-4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                }
+              </button>
+
               <input
                 type="text"
                 placeholder="Escribe un mensaje..."
@@ -630,9 +545,9 @@
               <button
                 type="button"
                 (click)="enviarMensajeChat()"
-                [disabled]="!mensajeChatInput().trim() || enviandoMensajeChat()"
+                [disabled]="(!mensajeChatInput().trim() && !adjuntoPendiente()) || enviandoMensajeChat()"
                 class="px-5 py-2 text-[10px] font-black tracking-[0.2em] uppercase transition-colors flex-shrink-0"
-                [class]="mensajeChatInput().trim() && !enviandoMensajeChat() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
+                [class]="(mensajeChatInput().trim() || adjuntoPendiente()) && !enviandoMensajeChat() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
               >
                 ENVIAR
               </button>
@@ -717,6 +632,102 @@
           </div>
         }
 
+        <!-- Alergias e intolerancias -->
+        @if (auth.servicio() === 'NUTRICION' || auth.servicio() === 'AMBOS') {
+          <div class="mb-8">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">ALERGIAS E INTOLERANCIAS</p>
+            <div class="border border-[#E5E7EB] p-5">
+              <div class="flex flex-wrap gap-2 mb-4">
+                @for (alergia of perfilAtleta()!.alergias; track $index; let i = $index) {
+                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
+                    <span class="text-xs font-medium text-black">{{ alergia }}</span>
+                    <button (click)="eliminarAlergia(i)"
+                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                  </div>
+                }
+                @if (perfilAtleta()!.alergias.length === 0) {
+                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                }
+              </div>
+              <div class="flex gap-2">
+                <input
+                  [value]="nuevaAlergia()"
+                  (input)="nuevaAlergia.set($any($event.target).value)"
+                  (keydown.enter)="agregarAlergia()"
+                  placeholder="Añadir alergia o intolerancia..."
+                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
+                />
+                <button (click)="agregarAlergia()" [disabled]="!nuevaAlergia().trim()"
+                  class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  AÑADIR
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Lesiones previas -->
+        @if (auth.servicio() === 'ENTRENAMIENTO' || auth.servicio() === 'AMBOS') {
+          <div class="mb-8">
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">LESIONES PREVIAS</p>
+            <div class="border border-[#E5E7EB] p-5">
+              <div class="flex flex-wrap gap-2 mb-4">
+                @for (lesion of perfilAtleta()!.lesiones; track $index; let i = $index) {
+                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
+                    <span class="text-xs font-medium text-black">{{ lesion }}</span>
+                    <button (click)="eliminarLesion(i)"
+                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                  </div>
+                }
+                @if (perfilAtleta()!.lesiones.length === 0) {
+                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                }
+              </div>
+              <div class="flex gap-2">
+                <input
+                  [value]="nuevaLesion()"
+                  (input)="nuevaLesion.set($any($event.target).value)"
+                  (keydown.enter)="agregarLesion()"
+                  placeholder="Añadir lesión previa..."
+                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
+                />
+                <button (click)="agregarLesion()" [disabled]="!nuevaLesion().trim()"
+                  class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  AÑADIR
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Conectar con profesional -->
+        <div class="mb-8">
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">CONECTAR CON PROFESIONAL</p>
+          <div class="border border-[#E5E7EB] p-5">
+            <p class="text-sm font-light text-gray-400 mb-4">Si tu entrenador o nutricionista te ha dado un código, introdúcelo aquí para conectar.</p>
+            <div class="flex gap-2">
+              <input
+                [value]="codigoEntrenador()"
+                (input)="codigoEntrenador.set($any($event.target).value.toUpperCase()); codigoError.set(''); codigoExito.set(false)"
+                (keydown.enter)="conectarConCodigo()"
+                placeholder="Ej. GRIT-A1B2C3"
+                class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-mono font-medium placeholder:text-gray-300 placeholder:font-light outline-none focus:border-black transition-colors bg-transparent uppercase"
+              />
+              <button (click)="conectarConCodigo()"
+                [disabled]="!codigoEntrenador().trim() || enviandoCodigo()"
+                class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
+                @if (enviandoCodigo()) { CONECTANDO... } @else { CONECTAR }
+              </button>
+            </div>
+            @if (codigoError()) {
+              <p class="text-xs font-bold text-red-400 mt-2">{{ codigoError() }}</p>
+            }
+            @if (codigoExito()) {
+              <p class="text-xs font-bold text-[#2ED38D] mt-2">● Conectado correctamente</p>
+            }
+          </div>
+        </div>
+
         <!-- Mis profesionales -->
         @if (profesionales().length > 0) {
           <div>
@@ -736,9 +747,21 @@
                           {{ prof.rol }}
                         </span>
                       </div>
-                      <p class="text-[10px] text-gray-400 mb-2">{{ prof.titulacion }}</p>
-                      @if (prof.descripcion) {
-                        <p class="text-sm text-gray-600 leading-relaxed">{{ prof.descripcion }}</p>
+                      <div class="flex items-center gap-3 flex-wrap mb-2">
+                        <p class="text-[10px] text-gray-400">{{ prof.titulacion }}</p>
+                        @if (prof.anosExperiencia) {
+                          <span class="text-[10px] font-bold text-gray-400">· {{ prof.anosExperiencia }} años de experiencia</span>
+                        }
+                      </div>
+                      @if (prof.sobreMi) {
+                        <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ prof.sobreMi }}</p>
+                      }
+                      @if (prof.masters && prof.masters.length > 0) {
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                          @for (master of prof.masters; track master) {
+                            <span class="text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 border border-[#E5E7EB] text-gray-500">{{ master }}</span>
+                          }
+                        </div>
                       }
                     </div>
                   </div>
@@ -757,62 +780,113 @@
           <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">AJUSTES</h2>
         </div>
 
-        <!-- Cambiar contraseña -->
-        <div>
-          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">CAMBIAR CONTRASEÑA</p>
+        <!-- Cambiar contraseña (desplegable) -->
+        <div class="mb-6 border border-[#E5E7EB]">
+          <button type="button" (click)="passAbierto.set(!passAbierto())"
+            class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
+            <p class="text-xs font-black tracking-[0.2em] uppercase text-black">CAMBIAR CONTRASEÑA</p>
+            <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ passAbierto() ? '▲' : '▼' }}</span>
+          </button>
 
-          @if (passCambiada()) {
-            <div class="border border-[#2ED38D] px-5 py-4 mb-4">
-              <p class="text-sm font-bold text-[#2ED38D]">Contraseña actualizada correctamente.</p>
+          @if (passAbierto()) {
+            <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+              @if (passCambiada()) {
+                <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2">
+                  <p class="text-sm font-bold text-[#2ED38D]">Contraseña actualizada correctamente.</p>
+                </div>
+              }
+              @if (passError()) {
+                <div class="border border-red-300 px-5 py-4 mt-4 mb-2">
+                  <p class="text-sm text-red-500">{{ passError() }}</p>
+                </div>
+              }
+              <div class="flex flex-col gap-4 mt-4">
+                <div>
+                  <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONTRASEÑA ACTUAL</label>
+                  <input type="password" [value]="passActual()"
+                    (input)="passActual.set($any($event.target).value)"
+                    class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NUEVA CONTRASEÑA</label>
+                  <input type="password" [value]="passNueva()"
+                    (input)="passNueva.set($any($event.target).value)"
+                    class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONFIRMAR NUEVA CONTRASEÑA</label>
+                  <input type="password" [value]="passConfirm()"
+                    (input)="passConfirm.set($any($event.target).value)"
+                    class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+                </div>
+                <button type="button" (click)="cambiarPassword()"
+                  [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
+                  class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors"
+                  [class]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
+                    ? 'bg-black text-white hover:bg-[#2ED38D]'
+                    : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'">
+                  {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
+                </button>
+              </div>
             </div>
           }
+        </div>
 
-          @if (passError()) {
-            <div class="border border-red-300 px-5 py-4 mb-4">
-              <p class="text-sm text-red-500">{{ passError() }}</p>
+        <!-- Tema -->
+        <div class="mb-6 border border-[#E5E7EB]">
+          <div class="px-5 py-4 flex items-center justify-between">
+            <p class="text-xs font-black tracking-[0.2em] uppercase text-black">TEMA</p>
+            <div class="flex gap-2">
+              <button type="button" class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase bg-black text-white">CLARO</button>
+              <button type="button" class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase border border-[#E5E7EB] text-gray-400 hover:border-black hover:text-black transition-colors">OSCURO</button>
             </div>
-          }
-
-          <div class="flex flex-col gap-4">
-            <div>
-              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONTRASEÑA ACTUAL</label>
-              <input
-                type="password"
-                [value]="passActual()"
-                (input)="passActual.set($any($event.target).value)"
-                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black"
-              />
-            </div>
-            <div>
-              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NUEVA CONTRASEÑA</label>
-              <input
-                type="password"
-                [value]="passNueva()"
-                (input)="passNueva.set($any($event.target).value)"
-                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black"
-              />
-            </div>
-            <div>
-              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONFIRMAR NUEVA CONTRASEÑA</label>
-              <input
-                type="password"
-                [value]="passConfirm()"
-                (input)="passConfirm.set($any($event.target).value)"
-                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black"
-              />
-            </div>
-            <button
-              type="button"
-              (click)="cambiarPassword()"
-              [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
-              class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors"
-              [class]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
-                ? 'bg-black text-white hover:bg-[#2ED38D]'
-                : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
-            >
-              {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
-            </button>
           </div>
+        </div>
+
+        <!-- Eliminar cuenta -->
+        <div class="border border-[#E5E7EB]">
+          <button type="button" (click)="bajaAbierta.set(!bajaAbierta())"
+            class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
+            <p class="text-xs font-black tracking-[0.2em] uppercase text-red-400">ELIMINAR CUENTA</p>
+            <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ bajaAbierta() ? '▲' : '▼' }}</span>
+          </button>
+
+          @if (bajaAbierta()) {
+            <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+              @if (!confirmarBaja()) {
+                <div class="mt-4">
+                  <p class="text-sm text-gray-600 mb-4">Al eliminar tu cuenta se borrarán todos tus datos de forma permanente. Esta acción no se puede deshacer.</p>
+                  <button type="button" (click)="confirmarBaja.set(true)"
+                    class="px-6 py-3 text-xs font-black tracking-[0.2em] uppercase border border-red-300 text-red-400 hover:bg-red-50 transition-colors">
+                    QUIERO DARME DE BAJA
+                  </button>
+                </div>
+              } @else {
+                <div class="mt-4">
+                  <p class="text-sm font-bold text-black mb-1">¿Estás seguro?</p>
+                  <p class="text-sm text-gray-400 mb-4">Escribe <span class="font-mono font-bold text-black">ELIMINAR</span> para confirmar.</p>
+                  <input type="text" [value]="textoConfirmaBaja()"
+                    (input)="textoConfirmaBaja.set($any($event.target).value)"
+                    placeholder="ELIMINAR"
+                    class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-mono focus:outline-none focus:border-red-400 mb-4" />
+                  <div class="flex gap-3">
+                    <button type="button" (click)="confirmarBaja.set(false); textoConfirmaBaja.set('')"
+                      class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase border border-[#E5E7EB] text-gray-400 hover:border-black hover:text-black transition-colors">
+                      CANCELAR
+                    </button>
+                    <button type="button" (click)="eliminarCuenta()"
+                      [disabled]="textoConfirmaBaja() !== 'ELIMINAR' || eliminandoCuenta()"
+                      class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors"
+                      [class]="textoConfirmaBaja() === 'ELIMINAR' && !eliminandoCuenta()
+                        ? 'bg-red-500 text-white hover:bg-red-600'
+                        : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'">
+                      {{ eliminandoCuenta() ? 'ELIMINANDO...' : 'CONFIRMAR BAJA' }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
 
       </div>

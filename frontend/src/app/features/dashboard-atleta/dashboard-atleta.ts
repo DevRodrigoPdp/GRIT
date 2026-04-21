@@ -8,18 +8,15 @@ import {
   SolicitudCheckIn,
   CheckInPeso,
   NotaNutricionista,
-  ApunteEntrenador,
-  HiloEjercicio,
   Chat,
   ProfesionalAsignado,
-  HiloComida,
-  MensajeHiloComida,
+  AdjuntoChat,
 } from './services/atleta.service';
 
 type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'perfil' | 'ajustes';
 
 interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
-interface ItemCompra  { nombre: string; cantidad: string; }
+interface ItemCompra { nombre: string; cantidad: string; }
 
 @Component({
   selector: 'app-dashboard-atleta',
@@ -27,23 +24,19 @@ interface ItemCompra  { nombre: string; cantidad: string; }
   templateUrl: './dashboard-atleta.html',
 })
 export class DashboardAtletaPage implements OnInit {
-  readonly auth   = inject(AuthService);
+  readonly auth = inject(AuthService);
   readonly atleta = inject(AtletaService);
-
-  @ViewChild('hiloRef') hiloRef?: ElementRef<HTMLDivElement>;
-
 
   readonly cargando = signal(true);
 
   // ── Datos ─────────────────────────────────────────────────────────────────
-  readonly perfilAtleta      = signal<PerfilAtleta | null>(null);
-  readonly profesionales     = signal<ProfesionalAsignado[]>([]);
+  readonly perfilAtleta = signal<PerfilAtleta | null>(null);
+  readonly profesionales = signal<ProfesionalAsignado[]>([]);
   readonly planEntrenamiento = signal<PlanEntrenamiento | null>(null);
-  readonly planNutricion     = signal<PlanNutricion | null>(null);
-  readonly solicitudCheckIn  = signal<SolicitudCheckIn | null>(null);
-  readonly historialPesos    = signal<CheckInPeso[]>([]);
+  readonly planNutricion = signal<PlanNutricion | null>(null);
+  readonly solicitudCheckIn = signal<SolicitudCheckIn | null>(null);
+  readonly historialPesos = signal<CheckInPeso[]>([]);
   readonly notasNutricionista = signal<NotaNutricionista[]>([]);
-  readonly apuntes           = signal<ApunteEntrenador[]>([]);
 
   // ── Navegación ────────────────────────────────────────────────────────────
   readonly vistaActual = signal<Vista>('entrenamiento');
@@ -52,69 +45,103 @@ export class DashboardAtletaPage implements OnInit {
     const s = this.auth.servicio();
     const items: { id: Vista; label: string }[] = [];
     if (s === 'ENTRENAMIENTO' || s === 'AMBOS') items.push({ id: 'entrenamiento', label: 'ENTRENAMIENTO' });
-    if (s === 'NUTRICION'     || s === 'AMBOS') items.push({ id: 'dieta',         label: 'DIETA' });
-    items.push({ id: 'cuaderno', label: 'CUADERNO' });
-    items.push({ id: 'perfil',   label: 'MI PERFIL' });
-    items.push({ id: 'ajustes',  label: 'AJUSTES' });
+    if (s === 'NUTRICION' || s === 'AMBOS') items.push({ id: 'dieta', label: 'DIETA' });
+    items.push({ id: 'cuaderno', label: 'CHAT' });
+    items.push({ id: 'perfil', label: 'MI PERFIL' });
+    items.push({ id: 'ajustes', label: 'AJUSTES' });
     return items;
   });
 
   // ── Registro de peso ──────────────────────────────────────────────────────
   readonly pesoInputValor = signal('');
-  readonly enviandoPeso   = signal(false);
+  readonly enviandoPeso = signal(false);
 
-  // ── Hilo de ejercicio ─────────────────────────────────────────────────────
-  readonly ejercicioActivo   = signal<{ dia: string; nombre: string } | null>(null);
-  readonly hilosCache        = signal<Map<string, HiloEjercicio>>(new Map());
-  readonly cargandoHilo      = signal(false);
-  readonly mensajeHiloInput  = signal('');
-  readonly enviandoMensajeHilo = signal(false);
 
-  readonly hiloActivo = computed<HiloEjercicio | null>(() => {
-    const ej = this.ejercicioActivo();
-    if (!ej) return null;
-    return this.hilosCache().get(`${ej.dia}-${ej.nombre}`) ?? null;
-  });
-
-  // ── Hilo de comida ────────────────────────────────────────────────────────
-  readonly comidaActiva        = signal<string | null>(null);
-  readonly hilosComidaCache    = signal<Map<string, HiloComida>>(new Map());
-  readonly cargandoHiloComida  = signal(false);
-  readonly mensajeHiloComidaInput    = signal('');
-  readonly enviandoMensajeHiloComida = signal(false);
-
-  readonly hiloComidaActivo = computed<HiloComida | null>(() => {
-    const nombre = this.comidaActiva();
-    if (!nombre) return null;
-    return this.hilosComidaCache().get(nombre) ?? null;
-  });
+  // ── Comida expandida ─────────────────────────────────────────────────────
+  readonly comidaActiva = signal<string | null>(null);
 
   // ── Chat general ──────────────────────────────────────────────────────────
   @ViewChild('chatMessagesRef') chatMessagesRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('fileInputChat') fileInputChat?: ElementRef<HTMLInputElement>;
 
-  readonly chatEntrenador     = signal<Chat | null>(null);
-  readonly chatNutricionista  = signal<Chat | null>(null);
-  readonly chatActivo         = signal<'entrenador' | 'nutricionista'>('entrenador');
-  readonly mensajeChatInput   = signal('');
+  readonly chatEntrenador = signal<Chat | null>(null);
+  readonly chatNutricionista = signal<Chat | null>(null);
+  readonly chatActivo = signal<'entrenador' | 'nutricionista'>('entrenador');
+  readonly mensajeChatInput = signal('');
   readonly enviandoMensajeChat = signal(false);
+  readonly adjuntoPendiente = signal<AdjuntoChat | null>(null);
+  readonly subiendoAdjunto = signal(false);
 
   readonly chatMostrado = computed<Chat | null>(() =>
     this.chatActivo() === 'entrenador' ? this.chatEntrenador() : this.chatNutricionista()
   );
 
 
-  // ── Cuaderno (apuntes — pendiente de integración) ─────────────────────────
-  readonly apunteRespondiendo = signal<string | null>(null);
-  readonly textoRespuesta     = signal('');
-  readonly enviandoRespuesta  = signal(false);
+
+  // ── Alergias / lesiones ───────────────────────────────────────────────────
+  readonly nuevaAlergia       = signal('');
+  readonly nuevaLesion        = signal('');
+  readonly codigoEntrenador   = signal('');
+  readonly enviandoCodigo     = signal(false);
+  readonly codigoError        = signal('');
+  readonly codigoExito        = signal(false);
+
+  conectarConCodigo(): void {
+    const codigo = this.codigoEntrenador().trim().toUpperCase();
+    if (!codigo) return;
+    this.enviandoCodigo.set(true);
+    this.codigoError.set('');
+    this.codigoExito.set(false);
+    // TODO: conectar con POST /api/v1/atleta/conectar { codigo }
+    setTimeout(() => {
+      this.enviandoCodigo.set(false);
+      this.codigoError.set('Código no válido o ya utilizado.');
+    }, 800);
+  }
+
+  agregarAlergia(): void {
+    const texto = this.nuevaAlergia().trim();
+    if (!texto) return;
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, alergias: [...p.alergias, texto] });
+    this.nuevaAlergia.set('');
+  }
+
+  eliminarAlergia(idx: number): void {
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, alergias: p.alergias.filter((_, i) => i !== idx) });
+  }
+
+  agregarLesion(): void {
+    const texto = this.nuevaLesion().trim();
+    if (!texto) return;
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, lesiones: [...p.lesiones, texto] });
+    this.nuevaLesion.set('');
+  }
+
+  eliminarLesion(idx: number): void {
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilAtleta.set({ ...p, lesiones: p.lesiones.filter((_, i) => i !== idx) });
+  }
 
   // ── Ajustes ───────────────────────────────────────────────────────────────
-  readonly passActual   = signal('');
-  readonly passNueva    = signal('');
-  readonly passConfirm  = signal('');
+  readonly passAbierto = signal(false);
+  readonly passActual = signal('');
+  readonly passNueva = signal('');
+  readonly passConfirm = signal('');
   readonly cambiandoPass = signal(false);
-  readonly passCambiada  = signal(false);
-  readonly passError     = signal('');
+  readonly passCambiada = signal(false);
+  readonly passError = signal('');
+
+  readonly bajaAbierta = signal(false);
+  readonly confirmarBaja = signal(false);
+  readonly textoConfirmaBaja = signal('');
+  readonly eliminandoCuenta = signal(false);
 
   // ── Computeds ─────────────────────────────────────────────────────────────
   readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
@@ -153,13 +180,12 @@ export class DashboardAtletaPage implements OnInit {
     this.auth.me().subscribe(() => {
       const s = this.auth.servicio();
       const incluyeEntrenamiento = s === 'ENTRENAMIENTO' || s === 'AMBOS';
-      const incluyeNutricion     = s === 'NUTRICION'     || s === 'AMBOS';
+      const incluyeNutricion = s === 'NUTRICION' || s === 'AMBOS';
 
       if (!incluyeEntrenamiento) this.vistaActual.set('dieta');
 
       this.atleta.getPerfil().subscribe(p => this.perfilAtleta.set(p));
       this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
-      this.atleta.getApuntes().subscribe(a => this.apuntes.set(a));
 
       if (incluyeEntrenamiento) {
         this.atleta.getPlanEntrenamiento().subscribe(p => this.planEntrenamiento.set(p));
@@ -193,22 +219,41 @@ export class DashboardAtletaPage implements OnInit {
   // ── Chat general ──────────────────────────────────────────────────────────
   setChatActivo(tipo: 'entrenador' | 'nutricionista'): void {
     this.chatActivo.set(tipo);
+    this.adjuntoPendiente.set(null);
     this.scrollChatToBottom();
+  }
+
+  seleccionarArchivoChat(event: Event): void {
+    const archivo = (event.target as HTMLInputElement).files?.[0];
+    if (!archivo) return;
+    this.subiendoAdjunto.set(true);
+    this.atleta.subirArchivoChat(this.chatActivo(), archivo).subscribe(adjunto => {
+      this.adjuntoPendiente.set(adjunto);
+      this.subiendoAdjunto.set(false);
+      if (this.fileInputChat) this.fileInputChat.nativeElement.value = '';
+    });
+  }
+
+  quitarAdjunto(): void {
+    this.adjuntoPendiente.set(null);
+    if (this.fileInputChat) this.fileInputChat.nativeElement.value = '';
   }
 
   enviarMensajeChat(): void {
     const texto = this.mensajeChatInput().trim();
-    if (!texto) return;
+    const adjunto = this.adjuntoPendiente();
+    if (!texto && !adjunto) return;
 
     const tipo = this.chatActivo();
     this.enviandoMensajeChat.set(true);
-    this.atleta.enviarMensajeChat(tipo, texto).subscribe(msg => {
+    this.atleta.enviarMensajeChat(tipo, texto, adjunto ?? undefined).subscribe(msg => {
       if (tipo === 'entrenador') {
         this.chatEntrenador.update(c => c ? { ...c, mensajes: [...c.mensajes, msg] } : c);
       } else {
         this.chatNutricionista.update(c => c ? { ...c, mensajes: [...c.mensajes, msg] } : c);
       }
       this.mensajeChatInput.set('');
+      this.adjuntoPendiente.set(null);
       this.enviandoMensajeChat.set(false);
       this.scrollChatToBottom();
     });
@@ -221,97 +266,17 @@ export class DashboardAtletaPage implements OnInit {
     }, 50);
   }
 
-  // ── Hilo de comida ────────────────────────────────────────────────────────
-  abrirComida(nombre: string): void {
-    if (this.comidaActiva() === nombre) {
-      this.comidaActiva.set(null);
-      return;
-    }
-    this.comidaActiva.set(nombre);
-    this.mensajeHiloComidaInput.set('');
+  // ── Ejercicio activo (mostrar notas) ─────────────────────────────────────
+  readonly ejercicioActivo = signal<{ sesion: string; nombre: string } | null>(null);
 
-    if (!this.hilosComidaCache().has(nombre)) {
-      this.cargandoHiloComida.set(true);
-      this.atleta.getHiloComida(nombre).subscribe(hilo => {
-        this.hilosComidaCache.update(m => new Map(m).set(nombre, hilo));
-        this.cargandoHiloComida.set(false);
-      });
-    }
-  }
-
-  enviarMensajeHiloComida(): void {
-    const texto = this.mensajeHiloComidaInput().trim();
-    const nombre = this.comidaActiva();
-    if (!texto || !nombre) return;
-
-    this.enviandoMensajeHiloComida.set(true);
-    this.atleta.enviarMensajeHiloComida(nombre, texto).subscribe(msg => {
-      this.hilosComidaCache.update(m => {
-        const hilo = m.get(nombre)!;
-        return new Map(m).set(nombre, { ...hilo, mensajes: [...hilo.mensajes, msg] });
-      });
-      this.mensajeHiloComidaInput.set('');
-      this.enviandoMensajeHiloComida.set(false);
-    });
-  }
-
-  // ── Hilo de ejercicio ─────────────────────────────────────────────────────
-  abrirEjercicio(dia: string, nombre: string): void {
-    const clave = `${dia}-${nombre}`;
+  toggleEjercicio(sesion: string, nombre: string): void {
     const actual = this.ejercicioActivo();
-
-    if (actual?.dia === dia && actual?.nombre === nombre) {
-      this.ejercicioActivo.set(null);
-      return;
-    }
-
-    this.ejercicioActivo.set({ dia, nombre });
-    this.mensajeHiloInput.set('');
-
-    if (!this.hilosCache().has(clave)) {
-      this.cargandoHilo.set(true);
-      this.atleta.getHiloEjercicio(dia, nombre).subscribe(hilo => {
-        this.hilosCache.update(m => new Map(m).set(clave, hilo));
-        this.cargandoHilo.set(false);
-      });
-    }
-
-    setTimeout(() => {
-      this.hiloRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    this.ejercicioActivo.set(actual?.sesion === sesion && actual?.nombre === nombre ? null : { sesion, nombre });
   }
 
-  enviarMensajeHilo(): void {
-    const texto = this.mensajeHiloInput().trim();
-    const ej = this.ejercicioActivo();
-    if (!texto || !ej) return;
-
-    this.enviandoMensajeHilo.set(true);
-    this.atleta.enviarMensajeHilo(ej.dia, ej.nombre, texto).subscribe(msg => {
-      const clave = `${ej.dia}-${ej.nombre}`;
-      this.hilosCache.update(m => {
-        const hilo = m.get(clave)!;
-        return new Map(m).set(clave, { ...hilo, mensajes: [...hilo.mensajes, msg] });
-      });
-      this.mensajeHiloInput.set('');
-      this.enviandoMensajeHilo.set(false);
-    });
-  }
-
-  adjuntarMediaHilo(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const archivo = input.files?.[0];
-    const ej = this.ejercicioActivo();
-    if (!archivo || !ej) return;
-
-    this.atleta.subirMediaHilo(ej.dia, ej.nombre, archivo).subscribe(media => {
-      const clave = `${ej.dia}-${ej.nombre}`;
-      this.hilosCache.update(m => {
-        const hilo = m.get(clave)!;
-        return new Map(m).set(clave, { ...hilo, media: [...hilo.media, media] });
-      });
-      input.value = '';
-    });
+  // ── Comida expandida ─────────────────────────────────────────────────────
+  abrirComida(nombre: string): void {
+    this.comidaActiva.set(this.comidaActiva() === nombre ? null : nombre);
   }
 
   // ── Registro de peso ──────────────────────────────────────────────────────
@@ -326,31 +291,6 @@ export class DashboardAtletaPage implements OnInit {
       this.solicitudCheckIn.set(null);
       this.pesoInputValor.set('');
       this.enviandoPeso.set(false);
-    });
-  }
-
-  // ── Cuaderno ──────────────────────────────────────────────────────────────
-  abrirRespuesta(apunteId: string): void {
-    this.apunteRespondiendo.set(apunteId);
-    this.textoRespuesta.set('');
-  }
-
-  cerrarRespuesta(): void {
-    this.apunteRespondiendo.set(null);
-    this.textoRespuesta.set('');
-  }
-
-  enviarRespuesta(apunteId: string): void {
-    const texto = this.textoRespuesta().trim();
-    if (!texto) return;
-
-    this.enviandoRespuesta.set(true);
-    this.atleta.responderApunte(apunteId, texto).subscribe(respuesta => {
-      this.apuntes.update(lista =>
-        lista.map(a => a.id !== apunteId ? a : { ...a, respuestas: [...a.respuestas, respuesta] })
-      );
-      this.cerrarRespuesta();
-      this.enviandoRespuesta.set(false);
     });
   }
 
@@ -379,6 +319,18 @@ export class DashboardAtletaPage implements OnInit {
         this.passError.set('Contraseña actual incorrecta.');
         this.cambiandoPass.set(false);
       },
+    });
+  }
+
+  eliminarCuenta(): void {
+    if (this.textoConfirmaBaja() !== 'ELIMINAR') return;
+    this.eliminandoCuenta.set(true);
+    this.atleta.eliminarCuenta().subscribe({
+      next: () => {
+        this.eliminandoCuenta.set(false);
+        this.auth.logout();
+      },
+      error: () => this.eliminandoCuenta.set(false),
     });
   }
 

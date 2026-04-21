@@ -12,6 +12,7 @@ export interface AlimentoEnPlan {
 export interface Comida {
   nombre: string;
   alimentos: AlimentoEnPlan[];
+  notas?: string;
 }
 
 export interface PlanNutricion {

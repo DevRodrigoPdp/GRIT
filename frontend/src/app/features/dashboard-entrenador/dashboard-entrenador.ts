@@ -7,7 +7,7 @@ import { GestionEntrenamientoComponent } from './components/gestion-entrenamient
 import { PerfilEntrenadorVistaComponent } from './components/perfil-entrenador/perfil-entrenador-vista';
 import { ComunicacionComponent } from './components/comunicacion/comunicacion';
 
-type Tab    = 'ENTRENAMIENTO' | 'NUTRICION' | 'SEGUIMIENTO';
+type Tab    = 'ENTRENAMIENTO' | 'NUTRICION' | 'COMUNICACION';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
 type Vista  = 'atletas' | 'perfil' | 'ajustes';
 
@@ -19,7 +19,7 @@ type Vista  = 'atletas' | 'perfil' | 'ajustes';
 })
 export class DashboardEntrenadorPage implements OnInit {
   readonly auth      = inject(AuthService);
-  private entrenador = inject(EntrenadorService);
+  readonly entrenador = inject(EntrenadorService);
 
   atletas       = signal<AtletaAsignado[]>([]);
   atletaActivo  = signal<AtletaAsignado | null>(null);
@@ -29,6 +29,21 @@ export class DashboardEntrenadorPage implements OnInit {
 
   busqueda       = signal('');
   filtroServicio = signal<Filtro>('TODOS');
+
+  // ── Ajustes ───────────────────────────────────────────────────────────────
+  readonly passAbierto        = signal(false);
+  readonly passActual         = signal('');
+  readonly passNueva          = signal('');
+  readonly passConfirm        = signal('');
+  readonly cambiandoPass      = signal(false);
+  readonly passCambiada       = signal(false);
+  readonly passError          = signal('');
+
+  readonly bajaAbierta        = signal(false);
+  readonly confirmarBaja      = signal(false);
+  readonly textoConfirmaBaja  = signal('');
+  readonly eliminandoCuenta   = signal(false);
+
 
   readonly navItems: { id: Vista; label: string }[] = [
     { id: 'atletas', label: 'ATLETAS' },
@@ -70,7 +85,7 @@ export class DashboardEntrenadorPage implements OnInit {
     const tabs: Tab[] = [];
     if (tieneEntrenamiento) tabs.push('ENTRENAMIENTO');
     if (tieneNutricion)     tabs.push('NUTRICION');
-    tabs.push('SEGUIMIENTO');
+    tabs.push('COMUNICACION');
     return tabs;
   });
 
@@ -120,4 +135,43 @@ export class DashboardEntrenadorPage implements OnInit {
   incluyeNutricion(servicio: AtletaAsignado['servicio']): boolean {
     return servicio === 'NUTRICION' || servicio === 'AMBOS';
   }
+
+  cambiarPassword(): void {
+    this.passError.set('');
+    if (this.passNueva() !== this.passConfirm()) {
+      this.passError.set('Las contraseñas nuevas no coinciden.');
+      return;
+    }
+    if (this.passNueva().length < 8) {
+      this.passError.set('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+    this.cambiandoPass.set(true);
+    this.entrenador.cambiarPassword(this.passActual(), this.passNueva()).subscribe({
+      next: () => {
+        this.passCambiada.set(true);
+        this.passActual.set('');
+        this.passNueva.set('');
+        this.passConfirm.set('');
+        this.cambiandoPass.set(false);
+      },
+      error: () => {
+        this.passError.set('Contraseña actual incorrecta.');
+        this.cambiandoPass.set(false);
+      },
+    });
+  }
+
+  eliminarCuenta(): void {
+    if (this.textoConfirmaBaja() !== 'ELIMINAR') return;
+    this.eliminandoCuenta.set(true);
+    this.entrenador.eliminarCuenta().subscribe({
+      next: () => {
+        this.eliminandoCuenta.set(false);
+        this.auth.logout();
+      },
+      error: () => this.eliminandoCuenta.set(false),
+    });
+  }
+
 }

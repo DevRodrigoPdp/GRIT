@@ -1,6 +1,8 @@
-import { Component, inject, computed, output, input } from '@angular/core';
+import { Component, inject, computed, output, input, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
-import { PerfilEntrenador } from '../../services/entrenador.service';
+import { EntrenadorService, PerfilEntrenador, TitulacionEntrenamiento, TitulacionNutricion } from '../../services/entrenador.service';
 
 const TITULACION_ENT_LABEL: Record<string, string> = {
   GRADO_CAFYD:   'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte',
@@ -13,15 +15,19 @@ const TITULACION_NUTR_LABEL: Record<string, string> = {
   TSD:                       'TSD — Técnico Superior en Dietética',
 };
 
+interface ArchivoSubido { file: File; nombre: string; size: string; }
+
 @Component({
   selector: 'app-perfil-entrenador-vista',
   standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './perfil-entrenador-vista.html',
 })
 export class PerfilEntrenadorVistaComponent {
-  readonly auth   = inject(AuthService);
-  readonly volver = output<void>();
-  readonly perfil = input<PerfilEntrenador | null>(null);
+  readonly auth    = inject(AuthService);
+  private entSvc   = inject(EntrenadorService);
+  readonly volver  = output<void>();
+  readonly perfil  = input<PerfilEntrenador | null>(null);
 
   readonly nombre = computed(() => this.perfil()?.nombre ?? this.auth.nombre() ?? '');
 
@@ -47,4 +53,115 @@ export class PerfilEntrenadorVistaComponent {
   readonly experiencia = computed(() => this.perfil()?.experienciaAnos ?? null);
   readonly descripcion = computed(() => this.perfil()?.descripcion ?? null);
   readonly correo      = computed(() => this.perfil()?.correo ?? null);
+
+  // ── Ampliación de formación ──────────────────────────────────────────────
+
+  readonly puedeAmpliarNutricion     = computed(() => !!this.auth.tituloEntrenamiento() && !this.auth.tituloNutricion());
+  readonly puedeAmpliarEntrenamiento = computed(() => !!this.auth.tituloNutricion() && !this.auth.tituloEntrenamiento());
+  readonly puedeAmpliar              = computed(() => this.puedeAmpliarNutricion() || this.puedeAmpliarEntrenamiento());
+
+  readonly moduloAAmpliar = computed<'NUTRICION' | 'ENTRENAMIENTO' | null>(() => {
+    if (this.puedeAmpliarNutricion()) return 'NUTRICION';
+    if (this.puedeAmpliarEntrenamiento()) return 'ENTRENAMIENTO';
+    return null;
+  });
+
+  readonly titulacionesDisponibles = computed<{ value: string; label: string }[]>(() => {
+    if (this.puedeAmpliarNutricion()) {
+      return Object.entries(TITULACION_NUTR_LABEL).map(([value, label]) => ({ value, label }));
+    }
+    return Object.entries(TITULACION_ENT_LABEL).map(([value, label]) => ({ value, label }));
+  });
+
+  // ── Invitar atleta ─────────────────────────────────────────────────────────
+  readonly emailInvitacion    = signal('');
+  readonly enviandoInvitacion = signal(false);
+  readonly invitacionEnviada  = signal(false);
+  readonly codigoCopiado      = signal(false);
+
+  copiarCodigo(): void {
+    const codigo = this.perfil()?.codigoInvitacion;
+    if (!codigo) return;
+    navigator.clipboard.writeText(codigo).then(() => {
+      this.codigoCopiado.set(true);
+      setTimeout(() => this.codigoCopiado.set(false), 2000);
+    }).catch(() => {});
+  }
+
+  enviarInvitacion(): void {
+    const email = this.emailInvitacion().trim();
+    if (!email || this.enviandoInvitacion()) return;
+    this.enviandoInvitacion.set(true);
+    this.entSvc.invitarAtleta(email).subscribe(() => {
+      this.enviandoInvitacion.set(false);
+      this.invitacionEnviada.set(true);
+      this.emailInvitacion.set('');
+      setTimeout(() => this.invitacionEnviada.set(false), 4000);
+    });
+  }
+
+  // ── Ampliación de formación ──────────────────────────────────────────────
+  readonly expandiendo          = signal(false);
+  readonly titulacionAmpliacion = signal('');
+  readonly archivosAmpliacion   = signal<ArchivoSubido[]>([]);
+  readonly dragOverAmpliacion   = signal(false);
+  readonly estadoSolicitud      = signal<'idle' | 'enviando' | 'enviada' | 'error'>('idle');
+  readonly solicitudPendiente   = computed(() =>
+    this.perfil()?.solicitudAmpliacionPendiente === this.moduloAAmpliar()
+  );
+
+  toggleExpanding(): void {
+    this.expandiendo.update(v => !v);
+    if (!this.expandiendo()) {
+      this.titulacionAmpliacion.set('');
+      this.archivosAmpliacion.set([]);
+      this.estadoSolicitud.set('idle');
+    }
+  }
+
+  onDragOverAmp(e: DragEvent): void { e.preventDefault(); this.dragOverAmpliacion.set(true); }
+  onDragLeaveAmp(): void            { this.dragOverAmpliacion.set(false); }
+  onDropAmp(e: DragEvent): void {
+    e.preventDefault();
+    this.dragOverAmpliacion.set(false);
+    if (e.dataTransfer?.files) this.procesarArchivos(e.dataTransfer.files);
+  }
+  onFileInputAmp(e: Event): void {
+    const input = e.target as HTMLInputElement;
+    if (input.files) this.procesarArchivos(input.files);
+    (e.target as HTMLInputElement).value = '';
+  }
+
+  private procesarArchivos(files: FileList): void {
+    const permitidos = ['application/pdf', 'image/jpeg', 'image/png'];
+    Array.from(files).forEach(file => {
+      if (!permitidos.includes(file.type)) return;
+      if (file.size > 10 * 1024 * 1024) return;
+      const kb   = file.size / 1024;
+      const size = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
+      this.archivosAmpliacion.update(list => [...list, { file, nombre: file.name, size }]);
+    });
+  }
+
+  eliminarArchivoAmp(idx: number): void {
+    this.archivosAmpliacion.update(list => list.filter((_, i) => i !== idx));
+  }
+
+  readonly puedeEnviar = computed(() =>
+    !!this.titulacionAmpliacion() && this.archivosAmpliacion().length > 0
+  );
+
+  enviarSolicitudAmpliacion(): void {
+    const modulo    = this.moduloAAmpliar();
+    const titulacion = this.titulacionAmpliacion();
+    if (!modulo || !titulacion || this.archivosAmpliacion().length === 0) return;
+
+    this.estadoSolicitud.set('enviando');
+    this.entSvc.solicitarAmpliacionFormacion(
+      modulo, titulacion, this.archivosAmpliacion().map(a => a.file)
+    ).subscribe({
+      next: () => this.estadoSolicitud.set('enviada'),
+      error: () => this.estadoSolicitud.set('error'),
+    });
+  }
 }

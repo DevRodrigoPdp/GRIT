@@ -16,6 +16,13 @@ export interface SolicitudPeso {
   fecha:          string;
 }
 
+export interface MediaAdjunto {
+  id:    string;
+  tipo:  'foto' | 'video';
+  url:   string;
+  fecha: string;
+}
+
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 const MOCK_HISTORIAL: Record<string, CheckInPeso[]> = {
@@ -91,5 +98,18 @@ export class SeguimientoService {
     this.historial.set(atletaId, [...existentes, entry]);
     this.pendiente.set(atletaId, false);
     return of(entry);
+  }
+
+  /** Simula la subida de un archivo y devuelve los datos del adjunto */
+  subirMedia(archivo: File): Observable<MediaAdjunto> {
+    const hoy = new Date().toISOString().split('T')[0];
+    const tipo: 'foto' | 'video' = archivo.type.startsWith('video') ? 'video' : 'foto';
+    // En mock usamos URL.createObjectURL para previsualizar el archivo local
+    return of({
+      id: `media-${Date.now()}`,
+      tipo,
+      url: URL.createObjectURL(archivo),
+      fecha: hoy
+    });
   }
 }

@@ -9,7 +9,7 @@ import { RecetasService, Receta } from '../../services/recetas.service';
 import { AlimentoOFF } from '../../services/open-food-facts.service';
 import { BuscadorAlimentoComponent } from '../buscador-alimento/buscador-alimento';
 
-type Vista       = 'lista' | 'crear';
+type Vista       = 'lista' | 'crear' | 'detalle';
 type ModoReceta  = 'off' | 'picker' | 'crear';
 
 @Component({
@@ -22,12 +22,15 @@ export class GestionNutricionComponent implements OnInit {
   readonly nutricion = inject(NutricionService);
   readonly recetas   = inject(RecetasService);
 
-  readonly atletaId = input<string | null>(null);
+  readonly atletaId      = input<string | null>(null);
+  readonly alergias      = input<string[]>([]);
+  readonly intolerancias = input<string[]>([]);
 
   // ── Estado principal ──────────────────────────────────────────────────────
-  vista     = signal<Vista>('lista');
-  planes    = signal<PlanNutricion[]>([]);
-  guardando = signal(false);
+  vista        = signal<Vista>('lista');
+  planes       = signal<PlanNutricion[]>([]);
+  guardando    = signal(false);
+  planDetalle  = signal<PlanNutricion | null>(null);
 
   // ── Formulario plan ───────────────────────────────────────────────────────
   nombrePlan      = signal('');
@@ -64,6 +67,11 @@ export class GestionNutricionComponent implements OnInit {
 
   // ── Gestión de comidas ────────────────────────────────────────────────────
 
+  abrirDetalle(plan: PlanNutricion) {
+    this.planDetalle.set(plan);
+    this.vista.set('detalle');
+  }
+
   iniciarCreacion() {
     this.nombrePlan.set('');
     this.descripcionPlan.set('');
@@ -83,6 +91,14 @@ export class GestionNutricionComponent implements OnInit {
     this.comidas.update(l => {
       const n = [...l];
       n[idx] = { ...n[idx], nombre };
+      return n;
+    });
+  }
+
+  actualizarNotasComida(idx: number, notas: string) {
+    this.comidas.update(l => {
+      const n = [...l];
+      n[idx] = { ...n[idx], notas };
       return n;
     });
   }

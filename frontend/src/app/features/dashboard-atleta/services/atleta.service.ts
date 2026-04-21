@@ -17,6 +17,8 @@ export interface PerfilAtleta {
   nivel: 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE';
   servicio: 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
   objetivo: 'RENDIMIENTO' | 'MASA_MUSCULAR' | 'PERDER_PESO' | 'SALUD' | 'RESISTENCIA' | null;
+  alergias: string[];
+  lesiones: string[];
 }
 
 
@@ -29,7 +31,7 @@ export interface Ejercicio {
 }
 
 export interface SesionEntrenamiento {
-  dia: string;
+  nombre: string;
   ejercicios: Ejercicio[];
 }
 
@@ -54,27 +56,13 @@ export interface Alimento {
 export interface Comida {
   nombre: string;
   alimentos: Alimento[];
+  notas?: string;
 }
 
 export interface NotaNutricionista {
   id: string;
   texto: string;
   fecha: string;
-}
-
-export interface RespuestaApunte {
-  id: string;
-  texto: string;
-  fecha: string;
-  esAtleta: boolean;
-}
-
-export interface ApunteEntrenador {
-  id: string;
-  texto: string;
-  fecha: string;
-  autor: string;
-  respuestas: RespuestaApunte[];
 }
 
 export interface MediaAdjunto {
@@ -100,12 +88,19 @@ export interface HiloEjercicio {
   mensajes: MensajeHilo[];
 }
 
+export interface AdjuntoChat {
+  url: string;
+  tipo: 'foto' | 'video';
+  nombre: string;
+}
+
 export interface MensajeChat {
   id: string;
   texto: string;
   fecha: string;
   esAtleta: boolean;
   autor: string;
+  adjunto?: AdjuntoChat;
 }
 
 export interface Chat {
@@ -144,6 +139,9 @@ export interface ProfesionalAsignado {
   titulacion: string;
   rol: 'ENTRENADOR' | 'NUTRICIONISTA';
   descripcion?: string;
+  anosExperiencia?: number | null;
+  sobreMi?: string | null;
+  masters?: string[];
 }
 
 export interface SolicitudCheckIn {
@@ -167,6 +165,9 @@ const MOCK_PROFESIONALES: ProfesionalAsignado[] = [
     titulacion: 'Grado en Ciencias de la Actividad Física y del Deporte',
     rol: 'ENTRENADOR',
     descripcion: 'Especialista en fuerza e hipertrofia. Más de 8 años trabajando con atletas de todos los niveles, desde principiantes hasta competidores de powerlifting.',
+    anosExperiencia: 8,
+    sobreMi: 'Entreno a deportistas que quieren mejorar su rendimiento de forma sostenible. Me especializo en el trabajo de fuerza con base científica, adaptando cada bloque a las necesidades reales del atleta.',
+    masters: ['Máster en Alto Rendimiento Deportivo', 'Máster en Entrenamiento de Fuerza y Acondicionamiento Físico'],
   },
   {
     id: 'prof-2',
@@ -174,6 +175,9 @@ const MOCK_PROFESIONALES: ProfesionalAsignado[] = [
     titulacion: 'Dietista-Nutricionista (Graduada en Nutrición Humana y Dietética)',
     rol: 'NUTRICIONISTA',
     descripcion: 'Especializada en nutrición deportiva y composición corporal. Trabaja con atletas de resistencia y fuerza para optimizar el rendimiento y la recuperación.',
+    anosExperiencia: 6,
+    sobreMi: 'Mi enfoque es la nutrición práctica: planes que se adaptan a tu vida, no al revés. Combino evidencia científica con un seguimiento cercano para que los cambios sean duraderos.',
+    masters: ['Máster en Nutrición Deportiva'],
   },
 ];
 
@@ -189,6 +193,8 @@ const MOCK_PERFIL: PerfilAtleta = {
   nivel: 'AVANZADO',
   servicio: 'AMBOS',
   objetivo: 'RENDIMIENTO',
+  alergias: ['Intolerancia a la lactosa'],
+  lesiones: ['Tendinitis hombro derecho (2023)'],
 };
 
 const MOCK_PLAN_ENTRENAMIENTO: PlanEntrenamiento = {
@@ -199,25 +205,25 @@ const MOCK_PLAN_ENTRENAMIENTO: PlanEntrenamiento = {
   semanaActual: 3,
   sesiones: [
     {
-      dia: 'Lunes',
+      nombre: 'Lunes',
       ejercicios: [
-        { nombre: 'Press de banca', series: 4, reps: '8-10', descanso: '90s' },
-        { nombre: 'Remo en polea baja', series: 4, reps: '10-12', descanso: '60s' },
+        { nombre: 'Press de banca', series: 4, reps: '8-10', descanso: '90s', notas: 'Codos a 45° del torso. Baja hasta que el pecho casi toque la barra y empuja de forma explosiva. Pies firmes en el suelo.' },
+        { nombre: 'Remo en polea baja', series: 4, reps: '10-12', descanso: '60s', notas: 'Tira hacia el ombligo, no hacia el pecho. Mantén la espalda neutra y el pecho fuera.' },
         { nombre: 'Press militar', series: 3, reps: '10', descanso: '60s' },
-        { nombre: 'Aperturas con mancuernas', series: 3, reps: '12-15', descanso: '45s' },
+        { nombre: 'Aperturas con mancuernas', series: 3, reps: '12-15', descanso: '45s', notas: 'Movimiento controlado en la bajada. Llega hasta paralelo, no bajes más para proteger el hombro.' },
       ],
     },
     {
-      dia: 'Miércoles',
+      nombre: 'Miércoles',
       ejercicios: [
-        { nombre: 'Sentadilla', series: 4, reps: '6-8', descanso: '120s' },
-        { nombre: 'Peso muerto rumano', series: 3, reps: '10', descanso: '90s' },
+        { nombre: 'Sentadilla', series: 4, reps: '6-8', descanso: '120s', notas: 'Esta semana trabaja la profundidad sin añadir peso. Baja por debajo del paralelo, espalda neutra y rodillas alineadas con los pies.' },
+        { nombre: 'Peso muerto rumano', series: 3, reps: '10', descanso: '90s', notas: 'Empuja las caderas hacia atrás, no dobles las rodillas en exceso. Siente el estiramiento en los isquiotibiales.' },
         { nombre: 'Hip thrust', series: 3, reps: '12', descanso: '60s' },
         { nombre: 'Prensa 45°', series: 3, reps: '12', descanso: '60s' },
       ],
     },
     {
-      dia: 'Viernes',
+      nombre: 'Viernes',
       ejercicios: [
         { nombre: 'Dominadas', series: 4, reps: 'Máx', descanso: '90s' },
         { nombre: 'Fondos en paralelas', series: 4, reps: 'Máx', descanso: '90s' },
@@ -239,6 +245,7 @@ const MOCK_PLAN_NUTRICION: PlanNutricion = {
   comidas: [
     {
       nombre: 'Desayuno',
+      notas: 'Tómalo entre 30 y 60 min después de levantarte. Si entrenas por la mañana, añade 20 g de proteína en polvo a la avena.',
       alimentos: [
         { nombre: 'Avena', cantidad: '80 g', kcal: 300, proteinas: 10, carbos: 54, grasas: 6 },
         { nombre: 'Leche desnatada', cantidad: '200 ml', kcal: 70, proteinas: 7, carbos: 10, grasas: 0 },
@@ -254,6 +261,7 @@ const MOCK_PLAN_NUTRICION: PlanNutricion = {
     },
     {
       nombre: 'Comida',
+      notas: 'Es la toma más importante del día. No la saltes aunque no tengas hambre. Puedes variar la verdura pero mantén siempre las proteínas y los carbos.',
       alimentos: [
         { nombre: 'Pechuga de pollo', cantidad: '200 g', kcal: 220, proteinas: 46, carbos: 0, grasas: 4 },
         { nombre: 'Arroz integral', cantidad: '100 g en seco', kcal: 350, proteinas: 7, carbos: 74, grasas: 3 },
@@ -270,6 +278,7 @@ const MOCK_PLAN_NUTRICION: PlanNutricion = {
     },
     {
       nombre: 'Cena',
+      notas: 'Cena al menos 2 horas antes de dormir. Si tienes hambre después, puedes tomar un yogur griego desnatado extra sin problema.',
       alimentos: [
         { nombre: 'Salmón al horno', cantidad: '180 g', kcal: 320, proteinas: 38, carbos: 0, grasas: 18 },
         { nombre: 'Patata cocida', cantidad: '150 g', kcal: 120, proteinas: 3, carbos: 27, grasas: 0 },
@@ -332,26 +341,6 @@ const MOCK_HILOS: Record<string, HiloEjercicio> = {
     mensajes: [],
   },
 };
-
-const MOCK_APUNTES: ApunteEntrenador[] = [
-  {
-    id: 'apunte-1',
-    autor: 'Carlos López',
-    fecha: '2026-04-10',
-    texto: 'Muy buena sesión de hoy. La técnica en sentadilla ha mejorado bastante respecto a la semana pasada. Sigue trabajando la profundidad.',
-    respuestas: [
-      { id: 'r1', texto: '¿Bajo más el peso para trabajar más la profundidad?', fecha: '2026-04-10', esAtleta: true },
-      { id: 'r2', texto: 'Sí, baja un 10% de carga y enfócate en llegar por debajo del paralelo. La fuerza vendrá sola.', fecha: '2026-04-11', esAtleta: false },
-    ],
-  },
-  {
-    id: 'apunte-2',
-    autor: 'Carlos López',
-    fecha: '2026-04-14',
-    texto: 'Noto que llegas con las piernas cargadas los lunes. Revisa el descanso del fin de semana, no hagas actividad intensa los domingos.',
-    respuestas: [],
-  },
-];
 
 const MOCK_HILOS_COMIDA: Record<string, HiloComida> = {
   'Desayuno': {
@@ -465,22 +454,15 @@ export class AtletaService {
     return of(MOCK_NOTAS_NUTRICIONISTA);
   }
 
-  getApuntes(): Observable<ApunteEntrenador[]> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.get<ApunteEntrenador[]>(`${this.API}/apuntes`, { withCredentials: true });
-    return of(MOCK_APUNTES);
-  }
-
-  responderApunte(apunteId: string, texto: string): Observable<RespuestaApunte> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.post<RespuestaApunte>(`${this.API}/apuntes/${apunteId}/respuesta`, { texto }, { withCredentials: true });
-    const hoy = new Date().toISOString().split('T')[0];
-    return of({ id: `r-${Date.now()}`, texto, fecha: hoy, esAtleta: true });
-  }
-
   cambiarPassword(actual: string, nueva: string): Observable<void> {
     // ── REAL ──────────────────────────────────────────────────────────────
     // return this.http.put<void>(`${this.API}/password`, { actual, nueva }, { withCredentials: true });
+    return of(undefined);
+  }
+
+  eliminarCuenta(): Observable<void> {
+    // ── REAL ──────────────────────────────────────────────────────────────
+    // return this.http.delete<void>(`${this.API}/cuenta`, { withCredentials: true });
     return of(undefined);
   }
 
@@ -510,11 +492,23 @@ export class AtletaService {
                                     : { ...MOCK_CHAT_NUTRICIONISTA, mensajes: [...MOCK_CHAT_NUTRICIONISTA.mensajes] });
   }
 
-  enviarMensajeChat(tipo: 'entrenador' | 'nutricionista', texto: string): Observable<MensajeChat> {
+  enviarMensajeChat(tipo: 'entrenador' | 'nutricionista', texto: string, adjunto?: AdjuntoChat): Observable<MensajeChat> {
     // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.post<MensajeChat>(`${this.API}/chat/${tipo}/mensaje`, { texto }, { withCredentials: true });
+    // const form = new FormData();
+    // if (texto) form.append('texto', texto);
+    // if (adjunto?.archivo) form.append('archivo', adjunto.archivo);
+    // return this.http.post<MensajeChat>(`${this.API}/chat/${tipo}/mensaje`, form, { withCredentials: true });
     const hoy = new Date().toISOString().split('T')[0];
-    return of({ id: `chat-${Date.now()}`, texto, fecha: hoy, esAtleta: true, autor: 'Tú' });
+    return of({ id: `chat-${Date.now()}`, texto, fecha: hoy, esAtleta: true, autor: 'Tú', adjunto });
+  }
+
+  subirArchivoChat(tipo: 'entrenador' | 'nutricionista', archivo: File): Observable<AdjuntoChat> {
+    // ── REAL (requiere S3) ─────────────────────────────────────────────────
+    // const form = new FormData();
+    // form.append('archivo', archivo);
+    // return this.http.post<AdjuntoChat>(`${this.API}/chat/${tipo}/archivo`, form, { withCredentials: true });
+    const tipoMedia: 'foto' | 'video' = archivo.type.startsWith('video') ? 'video' : 'foto';
+    return of({ url: URL.createObjectURL(archivo), tipo: tipoMedia, nombre: archivo.name });
   }
 
   getHiloComida(comidaNombre: string): Observable<HiloComida> {

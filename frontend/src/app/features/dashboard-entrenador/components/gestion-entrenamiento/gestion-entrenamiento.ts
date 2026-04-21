@@ -1,92 +1,102 @@
-import {
-  Component, inject, signal, computed, input, OnInit
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal, computed, input, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { EntrenamientoService, Rutina, Sesion, EjercicioManual } from '../../services/entrenamiento.service';
 
-import {
-  EntrenamientoService, Rutina, Sesion, EjercicioEnSesion
-} from '../../services/entrenamiento.service';
-import { EjercicioAPI } from '../../services/ejercicio.service';
-import { BuscadorEjercicioComponent } from '../buscador-ejercicio/buscador-ejercicio';
-
-type Vista = 'lista' | 'crear';
+type Vista = 'lista' | 'crear' | 'detalle';
 
 @Component({
   selector: 'app-gestion-entrenamiento',
   standalone: true,
-  imports: [FormsModule, DatePipe, BuscadorEjercicioComponent],
+  imports: [DatePipe],
   templateUrl: './gestion-entrenamiento.html',
 })
 export class GestionEntrenamientoComponent implements OnInit {
   readonly entrenamiento = inject(EntrenamientoService);
-
-  readonly atletaId = input<string | null>(null);
+  readonly atletaId      = input<string | null>(null);
 
   // ── Estado principal ──────────────────────────────────────────────────────
-  vista     = signal<Vista>('lista');
-  rutinas   = signal<Rutina[]>([]);
-  guardando = signal(false);
+  readonly vista          = signal<Vista>('lista');
+  readonly rutinas        = signal<Rutina[]>([]);
+  readonly guardando      = signal(false);
+  readonly rutinaDetalle  = signal<Rutina | null>(null);
+  readonly sesionDetalleIdx = signal(0);
+  readonly sesionDetalleActiva = computed(() =>
+    this.rutinaDetalle()?.sesiones[this.sesionDetalleIdx()] ?? null
+  );
 
   // ── Formulario rutina ─────────────────────────────────────────────────────
-  nombreRutina      = signal('');
-  descripcionRutina = signal('');
-  sesiones          = signal<Sesion[]>([
-    { id: crypto.randomUUID(), nombre: 'Sesión 1', ejercicios: [] },
+  readonly nombreRutina      = signal('');
+  readonly descripcionRutina = signal('');
+
+  readonly sesiones = signal<Sesion[]>([
+    { id: crypto.randomUUID(), nombre: 'Sesión 1', tipo: 'entrenamiento', ejercicios: [] },
   ]);
+  readonly sesionActivaIdx       = signal(0);
+  readonly editandoNombreSesion  = signal(false);
 
-  /** Índice de la pestaña de sesión activa */
-  sesionActivaIdx = signal(0);
+  readonly sesionActiva = computed(() => this.sesiones()[this.sesionActivaIdx()] ?? null);
 
-  /** true mientras el nombre de sesión activa está en edición */
-  editandoNombreSesion = signal(false);
-
-  /** Sesión actualmente visible */
-  sesionActiva = computed(() => this.sesiones()[this.sesionActivaIdx()] ?? null);
-
-  /** Buscador abierto en la sesión activa */
-  buscadorAbierto = signal(false);
-
-  totalEjerciciosBorrador = computed(() =>
+  readonly totalEjerciciosBorrador = computed(() =>
     this.sesiones().reduce((s, ses) => s + ses.ejercicios.length, 0)
   );
 
-  ngOnInit() {
+  // ── Modal ejercicio ───────────────────────────────────────────────────────
+  readonly modalAbierto       = signal(false);
+  readonly mostrarSugerencias = signal(false);
+  readonly nuevoNombre  = signal('');
+  readonly nuevoSeries  = signal(3);
+  readonly nuevoReps    = signal('10');
+  readonly nuevoNotas   = signal('');
+
+  abrirModal(nombreInicial = ''): void {
+    this.limpiarForm();
+    if (nombreInicial) this.nuevoNombre.set(nombreInicial);
+    this.modalAbierto.set(true);
+  }
+
+  cerrarModal(): void {
+    this.modalAbierto.set(false);
+  }
+
+  ngOnInit(): void {
     const id = this.atletaId();
     if (id) this.entrenamiento.getRutinas(id).subscribe(r => this.rutinas.set(r));
   }
 
-  // ── Gestión de sesiones ───────────────────────────────────────────────────
+  // ── Sesiones ──────────────────────────────────────────────────────────────
 
-  iniciarCreacion() {
+  abrirDetalle(rutina: Rutina): void {
+    this.rutinaDetalle.set(rutina);
+    this.sesionDetalleIdx.set(0);
+    this.vista.set('detalle');
+  }
+
+  iniciarCreacion(): void {
     this.nombreRutina.set('');
     this.descripcionRutina.set('');
-    this.sesiones.set([{ id: crypto.randomUUID(), nombre: 'Sesión 1', ejercicios: [] }]);
+    this.sesiones.set([{ id: crypto.randomUUID(), nombre: 'Sesión 1', tipo: 'entrenamiento', ejercicios: [] }]);
     this.sesionActivaIdx.set(0);
     this.editandoNombreSesion.set(false);
+    this.limpiarForm();
     this.vista.set('crear');
   }
 
-  agregarSesion() {
-    this.sesiones.update(l => [
-      ...l,
-      { id: crypto.randomUUID(), nombre: `Sesión ${l.length + 1}`, ejercicios: [] },
-    ]);
-    // Navegar a la nueva sesión
+  agregarSesion(): void {
+    const n = this.sesiones().length + 1;
+    this.sesiones.update(l => [...l, { id: crypto.randomUUID(), nombre: `Sesión ${n}`, tipo: 'entrenamiento', ejercicios: [] }]);
     this.sesionActivaIdx.set(this.sesiones().length - 1);
     this.editandoNombreSesion.set(true);
+    this.limpiarForm();
   }
 
-  eliminarSesion(idx: number) {
+  eliminarSesion(idx: number): void {
     if (this.sesiones().length <= 1) return;
     this.sesiones.update(l => l.filter((_, i) => i !== idx));
-    // Ajustar índice si borramos la activa o una anterior
-    if (this.sesionActivaIdx() >= this.sesiones().length) {
+    if (this.sesionActivaIdx() >= this.sesiones().length)
       this.sesionActivaIdx.set(this.sesiones().length - 1);
-    }
   }
 
-  actualizarNombreSesion(idx: number, nombre: string) {
+  renombrarSesion(idx: number, nombre: string): void {
     this.sesiones.update(l => {
       const n = [...l];
       n[idx] = { ...n[idx], nombre };
@@ -94,67 +104,58 @@ export class GestionEntrenamientoComponent implements OnInit {
     });
   }
 
-  // ── Gestión de ejercicios ─────────────────────────────────────────────────
+  // ── Ejercicios ────────────────────────────────────────────────────────────
 
-  agregarEjercicio(item: EjercicioEnSesion) {
-    const idx          = this.sesionActivaIdx();
-    const sesionNombre = this.sesiones()[idx]?.nombre ?? '';
+  agregarEjercicio(): void {
+    const nombre = this.nuevoNombre().trim();
+    if (!nombre) return;
+    this.entrenamiento.registrarUsoEjercicio(nombre);
+    const ej: EjercicioManual = {
+      id: crypto.randomUUID(),
+      nombre,
+      series: this.nuevoSeries(),
+      reps:   this.nuevoReps().trim() || '10',
+      notas:  this.nuevoNotas().trim(),
+    };
+    const idx = this.sesionActivaIdx();
     this.sesiones.update(l => {
       const n = [...l];
-      n[idx] = { ...n[idx], ejercicios: [...n[idx].ejercicios, item] };
+      n[idx] = { ...n[idx], ejercicios: [...n[idx].ejercicios, ej] };
       return n;
     });
-    this.entrenamiento.registrarUso(item.ejercicio, sesionNombre);
-    this.buscadorAbierto.set(false);
+    this.limpiarForm();
   }
 
-  agregarReciente(ejercicio: EjercicioAPI) {
-    this.agregarEjercicio({
-      ejercicio,
-      series: 3,
-      reps:   '10',
-      notas:  '',
-    });
-  }
-
-  quitarEjercicio(sesionIdx: number, ejercicioIdx: number) {
+  quitarEjercicio(sesionIdx: number, ejId: string): void {
     this.sesiones.update(l => {
       const n = [...l];
-      n[sesionIdx] = {
-        ...n[sesionIdx],
-        ejercicios: n[sesionIdx].ejercicios.filter((_, i) => i !== ejercicioIdx),
-      };
+      n[sesionIdx] = { ...n[sesionIdx], ejercicios: n[sesionIdx].ejercicios.filter(e => e.id !== ejId) };
       return n;
     });
   }
 
-  actualizarEjercicio(
-    sesionIdx:    number,
-    ejercicioIdx: number,
-    campo:        'series' | 'reps' | 'notas',
-    valor:        string | number
-  ) {
+  actualizarEjercicio(sesionIdx: number, ejId: string, campo: keyof EjercicioManual, valor: string | number): void {
     this.sesiones.update(l => {
-      const n  = [...l];
-      const ej = [...n[sesionIdx].ejercicios];
-      ej[ejercicioIdx] = { ...ej[ejercicioIdx], [campo]: valor };
-      n[sesionIdx] = { ...n[sesionIdx], ejercicios: ej };
+      const n = [...l];
+      n[sesionIdx] = { ...n[sesionIdx], ejercicios: n[sesionIdx].ejercicios.map(e => e.id === ejId ? { ...e, [campo]: valor } : e) };
       return n;
     });
   }
 
-  yaEnSesion(sesionIdx: number, ejercicioId: string): boolean {
-    return this.sesiones()[sesionIdx]?.ejercicios.some(e => e.ejercicio.id === ejercicioId) ?? false;
+  limpiarForm(): void {
+    this.nuevoNombre.set('');
+    this.nuevoSeries.set(3);
+    this.nuevoReps.set('10');
+    this.nuevoNotas.set('');
   }
 
-  // ── Guardar / eliminar rutina ─────────────────────────────────────────────
+  // ── Guardar / eliminar ────────────────────────────────────────────────────
 
-  guardarRutina() {
+  guardarRutina(): void {
     const id = this.atletaId();
     if (!id || !this.nombreRutina().trim()) return;
     this.guardando.set(true);
-    this.entrenamiento
-      .crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
+    this.entrenamiento.crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
       .subscribe(rutina => {
         this.rutinas.update(r => [...r, rutina]);
         this.guardando.set(false);
@@ -162,20 +163,19 @@ export class GestionEntrenamientoComponent implements OnInit {
       });
   }
 
-  activarRutina(rutinaId: string) {
+  activarRutina(rutinaId: string): void {
     const id = this.atletaId();
     if (!id) return;
-    this.entrenamiento.activarRutina(id, rutinaId).subscribe(() => {
-      this.rutinas.update(r => r.map(x => ({ ...x, activa: x.id === rutinaId })));
-    });
+    this.entrenamiento.activarRutina(id, rutinaId).subscribe(() =>
+      this.rutinas.update(r => r.map(x => ({ ...x, activa: x.id === rutinaId })))
+    );
   }
 
-  eliminarRutina(rutinaId: string) {
+  eliminarRutina(rutinaId: string): void {
     const id = this.atletaId();
     if (!id) return;
-    this.entrenamiento.eliminarRutina(id, rutinaId).subscribe(() => {
-      this.rutinas.update(r => r.filter(x => x.id !== rutinaId));
-    });
+    this.entrenamiento.eliminarRutina(id, rutinaId).subscribe(() =>
+      this.rutinas.update(r => r.filter(x => x.id !== rutinaId))
+    );
   }
-
 }

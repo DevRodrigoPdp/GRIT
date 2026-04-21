@@ -2,10 +2,6 @@
 
   <!-- ── CHAT ────────────────────────────────────────────────────────────── -->
   <section>
-    <div class="flex items-center gap-3 mb-5">
-      <div class="w-5 h-px bg-[#2ED38D]"></div>
-      <span class="text-xs font-bold tracking-[0.35em] uppercase text-[#2ED38D]">CHAT</span>
-    </div>
 
     <div class="flex flex-col border border-[#E5E7EB]" style="height: 420px;">
 
@@ -20,7 +16,24 @@
               <div [class]="msg.de === 'entrenador'
                 ? 'bg-black text-white px-4 py-3'
                 : 'bg-[#F9FAFB] border border-[#E5E7EB] text-black px-4 py-3'">
-                <p class="text-sm font-light leading-relaxed">{{ msg.texto }}</p>
+                
+                @if (msg.media && msg.media.length > 0) {
+                  <div class="flex flex-col gap-2 mb-2">
+                    @for (m of msg.media; track m.id) {
+                      <div class="relative max-w-full overflow-hidden border border-white/10 bg-white/5">
+                        @if (m.tipo === 'foto') {
+                          <img [src]="m.url" class="max-w-full h-auto block" alt="Adjunto"/>
+                        } @else {
+                          <video [src]="m.url" controls class="max-w-full block"></video>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+
+                @if (msg.texto) {
+                  <p class="text-sm font-light leading-relaxed">{{ msg.texto }}</p>
+                }
               </div>
               <p class="text-[10px] font-light text-gray-300 mt-1"
                 [class]="msg.de === 'entrenador' ? 'text-right' : 'text-left'">
@@ -42,6 +55,12 @@
 
       <!-- Input -->
       <div class="flex-shrink-0 border-t border-[#E5E7EB] p-4 flex gap-3">
+        <label class="flex items-center justify-center w-10 h-10 border border-[#E5E7EB] text-gray-400 hover:text-black hover:border-black cursor-pointer transition-colors flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-linecap="square"/>
+          </svg>
+          <input type="file" accept="image/*,video/*" class="hidden" (change)="adjuntarMedia($event)"/>
+        </label>
         <input
           [(ngModel)]="nuevoMensaje"
           (keydown.enter)="enviar()"

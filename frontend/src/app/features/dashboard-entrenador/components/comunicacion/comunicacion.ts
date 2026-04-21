@@ -1,12 +1,13 @@
 import { Component, inject, input, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SeguimientoService, CheckInPeso } from '../../services/seguimiento.service';
+import { SeguimientoService, CheckInPeso, MediaAdjunto } from '../../services/seguimiento.service';
 
 export interface Mensaje {
-  id:    string;
-  texto: string;
-  de:    'entrenador' | 'atleta';
-  fecha: Date;
+  id:     string;
+  texto?: string;
+  de:     'entrenador' | 'atleta';
+  fecha:  Date;
+  media?: MediaAdjunto[];
 }
 
 interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
@@ -69,6 +70,26 @@ export class ComunicacionComponent implements OnInit {
       { id: crypto.randomUUID(), texto, de: 'entrenador', fecha: new Date() },
     ]);
     this.nuevoMensaje = '';
+  }
+
+  adjuntarMedia(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    if (!archivo) return;
+
+    this.seg.subirMedia(archivo).subscribe(media => {
+      this.mensajes.update(msgs => [
+        ...msgs,
+        {
+          id: crypto.randomUUID(),
+          de: 'entrenador',
+          fecha: new Date(),
+          media: [media]
+        }
+      ]);
+      // Reset input
+      input.value = '';
+    });
   }
 
   formatearHora(fecha: Date): string {
