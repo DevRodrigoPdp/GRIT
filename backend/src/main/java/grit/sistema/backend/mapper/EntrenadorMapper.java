@@ -11,16 +11,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface EntrenadorMapper {
 
-    // Ya NO recibimos el objeto Usuario.
-    // Solo el Request (que tiene los datos) y las URLs.
-    @Mapping(target = "documentos", source = "urls", qualifiedByName = "mapUrlsToDocumentos")
+    @Mapping(target = "documentos", expression = "java(mapFilesToDocumentos(request.getDocumentos(), urls))")
     @Mapping(target = "estadoRevision", constant = "PENDIENTE_REVISION")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
@@ -49,16 +49,24 @@ public interface EntrenadorMapper {
         return e.getTitulacionNutricion() != null;
     }
 
-    @Named("mapUrlsToDocumentos")
-    default List<DocumentoEntrenador> mapUrlsToDocumentos(List<String> urls) {
-        if (urls == null) return List.of();
-        return urls.stream().map(url -> {
+    // Lógica personalizada para mapear los metadatos de los archivos
+    default List<DocumentoEntrenador> mapFilesToDocumentos(List<MultipartFile> files, List<String> urls) {
+        if (files == null || urls == null || files.size() != urls.size()) return List.of();
+
+        List<DocumentoEntrenador> documentos = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
+            String url = urls.get(i);
             DocumentoEntrenador doc = new DocumentoEntrenador();
+            doc.setNombreArchivo(file.getOriginalFilename());
             doc.setUrlS3(url);
-            doc.setNombreArchivo(url.substring(url.lastIndexOf("/") + 1));
-            // Asegúrate de que DocStatus coincida con tus enums
-            return doc;
-        }).toList();
+            doc.setTipoMime(file.getContentType());
+            doc.setTamanyoBytes((int) file.getSize());
+            doc.setStatus(DocStatus.pending);
+            doc.setUploadedAt(java.time.OffsetDateTime.now());
+            documentos.add(doc);
+        }
+        return documentos;
     }
 }
 

@@ -31,17 +31,12 @@ public class EntrenadorPersistenceService {
 
     @Transactional
     public Entrenador guardarEntrenador(EntrenadorRequestDTO request, List<String> urls) {
-        // 1. Verificación defensiva
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
 
-        // 2. Mapeo (Nace el objeto hijo)
         Entrenador entrenador = entrenadorMapper.toEntity(request, urls);
 
-        // 3. Lógica de negocio y seguridad manual
-        entrenador.setNombre(request.getNombre());
-        entrenador.setEmail(request.getEmail());
         entrenador.setPassword(passwordEncoder.encode(request.getPassword()));
         entrenador.setRol(Rol.ENTRENADOR);
         entrenador.setEstado(EstadoUsuario.ACTIVO);
