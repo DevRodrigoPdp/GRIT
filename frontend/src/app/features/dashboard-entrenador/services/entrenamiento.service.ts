@@ -1,20 +1,29 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { EjercicioAPI } from './ejercicio.service';
 
-// ── Tipos públicos ────────────────────────────────────────────────────────────
-
-export interface EjercicioEnSesion {
-  ejercicio: EjercicioAPI;
-  series:    number;
-  reps:      string;       // "8-12", "10", "Al fallo", "30 seg"
-  notas:     string;
+export interface EjercicioManual {
+  id:     string;
+  nombre: string;
+  series: number;
+  reps:   string;
+  notas:  string;
 }
 
+export type TipoDescanso = 'completo' | 'activo' | 'movilidad' | 'stretching';
+
+export const TIPOS_DESCANSO: { value: TipoDescanso; label: string; desc: string }[] = [
+  { value: 'completo',   label: 'DESCANSO COMPLETO', desc: 'Sin actividad física'          },
+  { value: 'activo',     label: 'DESCANSO ACTIVO',   desc: 'Paseo, natación suave...'       },
+  { value: 'movilidad',  label: 'MOVILIDAD',          desc: 'Trabajo articular y de rango'  },
+  { value: 'stretching', label: 'STRETCHING',         desc: 'Estiramientos y recuperación'  },
+];
+
 export interface Sesion {
-  id:         string;
-  nombre:     string;
-  ejercicios: EjercicioEnSesion[];
+  id:            string;
+  nombre:        string;
+  tipo:          'entrenamiento' | 'descanso';
+  tipoDescanso?: TipoDescanso;
+  ejercicios:    EjercicioManual[];
 }
 
 export interface Rutina {
@@ -27,135 +36,108 @@ export interface Rutina {
   activa:      boolean;
 }
 
-// ── Servicio ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY         = 'grit_rutinas';
+const STORAGE_KEY_HISTORIAL = 'grit_ejercicios_historial';
 
-const STORAGE_KEY_RUTINAS   = 'grit_rutinas';
-const STORAGE_KEY_RECIENTES = 'grit_ultimos_ejercicios';
+const BIBLIOTECA: string[] = [
+  // Pecho
+  'Press de banca', 'Press inclinado', 'Press declinado', 'Aperturas con mancuernas', 'Fondos en paralelas',
+  // Espalda
+  'Dominadas', 'Jalón al pecho', 'Remo con barra', 'Remo en polea baja', 'Remo con mancuerna', 'Pull-over',
+  // Hombros
+  'Press militar', 'Press Arnold', 'Elevaciones laterales', 'Elevaciones frontales', 'Pájaros', 'Face pull',
+  // Bíceps
+  'Curl de bíceps', 'Curl martillo', 'Curl concentrado', 'Curl en polea baja',
+  // Tríceps
+  'Extensión de tríceps en polea', 'Press francés', 'Patada de tríceps',
+  // Pierna
+  'Sentadilla', 'Sentadilla búlgara', 'Prensa 45°', 'Extensión de cuádriceps', 'Peso muerto', 'Peso muerto rumano',
+  'Hip thrust', 'Curl femoral', 'Zancadas', 'Elevación de talones',
+  // Core
+  'Plancha', 'Crunch', 'Rueda abdominal', 'Elevación de piernas', 'Russian twist',
+  // Funcional / cardio
+  'Burpees', 'Saltos a cajón', 'Kettlebell swing', 'Mountain climbers', 'Sprints',
+];
 
 @Injectable({ providedIn: 'root' })
 export class EntrenamientoService {
   private rutinasMap = new Map<string, Rutina[]>();
 
-  /** Últimos ejercicios por nombre de sesión: { "Piernas": [...], "Pecho": [...] } */
-  readonly ultimosPorSesion = signal<Record<string, EjercicioAPI[]>>(
-    JSON.parse(localStorage.getItem(STORAGE_KEY_RECIENTES) ?? '{}')
-  );
+  readonly historial = signal<string[]>([]);
 
   constructor() {
     this.cargarRutinas();
+    this.cargarHistorial();
   }
 
-  /** Devuelve los últimos ejercicios usados en una sesión concreta. */
-  ultimosDeSesion(nombre: string): EjercicioAPI[] {
-    return this.ultimosPorSesion()[nombre] ?? [];
+  sugerencias(query: string): string[] {
+    const q = query.trim().toLowerCase();
+    const historial = this.historial();
+    if (!q) return historial.slice(0, 8);
+    const coincide = (n: string) => n.toLowerCase().includes(q);
+    const deHistorial = historial.filter(coincide);
+    const deBiblioteca = BIBLIOTECA.filter(n => coincide(n) && !deHistorial.includes(n));
+    return [...deHistorial, ...deBiblioteca].slice(0, 8);
   }
 
-  /** Registra un ejercicio como reciente para la sesión indicada. */
-  registrarUso(ejercicio: EjercicioAPI, sesionNombre: string): void {
-    this.ultimosPorSesion.update(mapa => {
-      const existentes = mapa[sesionNombre] ?? [];
-      const nueva = [
-        ejercicio,
-        ...existentes.filter(e => e.id !== ejercicio.id),
-      ].slice(0, 6);
-      const nuevoMapa = { ...mapa, [sesionNombre]: nueva };
-      localStorage.setItem(STORAGE_KEY_RECIENTES, JSON.stringify(nuevoMapa));
-      return nuevoMapa;
-    });
+  registrarUsoEjercicio(nombre: string): void {
+    const n = nombre.trim();
+    if (!n) return;
+    this.historial.update(h => [n, ...h.filter(x => x !== n)].slice(0, 30));
+    localStorage.setItem(STORAGE_KEY_HISTORIAL, JSON.stringify(this.historial()));
   }
 
-  /**
-   * Devuelve las rutinas de un atleta.
-   * TODO: reemplazar por GET /api/v1/entrenamiento/rutinas?atletaId=
-   */
+  private cargarHistorial(): void {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORIAL) ?? '[]') as string[];
+      this.historial.set(raw);
+    } catch { /* storage corrupto */ }
+  }
+
   getRutinas(atletaId: string): Observable<Rutina[]> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.get<Rutina[]>(`/api/v1/entrenamiento/rutinas`, {
-    //   params: { atletaId }, withCredentials: true
-    // });
-    // ── MOCK ──────────────────────────────────────────────────────────────
     return of(this.rutinasMap.get(atletaId) ?? []);
   }
 
-  /**
-   * Crea una rutina de entrenamiento para un atleta.
-   * TODO: reemplazar por POST /api/v1/entrenamiento/rutinas
-   */
-  crearRutina(
-    atletaId:    string,
-    nombre:      string,
-    descripcion: string,
-    sesiones:    Sesion[]
-  ): Observable<Rutina> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.post<Rutina>(`/api/v1/entrenamiento/rutinas`, {
-    //   atletaId, nombre, descripcion, sesiones
-    // }, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
+  crearRutina(atletaId: string, nombre: string, descripcion: string, sesiones: Sesion[]): Observable<Rutina> {
     const rutina: Rutina = {
-      id:          crypto.randomUUID(),
-      atletaId,
-      nombre,
-      descripcion,
-      sesiones,
-      creadoEn:    new Date(),
-      activa:      false,
+      id: crypto.randomUUID(), atletaId, nombre, descripcion, sesiones, creadoEn: new Date(), activa: false,
     };
     const existentes = this.rutinasMap.get(atletaId) ?? [];
     this.rutinasMap.set(atletaId, [...existentes, rutina]);
-    this.persistirRutinas();
+    this.persistir();
     return of(rutina);
   }
 
-  /**
-   * Elimina una rutina por id.
-   * TODO: reemplazar por DELETE /api/v1/entrenamiento/rutinas/:id
-   */
   eliminarRutina(atletaId: string, rutinaId: string): Observable<void> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.delete<void>(`/api/v1/entrenamiento/rutinas/${rutinaId}`, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    const existentes = this.rutinasMap.get(atletaId) ?? [];
-    this.rutinasMap.set(atletaId, existentes.filter(r => r.id !== rutinaId));
-    this.persistirRutinas();
+    this.rutinasMap.set(atletaId, (this.rutinasMap.get(atletaId) ?? []).filter(r => r.id !== rutinaId));
+    this.persistir();
     return of(undefined);
   }
 
-  /**
-   * Marca una rutina como activa (desactiva el resto del atleta).
-   * TODO: reemplazar por PUT /api/v1/entrenamiento/rutinas/:id/activar
-   */
   activarRutina(atletaId: string, rutinaId: string): Observable<void> {
-    // return this.http.put<void>(`/api/v1/entrenamiento/rutinas/${rutinaId}/activar`, {}, { withCredentials: true });
-    const existentes = this.rutinasMap.get(atletaId) ?? [];
-    this.rutinasMap.set(atletaId, existentes.map(r => ({ ...r, activa: r.id === rutinaId })));
-    this.persistirRutinas();
+    this.rutinasMap.set(atletaId, (this.rutinasMap.get(atletaId) ?? []).map(r => ({ ...r, activa: r.id === rutinaId })));
+    this.persistir();
     return of(undefined);
   }
 
-  /** Total de ejercicios de una rutina (sumando todas las sesiones). */
   totalEjercicios(rutina: Rutina): number {
     return rutina.sesiones.reduce((s, ses) => s + ses.ejercicios.length, 0);
   }
 
-  // ── Persistencia ─────────────────────────────────────────────────────────
-
   private cargarRutinas(): void {
     try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY_RUTINAS) ?? '[]') as Rutina[];
-      for (const rutina of raw) {
-        const lista = this.rutinasMap.get(rutina.atletaId) ?? [];
-        lista.push(rutina);
-        this.rutinasMap.set(rutina.atletaId, lista);
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as Rutina[];
+      for (const r of raw) {
+        const lista = this.rutinasMap.get(r.atletaId) ?? [];
+        lista.push(r);
+        this.rutinasMap.set(r.atletaId, lista);
       }
-    } catch {
-      // Storage corrupto: empieza limpio
-    }
+    } catch { /* storage corrupto */ }
   }
 
-  private persistirRutinas(): void {
+  private persistir(): void {
     const todas: Rutina[] = [];
     this.rutinasMap.forEach(lista => todas.push(...lista));
-    localStorage.setItem(STORAGE_KEY_RUTINAS, JSON.stringify(todas));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todas));
   }
 }

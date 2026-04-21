@@ -8,18 +8,15 @@ import {
   SolicitudCheckIn,
   CheckInPeso,
   NotaNutricionista,
-  ApunteEntrenador,
-  HiloEjercicio,
   Chat,
   ProfesionalAsignado,
   HiloComida,
-  MensajeHiloComida,
 } from './services/atleta.service';
 
 type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'perfil' | 'ajustes';
 
 interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
-interface ItemCompra  { nombre: string; cantidad: string; }
+interface ItemCompra { nombre: string; cantidad: string; }
 
 @Component({
   selector: 'app-dashboard-atleta',
@@ -27,23 +24,19 @@ interface ItemCompra  { nombre: string; cantidad: string; }
   templateUrl: './dashboard-atleta.html',
 })
 export class DashboardAtletaPage implements OnInit {
-  readonly auth   = inject(AuthService);
+  readonly auth = inject(AuthService);
   readonly atleta = inject(AtletaService);
-
-  @ViewChild('hiloRef') hiloRef?: ElementRef<HTMLDivElement>;
-
 
   readonly cargando = signal(true);
 
   // ── Datos ─────────────────────────────────────────────────────────────────
-  readonly perfilAtleta      = signal<PerfilAtleta | null>(null);
-  readonly profesionales     = signal<ProfesionalAsignado[]>([]);
+  readonly perfilAtleta = signal<PerfilAtleta | null>(null);
+  readonly profesionales = signal<ProfesionalAsignado[]>([]);
   readonly planEntrenamiento = signal<PlanEntrenamiento | null>(null);
-  readonly planNutricion     = signal<PlanNutricion | null>(null);
-  readonly solicitudCheckIn  = signal<SolicitudCheckIn | null>(null);
-  readonly historialPesos    = signal<CheckInPeso[]>([]);
+  readonly planNutricion = signal<PlanNutricion | null>(null);
+  readonly solicitudCheckIn = signal<SolicitudCheckIn | null>(null);
+  readonly historialPesos = signal<CheckInPeso[]>([]);
   readonly notasNutricionista = signal<NotaNutricionista[]>([]);
-  readonly apuntes           = signal<ApunteEntrenador[]>([]);
 
   // ── Navegación ────────────────────────────────────────────────────────────
   readonly vistaActual = signal<Vista>('entrenamiento');
@@ -52,35 +45,23 @@ export class DashboardAtletaPage implements OnInit {
     const s = this.auth.servicio();
     const items: { id: Vista; label: string }[] = [];
     if (s === 'ENTRENAMIENTO' || s === 'AMBOS') items.push({ id: 'entrenamiento', label: 'ENTRENAMIENTO' });
-    if (s === 'NUTRICION'     || s === 'AMBOS') items.push({ id: 'dieta',         label: 'DIETA' });
-    items.push({ id: 'cuaderno', label: 'CUADERNO' });
-    items.push({ id: 'perfil',   label: 'MI PERFIL' });
-    items.push({ id: 'ajustes',  label: 'AJUSTES' });
+    if (s === 'NUTRICION' || s === 'AMBOS') items.push({ id: 'dieta', label: 'DIETA' });
+    items.push({ id: 'cuaderno', label: 'CHAT' });
+    items.push({ id: 'perfil', label: 'MI PERFIL' });
+    items.push({ id: 'ajustes', label: 'AJUSTES' });
     return items;
   });
 
   // ── Registro de peso ──────────────────────────────────────────────────────
   readonly pesoInputValor = signal('');
-  readonly enviandoPeso   = signal(false);
+  readonly enviandoPeso = signal(false);
 
-  // ── Hilo de ejercicio ─────────────────────────────────────────────────────
-  readonly ejercicioActivo   = signal<{ dia: string; nombre: string } | null>(null);
-  readonly hilosCache        = signal<Map<string, HiloEjercicio>>(new Map());
-  readonly cargandoHilo      = signal(false);
-  readonly mensajeHiloInput  = signal('');
-  readonly enviandoMensajeHilo = signal(false);
-
-  readonly hiloActivo = computed<HiloEjercicio | null>(() => {
-    const ej = this.ejercicioActivo();
-    if (!ej) return null;
-    return this.hilosCache().get(`${ej.dia}-${ej.nombre}`) ?? null;
-  });
 
   // ── Hilo de comida ────────────────────────────────────────────────────────
-  readonly comidaActiva        = signal<string | null>(null);
-  readonly hilosComidaCache    = signal<Map<string, HiloComida>>(new Map());
-  readonly cargandoHiloComida  = signal(false);
-  readonly mensajeHiloComidaInput    = signal('');
+  readonly comidaActiva = signal<string | null>(null);
+  readonly hilosComidaCache = signal<Map<string, HiloComida>>(new Map());
+  readonly cargandoHiloComida = signal(false);
+  readonly mensajeHiloComidaInput = signal('');
   readonly enviandoMensajeHiloComida = signal(false);
 
   readonly hiloComidaActivo = computed<HiloComida | null>(() => {
@@ -92,10 +73,10 @@ export class DashboardAtletaPage implements OnInit {
   // ── Chat general ──────────────────────────────────────────────────────────
   @ViewChild('chatMessagesRef') chatMessagesRef?: ElementRef<HTMLDivElement>;
 
-  readonly chatEntrenador     = signal<Chat | null>(null);
-  readonly chatNutricionista  = signal<Chat | null>(null);
-  readonly chatActivo         = signal<'entrenador' | 'nutricionista'>('entrenador');
-  readonly mensajeChatInput   = signal('');
+  readonly chatEntrenador = signal<Chat | null>(null);
+  readonly chatNutricionista = signal<Chat | null>(null);
+  readonly chatActivo = signal<'entrenador' | 'nutricionista'>('entrenador');
+  readonly mensajeChatInput = signal('');
   readonly enviandoMensajeChat = signal(false);
 
   readonly chatMostrado = computed<Chat | null>(() =>
@@ -103,18 +84,14 @@ export class DashboardAtletaPage implements OnInit {
   );
 
 
-  // ── Cuaderno (apuntes — pendiente de integración) ─────────────────────────
-  readonly apunteRespondiendo = signal<string | null>(null);
-  readonly textoRespuesta     = signal('');
-  readonly enviandoRespuesta  = signal(false);
 
   // ── Ajustes ───────────────────────────────────────────────────────────────
-  readonly passActual   = signal('');
-  readonly passNueva    = signal('');
-  readonly passConfirm  = signal('');
+  readonly passActual = signal('');
+  readonly passNueva = signal('');
+  readonly passConfirm = signal('');
   readonly cambiandoPass = signal(false);
-  readonly passCambiada  = signal(false);
-  readonly passError     = signal('');
+  readonly passCambiada = signal(false);
+  readonly passError = signal('');
 
   // ── Computeds ─────────────────────────────────────────────────────────────
   readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
@@ -153,13 +130,12 @@ export class DashboardAtletaPage implements OnInit {
     this.auth.me().subscribe(() => {
       const s = this.auth.servicio();
       const incluyeEntrenamiento = s === 'ENTRENAMIENTO' || s === 'AMBOS';
-      const incluyeNutricion     = s === 'NUTRICION'     || s === 'AMBOS';
+      const incluyeNutricion = s === 'NUTRICION' || s === 'AMBOS';
 
       if (!incluyeEntrenamiento) this.vistaActual.set('dieta');
 
       this.atleta.getPerfil().subscribe(p => this.perfilAtleta.set(p));
       this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
-      this.atleta.getApuntes().subscribe(a => this.apuntes.set(a));
 
       if (incluyeEntrenamiento) {
         this.atleta.getPlanEntrenamiento().subscribe(p => this.planEntrenamiento.set(p));
@@ -221,6 +197,14 @@ export class DashboardAtletaPage implements OnInit {
     }, 50);
   }
 
+  // ── Ejercicio activo (mostrar notas) ─────────────────────────────────────
+  readonly ejercicioActivo = signal<{ sesion: string; nombre: string } | null>(null);
+
+  toggleEjercicio(sesion: string, nombre: string): void {
+    const actual = this.ejercicioActivo();
+    this.ejercicioActivo.set(actual?.sesion === sesion && actual?.nombre === nombre ? null : { sesion, nombre });
+  }
+
   // ── Hilo de comida ────────────────────────────────────────────────────────
   abrirComida(nombre: string): void {
     if (this.comidaActiva() === nombre) {
@@ -255,65 +239,6 @@ export class DashboardAtletaPage implements OnInit {
     });
   }
 
-  // ── Hilo de ejercicio ─────────────────────────────────────────────────────
-  abrirEjercicio(dia: string, nombre: string): void {
-    const clave = `${dia}-${nombre}`;
-    const actual = this.ejercicioActivo();
-
-    if (actual?.dia === dia && actual?.nombre === nombre) {
-      this.ejercicioActivo.set(null);
-      return;
-    }
-
-    this.ejercicioActivo.set({ dia, nombre });
-    this.mensajeHiloInput.set('');
-
-    if (!this.hilosCache().has(clave)) {
-      this.cargandoHilo.set(true);
-      this.atleta.getHiloEjercicio(dia, nombre).subscribe(hilo => {
-        this.hilosCache.update(m => new Map(m).set(clave, hilo));
-        this.cargandoHilo.set(false);
-      });
-    }
-
-    setTimeout(() => {
-      this.hiloRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  }
-
-  enviarMensajeHilo(): void {
-    const texto = this.mensajeHiloInput().trim();
-    const ej = this.ejercicioActivo();
-    if (!texto || !ej) return;
-
-    this.enviandoMensajeHilo.set(true);
-    this.atleta.enviarMensajeHilo(ej.dia, ej.nombre, texto).subscribe(msg => {
-      const clave = `${ej.dia}-${ej.nombre}`;
-      this.hilosCache.update(m => {
-        const hilo = m.get(clave)!;
-        return new Map(m).set(clave, { ...hilo, mensajes: [...hilo.mensajes, msg] });
-      });
-      this.mensajeHiloInput.set('');
-      this.enviandoMensajeHilo.set(false);
-    });
-  }
-
-  adjuntarMediaHilo(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const archivo = input.files?.[0];
-    const ej = this.ejercicioActivo();
-    if (!archivo || !ej) return;
-
-    this.atleta.subirMediaHilo(ej.dia, ej.nombre, archivo).subscribe(media => {
-      const clave = `${ej.dia}-${ej.nombre}`;
-      this.hilosCache.update(m => {
-        const hilo = m.get(clave)!;
-        return new Map(m).set(clave, { ...hilo, media: [...hilo.media, media] });
-      });
-      input.value = '';
-    });
-  }
-
   // ── Registro de peso ──────────────────────────────────────────────────────
   registrarPeso(): void {
     const valor = parseFloat(this.pesoInputValor().replace(',', '.'));
@@ -326,31 +251,6 @@ export class DashboardAtletaPage implements OnInit {
       this.solicitudCheckIn.set(null);
       this.pesoInputValor.set('');
       this.enviandoPeso.set(false);
-    });
-  }
-
-  // ── Cuaderno ──────────────────────────────────────────────────────────────
-  abrirRespuesta(apunteId: string): void {
-    this.apunteRespondiendo.set(apunteId);
-    this.textoRespuesta.set('');
-  }
-
-  cerrarRespuesta(): void {
-    this.apunteRespondiendo.set(null);
-    this.textoRespuesta.set('');
-  }
-
-  enviarRespuesta(apunteId: string): void {
-    const texto = this.textoRespuesta().trim();
-    if (!texto) return;
-
-    this.enviandoRespuesta.set(true);
-    this.atleta.responderApunte(apunteId, texto).subscribe(respuesta => {
-      this.apuntes.update(lista =>
-        lista.map(a => a.id !== apunteId ? a : { ...a, respuestas: [...a.respuestas, respuesta] })
-      );
-      this.cerrarRespuesta();
-      this.enviandoRespuesta.set(false);
     });
   }
 

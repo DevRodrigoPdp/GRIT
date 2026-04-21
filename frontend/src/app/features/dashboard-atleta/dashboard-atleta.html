@@ -147,142 +147,36 @@
         <div class="mb-12">
           <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">SESIONES DE LA SEMANA</p>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            @for (sesion of planEntrenamiento()!.sesiones; track sesion.dia) {
+            @for (sesion of planEntrenamiento()!.sesiones; track sesion.nombre) {
               <div class="border border-[#E5E7EB] p-5">
-                <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.dia }}</p>
+                <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.nombre }}</p>
                 <div class="flex flex-col gap-1">
                   @for (ej of sesion.ejercicios; track ej.nombre) {
-                    @let activo = ejercicioActivo()?.dia === sesion.dia && ejercicioActivo()?.nombre === ej.nombre;
+                    @let activo = ejercicioActivo()?.sesion === sesion.nombre && ejercicioActivo()?.nombre === ej.nombre;
                     <button
                       type="button"
-                      (click)="abrirEjercicio(sesion.dia, ej.nombre)"
-                      class="flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors rounded-sm"
-                      [class]="activo ? 'bg-black' : 'hover:bg-[#F9FAFB]'"
+                      (click)="toggleEjercicio(sesion.nombre, ej.nombre)"
+                      class="w-full flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors"
+                      [class]="activo ? 'bg-black' : (ej.notas ? 'hover:bg-[#F9FAFB] cursor-pointer' : 'cursor-default')"
                     >
                       <span class="text-sm leading-tight" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
                       <div class="flex-shrink-0 text-right">
                         <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
-                        @if (ej.descanso) { <span class="text-[10px]" [class]="activo ? 'text-gray-400' : 'text-gray-400'">{{ ej.descanso }}</span> }
+                        @if (ej.descanso) { <span class="text-[10px] text-gray-400">{{ ej.descanso }}</span> }
                       </div>
                     </button>
+                    @if (activo && ej.notas) {
+                      <div class="px-3 py-3 -mx-3 bg-black border-t border-[#1a1a1a]">
+                        <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1.5">NOTA DEL ENTRENADOR</p>
+                        <p class="text-sm text-gray-300 leading-relaxed">{{ ej.notas }}</p>
+                      </div>
+                    }
                   }
                 </div>
               </div>
             }
           </div>
 
-          <!-- Hilo del ejercicio activo -->
-          @if (ejercicioActivo()) {
-            <div #hiloRef class="mt-6 border border-[#E5E7EB]">
-
-              <!-- Cabecera del hilo -->
-              <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-black">
-                <div>
-                  <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ ejercicioActivo()!.nombre }}</p>
-                  <p class="text-[10px] text-gray-400 mt-0.5">{{ ejercicioActivo()!.dia }}</p>
-                </div>
-                <button type="button" (click)="ejercicioActivo.set(null)" class="text-gray-400 hover:text-white transition-colors text-xs font-bold tracking-widest uppercase">
-                  CERRAR
-                </button>
-              </div>
-
-              @if (cargandoHilo()) {
-                <div class="px-5 py-8 flex items-center justify-center">
-                  <span class="text-xs text-gray-400 uppercase tracking-widest">Cargando...</span>
-                </div>
-              } @else if (hiloActivo()) {
-                @let hilo = hiloActivo()!;
-
-                <!-- Nota del entrenador -->
-                @if (hilo.notaEntrenador) {
-                  <div class="px-5 py-4 border-b border-[#E5E7EB] bg-[#F9FAFB]">
-                    <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-2">NOTA DEL ENTRENADOR</p>
-                    <p class="text-sm text-black leading-relaxed">{{ hilo.notaEntrenador }}</p>
-                  </div>
-                }
-
-                <!-- Media adjunta -->
-                <div class="px-5 py-4 border-b border-[#E5E7EB]">
-                  <div class="flex items-center gap-3 flex-wrap">
-                    @for (media of hilo.media; track media.id) {
-                      <div class="w-20 h-20 bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center relative overflow-hidden flex-shrink-0">
-                        @if (media.url) {
-                          @if (media.tipo === 'foto') {
-                            <img [src]="media.url" alt="Técnica" class="w-full h-full object-cover"/>
-                          } @else {
-                            <video [src]="media.url" class="w-full h-full object-cover"></video>
-                          }
-                        } @else {
-                          <div class="flex flex-col items-center gap-1">
-                            <span class="text-lg">{{ media.tipo === 'foto' ? '🖼' : '🎥' }}</span>
-                            <span class="text-[8px] text-gray-400 uppercase">{{ media.tipo }}</span>
-                          </div>
-                        }
-                        <span class="absolute bottom-0 left-0 right-0 text-[7px] font-bold text-center bg-black/50 text-white py-0.5">
-                          {{ formatFecha(media.fecha) }}
-                        </span>
-                      </div>
-                    }
-
-                    <!-- Botón adjuntar -->
-                    <label class="w-20 h-20 border border-dashed border-[#D1D5DB] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-black hover:bg-[#F9FAFB] transition-colors flex-shrink-0">
-                      <span class="text-lg text-gray-400">+</span>
-                      <span class="text-[8px] font-bold uppercase text-gray-400">ADJUNTAR</span>
-                      <input type="file" accept="image/*,video/*" class="hidden" (change)="adjuntarMediaHilo($event)"/>
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Mensajes -->
-                <div class="flex flex-col divide-y divide-[#F3F4F6] max-h-72 overflow-y-auto no-scrollbar">
-                  @if (hilo.mensajes.length === 0) {
-                    <div class="px-5 py-6 text-center">
-                      <p class="text-sm text-gray-400">Sin mensajes aún. Deja una nota sobre este ejercicio.</p>
-                    </div>
-                  }
-                  @for (msg of hilo.mensajes; track msg.id) {
-                    <div class="px-5 py-4 flex gap-3" [class]="msg.esAtleta ? 'flex-row-reverse' : ''">
-                      <div class="w-7 h-7 flex items-center justify-center flex-shrink-0 text-[9px] font-black text-white"
-                        [class]="msg.esAtleta ? 'bg-[#2ED38D]' : 'bg-black'">
-                        {{ msg.esAtleta ? 'TÚ' : msg.autor[0] }}
-                      </div>
-                      <div [class]="msg.esAtleta ? 'items-end' : 'items-start'" class="flex flex-col gap-0.5 max-w-[75%]">
-                        <div class="flex items-center gap-2">
-                          <span class="text-[10px] font-bold text-gray-400">{{ msg.esAtleta ? 'Tú' : msg.autor }}</span>
-                          <span class="text-[9px] text-gray-300">{{ formatFecha(msg.fecha) }}</span>
-                        </div>
-                        <p class="text-sm text-black leading-snug px-3 py-2 border border-[#E5E7EB]"
-                          [class]="msg.esAtleta ? 'bg-[#F0FDF6]' : 'bg-white'">
-                          {{ msg.texto }}
-                        </p>
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <!-- Input mensaje -->
-                <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="Escribe un mensaje..."
-                    [value]="mensajeHiloInput()"
-                    (input)="mensajeHiloInput.set($any($event.target).value)"
-                    (keydown.enter)="enviarMensajeHilo()"
-                    class="flex-1 border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:border-black"
-                  />
-                  <button
-                    type="button"
-                    (click)="enviarMensajeHilo()"
-                    [disabled]="!mensajeHiloInput().trim() || enviandoMensajeHilo()"
-                    class="px-5 py-2 text-[10px] font-black tracking-[0.2em] uppercase transition-colors flex-shrink-0"
-                    [class]="mensajeHiloInput().trim() && !enviandoMensajeHilo() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
-                  >
-                    ENVIAR
-                  </button>
-                </div>
-              }
-            </div>
-          }
         </div>
 
         @if (historialPesos().length > 0) {
@@ -385,7 +279,7 @@
         @if (notasNutricionista().length > 0) {
           <div class="mb-10">
             <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">NOTAS DE TU NUTRICIONISTA</p>
-            <div class="flex flex-col gap-3 max-w-2xl">
+            <div class="flex flex-col gap-3">
               @for (nota of notasNutricionista(); track nota.id) {
                 <div class="border-l-2 border-[#2ED38D] pl-4 py-1">
                   <p class="text-sm text-black leading-relaxed">{{ nota.texto }}</p>
@@ -398,7 +292,7 @@
 
         <div class="mb-10">
           <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">COMIDAS DEL DÍA</p>
-          <div class="flex flex-col gap-4 max-w-2xl">
+          <div class="flex flex-col gap-4">
             @for (comida of planNutricion()!.comidas; track comida.nombre) {
               @let abierta = comidaActiva() === comida.nombre;
               <div class="border" [class]="abierta ? 'border-black' : 'border-[#E5E7EB]'">
@@ -448,6 +342,14 @@
                       </div>
                     }
                   </div>
+
+                  <!-- Nota del nutricionista -->
+                  @if (comida.notas) {
+                    <div class="px-5 py-4 border-b border-[#1a1a1a] bg-[#111]">
+                      <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-2">NOTA DE TU NUTRICIONISTA</p>
+                      <p class="text-sm text-gray-300 leading-relaxed">{{ comida.notas }}</p>
+                    </div>
+                  }
 
                   @if (cargandoHiloComida()) {
                     <div class="px-5 py-6 flex items-center justify-center bg-white">
@@ -512,7 +414,7 @@
         </div>
 
         @if (listaCompra().length > 0) {
-          <div class="max-w-2xl">
+          <div>
             <div class="flex items-center justify-between mb-5">
               <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">LISTA DE LA COMPRA</p>
               <span class="text-[10px] text-gray-400">{{ itemsCompraChecked().length }}/{{ listaCompra().length }}</span>
@@ -736,9 +638,21 @@
                           {{ prof.rol }}
                         </span>
                       </div>
-                      <p class="text-[10px] text-gray-400 mb-2">{{ prof.titulacion }}</p>
-                      @if (prof.descripcion) {
-                        <p class="text-sm text-gray-600 leading-relaxed">{{ prof.descripcion }}</p>
+                      <div class="flex items-center gap-3 flex-wrap mb-2">
+                        <p class="text-[10px] text-gray-400">{{ prof.titulacion }}</p>
+                        @if (prof.anosExperiencia) {
+                          <span class="text-[10px] font-bold text-gray-400">· {{ prof.anosExperiencia }} años de experiencia</span>
+                        }
+                      </div>
+                      @if (prof.sobreMi) {
+                        <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ prof.sobreMi }}</p>
+                      }
+                      @if (prof.masters && prof.masters.length > 0) {
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                          @for (master of prof.masters; track master) {
+                            <span class="text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 border border-[#E5E7EB] text-gray-500">{{ master }}</span>
+                          }
+                        </div>
                       }
                     </div>
                   </div>

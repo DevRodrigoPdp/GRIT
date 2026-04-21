@@ -62,6 +62,24 @@ export class EntrenadorPage implements OnInit {
     { value: 'TSD',                       label: 'TSD — Técnico Superior en Dietética' },
   ];
 
+  readonly mastersSeleccionados = signal<Set<string>>(new Set());
+  readonly masterPersonalizado  = signal('');
+
+  agregarMasterPersonalizado(): void {
+    const texto = this.masterPersonalizado().trim();
+    if (!texto) return;
+    this.mastersSeleccionados.update(set => new Set(set).add(texto));
+    this.masterPersonalizado.set('');
+  }
+
+  eliminarMaster(master: string): void {
+    this.mastersSeleccionados.update(set => {
+      const next = new Set(set);
+      next.delete(master);
+      return next;
+    });
+  }
+
   readonly archivos            = signal<ArchivoSubido[]>([]);
   readonly dragOver            = signal(false);
   readonly submitted           = signal(false);
@@ -157,6 +175,8 @@ export class EntrenadorPage implements OnInit {
       codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)], [this.codigoColegiadoValidator()]],
       titulacionEntrenamiento: [null],
       titulacionNutricion:     [null],
+      anosExperiencia:         ['', [Validators.min(0), Validators.max(50), Validators.pattern(/^\d+$/)]],
+      sobreMi:                 ['', [Validators.maxLength(500)]],
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -269,6 +289,9 @@ export class EntrenadorPage implements OnInit {
       codigoProfesional: v.codigoColegiado || null,
       titulacionEntrenamiento: v.titulacionEntrenamiento || null,
       titulacionNutricion: v.titulacionNutricion || null,
+      anosExperiencia: v.anosExperiencia ? parseInt(v.anosExperiencia, 10) : null,
+      sobreMi: v.sobreMi?.trim() || null,
+      masters: Array.from(this.mastersSeleccionados()),
       documentos: this.archivos().map(a => a.file),
     })
     .subscribe({

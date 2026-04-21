@@ -7,7 +7,7 @@ import { GestionEntrenamientoComponent } from './components/gestion-entrenamient
 import { PerfilEntrenadorVistaComponent } from './components/perfil-entrenador/perfil-entrenador-vista';
 import { ComunicacionComponent } from './components/comunicacion/comunicacion';
 
-type Tab    = 'ENTRENAMIENTO' | 'NUTRICION' | 'SEGUIMIENTO';
+type Tab    = 'ENTRENAMIENTO' | 'NUTRICION' | 'COMUNICACION';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
 type Vista  = 'atletas' | 'perfil' | 'ajustes';
 
@@ -29,6 +29,7 @@ export class DashboardEntrenadorPage implements OnInit {
 
   busqueda       = signal('');
   filtroServicio = signal<Filtro>('TODOS');
+
 
   readonly navItems: { id: Vista; label: string }[] = [
     { id: 'atletas', label: 'ATLETAS' },
@@ -70,7 +71,7 @@ export class DashboardEntrenadorPage implements OnInit {
     const tabs: Tab[] = [];
     if (tieneEntrenamiento) tabs.push('ENTRENAMIENTO');
     if (tieneNutricion)     tabs.push('NUTRICION');
-    tabs.push('SEGUIMIENTO');
+    tabs.push('COMUNICACION');
     return tabs;
   });
 
@@ -120,4 +121,5 @@ export class DashboardEntrenadorPage implements OnInit {
   incluyeNutricion(servicio: AtletaAsignado['servicio']): boolean {
     return servicio === 'NUTRICION' || servicio === 'AMBOS';
   }
+
 }

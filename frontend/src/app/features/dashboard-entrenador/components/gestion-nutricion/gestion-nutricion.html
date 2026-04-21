@@ -248,6 +248,36 @@
   </div>
 }
 
+<!-- ── ALERGIAS / INTOLERANCIAS ───────────────────────────────────────────── -->
+@if (alergias().length > 0 || intolerancias().length > 0) {
+  <div class="border-b border-[#FED7AA] bg-[#FFF7ED] px-6 md:px-10 py-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+    <div class="flex items-center gap-1.5 flex-shrink-0">
+      <svg class="w-3.5 h-3.5 text-[#F97316]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke-linecap="square"/>
+        <line x1="12" y1="9" x2="12" y2="13" stroke-linecap="square"/>
+        <line x1="12" y1="17" x2="12.01" y2="17" stroke-linecap="square"/>
+      </svg>
+      <span class="text-[10px] font-black tracking-[0.25em] uppercase text-[#F97316]">AVISOS</span>
+    </div>
+    @if (alergias().length > 0) {
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-[#C2410C]">ALÉRGICO A:</span>
+        @for (a of alergias(); track a) {
+          <span class="text-[11px] font-black tracking-[0.1em] uppercase px-2 py-0.5 bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA]">{{ a }}</span>
+        }
+      </div>
+    }
+    @if (intolerancias().length > 0) {
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-[#92400E]">INTOLERANTE A:</span>
+        @for (i of intolerancias(); track i) {
+          <span class="text-[11px] font-black tracking-[0.1em] uppercase px-2 py-0.5 bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">{{ i }}</span>
+        }
+      </div>
+    }
+  </div>
+}
+
 <!-- ── LISTA DE PLANES ────────────────────────────────────────────────────── -->
 @if (vista() === 'lista') {
   <div class="py-6">
@@ -277,7 +307,7 @@
     }
 
     @for (plan of planes(); track plan.id) {
-      <div class="border border-[#E5E7EB] mb-3 p-5 hover:border-black transition-colors group">
+      <div class="border border-[#E5E7EB] mb-3 p-5 hover:border-black transition-colors group cursor-pointer" (click)="abrirDetalle(plan)">
         <div class="flex items-start justify-between">
           <div class="flex-1 min-w-0 mr-4">
             <p class="text-sm font-black uppercase tracking-tight text-black">{{ plan.nombre }}</p>
@@ -289,10 +319,10 @@
             @if (plan.activo) {
               <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D]">● ACTIVO</span>
             } @else {
-              <button (click)="activarPlan(plan.id)"
+              <button (click)="$event.stopPropagation(); activarPlan(plan.id)"
                 class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
             }
-            <button (click)="eliminarPlan(plan.id)"
+            <button (click)="$event.stopPropagation(); eliminarPlan(plan.id)"
               class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">ELIMINAR</button>
           </div>
         </div>
@@ -323,6 +353,101 @@
       </div>
     }
   </div>
+}
+
+<!-- ── DETALLE PLAN ────────────────────────────────────────────────────────── -->
+@if (vista() === 'detalle') {
+@let plan = planDetalle();
+@if (plan) {
+<div class="py-6">
+
+  <!-- Cabecera -->
+  <div class="flex items-start gap-4 mb-6">
+    <div class="flex-1">
+      <div class="flex items-center gap-3 mb-1">
+        @if (plan.activo) {
+          <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-[#2ED38D]">● ACTIVO</span>
+        }
+      </div>
+      <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">{{ plan.nombre }}</h2>
+      @if (plan.descripcion) {
+        <p class="text-sm font-light text-gray-400 mt-1">{{ plan.descripcion }}</p>
+      }
+    </div>
+    <div class="flex items-center gap-3 flex-shrink-0 mt-1">
+      @if (!plan.activo) {
+        <button (click)="activarPlan(plan.id)"
+          class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors">
+          ACTIVAR
+        </button>
+      }
+      <button (click)="vista.set('lista')"
+        class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors">
+        ← VOLVER
+      </button>
+    </div>
+  </div>
+
+  <!-- Resumen macros -->
+  @let macros = nutricion.calcularMacros(plan.comidas);
+  <div class="flex gap-6 mb-6 pb-6 border-b border-[#E5E7EB]">
+    <div>
+      <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-0.5">KCAL</p>
+      <p class="text-2xl font-black text-black leading-none">{{ macros.kcal | number:'1.0-0' }}</p>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-0.5">PROTEÍNA</p>
+      <p class="text-2xl font-black text-black leading-none">{{ macros.prot | number:'1.0-0' }}<span class="text-xs text-gray-400">g</span></p>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-0.5">CARBOS</p>
+      <p class="text-2xl font-black text-black leading-none">{{ macros.carbs | number:'1.0-0' }}<span class="text-xs text-gray-400">g</span></p>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-0.5">GRASAS</p>
+      <p class="text-2xl font-black text-black leading-none">{{ macros.grasa | number:'1.0-0' }}<span class="text-xs text-gray-400">g</span></p>
+    </div>
+  </div>
+
+  <!-- Comidas -->
+  <div class="flex flex-col gap-3">
+    @for (comida of plan.comidas; track comida.nombre) {
+    @let macrosComida = nutricion.calcularMacros([comida]);
+    <div class="border border-[#E5E7EB]">
+      <div class="px-5 py-4 flex items-center justify-between border-b border-[#E5E7EB] bg-[#FAFAFA]">
+        <p class="text-xs font-black tracking-[0.2em] uppercase text-black">{{ comida.nombre }}</p>
+        <span class="text-[11px] font-bold text-gray-400">{{ macrosComida.kcal | number:'1.0-0' }} kcal · {{ macrosComida.prot | number:'1.0-0' }}g prot</span>
+      </div>
+      <div class="divide-y divide-[#F3F4F6]">
+        @for (item of comida.alimentos; track item.alimento.codigo) {
+        <div class="px-5 py-3 flex items-center justify-between gap-4">
+          <p class="text-sm text-black">{{ item.alimento.nombre }}</p>
+          <div class="flex items-center gap-4 flex-shrink-0">
+            <span class="text-xs text-gray-400">{{ item.cantidadG }}g</span>
+            @if (item.alimento.kcalPor100g) {
+              <span class="text-[11px] font-black text-gray-400 w-14 text-right">{{ (item.alimento.kcalPor100g * item.cantidadG / 100) | number:'1.0-0' }} kcal</span>
+            }
+          </div>
+        </div>
+        }
+        @if (comida.alimentos.length === 0) {
+          <div class="px-5 py-4">
+            <p class="text-sm font-light text-gray-300">Sin alimentos</p>
+          </div>
+        }
+      </div>
+      @if (comida.notas) {
+        <div class="px-5 py-3 border-t border-[#E5E7EB] bg-[#FAFAFA]">
+          <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-300 mb-1">NOTAS</p>
+          <p class="text-xs font-light text-gray-500 leading-relaxed">{{ comida.notas }}</p>
+        </div>
+      }
+    </div>
+    }
+  </div>
+
+</div>
+}
 }
 
 <!-- ── CREAR PLAN ─────────────────────────────────────────────────────────── -->
@@ -447,6 +572,16 @@
               >✕</button>
             </div>
           }
+          <!-- Notas de la comida -->
+          <div class="mt-3 pt-3 border-t border-[#E5E7EB]">
+            <textarea
+              [value]="comida.notas ?? ''"
+              (input)="actualizarNotasComida(ci, $any($event.target).value)"
+              rows="2"
+              placeholder="Notas para esta comida (opcional)..."
+              class="w-full text-xs font-light text-gray-600 placeholder:text-gray-300 outline-none resize-none bg-transparent leading-relaxed"
+            ></textarea>
+          </div>
         </div>
       </div>
     }
