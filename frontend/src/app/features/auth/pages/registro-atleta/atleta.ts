@@ -87,6 +87,9 @@ export class AtletaPage implements OnInit {
       nivel:     ['', Validators.required],
       objetivo:  ['', Validators.required],
       servicio:  ['', Validators.required],
+      alergias:       [''],
+      lesiones:       [''],
+      codigoEntrenador: [''],
     }, { validators: [this.passwordMatchValidator, this.imcValidator] });
   }
 
@@ -143,6 +146,16 @@ export class AtletaPage implements OnInit {
   }
 
   get mostrarObjetivo(): boolean {
+    const s = this.form.get('servicio')?.value;
+    return s === 'entrenamiento' || s === 'ambos';
+  }
+
+  get mostrarAlergias(): boolean {
+    const s = this.form.get('servicio')?.value;
+    return s === 'nutricion' || s === 'ambos';
+  }
+
+  get mostrarLesiones(): boolean {
     const s = this.form.get('servicio')?.value;
     return s === 'entrenamiento' || s === 'ambos';
   }
