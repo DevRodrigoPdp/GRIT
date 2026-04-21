@@ -1,5 +1,6 @@
 package grit.sistema.backend.service;
 
+import grit.sistema.backend.dto.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
 import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
 import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
@@ -7,10 +8,13 @@ import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.training.EjercicioResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.mapper.AtletaMapper;
+import grit.sistema.backend.model.coaching.Asignacion;
 import grit.sistema.backend.model.coaching.Atleta;
+import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.model.enums.TipoServicio;
 import grit.sistema.backend.model.training.Rutina;
+import grit.sistema.backend.repository.AsignacionRepository;
 import grit.sistema.backend.repository.AtletaRepository;
 import grit.sistema.backend.repository.RutinaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,7 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -29,6 +35,7 @@ public class AtletaService {
     private final AtletaRepository atletaRepository;
     private final AtletaMapper atletaMapper;
     private final RutinaRepository rutinaRepository;
+    private final AsignacionRepository asignacionRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -66,10 +73,40 @@ public class AtletaService {
         );
     }
 
-    public RutinaDTO getPlanActivoAtleta(UUID atletaId) {
-        return rutinaRepository.findFirstByAtletaIdOrderByCreadoEn(atletaId)
-                .map(this::mapToRutinaDTO)
-                .orElse(null); // El requerimiento pide null si no hay plan
+    @Transactional(readOnly = true)
+    public Optional<RutinaDTO> getPlanActivoAtleta(UUID atletaId) {
+        return rutinaRepository.findFirstByAtletaIdOrderByCreadoEnDesc(atletaId)
+                .map(this::mapToRutinaDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProfesionalAsignadoDTO> getProfesionalesAsignados(UUID atletaId) {
+        List<Asignacion> asignaciones = asignacionRepository.findAsignacionesActivas(atletaId);
+        List<ProfesionalAsignadoDTO> resultado = new ArrayList<>();
+
+        for (Asignacion asig : asignaciones) {
+            Entrenador e = asig.getEntrenador();
+            TipoServicio servicio = asig.getTipoServicio();
+
+            // Lógica para Entrenamiento
+            if (servicio == TipoServicio.ENTRENAMIENTO || servicio == TipoServicio.AMBOS) {
+                String titulo = (e.getTitulacionEntrenamiento() != null)
+                        ? e.getTitulacionEntrenamiento().name()
+                        : "Certificación Profesional";
+
+                resultado.add(new ProfesionalAsignadoDTO(e.getId(), e.getNombre(), titulo, "ENTRENADOR", e.getDescripcion()));
+            }
+
+            // Lógica para Nutrición
+            if (servicio == TipoServicio.NUTRICION || servicio == TipoServicio.AMBOS) {
+                String titulo = (e.getTitulacionNutricion() != null)
+                        ? e.getTitulacionNutricion().name()
+                        : "Dietista Registrado";
+
+                resultado.add(new ProfesionalAsignadoDTO(e.getId(), e.getNombre(), titulo, "NUTRICIONISTA", e.getDescripcion()));
+            }
+        }
+        return resultado;
     }
 
     private void validarObjetivoSegunServicio(AtletaRequestDTO dto, Atleta atleta) {

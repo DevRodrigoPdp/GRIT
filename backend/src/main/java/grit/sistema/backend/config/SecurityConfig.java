@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/entrenador/**").hasAnyRole("ENTRENADOR", "ADMIN")
+                        .requestMatchers("/api/v1/atleta/**").hasAnyRole("ATLETA", "ADMIN")
                         .requestMatchers("/api/v1/entrenamiento/**").hasAnyRole("ENTRENADOR", "ADMIN")
                         .requestMatchers("/api/v1/nutricion/**").hasAnyRole("ENTRENADOR", "ADMIN")
 
