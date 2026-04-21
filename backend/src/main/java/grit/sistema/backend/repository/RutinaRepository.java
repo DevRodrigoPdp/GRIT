@@ -13,4 +13,5 @@ public interface RutinaRepository extends JpaRepository<Rutina, UUID> {
     List<Rutina> findAllByEntrenadorId(UUID entrenadorId);
     List<Rutina> findAllByEntrenadorIdAndAtletaId(UUID entrenadorId, UUID atletaId);
     Optional<Rutina> findByIdAndEntrenadorId(UUID id, UUID entrenadorId);
+    Optional<Rutina> findFirstByAtletaIdOrderByCreadoEn(UUID atletaId);
 }

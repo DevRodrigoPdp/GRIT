@@ -31,4 +31,6 @@ public class AtletaController {
         AtletaPerfilDTO perfilDTO = atletaService.obtenerPerfil(userDetails.getUsername());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta", perfilDTO));
     }
+
+
 }

@@ -3,6 +3,7 @@ package grit.sistema.backend.service;
 import grit.sistema.backend.exception.FileStorageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
@@ -40,17 +42,32 @@ public class StorageService {
         // [Mejora Senior]: Validar que sea PDF o imagen antes de subir
         validarMimeType(file.getContentType());
 
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ", "_");
-
+        String fileName = null;
         try {
+            byte[] finalBytes;
+            String contentType = file.getContentType();
+            String originalName = file.getOriginalFilename() != null ?
+                    file.getOriginalFilename().replace(" ", "_") : "file";
+            fileName = UUID.randomUUID() + "_" + originalName;
+
+            // [Mejora Senior]: Si optimizamos, normalizamos nombre y content-type
+            if (contentType != null && contentType.startsWith("image/")) {
+                finalBytes = optimizarImagen(file);
+                contentType = "image/jpeg"; // Forzamos porque Thumbnailator saca JPG
+                if (!fileName.toLowerCase().endsWith(".jpg") && !fileName.toLowerCase().endsWith(".jpeg")) {
+                    fileName += ".jpg";
+                }
+            } else {
+                finalBytes = file.getBytes();
+            }
+
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileName)
-                    .contentType(file.getContentType())
+                    .contentType(contentType)
                     .build();
 
-            s3Client.putObject(putObjectRequest,
-                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(finalBytes));
             return fileName;
         } catch (IOException | S3Exception e) {
             log.error("Error al subir archivo {}: {}", fileName, e.getMessage());
@@ -110,6 +127,19 @@ public class StorageService {
             log.error("Error generando URL firmada para {}: {}", objectKey, e.getMessage());
             return null;
         }
+    }
+
+    private byte[] optimizarImagen(MultipartFile file) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        // Configuramos Thumbnailator
+        Thumbnails.of(file.getInputStream())
+                .size(1280, 720)       // Redimensionamos a un máximo de HD
+                .outputQuality(0.75)   // Reducimos calidad al 75% (ahorro masivo de espacio)
+                .outputFormat("jpg")   // Normalizamos todo a JPG
+                .toOutputStream(outputStream);
+
+        return outputStream.toByteArray();
     }
 
     private void validarMimeType(String contentType) {
