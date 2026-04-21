@@ -65,7 +65,7 @@ const MOCK_PERFIL_NUTRICION: PerfilEntrenador = {
 };
 
 // ← Cambia aquí para probar distintos perfiles
-const MOCK_PERFIL = MOCK_PERFIL_NUTRICION;
+const MOCK_PERFIL = MOCK_PERFIL_AMBOS;
 
 const MOCK_ATLETAS: AtletaAsignado[] = [
   { id: 'atleta-1', nombre: 'Carlos Ruiz',   deporte: 'Fútbol',    nivel: 'AVANZADO',     servicio: 'AMBOS',         tienePlanActivo: true,  alergias: ['Frutos secos', 'Marisco'], intolerancias: ['Lactosa'] },
@@ -120,6 +120,18 @@ export class EntrenadorService {
     // return this.http.post<void>(`${this.API}/invitar`, { email }, { withCredentials: true });
     // ── MOCK ──────────────────────────────────────────────────────────────
     console.log('[mock] Invitación enviada a', email);
+    return of(undefined);
+  }
+
+  cambiarPassword(actual: string, nueva: string): Observable<void> {
+    // ── REAL ──────────────────────────────────────────────────────────────
+    // return this.http.put<void>('/api/v1/entrenador/password', { actual, nueva }, { withCredentials: true });
+    return of(undefined);
+  }
+
+  eliminarCuenta(): Observable<void> {
+    // ── REAL ──────────────────────────────────────────────────────────────
+    // return this.http.delete<void>('/api/v1/entrenador/cuenta', { withCredentials: true });
     return of(undefined);
   }
 

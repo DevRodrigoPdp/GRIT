@@ -460,6 +460,12 @@ export class AtletaService {
     return of(undefined);
   }
 
+  eliminarCuenta(): Observable<void> {
+    // ── REAL ──────────────────────────────────────────────────────────────
+    // return this.http.delete<void>(`${this.API}/cuenta`, { withCredentials: true });
+    return of(undefined);
+  }
+
   getHiloEjercicio(sesionDia: string, ejercicioNombre: string): Observable<HiloEjercicio> {
     // ── REAL ──────────────────────────────────────────────────────────────
     // return this.http.get<HiloEjercicio>(

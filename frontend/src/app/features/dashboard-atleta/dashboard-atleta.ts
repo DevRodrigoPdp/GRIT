@@ -130,12 +130,18 @@ export class DashboardAtletaPage implements OnInit {
   }
 
   // ── Ajustes ───────────────────────────────────────────────────────────────
+  readonly passAbierto = signal(false);
   readonly passActual = signal('');
   readonly passNueva = signal('');
   readonly passConfirm = signal('');
   readonly cambiandoPass = signal(false);
   readonly passCambiada = signal(false);
   readonly passError = signal('');
+
+  readonly bajaAbierta = signal(false);
+  readonly confirmarBaja = signal(false);
+  readonly textoConfirmaBaja = signal('');
+  readonly eliminandoCuenta = signal(false);
 
   // ── Computeds ─────────────────────────────────────────────────────────────
   readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
@@ -313,6 +319,18 @@ export class DashboardAtletaPage implements OnInit {
         this.passError.set('Contraseña actual incorrecta.');
         this.cambiandoPass.set(false);
       },
+    });
+  }
+
+  eliminarCuenta(): void {
+    if (this.textoConfirmaBaja() !== 'ELIMINAR') return;
+    this.eliminandoCuenta.set(true);
+    this.atleta.eliminarCuenta().subscribe({
+      next: () => {
+        this.eliminandoCuenta.set(false);
+        this.auth.logout();
+      },
+      error: () => this.eliminandoCuenta.set(false),
     });
   }
 

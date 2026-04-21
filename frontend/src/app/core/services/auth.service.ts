@@ -222,11 +222,11 @@ export class AuthService {
     //   );
     // ── MOCK ── descomenta UNA línea según la vista que quieras probar ──────
     // -- Atleta --
-    this.setSession('ATLETA', 'ACTIVO', null, null, 'AMBOS',          'Atleta Demo');        // atleta ambos servicios
+    // this.setSession('ATLETA', 'ACTIVO', null, null, 'AMBOS',          'Atleta Demo');        // atleta ambos servicios
     // this.setSession('ATLETA', 'ACTIVO', null, null, 'ENTRENAMIENTO',  'Atleta Demo');        // atleta solo entrenamiento
     // this.setSession('ATLETA', 'ACTIVO', null, null, 'NUTRICION',      'Atleta Demo');        // atleta solo nutrición
     // -- Entrenador/Nutricionista --
-    // this.setSession('ENTRENADOR', 'ACTIVO', true,  true,  null, 'Entrenador Demo');          // coach ambos módulos
+    this.setSession('ENTRENADOR', 'ACTIVO', true,  true,  null, 'Entrenador Demo');          // coach ambos módulos
     // this.setSession('ENTRENADOR', 'ACTIVO', true,  false, null, 'Entrenador Demo');          // solo entrenamiento
     // this.setSession('ENTRENADOR', 'ACTIVO', false, true,  null, 'Nutricionista Demo');       // solo nutrición
     return of(null);
