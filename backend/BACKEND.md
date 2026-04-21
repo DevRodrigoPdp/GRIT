@@ -2,7 +2,7 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 21 de abril de 2026 — adjuntos (foto/vídeo vía S3) en el chat general del atleta (sección 3.14.7); tabla `mensajes_chat` ampliada; hilo de comida eliminado del frontend (solo notas de comida visibles)
+> **Última actualización:** 21 de abril de 2026 — adjuntos S3 en chat (3.14.7); eliminación de cuenta atleta (3.14.8); conectar con entrenador por código (3.14.11); ajustes del entrenador: contraseña y baja (3.19)
 
 ---
 
@@ -1635,6 +1635,26 @@ El atleta cambia su contraseña. Se requiere la contraseña actual para verifica
 
 ---
 
+**`DELETE /api/v1/atleta/cuenta`**
+
+El atleta solicita la eliminación permanente de su cuenta. El frontend exige que el usuario escriba literalmente `"ELIMINAR"` antes de habilitar el botón.
+
+```json
+// Request body — vacío (la identidad se verifica por la cookie)
+{}
+
+// Response 200
+{ "ok": true, "message": "Cuenta eliminada correctamente." }
+```
+
+**Lógica de borrado:**
+- Marcar el usuario como `ELIMINADO` (soft delete: añadir columna `eliminado_en TIMESTAMP NULL` en `usuarios`) o borrado físico según política de datos.
+- Eliminar o anonimizar: `atletas`, `asignaciones`, `checkins_peso`, `mensajes_chat`, `media_hilo`, `mensajes_hilo`.
+- Invalidar la cookie `access_token` (responder con `Set-Cookie: access_token=; Max-Age=0`).
+- No eliminar datos de planes/rutinas creados por el entrenador — esos pertenecen al entrenador.
+
+---
+
 #### 3.14.9 Profesionales Asignados
 
 **`GET /api/v1/atleta/profesionales`**
@@ -1753,6 +1773,37 @@ Conversación entre el atleta y su nutricionista vinculada a una comida concreta
 - `comida_nombre` es el valor exacto del campo `nombre` de la comida en el plan nutricional activo
 - Si no existe hilo para esa comida, devolver `{ comidaNombre, mensajes: [] }`
 - El nutricionista puede responder desde el dashboard del entrenador usando `POST /api/v1/entrenador/atletas/:atletaId/nutricion/hilo/mensaje` (ver sección 3.18)
+
+---
+
+#### 3.14.11 Conectar con Entrenador por Código
+
+El atleta puede vincularse a un entrenador desde la pestaña **MI PERFIL** de su dashboard, introduciendo el código de invitación del entrenador (formato `GRIT-XXXX-XXXX`).
+
+**`POST /api/v1/atleta/conectar`**
+
+```json
+// Request body
+{ "codigo": "GRIT-X7K2-9PQR" }
+
+// Response 200
+{ "ok": true, "message": "Vinculado correctamente con el entrenador." }
+```
+
+**Respuestas de error:**
+```json
+// 400 — código inválido o ya utilizado
+{ "ok": false, "error": "CODIGO_INVALIDO", "message": "Código no válido o ya utilizado." }
+
+// 409 — el atleta ya tiene un entrenador asignado para ese servicio
+{ "ok": false, "error": "YA_VINCULADO", "message": "Ya tienes un profesional asignado para este servicio." }
+```
+
+**Lógica:**
+- Buscar en `entrenadores` por `codigo_invitacion = codigo` y `estado = 'ACTIVO'`.
+- Determinar el servicio a asignar según las titulaciones del entrenador y el `servicio` contratado por el atleta.
+- Crear registro en `asignaciones` con `estado = 'ACTIVO'`.
+- El código de invitación NO se invalida tras el primer uso — puede ser reutilizado por múltiples atletas.
 
 ---
 
@@ -1894,6 +1945,56 @@ Registra el uso de un ejercicio. Si ya existe el nombre, actualiza `usado_en`. S
 | `usado_en` | TIMESTAMP | Se actualiza cada vez que se usa |
 
 **Constraint único:** `(entrenador_id, nombre)` — evita duplicados. El backend hace `UPSERT` actualizando `usado_en`.
+
+---
+
+### 3.19 Ajustes de Cuenta (Entrenador)
+
+> Requieren cookie `access_token` válida con `rol === 'ENTRENADOR'`.
+
+**`PUT /api/v1/entrenador/password`**
+
+El entrenador cambia su contraseña. Se requiere la contraseña actual para verificar identidad.
+
+```json
+// Request body
+{
+  "actual": "contraseñaActual123",
+  "nueva": "contraseñaNueva456"
+}
+
+// Response 200
+{ "ok": true }
+```
+
+**Response 400** si la contraseña actual es incorrecta:
+```json
+{ "ok": false, "error": "PASSWORD_INCORRECTO", "message": "La contraseña actual no es correcta." }
+```
+
+**Validaciones:**
+- `nueva`: mínimo 8 caracteres (el frontend lo valida también, pero el backend debe confirmarlo)
+- Hashear con bcrypt antes de guardar
+
+---
+
+**`DELETE /api/v1/entrenador/cuenta`**
+
+El entrenador solicita la eliminación permanente de su cuenta. El frontend exige que el usuario escriba literalmente `"ELIMINAR"` antes de habilitar el botón.
+
+```json
+// Request body — vacío (la identidad se verifica por la cookie)
+{}
+
+// Response 200
+{ "ok": true, "message": "Cuenta eliminada correctamente." }
+```
+
+**Lógica de borrado:**
+- Soft delete recomendado: añadir `eliminado_en TIMESTAMP NULL` en `usuarios` y marcar la fecha.
+- Cancelar todas las `asignaciones` activas (`estado → CANCELADO`). Los atletas vinculados quedan sin profesional asignado para ese servicio.
+- No eliminar planes de nutrición ni rutinas ya creados — los atletas conservan acceso a sus planes activos hasta que expiren.
+- Invalidar la cookie `access_token` (responder con `Set-Cookie: access_token=; Max-Age=0`).
 
 ---
 
@@ -2306,13 +2407,14 @@ SENDGRID_API_KEY=...
 16. **Módulo Atleta — bloque 4:** chat general atleta ↔ entrenador/nutricionista con adjuntos S3 (sección 3.14.7)
     - Migración: `mensajes_chat` (con columnas `adjunto_url_s3`, `adjunto_tipo`, `adjunto_nombre`)
     - Requiere S3 configurado (mismo bucket que documentos de entrenador)
-17. **Módulo Atleta — bloque 5:** ajustes de cuenta (cambiar contraseña) (sección 3.14.8)
+17. **Módulo Atleta — bloque 5:** ajustes de cuenta — contraseña + eliminación + conectar con código (secciones 3.14.8 y 3.14.11)
 18. **Módulo Atleta — bloque 6:** profesionales asignados + hilo de comida (secciones 3.14.9–3.14.10)
     - Migración: `mensajes_hilo_comida`; campo `descripcion` en `entrenadores` si no existe
 19. **Notas nutricionista** (escritura desde el dashboard del entrenador)
     - Migración: `notas_nutricionista`
-19. **Rate limiting + seguridad adicional**
-20. **Tests de integración** para todos los endpoints
+20. **Ajustes de cuenta del entrenador** — contraseña + eliminación (sección 3.19)
+21. **Rate limiting + seguridad adicional**
+22. **Tests de integración** para todos los endpoints
 
 ---
 
@@ -2332,6 +2434,9 @@ SENDGRID_API_KEY=...
 - **Chat general — resolución del `tipo`:** el frontend envía `'entrenador'` o `'nutricionista'`. El backend resuelve al entrenador asignado: buscar en `asignaciones` por `atleta_id` del autenticado y `servicio = 'ENTRENAMIENTO'` (para tipo entrenador) o `servicio = 'NUTRICION'` (para tipo nutricionista). Si no hay asignación activa, devolver `400 CHAT_NO_DISPONIBLE`.
 - **Respuesta del chat — campo `autor`:** el frontend muestra el nombre del interlocutor tal como viene en `interlocutor` (nombre del entrenador/nutricionista). Para los mensajes, `autor` es el nombre del usuario que lo envió. El frontend muestra "Tú" cuando `esAtleta === true`, ignorando el campo `autor` del mensaje — pero debe estar en la respuesta para cuando el entrenador consulte el chat desde su dashboard.
 - **Cambio de contraseña del atleta:** `PUT /api/v1/atleta/password` — verificar `actual` contra el hash en BBDD antes de actualizar. El frontend valida que `nueva` tenga al menos 8 caracteres, pero el backend debe confirmarlo también.
+- **Cambio de contraseña del entrenador:** `PUT /api/v1/entrenador/password` — misma lógica que el atleta.
+- **Eliminación de cuenta:** tanto `DELETE /api/v1/atleta/cuenta` como `DELETE /api/v1/entrenador/cuenta` requieren solo la cookie válida (el frontend ya exige escribir "ELIMINAR" como confirmación). Se recomienda soft delete para cumplir con RGPD. Ambos endpoints deben invalidar la cookie en la respuesta.
+- **Conectar atleta con código:** `POST /api/v1/atleta/conectar` — el frontend llama a este endpoint desde la pestaña MI PERFIL del dashboard del atleta cuando el usuario introduce un código de invitación. El código no se consume (puede usarlo más de un atleta). Si ya existe una asignación activa para ese servicio, devolver `409 YA_VINCULADO`.
 - **`cantidad` en alimentos del plan nutricional:** es un campo de texto libre (`string`), no un número. El nutricionista escribe "80 g", "1 unidad", "2 cucharadas". El backend lo almacena y devuelve tal cual, sin parsear ni validar el formato.
 - **Código de invitación — generación:** el campo `codigo_invitacion` de `entrenadores` se genera automáticamente al crear la cuenta del entrenador (ej. `GRIT-` + 6 caracteres alfanuméricos aleatorios en mayúsculas). Debe ser único en la tabla. El atleta lo introduce en el formulario de registro (`POST /api/v1/auth/registro/atleta`); si el código es válido, el backend crea la asignación automáticamente tras la activación de la cuenta.
 - **Alergias e intolerancias del atleta:** los campos `alergias` e `intolerancias` del atleta se pueden recoger en el formulario de registro (`POST /api/v1/auth/registro/atleta`) como arrays de strings opcionales. El backend los almacena y los devuelve al entrenador en `GET /api/v1/entrenador/atletas`. Si el atleta no los rellena, devolver `[]`.
