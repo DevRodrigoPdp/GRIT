@@ -86,12 +86,19 @@ export interface HiloEjercicio {
   mensajes: MensajeHilo[];
 }
 
+export interface AdjuntoChat {
+  url: string;
+  tipo: 'foto' | 'video';
+  nombre: string;
+}
+
 export interface MensajeChat {
   id: string;
   texto: string;
   fecha: string;
   esAtleta: boolean;
   autor: string;
+  adjunto?: AdjuntoChat;
 }
 
 export interface Chat {
@@ -475,11 +482,23 @@ export class AtletaService {
                                     : { ...MOCK_CHAT_NUTRICIONISTA, mensajes: [...MOCK_CHAT_NUTRICIONISTA.mensajes] });
   }
 
-  enviarMensajeChat(tipo: 'entrenador' | 'nutricionista', texto: string): Observable<MensajeChat> {
+  enviarMensajeChat(tipo: 'entrenador' | 'nutricionista', texto: string, adjunto?: AdjuntoChat): Observable<MensajeChat> {
     // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.post<MensajeChat>(`${this.API}/chat/${tipo}/mensaje`, { texto }, { withCredentials: true });
+    // const form = new FormData();
+    // if (texto) form.append('texto', texto);
+    // if (adjunto?.archivo) form.append('archivo', adjunto.archivo);
+    // return this.http.post<MensajeChat>(`${this.API}/chat/${tipo}/mensaje`, form, { withCredentials: true });
     const hoy = new Date().toISOString().split('T')[0];
-    return of({ id: `chat-${Date.now()}`, texto, fecha: hoy, esAtleta: true, autor: 'Tú' });
+    return of({ id: `chat-${Date.now()}`, texto, fecha: hoy, esAtleta: true, autor: 'Tú', adjunto });
+  }
+
+  subirArchivoChat(tipo: 'entrenador' | 'nutricionista', archivo: File): Observable<AdjuntoChat> {
+    // ── REAL (requiere S3) ─────────────────────────────────────────────────
+    // const form = new FormData();
+    // form.append('archivo', archivo);
+    // return this.http.post<AdjuntoChat>(`${this.API}/chat/${tipo}/archivo`, form, { withCredentials: true });
+    const tipoMedia: 'foto' | 'video' = archivo.type.startsWith('video') ? 'video' : 'foto';
+    return of({ url: URL.createObjectURL(archivo), tipo: tipoMedia, nombre: archivo.name });
   }
 
   getHiloComida(comidaNombre: string): Observable<HiloComida> {

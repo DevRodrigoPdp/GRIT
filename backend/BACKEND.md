@@ -2,7 +2,7 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 20 de abril de 2026 — sección 3.11 actualizada (código de invitación, masters, alergias/intolerancias atleta); notas por comida en planes; sesión `nombre` libre en entrenamientos; endpoint invitación por email; historial de ejercicios (sección 3.17); profesionales con campos ampliados
+> **Última actualización:** 21 de abril de 2026 — adjuntos (foto/vídeo vía S3) en el chat general del atleta (sección 3.14.7); tabla `mensajes_chat` ampliada; hilo de comida eliminado del frontend (solo notas de comida visibles)
 
 ---
 
@@ -1488,12 +1488,14 @@ Recibe `multipart/form-data`:
 
 #### 3.14.7 Chat General
 
-Chat de texto entre el atleta y su entrenador/nutricionista. Hay un chat por cada relación de servicio activa:
+Chat de texto y multimedia entre el atleta y su entrenador/nutricionista. Hay un chat por cada relación de servicio activa:
 - Si `servicio = ENTRENAMIENTO` → un único chat con el entrenador
 - Si `servicio = NUTRICION` → un único chat con el nutricionista
 - Si `servicio = AMBOS` → dos chats separados (uno con cada profesional)
 
 El frontend identifica el chat con `tipo: 'entrenador' | 'nutricionista'`. El backend resuelve eso al entrenador real asignado a través de la tabla `asignaciones`.
+
+El atleta puede adjuntar **fotos y vídeos** a sus mensajes (ej. cuando el entrenador lo solicita para revisar técnica o progreso). Los archivos se suben a S3 antes de enviar el mensaje.
 
 ---
 
@@ -1501,7 +1503,7 @@ El frontend identifica el chat con `tipo: 'entrenador' | 'nutricionista'`. El ba
 
 `:tipo` es `entrenador` o `nutricionista`.
 
-Devuelve el historial completo del chat, ordenado por `fecha ASC`.
+Devuelve el historial completo del chat, ordenado por `fecha ASC`. Cuando un mensaje tiene adjunto, incluye el objeto `adjunto` con una pre-signed URL de S3 (expiración 15 min).
 
 ```json
 {
@@ -1515,14 +1517,20 @@ Devuelve el historial completo del chat, ordenado por `fecha ASC`.
         "texto": "¡Hola! ¿Cómo llevas la semana?",
         "fecha": "2026-04-10",
         "esAtleta": false,
-        "autor": "Carlos López"
+        "autor": "Carlos López",
+        "adjunto": null
       },
       {
         "id": "uuid-msg2",
-        "texto": "Bien, aunque noto las piernas cargadas los lunes",
-        "fecha": "2026-04-10",
+        "texto": "Mira mi técnica de sentadilla",
+        "fecha": "2026-04-21",
         "esAtleta": true,
-        "autor": "Carlos Ruiz"
+        "autor": "Carlos Ruiz",
+        "adjunto": {
+          "url": "https://s3.amazonaws.com/grit-documentos/chat/uuid-media.mp4?X-Amz-Expires=900&...",
+          "tipo": "video",
+          "nombre": "sentadilla.mp4"
+        }
       }
     ]
   }
@@ -1536,26 +1544,66 @@ Devuelve el historial completo del chat, ordenado por `fecha ASC`.
 
 ---
 
-**`POST /api/v1/atleta/chat/:tipo/mensaje`**
+**`POST /api/v1/atleta/chat/:tipo/archivo`**
 
-El atleta envía un mensaje al chat con su entrenador o nutricionista.
+El atleta sube una foto o vídeo antes de enviarlo como mensaje. Requiere S3.
+
+Request: `multipart/form-data`
+
+| Campo | Tipo | Requerido | Notas |
+|---|---|---|---|
+| `archivo` | `File` | ✅ | Imagen (JPG/PNG/WEBP) o vídeo (MP4/MOV/WEBM). Max 100 MB |
 
 ```json
-// Request body
-{ "texto": "¿Puedo cambiar el press militar por press inclinado?" }
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "url": "https://s3.amazonaws.com/grit-documentos/chat/uuid-media.jpg?X-Amz-Expires=900&...",
+    "tipo": "foto",
+    "nombre": "progreso.jpg"
+  }
+}
+```
 
+> El campo `tipo` se infiere del MIME type del archivo: `image/*` → `"foto"`, `video/*` → `"video"`.
+> La URL devuelta es una pre-signed URL de S3 con expiración corta. El frontend la usa inmediatamente para mostrar la preview y luego la envía en el campo `adjunto` del mensaje.
+
+---
+
+**`POST /api/v1/atleta/chat/:tipo/mensaje`**
+
+El atleta envía un mensaje al chat. Puede incluir texto, adjunto, o ambos. Al menos uno de los dos es obligatorio.
+
+Request: `multipart/form-data`
+
+| Campo | Tipo | Requerido | Notas |
+|---|---|---|---|
+| `texto` | `string` | Condicional | Obligatorio si no hay `archivo` |
+| `archivo` | `File` | Condicional | Obligatorio si no hay `texto`. Imagen o vídeo, max 100 MB |
+
+> El backend gestiona la subida a S3 directamente. El frontend puede enviar texto + archivo en una sola petición, o solo texto (sin archivo) manteniendo compatibilidad con el flujo de texto puro.
+
+```json
 // Response 201
 {
   "ok": true,
   "data": {
     "id": "uuid-msg",
-    "texto": "¿Puedo cambiar el press militar por press inclinado?",
-    "fecha": "2026-04-17",
+    "texto": "Mira mi técnica de sentadilla",
+    "fecha": "2026-04-21",
     "esAtleta": true,
-    "autor": "Carlos Ruiz"
+    "autor": "Carlos Ruiz",
+    "adjunto": {
+      "url": "https://s3.amazonaws.com/grit-documentos/chat/uuid-media.mp4?X-Amz-Expires=900&...",
+      "tipo": "video",
+      "nombre": "sentadilla.mp4"
+    }
   }
 }
 ```
+
+> Si no hay archivo, `adjunto` es `null` en la respuesta.
 
 ---
 
@@ -1716,7 +1764,7 @@ El entrenador/nutricionista puede leer y responder los chats de sus atletas desd
 
 **`GET /api/v1/entrenador/atletas/:atletaId/chat`**
 
-Devuelve el historial del chat entre el entrenador autenticado y el atleta indicado. El `servicio` se resuelve por la asignación activa.
+Devuelve el historial del chat entre el entrenador autenticado y el atleta indicado. El `servicio` se resuelve por la asignación activa. Los mensajes con adjunto incluyen la URL pre-signed de S3.
 
 ```json
 {
@@ -1729,7 +1777,20 @@ Devuelve el historial del chat entre el entrenador autenticado y el atleta indic
         "texto": "¡Hola! ¿Cómo llevas la semana?",
         "fecha": "2026-04-10",
         "esAtleta": false,
-        "autor": "Carlos López"
+        "autor": "Carlos López",
+        "adjunto": null
+      },
+      {
+        "id": "uuid-msg2",
+        "texto": "Mira mi técnica de sentadilla",
+        "fecha": "2026-04-21",
+        "esAtleta": true,
+        "autor": "Carlos Ruiz",
+        "adjunto": {
+          "url": "https://s3.amazonaws.com/grit-documentos/chat/uuid-media.mp4?X-Amz-Expires=900&...",
+          "tipo": "video",
+          "nombre": "sentadilla.mp4"
+        }
       }
     ]
   }
@@ -1740,21 +1801,24 @@ Devuelve el historial del chat entre el entrenador autenticado y el atleta indic
 
 **`POST /api/v1/entrenador/atletas/:atletaId/chat/mensaje`**
 
-El entrenador envía un mensaje al chat con el atleta.
+El entrenador envía un mensaje al chat con el atleta. Request: `multipart/form-data`.
+
+| Campo | Tipo | Requerido | Notas |
+|---|---|---|---|
+| `texto` | `string` | Condicional | Obligatorio si no hay `archivo` |
+| `archivo` | `File` | Condicional | Imagen o vídeo, max 100 MB |
 
 ```json
-// Request body
-{ "texto": "Muy bien la sesión de hoy, sigue así." }
-
 // Response 201
 {
   "ok": true,
   "data": {
     "id": "uuid-msg",
     "texto": "Muy bien la sesión de hoy, sigue así.",
-    "fecha": "2026-04-20",
+    "fecha": "2026-04-21",
     "esAtleta": false,
-    "autor": "Carlos López"
+    "autor": "Carlos López",
+    "adjunto": null
   }
 }
 ```
@@ -2089,13 +2153,17 @@ Mensajes del chat general atleta ↔ entrenador/nutricionista.
 | `id` | UUID PK | |
 | `asignacion_id` | UUID FK → asignaciones | Identifica la relación entrenador-atleta-servicio |
 | `usuario_id` | UUID FK → usuarios | Quien lo envió |
-| `texto` | TEXT | |
+| `texto` | TEXT NULLABLE | Puede ser nulo si el mensaje solo contiene adjunto |
 | `es_atleta` | BOOLEAN | `true` si lo envió el atleta |
 | `autor` | VARCHAR(255) | Nombre del autor (snapshot) |
+| `adjunto_url_s3` | TEXT NULLABLE | Clave S3 del archivo adjunto (foto/vídeo). `NULL` si no hay adjunto |
+| `adjunto_tipo` | ENUM NULLABLE | `foto`, `video`. `NULL` si no hay adjunto |
+| `adjunto_nombre` | VARCHAR(255) NULLABLE | Nombre original del archivo. `NULL` si no hay adjunto |
 | `enviado_en` | TIMESTAMP | |
 | `fecha` | DATE | Derivada de `enviado_en` |
 
 > El `tipo` ('entrenador' o 'nutricionista') que envía el frontend se resuelve a un `asignacion_id` buscando en `asignaciones` por `(atleta_id, servicio)` donde `servicio = 'ENTRENAMIENTO'` para 'entrenador' y `servicio = 'NUTRICION'` para 'nutricionista'.
+> `adjunto_url_s3` almacena la **clave** S3 (ej. `chat/uuid.mp4`), no la URL completa. Al devolver el mensaje al frontend, el backend genera una **pre-signed URL** temporal (15 min) a partir de la clave.
 
 ### Tabla `rutinas`
 
@@ -2235,8 +2303,9 @@ SENDGRID_API_KEY=...
     - Migraciones: `checkins_peso_solicitudes`, `checkins_peso`
 15. **Módulo Atleta — bloque 3:** hilo de ejercicio con media S3 (sección 3.14.6)
     - Migraciones: `hilos_ejercicio`, `media_hilo`, `mensajes_hilo`
-16. **Módulo Atleta — bloque 4:** chat general atleta ↔ entrenador/nutricionista (sección 3.14.7)
-    - Migración: `mensajes_chat`
+16. **Módulo Atleta — bloque 4:** chat general atleta ↔ entrenador/nutricionista con adjuntos S3 (sección 3.14.7)
+    - Migración: `mensajes_chat` (con columnas `adjunto_url_s3`, `adjunto_tipo`, `adjunto_nombre`)
+    - Requiere S3 configurado (mismo bucket que documentos de entrenador)
 17. **Módulo Atleta — bloque 5:** ajustes de cuenta (cambiar contraseña) (sección 3.14.8)
 18. **Módulo Atleta — bloque 6:** profesionales asignados + hilo de comida (secciones 3.14.9–3.14.10)
     - Migración: `mensajes_hilo_comida`; campo `descripcion` en `entrenadores` si no existe
@@ -2270,6 +2339,8 @@ SENDGRID_API_KEY=...
 - **Sesión `nombre` en rutinas:** `sesiones_rutina.nombre` es texto libre definido por el entrenador. No hay validación de formato (no se restringe a días de la semana). El frontend del entrenador deja al entrenador escribir cualquier nombre ("Piernas", "Pecho y Espalda", "Full Body A"). El frontend del atleta muestra los tabs de sesión con este nombre tal cual.
 - **Hilo de ejercicio — estado actual del frontend:** el frontend del atleta **no muestra el hilo de conversación por ejercicio**. Al pulsar un ejercicio, solo muestra el campo `notas` del ejercicio como panel expandible. Los endpoints de la sección 3.14.6 están diseñados para uso futuro. El backend puede implementarlos, pero el frontend no los consume actualmente.
 - **Historial de ejercicios del entrenador:** actualmente se guarda en `localStorage`. Si se implementan los endpoints de la sección 3.17, el frontend debe migrar a consumirlos. La biblioteca fija de ~45 ejercicios vive solo en el frontend y no requiere endpoint.
+- **Adjuntos en el chat general:** el frontend usa un flujo en dos pasos: (1) llama a `POST /atleta/chat/:tipo/archivo` para subir el archivo a S3 y obtener la URL preview; (2) al pulsar ENVIAR, llama a `POST /atleta/chat/:tipo/mensaje` con `multipart/form-data`. Si el mensaje es solo texto (sin archivo), el backend debe seguir aceptando `application/json` con `{ "texto": "..." }` para compatibilidad. Si tiene archivo, la petición es siempre `multipart/form-data`. El campo `adjunto_url_s3` en la tabla almacena la clave S3 (no la URL firmada); las pre-signed URLs se generan en cada `GET` del historial.
+- **Hilo de comida — eliminado del frontend del atleta:** el frontend ya no consume los endpoints de hilo de comida (`GET/POST /atleta/nutricion/hilo`). El atleta solo ve el campo `notas` de cada comida (solo lectura, escrito por el nutricionista). El backend puede implementar estos endpoints para uso futuro desde el dashboard del entrenador, pero no son necesarios para el flujo actual del atleta.
 
 ---
 
