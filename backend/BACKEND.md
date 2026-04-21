@@ -903,95 +903,6 @@ Marca una rutina como activa para el atleta. Desactiva automáticamente cualquie
 
 ---
 
-### 3.15 Recetas del Entrenador
-
-> Requieren cookie `access_token` con `rol === 'ENTRENADOR'` y `titulo_nutricion === true`.
->
-> Actualmente las recetas se guardan en `localStorage`. **Deben persistirse en backend** para que el entrenador las tenga disponibles desde cualquier dispositivo y sesión.
-
-**`GET /api/v1/nutricion/recetas`**
-
-Devuelve todas las recetas propias del entrenador autenticado.
-
-```json
-{
-  "ok": true,
-  "data": [
-    {
-      "id": "uuid-receta",
-      "nombre": "Arroz con pollo",
-      "gramosTotal": 350,
-      "ingredientes": [
-        {
-          "alimento": {
-            "codigo": "3017620425400",
-            "nombre": "Arroz blanco",
-            "marca": null,
-            "kcalPor100g": 360,
-            "proteinasPor100g": 7.0,
-            "carbsPor100g": 79.0,
-            "grasasPor100g": 0.6
-          },
-          "cantidadG": 200
-        }
-      ],
-      "creadoEn": "2026-04-10T12:00:00Z"
-    }
-  ]
-}
-```
-
----
-
-**`POST /api/v1/nutricion/recetas`**
-
-Crea una nueva receta para el entrenador autenticado.
-
-```json
-// Request body
-{
-  "nombre": "Arroz con pollo",
-  "gramosTotal": 350,
-  "ingredientes": [
-    {
-      "alimento": {
-        "codigo": "3017620425400",
-        "nombre": "Arroz blanco",
-        "marca": null,
-        "kcalPor100g": 360,
-        "proteinasPor100g": 7.0,
-        "carbsPor100g": 79.0,
-        "grasasPor100g": 0.6
-      },
-      "cantidadG": 200
-    }
-  ]
-}
-
-// Response 201
-{
-  "ok": true,
-  "data": { "id": "uuid-nueva-receta", "creadoEn": "2026-04-10T12:00:00Z" }
-}
-```
-
----
-
-**`DELETE /api/v1/nutricion/recetas/:id`**
-
-Elimina una receta. Solo puede borrarla el entrenador que la creó.
-
-```json
-// Response 200
-{ "ok": true }
-```
-
-**Response 403** si intenta borrar una receta de otro entrenador:
-```json
-{ "ok": false, "error": "ACCESO_DENEGADO" }
-```
-
----
 
 ### 3.16 Alimentos Recientes por Comida
 
@@ -2395,8 +2306,8 @@ SENDGRID_API_KEY=...
    - Migración: tabla `asignaciones`
 10. **Módulo Nutrición** — planes (sección 3.12)
     - Migraciones: `planes_nutricion`, `comidas`, `alimentos_en_comida`
-11. **Módulo Nutrición** — recetas y alimentos recientes (secciones 3.15 y 3.16)
-    - Migraciones: `recetas`, `ingredientes_receta`, `alimentos_recientes`
+11. **Módulo Nutrición** — alimentos recientes (sección 3.16)
+    - Migración: `alimentos_recientes`
 12. **Módulo Entrenamiento** — rutinas (sección 3.13)
     - Migraciones: `rutinas`, `sesiones_rutina`, `ejercicios_en_sesion`
 13. **Módulo Atleta — bloque 1:** perfil, plan activo entrenamiento, plan activo nutrición, notas nutricionista (secciones 3.14.1–3.14.3)
@@ -2423,7 +2334,6 @@ SENDGRID_API_KEY=...
 - **Campo `email` en login y registro:** el frontend envía `email` (no `correo`) en todos los endpoints de auth. La BBDD puede almacenarlo como `correo` pero el campo JSON del body es `email`.
 - **`withCredentials: true`:** todas las peticiones HTTP del frontend incluyen esta opción. El backend debe responder con `Access-Control-Allow-Credentials: true` y un `Origin` específico (no `*`) en la cabecera CORS.
 - **Datos de ejercicios:** el frontend obtiene los ejercicios directamente del dataset externo `yuhonas/free-exercise-db` (GitHub raw) y de MyMemory para traducciones. No hay endpoint de ejercicios en GRIT. Los datos se guardan embebidos en `ejercicios_en_sesion` como snapshot.
-- **Recetas:** se almacenan en backend (sección 3.15). El frontend llama a `GET /nutricion/recetas` al cargar el picker y `POST /nutricion/recetas` al guardar. La migración desde `localStorage` es responsabilidad del frontend al conectar con la API real.
 - **Alimentos recientes:** se almacenan en backend (sección 3.16). El frontend llama a `POST /nutricion/recientes` cada vez que añade un alimento a una comida, y `GET /nutricion/recientes?comida=<nombre>` para prellenar los recientes en el buscador.
 - **`tienePlanActivo` en `/entrenador/atletas`:** calcular en BBDD si el atleta tiene alguna rutina o plan de nutrición creado por este entrenador (JOIN con `rutinas` y `planes_nutricion`).
 - **`semanaActual` en plan de entrenamiento:** el frontend lo usa solo para mostrar "Semana 3/8". Se calcula como `FLOOR((CURRENT_DATE - rutinas.creado_en::date) / 7) + 1`, con un tope de `semanas`.

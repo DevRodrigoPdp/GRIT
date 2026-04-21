@@ -5,12 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe, DatePipe } from '@angular/common';
 
 import { NutricionService, PlanNutricion, Comida, AlimentoEnPlan } from '../../services/nutricion.service';
-import { RecetasService, Receta } from '../../services/recetas.service';
 import { AlimentoOFF } from '../../services/open-food-facts.service';
 import { BuscadorAlimentoComponent } from '../buscador-alimento/buscador-alimento';
 
-type Vista       = 'lista' | 'crear' | 'detalle';
-type ModoReceta  = 'off' | 'picker' | 'crear';
+type Vista = 'lista' | 'crear' | 'detalle';
 
 @Component({
   selector: 'app-gestion-nutricion',
@@ -20,7 +18,6 @@ type ModoReceta  = 'off' | 'picker' | 'crear';
 })
 export class GestionNutricionComponent implements OnInit {
   readonly nutricion = inject(NutricionService);
-  readonly recetas   = inject(RecetasService);
 
   readonly atletaId      = input<string | null>(null);
   readonly alergias      = input<string[]>([]);
@@ -41,24 +38,6 @@ export class GestionNutricionComponent implements OnInit {
   buscadorEnComida = signal<number | null>(null);
 
   totales = computed(() => this.nutricion.calcularMacros(this.comidas()));
-
-  // ── Estado de recetas ─────────────────────────────────────────────────────
-  modoReceta       = signal<ModoReceta>('off');
-  comidaParaReceta = signal<number | null>(null);
-
-  /** Receta seleccionada en el picker, esperando confirmación de gramos */
-  recetaPendiente  = signal<Receta | null>(null);
-  recetaCantidadG  = signal(100);
-
-  /** Estado del creador de recetas */
-  recetaNombre      = signal('');
-  recetaIngredientes = signal<AlimentoEnPlan[]>([]);
-  recetaGramosTotal  = signal(0);
-  buscandoIngrediente = signal(false);
-
-  recetaGramosAuto = computed(() =>
-    this.recetas.gramosIngredientes(this.recetaIngredientes())
-  );
 
   ngOnInit() {
     const id = this.atletaId();
@@ -132,68 +111,6 @@ export class GestionNutricionComponent implements OnInit {
     return this.comidas()[comidaIdx].alimentos.some(a => a.alimento.codigo === codigo);
   }
 
-  // ── Recetas: picker ───────────────────────────────────────────────────────
-
-  abrirRecetas(comidaIdx: number) {
-    this.comidaParaReceta.set(comidaIdx);
-    this.recetaPendiente.set(null);
-    this.modoReceta.set('picker');
-  }
-
-  seleccionarReceta(receta: Receta) {
-    this.recetaPendiente.set(receta);
-    this.recetaCantidadG.set(100);
-  }
-
-  confirmarReceta() {
-    const receta    = this.recetaPendiente();
-    const comidaIdx = this.comidaParaReceta();
-    if (!receta || comidaIdx === null) return;
-    this.agregarAlimento(comidaIdx, {
-      alimento: this.recetas.comoAlimento(receta),
-      cantidadG: this.recetaCantidadG(),
-    });
-    this.cerrarReceta();
-  }
-
-  // ── Recetas: creador ──────────────────────────────────────────────────────
-
-  iniciarCrearReceta() {
-    this.recetaNombre.set('');
-    this.recetaIngredientes.set([]);
-    this.recetaGramosTotal.set(0);
-    this.modoReceta.set('crear');
-  }
-
-  agregarIngredienteReceta(item: AlimentoEnPlan) {
-    this.recetaIngredientes.update(l => [...l, item]);
-    this.recetaGramosTotal.set(this.recetaGramosAuto());
-    this.buscandoIngrediente.set(false);
-  }
-
-  quitarIngredienteReceta(idx: number) {
-    this.recetaIngredientes.update(l => l.filter((_, i) => i !== idx));
-    this.recetaGramosTotal.set(this.recetaGramosAuto());
-  }
-
-  guardarReceta() {
-    if (!this.recetaNombre().trim() || this.recetaIngredientes().length === 0) return;
-    this.recetas.guardar({
-      nombre:       this.recetaNombre(),
-      ingredientes: this.recetaIngredientes(),
-      gramosTotal:  this.recetaGramosTotal() || this.recetaGramosAuto(),
-    });
-    this.modoReceta.set('picker');
-    this.recetaPendiente.set(null);
-  }
-
-  cerrarReceta() {
-    this.modoReceta.set('off');
-    this.comidaParaReceta.set(null);
-    this.recetaPendiente.set(null);
-    this.buscandoIngrediente.set(false);
-  }
-
   // ── Guardar / eliminar plan ───────────────────────────────────────────────
 
   guardarPlan() {
@@ -235,7 +152,4 @@ export class GestionNutricionComponent implements OnInit {
     return comida.alimentos.reduce((s, a) => s + a.cantidadG, 0);
   }
 
-  macrosReceta(ingredientes: AlimentoEnPlan[]) {
-    return this.nutricion.calcularMacros([{ nombre: '', alimentos: ingredientes }]);
-  }
 }
