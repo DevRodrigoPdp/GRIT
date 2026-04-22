@@ -2568,6 +2568,8 @@ Busca alimentos por nombre o marca. Devuelve máximo 15 resultados ordenados por
 
 > El campo `codigo` corresponde a `alimentos.id` (UUID). El frontend lo usa como identificador al guardar un plan o registrar un alimento reciente.
 
+> **Nombres de campos en camelCase:** el frontend consume los campos exactamente como aparecen aquí (`kcalPor100g`, `proteinasPor100g`, `carbsPor100g`, `grasasPor100g`). En Spring Boot, configurar el `ObjectMapper` para serializar en camelCase: `spring.jackson.property-naming-strategy=LOWER_CAMEL_CASE` en `application.properties`, o añadir `@JsonProperty("kcalPor100g")` en el DTO si se prefiere explícito.
+
 Si `q` está vacío o tiene menos de 2 caracteres, devolver `data: []` sin error.
 
 ---
