@@ -1,16 +1,17 @@
 package grit.sistema.backend.security.errorHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import grit.sistema.backend.dto.error.ErrorRespuestaDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDateTime;
 
 @Component
@@ -24,15 +25,16 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException accessDeniedException) throws IOException {
 
         response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        ErrorRespuestaDTO error = new ErrorRespuestaDTO(
-                LocalDateTime.now(),
-                "No tienes permisos para acceder a este recurso.",
-                request.getRequestURI(),
-                HttpStatus.FORBIDDEN.value()
+        ProblemDetail pb = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                "No tiene los privilegios necesarios para acceder a este recurso."
         );
+        pb.setTitle("Acceso Denegado");
+        pb.setInstance(URI.create(request.getRequestURI()));
+        pb.setProperty("timestamp", LocalDateTime.now());
 
-        response.getWriter().write(objectMapper.writeValueAsString(error));
+        response.getWriter().write(objectMapper.writeValueAsString(pb));
     }
 }

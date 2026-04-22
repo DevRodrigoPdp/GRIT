@@ -1,133 +1,121 @@
 package grit.sistema.backend.exception;
 
-import grit.sistema.backend.dto.error.ErrorRespuestaDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-
+import java.net.URI;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-    // 1. Errores de Seguridad (401)
+    // --- 1. SEGURIDAD (401, 403) ---
+
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorRespuestaDTO> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
-        return buildErrorResponse("Credenciales inválidas. Verifique su usuario o contraseña.", HttpStatus.UNAUTHORIZED, request);
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Credenciales inválidas",
+                "El usuario o la contraseña son incorrectos.", request);
     }
 
-    // 2. Errores de Seguridad (403) - CORREGIDO EL IMPORT INTERNO
     @ExceptionHandler({AccessDeniedException.class, AccesoDenegadoException.class, AuthorizationDeniedException.class})
-    public ResponseEntity<ErrorRespuestaDTO> handleAccessDenied(Exception ex, HttpServletRequest request) {
-        log.warn("Intento de acceso no autorizado en {}: {}", request.getRequestURI(), ex.getMessage());
-
-        String mensaje = (ex instanceof TituloFaltanteException)
-                ? ex.getMessage()
-                : "No tienes permisos para acceder a este recurso.";
-
-        return buildErrorResponse(mensaje, HttpStatus.FORBIDDEN, request);
+    public ProblemDetail handleAccessDenied(Exception ex, HttpServletRequest request) {
+        log.warn("Acceso denegado en {}: {}", request.getRequestURI(), ex.getMessage());
+        String detail = (ex instanceof TituloFaltanteException) ? ex.getMessage() : "No tiene permisos para ejecutar esta acción.";
+        return createProblemDetail(HttpStatus.FORBIDDEN, "Acceso Denegado", detail, request);
     }
 
-    // Este captura EXCLUSIVAMENTE tus errores de lógica de negocio (los títulos)
-    @ExceptionHandler(TituloFaltanteException.class)
-    public ResponseEntity<ErrorRespuestaDTO> handleTituloFaltante(TituloFaltanteException ex, HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN, request);
+    // --- 2. VALIDACIONES Y CLIENTE (400, 405) ---
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Error de Validación",
+                "Uno o más campos no cumplen con los requisitos.", request);
+
+        // Formateamos los errores de campo de forma profesional
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(err -> err.getField(), err -> err.getDefaultMessage(), (a, b) -> a));
+
+        pb.setProperty("invalid_params", errors); // Extensión del estándar
+        return pb;
     }
 
-    // 3. Errores de Validación (400) - REFACTORIZADO
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<ErrorRespuestaDTO> handleValidationErrors(MethodArgumentNotValidException e, HttpServletRequest request) {
-        // Unificamos los errores en un solo string o podrías mejorar el DTO para aceptar una lista
-        String mensaje = e.getBindingResult().getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
-
-        return buildErrorResponse("Error de validación: " + mensaje, HttpStatus.BAD_REQUEST, request);
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ProblemDetail handleMissingParams(MissingServletRequestParameterException ex, HttpServletRequest request) {
+        ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Parámetro Faltante",
+                "Falta un parámetro requerido en la URL.", request);
+        pb.setProperty("parameter_name", ex.getParameterName());
+        return pb;
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorRespuestaDTO> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
-        ErrorRespuestaDTO error = new ErrorRespuestaDTO(
-                LocalDateTime.now(),
-                "Datos de entrada inválidos: " + ex.getMessage(),
-                request.getRequestURI(),
-                HttpStatus.BAD_REQUEST.value()
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "JSON Mal Formado",
+                "No se pudo leer el cuerpo de la petición. Verifique la sintaxis JSON.", request);
     }
 
-    // 4. Errores de Recursos No Encontrados (404)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ProblemDetail handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        return createProblemDetail(HttpStatus.METHOD_NOT_ALLOWED, "Método No Permitido",
+                "El método " + ex.getMethod() + " no está soportado en este endpoint.", request);
+    }
+
+    // --- 3. RECURSOS Y CONFLICTOS (404, 409) ---
+
     @ExceptionHandler({EntityNotFoundException.class, MethodArgumentTypeMismatchException.class})
-    public ResponseEntity<ErrorRespuestaDTO> handleNotFound(Exception ex, HttpServletRequest request) {
-        String mensaje = (ex instanceof MethodArgumentTypeMismatchException)
-                ? "Formato de parámetro inválido"
-                : ex.getMessage();
-        return buildErrorResponse(mensaje, HttpStatus.NOT_FOUND, request);
+    public ProblemDetail handleNotFound(Exception ex, HttpServletRequest request) {
+        return createProblemDetail(HttpStatus.NOT_FOUND, "Recurso No Encontrado", ex.getMessage(), request);
     }
 
-    // 5. Conflictos de Negocio (409)
     @ExceptionHandler({DataIntegrityViolationException.class, UsuarioExistenteException.class, SesionActivaException.class})
-    public ResponseEntity<ErrorRespuestaDTO> handleConflicts(Exception ex, HttpServletRequest request) {
-        String mensaje = "Conflicto en la operación: El registro ya existe o viola restricciones.";
-        if (ex instanceof UsuarioExistenteException || ex instanceof SesionActivaException) {
-            mensaje = ex.getMessage();
-        }
-        return buildErrorResponse(mensaje, HttpStatus.CONFLICT, request);
+    public ProblemDetail handleConflicts(Exception ex, HttpServletRequest request) {
+        return createProblemDetail(HttpStatus.CONFLICT, "Conflicto de Negocio", ex.getMessage(), request);
     }
 
-    // 6. Error de Archivos - CORREGIDO
-    @ExceptionHandler(FileStorageException.class)
-    public ResponseEntity<ErrorRespuestaDTO> handleFileStorage(FileStorageException ex, HttpServletRequest request) {
-        // Usamos el método buildErrorResponse que ya definiste para mantener la consistencia del JSON
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
-    }
+    // --- 4. ERRORES DE SISTEMA E INFRAESTRUCTURA (500) ---
 
-    // Captura errores de tamaño de Maven/Spring
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ErrorRespuestaDTO> handleMaxSize(MaxUploadSizeExceededException ex, HttpServletRequest request) {
-        return buildErrorResponse("Uno o más archivos exceden el límite permitido (10MB)", HttpStatus.PAYLOAD_TOO_LARGE, request);
-    }
-
-    // 7. El "Caza-todo" (500)
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorRespuestaDTO> handleGlobalException(Exception ex, HttpServletRequest request) {
-        // Loguear el error real para el desarrollador, pero ocultarlo al cliente
-        log.error("Error interno en {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-
-        return buildErrorResponse("Ha ocurrido un error inesperado.", HttpStatus.INTERNAL_SERVER_ERROR, request);
-    }
-
-    // Error cuando algo explota en la DB (Flyway, Hibernate, Conexión)
     @ExceptionHandler({DataAccessException.class, SQLException.class})
-    public ResponseEntity<ErrorRespuestaDTO> handleDatabaseExceptions(Exception ex, HttpServletRequest request) {
-        log.error("Error interno en el servidor de datos {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-        return buildErrorResponse("Error interno en el servidor de datos. Intente más tarde.", HttpStatus.INTERNAL_SERVER_ERROR, request);
+    public ProblemDetail handleDatabaseExceptions(Exception ex, HttpServletRequest request) {
+        log.error("ERROR CRÍTICO DB en {}: {}", request.getRequestURI(), ex.getMessage());
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Error de Persistencia",
+                "El servicio de base de datos no está disponible.", request);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleGlobalException(Exception ex, HttpServletRequest request) {
+        log.error("ERROR NO CONTROLADO en {}: ", request.getRequestURI(), ex);
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Error Interno del Servidor",
+                "Ha ocurrido un error inesperado en el sistema.", request);
+    }
 
-    private ResponseEntity<ErrorRespuestaDTO> buildErrorResponse(String mensaje, HttpStatus status, HttpServletRequest request) {
-        return new ResponseEntity<>(new ErrorRespuestaDTO(
-                LocalDateTime.now(),
-                mensaje,
-                request.getRequestURI(),
-                status.value()
-        ), status);
+    /**
+     * Método utilitario para construir ProblemDetail bajo estándar RFC 7807
+     */
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, HttpServletRequest request) {
+        ProblemDetail pb = ProblemDetail.forStatusAndDetail(status, detail);
+        pb.setTitle(title);
+        pb.setInstance(URI.create(request.getRequestURI()));
+        pb.setProperty("timestamp", LocalDateTime.now()); // Información extra útil
+        return pb;
     }
 }
