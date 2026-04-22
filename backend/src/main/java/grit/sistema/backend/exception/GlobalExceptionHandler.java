@@ -29,13 +29,18 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    private static final String ERR_DOC_URL = "https://api.GRIT.com/errors/";
+
 
     // --- 1. SEGURIDAD (401, 403) ---
 
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Credenciales inválidas",
-                "El usuario o la contraseña son incorrectos.", request);
+        return createProblemDetail(HttpStatus.UNAUTHORIZED,
+                "authentication-failure",
+                "Credenciales inválidas",
+                "authentication-failure",
+                request);
     }
 
     @ExceptionHandler({AccessDeniedException.class, AccesoDenegadoException.class, AuthorizationDeniedException.class})
@@ -47,16 +52,17 @@ public class GlobalExceptionHandler {
 
     // --- 2. VALIDACIONES Y CLIENTE (400, 405) ---
 
+    // --- En Validaciones ---
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        // Usamos el slug "validation-error"
         ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Error de Validación",
-                "Uno o más campos no cumplen con los requisitos.", request);
+                "Uno o más campos no cumplen con los requisitos.", "validation-error", request);
 
-        // Formateamos los errores de campo de forma profesional
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(err -> err.getField(), err -> err.getDefaultMessage(), (a, b) -> a));
 
-        pb.setProperty("invalid_params", errors); // Extensión del estándar
+        pb.setProperty("invalid_params", errors);
         return pb;
     }
 
@@ -105,6 +111,41 @@ public class GlobalExceptionHandler {
                 "El servicio de base de datos no está disponible.", request);
     }
 
+    // --- 5. ERRORES ESPECÍFICOS DE VALIDACIÓN Y CARGA ---
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+        ProblemDetail pb = createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Violación de Restricción",
+                "Los datos enviados violan las reglas de integridad.",
+                "constraint-violation",
+                request
+        );
+
+        // Extraemos las violaciones de forma legible
+        Map<String, String> violations = ex.getConstraintViolations().stream()
+                .collect(Collectors.toMap(
+                        v -> v.getPropertyPath().toString(),
+                        v -> v.getMessage(),
+                        (existing, replacement) -> existing
+                ));
+
+        pb.setProperty("violations", violations);
+        return pb;
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ProblemDetail handleMaxSizeException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return createProblemDetail(
+                HttpStatus.PAYLOAD_TOO_LARGE,
+                "Archivo demasiado grande",
+                "El archivo excede el límite permitido por el servidor.",
+                "file-too-large",
+                request
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGlobalException(Exception ex, HttpServletRequest request) {
         log.error("ERROR NO CONTROLADO en {}: ", request.getRequestURI(), ex);
@@ -115,11 +156,16 @@ public class GlobalExceptionHandler {
     /**
      * Método utilitario para construir ProblemDetail bajo estándar RFC 7807
      */
-    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, HttpServletRequest request) {
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, String errorSlug,HttpServletRequest request) {
         ProblemDetail pb = ProblemDetail.forStatusAndDetail(status, detail);
+        pb.setType(URI.create(ERR_DOC_URL + errorSlug));
         pb.setTitle(title);
         pb.setInstance(URI.create(request.getRequestURI()));
         pb.setProperty("timestamp", LocalDateTime.now()); // Información extra útil
         return pb;
+    }
+
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, HttpServletRequest request) {
+        return createProblemDetail(status, title, detail, status.name().toLowerCase().replace("_", "-"), request);
     }
 }
