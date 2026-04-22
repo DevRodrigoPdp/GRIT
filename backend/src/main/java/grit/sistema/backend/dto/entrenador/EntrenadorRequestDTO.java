@@ -17,7 +17,7 @@ import java.util.List;
 @ValidEntrenadorProfesional
 public class EntrenadorRequestDTO {
     @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 3, message = "El nombre debe tener al menos 3 caracteres")
+    @Size(min = 3, max = 100, message = "El nombre debe tener al menos 3 caracteres")
     @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", message = "El nombre solo puede contener letras y espacios")
     @Schema(example = "Kevin García", description = "Nombre completo del usuario")
     private String nombre;
@@ -28,11 +28,18 @@ public class EntrenadorRequestDTO {
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
+    )
     @Schema(example = "********", type = "string", format = "password")
     private String password;
 
-    @Schema(description = "Obligatorio si la titulación es de Grado", example = "COL-12345")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9.\\-/]{4,25}$",
+            message = "El código profesional debe ser alfanumérico (puede incluir '.', '-' o '/') y tener entre 4 y 25 caracteres"
+    )
+    @Schema(description = "Identificador profesional (COLEF, NSCA, Cédula, etc.)", example = "MU-12345")
     private String codigoProfesional;
 
     private TitulacionEntrenamiento titulacionEntrenamiento;

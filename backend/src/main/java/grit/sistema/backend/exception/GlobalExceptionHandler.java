@@ -4,6 +4,7 @@ import grit.sistema.backend.dto.error.ErrorRespuestaDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
@@ -100,7 +102,7 @@ public class GlobalExceptionHandler {
     // Captura errores de tamaño de Maven/Spring
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorRespuestaDTO> handleMaxSize(MaxUploadSizeExceededException ex, HttpServletRequest request) {
-        return buildErrorResponse("El archivo excede el límite permitido (Máximo 10MB)", HttpStatus.PAYLOAD_TOO_LARGE, request);
+        return buildErrorResponse("Uno o más archivos exceden el límite permitido (10MB)", HttpStatus.PAYLOAD_TOO_LARGE, request);
     }
 
     // 7. El "Caza-todo" (500)
@@ -109,8 +111,16 @@ public class GlobalExceptionHandler {
         // Loguear el error real para el desarrollador, pero ocultarlo al cliente
         log.error("Error interno en {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
-        return buildErrorResponse("Ocurrió un error inesperado en el servidor.", HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return buildErrorResponse("Ha ocurrido un error inesperado.", HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
+
+    // Error cuando algo explota en la DB (Flyway, Hibernate, Conexión)
+    @ExceptionHandler({DataAccessException.class, SQLException.class})
+    public ResponseEntity<ErrorRespuestaDTO> handleDatabaseExceptions(Exception ex, HttpServletRequest request) {
+        log.error("Error interno en el servidor de datos {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        return buildErrorResponse("Error interno en el servidor de datos. Intente más tarde.", HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
 
     private ResponseEntity<ErrorRespuestaDTO> buildErrorResponse(String mensaje, HttpStatus status, HttpServletRequest request) {
         return new ResponseEntity<>(new ErrorRespuestaDTO(
