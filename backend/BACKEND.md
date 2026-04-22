@@ -528,8 +528,9 @@ Devuelve la lista de entrenadores cuya documentación está pendiente de revisi�
 **`POST /api/v1/admin/entrenadores/:id/aprobar`**
 
 1. Cambiar `usuarios.estado` → `ACTIVO`
-2. Cambiar `documentos_entrenador.status` → `verified` y setear `reviewed_at`
-3. Enviar email de aprobación
+2. Setear `entrenadores.titulo_entrenamiento = (titulacion_entrenamiento IS NOT NULL)` y `titulo_nutricion = (titulacion_nutricion IS NOT NULL)` — estos booleanos son los que el frontend lee en `/auth/me` para determinar a qué dashboard redirigir al entrenador en el próximo login
+3. Cambiar `documentos_entrenador.status` → `verified`, setear `reviewed_at = NOW()`
+4. Enviar email de aprobación al entrenador
 
 ```json
 { "ok": true, "message": "Entrenador aprobado correctamente." }
@@ -2120,8 +2121,8 @@ foto: <archivo imagen>   // campo "foto", image/jpeg | image/png | image/webp, m
 | `codigo_profesional` | VARCHAR(20) UNIQUE NULLABLE | |
 | `titulacion_entrenamiento` | ENUM NULLABLE | `GRADO_CAFYD`, `TSAF_TSEAS`, `CERT_AFDA0210` |
 | `titulacion_nutricion` | ENUM NULLABLE | `GRADO_NUTRICION_DIETETICA`, `TSD` |
-| `titulo_entrenamiento` | BOOLEAN | Derivado: `titulacion_entrenamiento IS NOT NULL` |
-| `titulo_nutricion` | BOOLEAN | Derivado: `titulacion_nutricion IS NOT NULL` |
+| `titulo_entrenamiento` | BOOLEAN | Se fija a `true/false` al aprobar la cuenta (ver sección 3.9). `true` → acceso al módulo de entrenamiento |
+| `titulo_nutricion` | BOOLEAN | Se fija a `true/false` al aprobar la cuenta (ver sección 3.9). `true` → acceso al módulo de nutrición |
 | `experiencia_anos` | SMALLINT NULLABLE | |
 | `sobre_mi` | TEXT NULLABLE | Texto libre de presentación. Se devuelve como `descripcion` en `GET /entrenador/perfil` y como `sobreMi` en `GET /atleta/profesionales` |
 | `masters` | TEXT[] NULLABLE | Array de strings con posgrados o títulos adicionales. Devuelve `[]` si es NULL |
