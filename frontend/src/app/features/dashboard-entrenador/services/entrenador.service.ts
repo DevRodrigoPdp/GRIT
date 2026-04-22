@@ -17,6 +17,7 @@ export interface PerfilEntrenador {
   estado: 'ACTIVO' | 'PENDIENTE_REVISION' | 'RECHAZADO';
   solicitudAmpliacionPendiente?: 'ENTRENAMIENTO' | 'NUTRICION' | null;
   codigoInvitacion: string;
+  fotoUrl: string | null;
 }
 
 export type TitulacionEntrenamiento = 'GRADO_CAFYD' | 'TSAF_TSEAS' | 'CERT_AFDA0210';
@@ -49,6 +50,7 @@ const MOCK_PERFIL_AMBOS: PerfilEntrenador = {
   masters: ['Máster en Alto Rendimiento Deportivo', 'Máster en Nutrición Deportiva'],
   estado: 'ACTIVO',
   codigoInvitacion: 'GRIT-X7K2-9PQR',
+  fotoUrl: null,
 };
 
 const MOCK_PERFIL_NUTRICION: PerfilEntrenador = {
@@ -62,6 +64,7 @@ const MOCK_PERFIL_NUTRICION: PerfilEntrenador = {
   masters: ['Máster en Nutrición Deportiva y Rendimiento'],
   estado: 'ACTIVO',
   codigoInvitacion: 'GRIT-N3TR-5KWZ',
+  fotoUrl: null,
 };
 
 // ← Cambia aquí para probar distintos perfiles
@@ -121,6 +124,15 @@ export class EntrenadorService {
     // ── MOCK ──────────────────────────────────────────────────────────────
     console.log('[mock] Invitación enviada a', email);
     return of(undefined);
+  }
+
+  subirFotoPerfil(archivo: File): Observable<string> {
+    // ── REAL ──────────────────────────────────────────────────────────────
+    // const form = new FormData();
+    // form.append('foto', archivo);
+    // return this.http.post<{ url: string }>(`${this.API}/foto`, form, { withCredentials: true })
+    //   .pipe(map(r => r.url));
+    return of(URL.createObjectURL(archivo));
   }
 
   cambiarPassword(actual: string, nueva: string): Observable<void> {

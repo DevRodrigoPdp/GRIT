@@ -63,6 +63,9 @@ export class DashboardAtletaPage implements OnInit {
   // ── Chat general ──────────────────────────────────────────────────────────
   @ViewChild('chatMessagesRef') chatMessagesRef?: ElementRef<HTMLDivElement>;
   @ViewChild('fileInputChat') fileInputChat?: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInputFoto') fileInputFoto?: ElementRef<HTMLInputElement>;
+
+  readonly subiendoFoto = signal(false);
 
   readonly chatEntrenador = signal<Chat | null>(null);
   readonly chatNutricionista = signal<Chat | null>(null);
@@ -319,6 +322,17 @@ export class DashboardAtletaPage implements OnInit {
         this.passError.set('Contraseña actual incorrecta.');
         this.cambiandoPass.set(false);
       },
+    });
+  }
+
+  seleccionarFotoPerfil(event: Event): void {
+    const archivo = (event.target as HTMLInputElement).files?.[0];
+    if (!archivo) return;
+    this.subiendoFoto.set(true);
+    this.atleta.subirFotoPerfil(archivo).subscribe(url => {
+      this.perfilAtleta.update(p => p ? { ...p, fotoUrl: url } : p);
+      this.subiendoFoto.set(false);
+      if (this.fileInputFoto) this.fileInputFoto.nativeElement.value = '';
     });
   }
 

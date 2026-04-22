@@ -19,6 +19,7 @@ export interface PerfilAtleta {
   objetivo: 'RENDIMIENTO' | 'MASA_MUSCULAR' | 'PERDER_PESO' | 'SALUD' | 'RESISTENCIA' | null;
   alergias: string[];
   lesiones: string[];
+  fotoUrl: string | null;
 }
 
 
@@ -195,6 +196,7 @@ const MOCK_PERFIL: PerfilAtleta = {
   objetivo: 'RENDIMIENTO',
   alergias: ['Intolerancia a la lactosa'],
   lesiones: ['Tendinitis hombro derecho (2023)'],
+  fotoUrl: null,
 };
 
 const MOCK_PLAN_ENTRENAMIENTO: PlanEntrenamiento = {
@@ -452,6 +454,15 @@ export class AtletaService {
     // ── REAL ──────────────────────────────────────────────────────────────
     // return this.http.get<NotaNutricionista[]>(`${this.API}/nutricion/notas`, { withCredentials: true });
     return of(MOCK_NOTAS_NUTRICIONISTA);
+  }
+
+  subirFotoPerfil(archivo: File): Observable<string> {
+    // ── REAL ──────────────────────────────────────────────────────────────
+    // const form = new FormData();
+    // form.append('foto', archivo);
+    // return this.http.post<{ url: string }>(`${this.API}/foto`, form, { withCredentials: true })
+    //   .pipe(map(r => r.url));
+    return of(URL.createObjectURL(archivo));
   }
 
   cambiarPassword(actual: string, nueva: string): Observable<void> {

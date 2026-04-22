@@ -1,4 +1,4 @@
-import { Component, inject, computed, output, input, signal } from '@angular/core';
+import { Component, inject, computed, output, input, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -72,6 +72,29 @@ export class PerfilEntrenadorVistaComponent {
     }
     return Object.entries(TITULACION_ENT_LABEL).map(([value, label]) => ({ value, label }));
   });
+
+  // ── Invitar atleta ─────────────────────────────────────────────────────────
+  // ── Foto de perfil ──────────────────────────────────────────────────────
+  @ViewChild('fileInputFoto') fileInputFoto?: ElementRef<HTMLInputElement>;
+  readonly subiendoFoto = signal(false);
+  readonly fotoUrl      = computed(() => this.perfil()?.fotoUrl ?? null);
+
+  seleccionarFoto(event: Event): void {
+    const archivo = (event.target as HTMLInputElement).files?.[0];
+    if (!archivo) return;
+    this.subiendoFoto.set(true);
+    this.entSvc.subirFotoPerfil(archivo).subscribe(url => {
+      // Actualizar localmente mientras llega la respuesta real del servidor
+      const p = this.perfil();
+      if (p) (p as any).fotoUrl = url;
+      this._fotoLocal.set(url);
+      this.subiendoFoto.set(false);
+      if (this.fileInputFoto) this.fileInputFoto.nativeElement.value = '';
+    });
+  }
+
+  readonly _fotoLocal = signal<string | null>(null);
+  readonly fotoMostrada = computed(() => this._fotoLocal() ?? this.fotoUrl());
 
   // ── Invitar atleta ─────────────────────────────────────────────────────────
   readonly emailInvitacion    = signal('');

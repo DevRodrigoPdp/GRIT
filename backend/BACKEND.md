@@ -2,7 +2,7 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 21 de abril de 2026 — adjuntos S3 en chat (3.14.7); eliminación de cuenta atleta (3.14.8); conectar con entrenador por código (3.14.11); ajustes del entrenador: contraseña y baja (3.19)
+> **Última actualización:** 22 de abril de 2026 — cobertura completa: historial y estado pendiente de peso desde entrenador (3.14.5); escritura notas nutricionista (3.12); endpoints admin para aprobar/rechazar ampliaciones (3.9); foto de perfil (3.14.8, 3.19); endpoint unificado ampliación formación (3.7); eliminación recetas
 
 ---
 
@@ -48,7 +48,6 @@ frontend/src/app/
     │   │   ├── entrenador.service.ts
     │   │   ├── entrenamiento.service.ts
     │   │   ├── nutricion.service.ts
-    │   │   ├── recetas.service.ts
     │   │   ├── ejercicio.service.ts
     │   │   └── open-food-facts.service.ts
     │   └── components/
@@ -408,51 +407,50 @@ Llamado al cargar cualquier dashboard para restaurar la sesión tras un F5 o cie
 
 ---
 
-### 3.7 Solicitud de Ampliación de Permisos *(implementación futura)*
+### 3.7 Solicitud de Ampliación de Formación
 
-Un entrenador podrá solicitar acceso a los módulos para los que no tenía titulación en el momento del registro, aportando nueva documentación.
+Un entrenador con una sola titulación puede solicitar activar el módulo adicional aportando la nueva documentación. El frontend muestra esta opción en MI PERFIL cuando el entrenador tiene exactamente una de las dos titulaciones.
 
-#### Ampliar acceso a Nutrición
+**`POST /api/v1/entrenador/ampliar-formacion`**
 
-**`POST /api/v1/entrenador/solicitar-nutricion`**
-
-Requiere cookie `access_token` válida con `rol === 'ENTRENADOR'` y `titulo_nutricion === false`.
+Requiere cookie `access_token` válida con `rol === 'ENTRENADOR'` y `estado === 'ACTIVO'`.
 
 Recibe `multipart/form-data`:
 
 | Campo | Tipo | Requerido | Descripción |
 |---|---|---|---|
+| `modulo` | `enum` | ✅ | `ENTRENAMIENTO` o `NUTRICION` — el módulo que se quiere habilitar |
+| `titulacion` | `string` | ✅ | Valor enum de la titulación obtenida (ver valores válidos en 3.1) |
 | `documentos` | `File[]` | ✅ | 1–10 archivos PDF/JPG/PNG, max 10 MB c/u |
+
+**Validación en servidor:**
+- Si `modulo === 'NUTRICION'` → verificar que `titulo_nutricion === false` (400 si ya tiene módulo)
+- Si `modulo === 'ENTRENAMIENTO'` → verificar que `titulo_entrenamiento === false` (400 si ya tiene módulo)
+- Si ya existe una solicitud pendiente para ese módulo → 409 `SOLICITUD_PENDIENTE`
+- `titulacion` debe pertenecer al conjunto válido del módulo indicado (400 si no coincide)
 
 **Respuesta 200:**
 ```json
 {
   "ok": true,
   "message": "Solicitud de ampliación recibida. Revisaremos tu documentación en un plazo máximo de 48h.",
-  "data": { "estadoSolicitud": "PENDIENTE_REVISION_NUTRICION" }
+  "data": { "solicitudAmpliacionPendiente": "NUTRICION" }
 }
 ```
 
-#### Ampliar acceso a Entrenamiento
-
-**`POST /api/v1/entrenador/solicitar-entrenamiento`**
-
-Requiere cookie `access_token` válida con `rol === 'ENTRENADOR'` y `titulo_entrenamiento === false`.
-
-Recibe `multipart/form-data`:
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---|---|
-| `documentos` | `File[]` | ✅ | 1–10 archivos PDF/JPG/PNG, max 10 MB c/u |
-
-**Respuesta 200:**
+**Respuesta 409** (solicitud ya en curso para ese módulo):
 ```json
-{
-  "ok": true,
-  "message": "Solicitud de ampliación recibida. Revisaremos tu documentación en un plazo máximo de 48h.",
-  "data": { "estadoSolicitud": "PENDIENTE_REVISION_ENTRENAMIENTO" }
-}
+{ "ok": false, "error": "SOLICITUD_PENDIENTE", "message": "Ya existe una solicitud de ampliación pendiente para ese módulo." }
 ```
+
+**Lógica en servidor:**
+- Subir los documentos a S3 (`entrenadores/<uuid>/ampliacion/<modulo>/…`).
+- Guardar en `documentos_entrenador` con `status = 'pending'`.
+- Actualizar el campo `solicitud_ampliacion_pendiente` de la tabla `entrenadores` con el valor del `modulo`.
+- Cuando el admin apruebe la solicitud: activar la titulación correspondiente, poner `solicitud_ampliacion_pendiente = NULL` y actualizar `titulo_entrenamiento` / `titulo_nutricion`.
+- Enviar email al entrenador confirmando la recepción.
+
+> `solicitudAmpliacionPendiente` se devuelve en `GET /api/v1/entrenador/perfil` para que el frontend muestre el estado "EN REVISIÓN" y deshabilite el botón de solicitud mientras está pendiente.
 
 ---
 
@@ -551,6 +549,88 @@ Body: `{ "motivo": "El PDF es ilegible..." }`
 
 ---
 
+**`GET /api/v1/admin/ampliaciones?status=pending`**
+
+Devuelve la lista de solicitudes de ampliación de formación pendientes de revisión (entrenadores que ya tienen cuenta activa y quieren habilitar el módulo adicional).
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid-entrenador",
+      "nombre": "Carlos Martínez",
+      "correo": "carlos@example.com",
+      "moduloSolicitado": "NUTRICION",
+      "titulacionSolicitada": "GRADO_NUTRICION_DIETETICA",
+      "titulacionSolicitadaLabel": "Grado en Nutrición Humana y Dietética",
+      "modulosActuales": {
+        "entrenamiento": true,
+        "nutricion": false
+      },
+      "solicitadaEn": "2026-04-20T10:00:00Z",
+      "documentos": [
+        {
+          "id": "uuid-doc",
+          "nombre_archivo": "Titulo_Nutricion.pdf",
+          "url_firmada": "https://s3.../...",
+          "uploaded_at": "2026-04-20T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}
+```
+
+> Filtrar por `documentos_entrenador.status = 'pending'` JOIN con `entrenadores.solicitud_ampliacion_pendiente IS NOT NULL`.
+
+---
+
+**`POST /api/v1/admin/ampliaciones/:entrenadorId/aprobar`**
+
+Aprueba la solicitud de ampliación y activa el nuevo módulo en la cuenta del entrenador.
+
+```json
+// Request body — vacío
+{}
+
+// Response 200
+{ "ok": true, "message": "Ampliación aprobada. El módulo ha sido activado en la cuenta del entrenador." }
+```
+
+**Lógica:**
+1. Leer `entrenadores.solicitud_ampliacion_pendiente` para saber qué módulo aprobar.
+2. Si `moduloSolicitado === 'NUTRICION'` → setear `titulacion_nutricion` al valor enviado en la solicitud y `titulo_nutricion = true`.
+3. Si `moduloSolicitado === 'ENTRENAMIENTO'` → setear `titulacion_entrenamiento` al valor enviado y `titulo_entrenamiento = true`.
+4. Poner `solicitud_ampliacion_pendiente = NULL`.
+5. Cambiar los `documentos_entrenador` relacionados (los de esta solicitud) a `status = 'verified'`, setear `reviewed_at`.
+6. Enviar email al entrenador notificando que su nuevo módulo está activo.
+
+> Para identificar qué documentos pertenecen a esta solicitud: los documentos subidos tras la activación de la cuenta (después de `usuarios.created_at`) con `status = 'pending'` son de la solicitud de ampliación.
+
+---
+
+**`POST /api/v1/admin/ampliaciones/:entrenadorId/rechazar`**
+
+Rechaza la solicitud de ampliación. El entrenador puede volver a solicitarla.
+
+```json
+// Request body
+{ "motivo": "El título aportado no es válido para este módulo." }
+
+// Response 200
+{ "ok": true, "message": "Solicitud rechazada. El entrenador ha sido notificado." }
+```
+
+**Lógica:**
+1. Poner `solicitud_ampliacion_pendiente = NULL` en `entrenadores`.
+2. Cambiar los `documentos_entrenador` de esta solicitud a `status = 'rejected'`, guardar `rejection_reason` y setear `reviewed_at`.
+3. Enviar email al entrenador con el motivo del rechazo (para que pueda aportar documentación correcta).
+
+> Al poner `solicitud_ampliacion_pendiente = NULL`, el frontend vuelve a mostrar el botón "SOLICITAR AMPLIACIÓN" permitiendo al entrenador reintentar con documentación correcta.
+
+---
+
 ### 3.10 Healthcheck
 
 **`GET /api/v1/health`**
@@ -579,21 +659,27 @@ Devuelve el perfil del entrenador autenticado.
     "titulacionEntrenamiento": "GRADO_CAFYD",
     "titulacionNutricion": null,
     "experienciaAnos": 5,
-    "sobreMi": "Especialista en rendimiento deportivo y fuerza.",
+    "descripcion": "Especialista en rendimiento deportivo y fuerza.",
     "masters": ["Máster en Alto Rendimiento Deportivo"],
     "codigoInvitacion": "GRIT-A1B2C3",
-    "estado": "ACTIVO"
+    "estado": "ACTIVO",
+    "fotoUrl": "https://cdn.grit.app/entrenadores/uuid/perfil.jpg",
+    "solicitudAmpliacionPendiente": null
   }
 }
 ```
 
-**Campos añadidos:**
+> **Nombre del campo `descripcion`:** el frontend usa `descripcion` (no `sobreMi`) para este campo. El backend debe devolverlo como `descripcion` en la respuesta JSON aunque la columna en BBDD se llame `sobre_mi`.
+
+**Campos del objeto `data`:**
 
 | Campo | Tipo | Notas |
 |---|---|---|
-| `sobreMi` | `string \| null` | Texto libre de presentación que el entrenador edita en su perfil |
-| `masters` | `string[]` | Lista de posgrados o títulos adicionales. Array vacío si no tiene |
-| `codigoInvitacion` | `string` | Código único de 10 caracteres que el atleta introduce al registrarse para vincularse automáticamente con este entrenador. Lo genera el backend al crear la cuenta del entrenador |
+| `descripcion` | `string \| null` | Texto libre de presentación. Columna `sobre_mi` en BBDD |
+| `masters` | `string[]` | Lista de posgrados o títulos adicionales. `[]` si no tiene |
+| `codigoInvitacion` | `string` | Código único generado al crear la cuenta. El atleta lo introduce al registrarse para vincularse automáticamente |
+| `fotoUrl` | `string \| null` | URL pública de la foto de perfil en S3. `null` si no ha subido foto |
+| `solicitudAmpliacionPendiente` | `'ENTRENAMIENTO' \| 'NUTRICION' \| null` | Si hay una solicitud de ampliación en revisión, indica el módulo solicitado. `null` si no hay ninguna |
 
 ---
 
@@ -785,6 +871,33 @@ Marca un plan de nutrición como activo para el atleta. Desactiva automáticamen
 ```json
 { "ok": false, "error": "ACCESO_DENEGADO" }
 ```
+
+---
+
+**`POST /api/v1/entrenador/atletas/:atletaId/notas`**
+
+El nutricionista escribe una nota de seguimiento para el atleta (consejo, observación, recordatorio). El atleta las lee en la sección DIETA de su dashboard bajo la etiqueta "NOTAS DE TU NUTRICIONISTA".
+
+> Requiere `titulo_nutricion === true` y asignación activa de tipo `NUTRICION` con el atleta.
+
+```json
+// Request body
+{ "texto": "Recuerda tomar el batido proteico dentro de los 30 minutos post-entreno." }
+
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-nota",
+    "texto": "Recuerda tomar el batido proteico dentro de los 30 minutos post-entreno.",
+    "fecha": "2026-04-22"
+  }
+}
+```
+
+**Validaciones:**
+- `texto`: no puede estar vacío, máximo 1000 caracteres.
+- Guardar en tabla `notas_nutricionista` con `entrenador_id` y `atleta_id`.
 
 ---
 
@@ -985,12 +1098,14 @@ Devuelve el perfil completo del atleta autenticado (datos registrados en el form
     "deporte": "Ciclismo",
     "nivel": "AVANZADO",
     "servicio": "AMBOS",
-    "objetivo": "RENDIMIENTO"
+    "objetivo": "RENDIMIENTO",
+    "fotoUrl": "https://cdn.grit.app/atletas/uuid/perfil.jpg"
   }
 }
 ```
 
 > `objetivo` puede ser `null` si el atleta contrató solo nutrición.
+> `fotoUrl` es `null` si el atleta no ha subido foto de perfil.
 
 ---
 
@@ -1271,6 +1386,37 @@ Crea una nueva solicitud de check-in de peso para el atleta indicado. Si ya exis
 ```json
 { "ok": false, "error": "SOLICITUD_YA_PENDIENTE", "message": "Este atleta ya tiene una solicitud de peso pendiente." }
 ```
+
+---
+
+**`GET /api/v1/entrenador/atletas/:atletaId/peso/historial`**
+
+Devuelve el historial de check-ins de peso de un atleta visto desde el entrenador. Ordenados por fecha ASC. El entrenador usa esta respuesta para renderizar la gráfica de evolución en el panel de seguimiento de su dashboard.
+
+```json
+{
+  "ok": true,
+  "data": [
+    { "id": "uuid-w1", "fecha": "2026-02-03", "pesoKg": 85.2, "solicitadoPor": "ENTRENADOR" },
+    { "id": "uuid-w2", "fecha": "2026-02-17", "pesoKg": 84.0, "solicitadoPor": "NUTRICIONISTA" }
+  ]
+}
+```
+
+> Solo devuelve registros del atleta indicado. El entrenador debe tener una asignación activa con ese atleta (validación en servidor).
+
+---
+
+**`GET /api/v1/entrenador/atletas/:atletaId/peso/pendiente`**
+
+Indica si el atleta tiene una solicitud de check-in de peso **pendiente de responder** (creada por este entrenador y aún no registrada por el atleta). El entrenador usa esto para mostrar u ocultar el botón "SOLICITAR PESO" en el panel de seguimiento.
+
+```json
+// Response 200
+{ "ok": true, "data": { "pendiente": true } }
+```
+
+> Internamente: buscar en `checkins_peso_solicitudes` por `atleta_id` y `estado = 'PENDIENTE'`. Devolver `pendiente: true` si existe al menos una.
 
 ---
 
@@ -1566,6 +1712,26 @@ El atleta solicita la eliminación permanente de su cuenta. El frontend exige qu
 
 ---
 
+**`POST /api/v1/atleta/foto`**
+
+El atleta sube o reemplaza su foto de perfil. La imagen se almacena en S3.
+
+```
+// Request: multipart/form-data
+foto: <archivo imagen>   // campo "foto", image/jpeg | image/png | image/webp, máx. 5 MB
+
+// Response 200
+{ "url": "https://cdn.grit.app/atletas/<uuid>/perfil.jpg" }
+```
+
+**Validaciones:**
+- MIME type: `image/jpeg`, `image/png`, `image/webp` únicamente.
+- Tamaño máximo: 5 MB.
+- Sobrescribir el objeto S3 anterior si ya existía (`foto_url` en `atletas`).
+- Actualizar columna `foto_url` en la tabla `atletas`.
+
+---
+
 #### 3.14.9 Profesionales Asignados
 
 **`GET /api/v1/atleta/profesionales`**
@@ -1613,7 +1779,7 @@ Devuelve los profesionales asignados al atleta según sus servicios contratados.
 
 **Campos de `entrenadores` necesarios para esta respuesta:**
 - `titulacion_entrenamiento` / `titulacion_nutricion` (ya existen; el backend construye el string legible)
-- `descripcion` → renombrar a `sobre_mi` (o añadir como alias) — campo libre que el entrenador rellena en su perfil
+- `sobre_mi` → devolver como `sobreMi` en esta respuesta (distinto nombre que en `GET /entrenador/perfil` donde se llama `descripcion`, pero ambos mapean a la misma columna)
 - `experiencia_anos` (ya existe como `experiencia_anos`)
 - `masters` — array de strings, nuevo campo (ver sección 4)
 
@@ -1909,6 +2075,26 @@ El entrenador solicita la eliminación permanente de su cuenta. El frontend exig
 
 ---
 
+**`POST /api/v1/entrenador/foto`**
+
+El entrenador sube o reemplaza su foto de perfil. La imagen se almacena en S3.
+
+```
+// Request: multipart/form-data
+foto: <archivo imagen>   // campo "foto", image/jpeg | image/png | image/webp, máx. 5 MB
+
+// Response 200
+{ "url": "https://cdn.grit.app/entrenadores/<uuid>/perfil.jpg" }
+```
+
+**Validaciones:**
+- MIME type: `image/jpeg`, `image/png`, `image/webp` únicamente.
+- Tamaño máximo: 5 MB.
+- Sobrescribir el objeto S3 anterior si ya existía (`foto_url` en `entrenadores`).
+- Actualizar columna `foto_url` en la tabla `entrenadores`.
+
+---
+
 ## 4. Modelos de Base de Datos
 
 > El esquema SQL detallado estará en `/bbdd`. Aquí se describen las entidades a modo de contrato.
@@ -1937,9 +2123,11 @@ El entrenador solicita la eliminación permanente de su cuenta. El frontend exig
 | `titulo_entrenamiento` | BOOLEAN | Derivado: `titulacion_entrenamiento IS NOT NULL` |
 | `titulo_nutricion` | BOOLEAN | Derivado: `titulacion_nutricion IS NOT NULL` |
 | `experiencia_anos` | SMALLINT NULLABLE | |
-| `sobre_mi` | TEXT NULLABLE | Texto libre de presentación (equivale al campo `sobreMi` en la API) |
+| `sobre_mi` | TEXT NULLABLE | Texto libre de presentación. Se devuelve como `descripcion` en `GET /entrenador/perfil` y como `sobreMi` en `GET /atleta/profesionales` |
 | `masters` | TEXT[] NULLABLE | Array de strings con posgrados o títulos adicionales. Devuelve `[]` si es NULL |
 | `codigo_invitacion` | VARCHAR(20) UNIQUE NOT NULL | Código único generado al crear la cuenta. El atleta lo introduce al registrarse para vincularse automáticamente |
+| `foto_url` | VARCHAR(500) NULLABLE | URL pública S3 de la foto de perfil. `NULL` si no ha subido foto |
+| `solicitud_ampliacion_pendiente` | ENUM NULLABLE | `ENTRENAMIENTO`, `NUTRICION`. `NULL` si no hay solicitud activa. Se pone a `NULL` cuando el admin aprueba o rechaza |
 
 ### Tabla `documentos_entrenador`
 
@@ -1971,6 +2159,7 @@ El entrenador solicita la eliminación permanente de su cuenta. El frontend exig
 | `objetivo` | ENUM NULLABLE | `RENDIMIENTO`, `MASA_MUSCULAR`, `PERDER_PESO`, `SALUD`, `RESISTENCIA` |
 | `alergias` | TEXT[] NULLABLE | Array de strings con alergias declaradas por el atleta (ej. `["Frutos secos", "Marisco"]`). Devuelve `[]` si es NULL |
 | `intolerancias` | TEXT[] NULLABLE | Array de strings con intolerancias declaradas por el atleta (ej. `["Lactosa", "Gluten"]`). Devuelve `[]` si es NULL |
+| `foto_url` | VARCHAR(500) NULLABLE | URL pública S3 de la foto de perfil. `NULL` si no ha subido foto |
 
 > El entrenador/nutricionista puede ver `alergias` e `intolerancias` en la respuesta de `GET /api/v1/entrenador/atletas` para tenerlas en cuenta al diseñar planes. El frontend las muestra como banner de aviso en los módulos de entrenamiento y nutrición.
 
@@ -2026,32 +2215,6 @@ Relación entre entrenador y atleta para un servicio concreto.
 | `cantidad_g` | DECIMAL(7,2) | Cantidad en gramos para este plan |
 
 > Los macros se guardan como snapshot porque los datos de Open Food Facts pueden cambiar. No hay FK a una tabla de alimentos propia.
-
-### Tabla `recetas`
-
-| Campo | Tipo | Notas |
-|---|---|---|
-| `id` | UUID PK | |
-| `entrenador_id` | UUID FK → entrenadores | Quien la creó |
-| `nombre` | VARCHAR(255) | |
-| `gramos_total` | DECIMAL(7,2) | Peso total del plato (puede diferir de la suma de ingredientes) |
-| `creado_en` | TIMESTAMP | |
-
-### Tabla `ingredientes_receta`
-
-| Campo | Tipo | Notas |
-|---|---|---|
-| `id` | UUID PK | |
-| `receta_id` | UUID FK → recetas | |
-| `codigo_alimento` | VARCHAR(50) | Código de Open Food Facts (barcode) |
-| `nombre` | VARCHAR(255) | Snapshot del nombre al guardar |
-| `marca` | VARCHAR(255) NULLABLE | |
-| `kcal_por_100g` | DECIMAL(7,2) | |
-| `proteinas_por_100g` | DECIMAL(7,2) | |
-| `carbs_por_100g` | DECIMAL(7,2) | |
-| `grasas_por_100g` | DECIMAL(7,2) | |
-| `cantidad_g` | DECIMAL(7,2) | |
-| `orden` | SMALLINT | |
 
 ### Tabla `alimentos_recientes`
 
@@ -2255,8 +2418,13 @@ Allow-Credentials:       true   ← imprescindible para que las cookies HttpOnly
 | Rechazo entrenador | Entrenador | "Actualización sobre tu solicitud en GRIT" |
 | Registro atleta | Atleta | "¡Bienvenido a GRIT! Tu perfil está listo" |
 | `POST /entrenador/invitar` | Destinatario del email | "Te han invitado a unirte a GRIT" |
+| `POST /entrenador/ampliar-formacion` | Entrenador | "Solicitud de ampliación recibida — revisaremos tu documentación en 48h" |
+| Aprobación de ampliación (`POST /admin/ampliaciones/:id/aprobar`) | Entrenador | "¡Nuevo módulo activado en tu cuenta GRIT!" |
+| Rechazo de ampliación (`POST /admin/ampliaciones/:id/rechazar`) | Entrenador | "Actualización sobre tu solicitud de ampliación en GRIT" |
 
 > El email de invitación debe incluir: nombre del entrenador que invita, el código de invitación (para introducirlo en el formulario de registro) y un enlace directo a `/registro/atleta`.
+> El email de aprobación de ampliación debe indicar qué módulo se ha activado (Entrenamiento o Nutrición) y que ya puede empezar a usarlo.
+> El email de rechazo de ampliación debe incluir el motivo proporcionado por el admin para que el entrenador pueda corregir la documentación y reintentar.
 
 ---
 
@@ -2295,15 +2463,18 @@ SENDGRID_API_KEY=...
 
 1. **Setup del proyecto** (estructura Spring Boot, Docker Compose con PostgreSQL)
 2. **Migraciones de BBDD** (schema SQL inicial — tablas `usuarios`, `entrenadores`, `atletas`, `asignaciones`)
+   - Incluir desde el inicio: `foto_url` en `atletas` y `entrenadores`; `solicitud_ampliacion_pendiente` en `entrenadores`
 3. **Healthcheck** (`GET /api/v1/health`)
 4. **Registro de Atleta** + **Login** + **Refresh** + **Logout** + **Me**
    - El bloque de auth completo: cookies HttpOnly, JWT, redirección
+   - Incluir `POST /api/v1/atleta/foto` en el mismo bloque — el frontend lo llama inmediatamente tras el registro si el atleta subió foto
 5. **Registro de Entrenador** (multipart/form-data, upload a S3, estado `PENDIENTE_REVISION`)
+   - Incluir `POST /api/v1/entrenador/foto` en el mismo bloque
 6. **Endpoints de administración** (aprobar/rechazar, pre-signed URLs de S3)
 7. **Sistema de emails** (registro, aprobación, rechazo)
 8. **Middleware de protección por titulación** (secciones 3.8)
-9. **Módulo Entrenador** — perfil y lista de atletas (sección 3.11)
-   - Migración: tabla `asignaciones`
+9. **Módulo Entrenador** — perfil, lista de atletas e invitación (sección 3.11)
+   - El campo `solicitudAmpliacionPendiente` en `GET /perfil` debe devolverse desde el inicio
 10. **Módulo Nutrición** — planes (sección 3.12)
     - Migraciones: `planes_nutricion`, `comidas`, `alimentos_en_comida`
 11. **Módulo Nutrición** — alimentos recientes (sección 3.16)
@@ -2318,14 +2489,15 @@ SENDGRID_API_KEY=...
 16. **Módulo Atleta — bloque 4:** chat general atleta ↔ entrenador/nutricionista con adjuntos S3 (sección 3.14.7)
     - Migración: `mensajes_chat` (con columnas `adjunto_url_s3`, `adjunto_tipo`, `adjunto_nombre`)
     - Requiere S3 configurado (mismo bucket que documentos de entrenador)
-17. **Módulo Atleta — bloque 5:** ajustes de cuenta — contraseña + eliminación + conectar con código (secciones 3.14.8 y 3.14.11)
+17. **Módulo Atleta — bloque 5:** ajustes de cuenta — contraseña + eliminación + foto + conectar con código (secciones 3.14.8 y 3.14.11)
 18. **Módulo Atleta — bloque 6:** profesionales asignados + hilo de comida (secciones 3.14.9–3.14.10)
-    - Migración: `mensajes_hilo_comida`; campo `descripcion` en `entrenadores` si no existe
+    - Migración: `mensajes_hilo_comida`
 19. **Notas nutricionista** (escritura desde el dashboard del entrenador)
     - Migración: `notas_nutricionista`
-20. **Ajustes de cuenta del entrenador** — contraseña + eliminación (sección 3.19)
-21. **Rate limiting + seguridad adicional**
-22. **Tests de integración** para todos los endpoints
+20. **Ajustes de cuenta del entrenador** — contraseña + eliminación + foto (sección 3.19)
+21. **Ampliación de formación** — endpoint unificado `POST /api/v1/entrenador/ampliar-formacion` (sección 3.7)
+22. **Rate limiting + seguridad adicional**
+23. **Tests de integración** para todos los endpoints
 
 ---
 
@@ -2356,6 +2528,10 @@ SENDGRID_API_KEY=...
 - **Historial de ejercicios del entrenador:** actualmente se guarda en `localStorage`. Si se implementan los endpoints de la sección 3.17, el frontend debe migrar a consumirlos. La biblioteca fija de ~45 ejercicios vive solo en el frontend y no requiere endpoint.
 - **Adjuntos en el chat general:** el frontend usa un flujo en dos pasos: (1) llama a `POST /atleta/chat/:tipo/archivo` para subir el archivo a S3 y obtener la URL preview; (2) al pulsar ENVIAR, llama a `POST /atleta/chat/:tipo/mensaje` con `multipart/form-data`. Si el mensaje es solo texto (sin archivo), el backend debe seguir aceptando `application/json` con `{ "texto": "..." }` para compatibilidad. Si tiene archivo, la petición es siempre `multipart/form-data`. El campo `adjunto_url_s3` en la tabla almacena la clave S3 (no la URL firmada); las pre-signed URLs se generan en cada `GET` del historial.
 - **Hilo de comida — eliminado del frontend del atleta:** el frontend ya no consume los endpoints de hilo de comida (`GET/POST /atleta/nutricion/hilo`). El atleta solo ve el campo `notas` de cada comida (solo lectura, escrito por el nutricionista). El backend puede implementar estos endpoints para uso futuro desde el dashboard del entrenador, pero no son necesarios para el flujo actual del atleta.
+- **Foto de perfil — flujo en dos pasos:** la foto es opcional en el registro. El formulario de registro (atleta y entrenador) no la incluye en la petición de registro; en su lugar, si el usuario subió una foto, el frontend realiza una segunda petición inmediatamente después del registro exitoso: `POST /api/v1/atleta/foto` o `POST /api/v1/entrenador/foto`. El backend debe estar listo para recibir esta petición justo tras la creación de la cuenta (la cookie de sesión ya estará activa). La URL devuelta se almacena en `foto_url` de la tabla correspondiente.
+- **`descripcion` vs `sobre_mi`:** el frontend usa el nombre de campo `descripcion` en la interfaz `PerfilEntrenador`. El backend debe devolver este campo como `descripcion` en el JSON de `GET /api/v1/entrenador/perfil`, aunque la columna en base de datos se llame `sobre_mi`.
+- **`solicitudAmpliacionPendiente` en perfil entrenador:** el campo `solicitudAmpliacionPendiente` de `GET /api/v1/entrenador/perfil` controla qué muestra el frontend en la sección "Ampliar formación" de MI PERFIL. Si es `null`, muestra el botón de solicitud. Si tiene valor (`'ENTRENAMIENTO'` o `'NUTRICION'`), muestra el banner "EN REVISIÓN". El frontend nunca muta este campo directamente — solo lo lee.
+- **Recetas eliminadas:** la feature de recetas ha sido eliminada del frontend. No implementar ni las tablas `recetas` / `ingredientes_receta` ni los endpoints asociados.
 
 ---
 

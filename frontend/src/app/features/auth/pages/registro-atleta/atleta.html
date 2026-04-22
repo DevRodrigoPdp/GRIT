@@ -84,6 +84,48 @@
 
           <div class="flex flex-col gap-6">
 
+            <!-- Foto de perfil (opcional) -->
+            <div class="flex flex-col gap-3">
+              <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">
+                Foto de perfil
+                <span class="text-gray-400 font-normal normal-case tracking-normal ml-1">(opcional)</span>
+              </label>
+              <div class="flex items-center gap-5">
+                <div class="relative group flex-shrink-0">
+                  @if (fotoPreview()) {
+                    <img [src]="fotoPreview()!" alt="Foto de perfil"
+                      class="w-20 h-20 object-cover border border-[#E5E7EB]" />
+                  } @else {
+                    <div class="w-20 h-20 bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center">
+                      <svg class="w-7 h-7 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                      </svg>
+                    </div>
+                  }
+                  <button type="button" (click)="inputFoto.click()"
+                    class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                    <span class="text-[10px] font-black tracking-widest text-white uppercase">
+                      {{ fotoPreview() ? 'CAMBIAR' : 'SUBIR' }}
+                    </span>
+                  </button>
+                </div>
+                <div>
+                  <p class="text-xs font-light text-gray-400 leading-relaxed">
+                    Sube una foto para personalizar tu perfil.<br>
+                    JPG, PNG o WebP — máx. 5 MB.
+                  </p>
+                  @if (fotoPreview()) {
+                    <button type="button" (click)="fotoFile.set(null); fotoPreview.set(null)"
+                      class="text-[10px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors mt-2">
+                      ✕ QUITAR
+                    </button>
+                  }
+                </div>
+              </div>
+              <input #inputFoto type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
+                (change)="seleccionarFoto($event)" />
+            </div>
+
             <!-- Nombre -->
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold tracking-[0.2em] uppercase text-black">

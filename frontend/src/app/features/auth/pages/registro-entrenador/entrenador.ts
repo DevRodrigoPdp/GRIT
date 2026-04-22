@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -78,6 +78,18 @@ export class EntrenadorPage implements OnInit {
       next.delete(master);
       return next;
     });
+  }
+
+  @ViewChild('inputFoto') inputFoto?: ElementRef<HTMLInputElement>;
+  readonly fotoFile    = signal<File | null>(null);
+  readonly fotoPreview = signal<string | null>(null);
+
+  seleccionarFoto(event: Event): void {
+    const archivo = (event.target as HTMLInputElement).files?.[0];
+    if (!archivo) return;
+    this.fotoFile.set(archivo);
+    this.fotoPreview.set(URL.createObjectURL(archivo));
+    (event.target as HTMLInputElement).value = '';
   }
 
   readonly archivos            = signal<ArchivoSubido[]>([]);
@@ -295,9 +307,13 @@ export class EntrenadorPage implements OnInit {
       documentos: this.archivos().map(a => a.file),
     })
     .subscribe({
-      error: () => {
-        // El servicio maneja el loading; en caso de error la validación del formulario ya está activa.
+      next: () => {
+        const foto = this.fotoFile();
+        if (foto) {
+          this.entrenadorService.subirFotoPerfil(foto).subscribe();
+        }
       },
+      error: () => {},
     });
   }
 
