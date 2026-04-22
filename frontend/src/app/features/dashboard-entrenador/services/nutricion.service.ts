@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { AlimentoOFF } from './open-food-facts.service';
+import { AlimentoOFF } from './alimentos.service';
 
 // ── Tipos públicos ────────────────────────────────────────────────────────────
 

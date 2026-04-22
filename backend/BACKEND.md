@@ -49,7 +49,7 @@ frontend/src/app/
     │   │   ├── entrenamiento.service.ts
     │   │   ├── nutricion.service.ts
     │   │   ├── ejercicio.service.ts
-    │   │   └── open-food-facts.service.ts
+    │   │   └── alimentos.service.ts
     │   └── components/
     │       ├── perfil-entrenador/
     │       ├── gestion-entrenamiento/
@@ -2206,16 +2206,16 @@ Relación entre entrenador y atleta para un servicio concreto.
 |---|---|---|
 | `id` | UUID PK | |
 | `comida_id` | UUID FK → comidas | |
-| `codigo_alimento` | VARCHAR(50) | Código de Open Food Facts (barcode) |
-| `nombre` | VARCHAR(255) | Nombre del alimento (snapshot en el momento de guardar) |
-| `marca` | VARCHAR(255) NULLABLE | |
-| `kcal_por_100g` | DECIMAL(7,2) | |
-| `proteinas_por_100g` | DECIMAL(7,2) | |
-| `carbs_por_100g` | DECIMAL(7,2) | |
-| `grasas_por_100g` | DECIMAL(7,2) | |
+| `alimento_id` | UUID FK → alimentos | Referencia al alimento de la BD propia |
+| `nombre` | VARCHAR(255) | Snapshot del nombre en el momento de guardar el plan |
+| `marca` | VARCHAR(255) NULLABLE | Snapshot |
+| `kcal_por_100g` | DECIMAL(7,2) | Snapshot — los macros que el nutricionista prescribió |
+| `proteinas_por_100g` | DECIMAL(7,2) | Snapshot |
+| `carbs_por_100g` | DECIMAL(7,2) | Snapshot |
+| `grasas_por_100g` | DECIMAL(7,2) | Snapshot |
 | `cantidad_g` | DECIMAL(7,2) | Cantidad en gramos para este plan |
 
-> Los macros se guardan como snapshot porque los datos de Open Food Facts pueden cambiar. No hay FK a una tabla de alimentos propia.
+> Los macros se guardan como snapshot para que el plan no cambie si en el futuro se corrige un alimento en la tabla `alimentos`. `alimento_id` permite trazabilidad pero no afecta a los cálculos del plan.
 
 ### Tabla `alimentos_recientes`
 
@@ -2226,16 +2226,10 @@ Historial de alimentos usados por el entrenador en cada tipo de comida. Máximo 
 | `id` | UUID PK | |
 | `usuario_id` | UUID FK → usuarios | Entrenador que lo usó |
 | `nombre_comida` | VARCHAR(100) | "Desayuno", "Almuerzo", etc. |
-| `codigo_alimento` | VARCHAR(50) | |
-| `nombre` | VARCHAR(255) | Snapshot |
-| `marca` | VARCHAR(255) NULLABLE | |
-| `kcal_por_100g` | DECIMAL(7,2) | |
-| `proteinas_por_100g` | DECIMAL(7,2) | |
-| `carbs_por_100g` | DECIMAL(7,2) | |
-| `grasas_por_100g` | DECIMAL(7,2) | |
+| `alimento_id` | UUID FK → alimentos | |
 | `usado_en` | TIMESTAMP | Se actualiza cada vez que se usa |
 
-> **Constraint único:** `(usuario_id, nombre_comida, codigo_alimento)` — evita duplicados por alimento y comida. El backend debe hacer `UPSERT` actualizando `usado_en` si ya existe.
+> **Constraint único:** `(usuario_id, nombre_comida, alimento_id)` — evita duplicados. El backend debe hacer `UPSERT` actualizando `usado_en` si ya existe. Al devolver los recientes, hacer JOIN con `alimentos` para obtener nombre, marca y macros.
 
 ### Tabla `checkins_peso_solicitudes`
 
@@ -2476,28 +2470,33 @@ SENDGRID_API_KEY=...
 8. **Middleware de protección por titulación** (secciones 3.8)
 9. **Módulo Entrenador** — perfil, lista de atletas e invitación (sección 3.11)
    - El campo `solicitudAmpliacionPendiente` en `GET /perfil` debe devolverse desde el inicio
-10. **Módulo Nutrición** — planes (sección 3.12)
+10. **API de Alimentos** — tabla y búsqueda (sección 11)
+    - Migración: `alimentos` + índice `pg_trgm` sobre `nombre`
+    - Seeder con los ~50 alimentos base
+    - `GET /api/v1/alimentos?q=` y `POST /api/v1/alimentos`
+11. **Módulo Nutrición** — planes (sección 3.12)
     - Migraciones: `planes_nutricion`, `comidas`, `alimentos_en_comida`
-11. **Módulo Nutrición** — alimentos recientes (sección 3.16)
+    - Requiere paso 10 (FK `alimento_id → alimentos`)
+12. **Módulo Nutrición** — alimentos recientes (sección 3.16)
     - Migración: `alimentos_recientes`
-12. **Módulo Entrenamiento** — rutinas (sección 3.13)
+13. **Módulo Entrenamiento** — rutinas (sección 3.13)
     - Migraciones: `rutinas`, `sesiones_rutina`, `ejercicios_en_sesion`
-13. **Módulo Atleta — bloque 1:** perfil, plan activo entrenamiento, plan activo nutrición, notas nutricionista (secciones 3.14.1–3.14.3)
-14. **Módulo Atleta — bloque 2:** check-in de peso (solicitud entrenador + registro atleta + historial) (sección 3.14.4–3.14.5)
+14. **Módulo Atleta — bloque 1:** perfil, plan activo entrenamiento, plan activo nutrición, notas nutricionista (secciones 3.14.1–3.14.3)
+15. **Módulo Atleta — bloque 2:** check-in de peso (solicitud entrenador + registro atleta + historial) (sección 3.14.4–3.14.5)
     - Migraciones: `checkins_peso_solicitudes`, `checkins_peso`
-15. **Módulo Atleta — bloque 3:** hilo de ejercicio con media S3 (sección 3.14.6)
+16. **Módulo Atleta — bloque 3:** hilo de ejercicio con media S3 (sección 3.14.6)
     - Migraciones: `hilos_ejercicio`, `media_hilo`, `mensajes_hilo`
-16. **Módulo Atleta — bloque 4:** chat general atleta ↔ entrenador/nutricionista con adjuntos S3 (sección 3.14.7)
+17. **Módulo Atleta — bloque 4:** chat general atleta ↔ entrenador/nutricionista con adjuntos S3 (sección 3.14.7)
     - Migración: `mensajes_chat` (con columnas `adjunto_url_s3`, `adjunto_tipo`, `adjunto_nombre`)
     - Requiere S3 configurado (mismo bucket que documentos de entrenador)
-17. **Módulo Atleta — bloque 5:** ajustes de cuenta — contraseña + eliminación + foto + conectar con código (secciones 3.14.8 y 3.14.11)
-18. **Módulo Atleta — bloque 6:** profesionales asignados + hilo de comida (secciones 3.14.9–3.14.10)
+18. **Módulo Atleta — bloque 5:** ajustes de cuenta — contraseña + eliminación + foto + conectar con código (secciones 3.14.8 y 3.14.11)
+19. **Módulo Atleta — bloque 6:** profesionales asignados + hilo de comida (secciones 3.14.9–3.14.10)
     - Migración: `mensajes_hilo_comida`
-19. **Notas nutricionista** (escritura desde el dashboard del entrenador)
+20. **Notas nutricionista** (escritura desde el dashboard del entrenador)
     - Migración: `notas_nutricionista`
-20. **Ajustes de cuenta del entrenador** — contraseña + eliminación + foto (sección 3.19)
-21. **Ampliación de formación** — endpoint unificado `POST /api/v1/entrenador/ampliar-formacion` (sección 3.7)
-22. **Rate limiting + seguridad adicional**
+21. **Ajustes de cuenta del entrenador** — contraseña + eliminación + foto (sección 3.19)
+22. **Ampliación de formación** — endpoint unificado `POST /api/v1/entrenador/ampliar-formacion` (sección 3.7)
+23. **Rate limiting + seguridad adicional**
 23. **Tests de integración** para todos los endpoints
 
 ---
@@ -2507,6 +2506,7 @@ SENDGRID_API_KEY=...
 - **Campo `email` en login y registro:** el frontend envía `email` (no `correo`) en todos los endpoints de auth. La BBDD puede almacenarlo como `correo` pero el campo JSON del body es `email`.
 - **`withCredentials: true`:** todas las peticiones HTTP del frontend incluyen esta opción. El backend debe responder con `Access-Control-Allow-Credentials: true` y un `Origin` específico (no `*`) en la cabecera CORS.
 - **Datos de ejercicios:** el frontend obtiene los ejercicios directamente del dataset externo `yuhonas/free-exercise-db` (GitHub raw) y de MyMemory para traducciones. No hay endpoint de ejercicios en GRIT. Los datos se guardan embebidos en `ejercicios_en_sesion` como snapshot.
+- **Búsqueda de alimentos:** el frontend llama a `GET /api/v1/alimentos?q=<texto>` (sección 11). No hay dependencia de APIs externas. El backend debe tener la tabla `alimentos` con al menos el seeder mínimo antes de conectar el módulo de nutrición.
 - **Alimentos recientes:** se almacenan en backend (sección 3.16). El frontend llama a `POST /nutricion/recientes` cada vez que añade un alimento a una comida, y `GET /nutricion/recientes?comida=<nombre>` para prellenar los recientes en el buscador.
 - **`tienePlanActivo` en `/entrenador/atletas`:** calcular en BBDD si el atleta tiene alguna rutina o plan de nutrición creado por este entrenador (JOIN con `rutinas` y `planes_nutricion`).
 - **`semanaActual` en plan de entrenamiento:** el frontend lo usa solo para mostrar "Semana 3/8". Se calcula como `FLOOR((CURRENT_DATE - rutinas.creado_en::date) / 7) + 1`, con un tope de `semanas`.
@@ -2520,7 +2520,7 @@ SENDGRID_API_KEY=...
 - **Cambio de contraseña del entrenador:** `PUT /api/v1/entrenador/password` — misma lógica que el atleta.
 - **Eliminación de cuenta:** tanto `DELETE /api/v1/atleta/cuenta` como `DELETE /api/v1/entrenador/cuenta` requieren solo la cookie válida (el frontend ya exige escribir "ELIMINAR" como confirmación). Se recomienda soft delete para cumplir con RGPD. Ambos endpoints deben invalidar la cookie en la respuesta.
 - **Conectar atleta con código:** `POST /api/v1/atleta/conectar` — el frontend llama a este endpoint desde la pestaña MI PERFIL del dashboard del atleta cuando el usuario introduce un código de invitación. El código no se consume (puede usarlo más de un atleta). Si ya existe una asignación activa para ese servicio, devolver `409 YA_VINCULADO`.
-- **`cantidad` en alimentos del plan nutricional:** es un campo de texto libre (`string`), no un número. El nutricionista escribe "80 g", "1 unidad", "2 cucharadas". El backend lo almacena y devuelve tal cual, sin parsear ni validar el formato.
+- **`cantidadG` en alimentos del plan nutricional:** es un número decimal (`DECIMAL(7,2)`) que representa gramos. El frontend siempre envía un número (por defecto 100). El backend lo almacena en `alimentos_en_comida.cantidad_g` y lo devuelve como número en la respuesta.
 - **Código de invitación — generación:** el campo `codigo_invitacion` de `entrenadores` se genera automáticamente al crear la cuenta del entrenador (ej. `GRIT-` + 6 caracteres alfanuméricos aleatorios en mayúsculas). Debe ser único en la tabla. El atleta lo introduce en el formulario de registro (`POST /api/v1/auth/registro/atleta`); si el código es válido, el backend crea la asignación automáticamente tras la activación de la cuenta.
 - **Alergias e intolerancias del atleta:** los campos `alergias` e `intolerancias` del atleta se pueden recoger en el formulario de registro (`POST /api/v1/auth/registro/atleta`) como arrays de strings opcionales. El backend los almacena y los devuelve al entrenador en `GET /api/v1/entrenador/atletas`. Si el atleta no los rellena, devolver `[]`.
 - **Notas por comida en planes de nutrición:** el campo `notas` de cada comida (tabla `comidas`) es TEXT NULLABLE. Se persiste al crear el plan (`POST /api/v1/nutricion/planes`) y se devuelve tanto al entrenador (`GET /api/v1/nutricion/planes`) como al atleta (`GET /api/v1/atleta/nutricion/plan-activo`).
@@ -2536,53 +2536,145 @@ SENDGRID_API_KEY=...
 
 ---
 
-## 11. Base de Datos de Alimentos Propia *(opción futura)*
+## 11. API de Alimentos
 
-Actualmente el frontend busca alimentos en **USDA FoodData Central** (API pública gratuita) con traducción automática ES→EN via MyMemory. Funciona bien para alimentos genéricos deportivos, pero tiene limitaciones:
+El frontend busca alimentos a través del servicio `alimentos.service.ts`, que llama a la API propia de GRIT. Toda la búsqueda pasa por aquí — no hay dependencia de APIs externas.
 
-- Nombres solo en inglés — la traducción automática puede fallar
-- Alimentos españoles típicos no existen en USDA (jamón, chorizo, tortilla…)
-- Dependencia de un servicio externo (rate limits, posibles cambios de API)
+> **Seguridad:** Requieren cookie `access_token` válida con `rol === 'ENTRENADOR'` y `titulo_nutricion === true`.
 
-### Propuesta: tabla `alimentos_grit` propia
+---
 
-A medio-largo plazo, GRIT puede construir su propia base de datos de alimentos en PostgreSQL, poblada inicialmente con datos de USDA + Open Food Facts y enriquecida por los propios nutricionistas de la plataforma.
+**`GET /api/v1/alimentos?q=<texto>`**
 
-**BBDD — tabla `alimentos_grit`:**
+Busca alimentos por nombre o marca. Devuelve máximo 15 resultados ordenados por relevancia (coincidencia exacta primero, luego parcial).
+
+```json
+// Response 200
+{
+  "ok": true,
+  "data": [
+    {
+      "codigo": "uuid-alimento",
+      "nombre": "Pechuga de pollo",
+      "marca": "",
+      "kcalPor100g": 165,
+      "proteinasPor100g": 31.0,
+      "carbsPor100g": 0.0,
+      "grasasPor100g": 3.6
+    }
+  ]
+}
+```
+
+> El campo `codigo` corresponde a `alimentos.id` (UUID). El frontend lo usa como identificador al guardar un plan o registrar un alimento reciente.
+
+Si `q` está vacío o tiene menos de 2 caracteres, devolver `data: []` sin error.
+
+---
+
+**`POST /api/v1/alimentos`**
+
+El nutricionista añade un alimento que no existe en la base de datos. Solo disponible para entrenadores con `titulo_nutricion === true`.
+
+```json
+// Request body
+{
+  "nombre": "Tortilla de patata",
+  "marca": "",
+  "kcalPor100g": 185,
+  "proteinasPor100g": 8.5,
+  "carbsPor100g": 16.2,
+  "grasasPor100g": 9.8
+}
+```
+
+```json
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "codigo": "uuid-nuevo",
+    "nombre": "Tortilla de patata",
+    "marca": "",
+    "kcalPor100g": 185,
+    "proteinasPor100g": 8.5,
+    "carbsPor100g": 16.2,
+    "grasasPor100g": 9.8
+  }
+}
+```
+
+---
+
+### BBDD — tabla `alimentos`
 
 | Campo | Tipo | Notas |
 |---|---|---|
 | `id` | UUID PK | |
-| `nombre` | VARCHAR(255) | En español, verificado |
-| `nombre_en` | VARCHAR(255) NULLABLE | Nombre original en inglés si viene de USDA |
-| `marca` | VARCHAR(255) NULLABLE | Null si es alimento genérico |
+| `nombre` | VARCHAR(255) | En español. Índice para búsqueda full-text |
+| `marca` | VARCHAR(255) NULLABLE | Null si es alimento genérico (pollo, arroz…) |
 | `kcal_por_100g` | DECIMAL(7,2) | |
 | `proteinas_por_100g` | DECIMAL(7,2) | |
 | `carbs_por_100g` | DECIMAL(7,2) | |
 | `grasas_por_100g` | DECIMAL(7,2) | |
-| `fuente` | ENUM | `USDA`, `OPEN_FOOD_FACTS`, `MANUAL` |
-| `codigo_barras` | VARCHAR(50) NULLABLE | Para productos envasados (EAN-13) |
-| `creado_por` | UUID FK → usuarios NULLABLE | Si lo añadió un nutricionista manualmente |
-| `verificado` | BOOLEAN | `true` si ha sido revisado por un nutricionista |
+| `creado_por` | UUID FK → usuarios NULLABLE | Nutricionista que lo añadió. `null` si viene del seeder |
 | `creado_en` | TIMESTAMP | |
 
-**Endpoints asociados:**
+> **Índice:** crear índice `GIN` o `pg_trgm` sobre `nombre` para que el `ILIKE '%q%'` sea eficiente cuando la tabla crezca.
 
-```
-GET  /api/v1/nutricion/alimentos?q=<texto>   — búsqueda por nombre (reemplaza a USDA)
-POST /api/v1/nutricion/alimentos             — el nutricionista añade un alimento manual
-PUT  /api/v1/nutricion/alimentos/:id         — corregir macros de un alimento existente
-```
+### Seeder de alimentos
 
-**Estrategia de migración:**
+El backend debe incluir un seeder que cargue al menos los alimentos más habituales en nutrición deportiva para que la herramienta sea usable desde el primer día. Ejemplo mínimo (~50 alimentos):
 
-1. Poblar la tabla con un script que importe los alimentos más comunes de USDA (Foundation + SR Legacy) traducidos al español
-2. Importar alimentos españoles desde Open Food Facts filtrando por país `es`
-3. El frontend sigue usando la misma interfaz `AlimentoOFF` — solo cambia la URL del endpoint de búsqueda
-4. Los nutricionistas pueden añadir alimentos nuevos desde el buscador del dashboard cuando no encuentren lo que buscan
-5. Con el tiempo la base crece con los alimentos reales que usan los clientes de GRIT
+| nombre | kcal | prot | carbs | grasa |
+|---|---|---|---|---|
+| Pechuga de pollo | 165 | 31.0 | 0.0 | 3.6 |
+| Pavo pechuga | 135 | 29.0 | 0.0 | 1.7 |
+| Salmón | 208 | 20.0 | 0.0 | 13.0 |
+| Atún al natural | 116 | 25.5 | 0.0 | 0.9 |
+| Huevo entero | 143 | 12.6 | 0.7 | 9.5 |
+| Clara de huevo | 52 | 10.9 | 0.7 | 0.2 |
+| Ternera magra | 158 | 26.0 | 0.0 | 5.5 |
+| Merluza | 82 | 17.5 | 0.0 | 1.2 |
+| Gambas | 85 | 18.0 | 0.0 | 1.0 |
+| Arroz blanco cocido | 130 | 2.7 | 28.2 | 0.3 |
+| Arroz integral cocido | 112 | 2.6 | 23.5 | 0.9 |
+| Pasta cocida | 131 | 5.0 | 25.0 | 1.1 |
+| Pan integral | 247 | 8.5 | 41.3 | 3.4 |
+| Avena | 366 | 13.2 | 58.7 | 6.9 |
+| Patata cocida | 86 | 2.0 | 20.1 | 0.1 |
+| Boniato | 86 | 1.6 | 20.1 | 0.1 |
+| Legumbres cocidas (garbanzos) | 164 | 8.9 | 27.4 | 2.6 |
+| Lentejas cocidas | 116 | 9.0 | 20.1 | 0.4 |
+| Leche entera | 61 | 3.2 | 4.8 | 3.3 |
+| Leche desnatada | 35 | 3.4 | 5.0 | 0.1 |
+| Yogur griego natural | 97 | 9.0 | 3.6 | 5.0 |
+| Queso cottage | 98 | 11.1 | 3.4 | 4.3 |
+| Queso fresco | 74 | 7.3 | 2.7 | 3.2 |
+| Requesón | 74 | 10.0 | 4.0 | 1.7 |
+| Plátano | 89 | 1.1 | 22.8 | 0.3 |
+| Manzana | 52 | 0.3 | 13.8 | 0.2 |
+| Naranja | 47 | 0.9 | 11.8 | 0.1 |
+| Fresas | 32 | 0.7 | 7.7 | 0.3 |
+| Arándanos | 57 | 0.7 | 14.5 | 0.3 |
+| Brócoli | 34 | 2.8 | 6.6 | 0.4 |
+| Espinacas | 23 | 2.9 | 3.6 | 0.4 |
+| Lechuga | 15 | 1.4 | 2.9 | 0.2 |
+| Tomate | 18 | 0.9 | 3.9 | 0.2 |
+| Pepino | 16 | 0.7 | 3.6 | 0.1 |
+| Zanahoria | 41 | 0.9 | 9.6 | 0.2 |
+| Pimiento rojo | 31 | 1.0 | 6.0 | 0.3 |
+| Aguacate | 160 | 2.0 | 8.5 | 14.7 |
+| Aceite de oliva | 884 | 0.0 | 0.0 | 100.0 |
+| Almendras | 579 | 21.2 | 21.6 | 49.9 |
+| Nueces | 654 | 15.2 | 13.7 | 65.2 |
+| Mantequilla de cacahuete | 588 | 25.1 | 20.0 | 50.4 |
+| Proteína whey (polvo) | 370 | 75.0 | 8.0 | 4.0 |
+| Leche de avena | 46 | 1.0 | 8.0 | 1.5 |
+| Tortita de arroz | 387 | 8.0 | 80.0 | 3.0 |
+| Pan de molde blanco | 265 | 8.0 | 49.0 | 3.2 |
 
-> **Prioridad:** baja — USDA cubre perfectamente la nutrición deportiva estándar. Implementar cuando haya suficientes nutricionistas activos que demanden alimentos no disponibles en USDA.
+> El seeder no debe ejecutarse si ya existen registros en la tabla (idempotente). Los nutricionistas pueden añadir los suyos propios desde el buscador usando `POST /api/v1/alimentos`.
 
 ---
 

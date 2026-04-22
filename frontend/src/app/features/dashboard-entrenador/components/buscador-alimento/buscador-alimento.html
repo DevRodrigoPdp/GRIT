@@ -10,32 +10,12 @@
       <button (click)="cancelado.emit()" class="text-gray-400 hover:text-black text-lg leading-none">✕</button>
     </div>
 
-    <!-- Toggle modo -->
-    <div class="flex border-b border-[#E5E7EB]">
-      <button
-        (click)="cambiarModo('nombre')"
-        [class]="modo() === 'nombre'
-          ? 'flex-1 py-2.5 text-sm font-black tracking-[0.15em] uppercase bg-black text-white'
-          : 'flex-1 py-2.5 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black'"
-      >
-        POR NOMBRE
-      </button>
-      <button
-        (click)="cambiarModo('barras')"
-        [class]="modo() === 'barras'
-          ? 'flex-1 py-2.5 text-sm font-black tracking-[0.15em] uppercase bg-black text-white'
-          : 'flex-1 py-2.5 text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black'"
-      >
-        CÓDIGO DE BARRAS
-      </button>
-    </div>
-
     <!-- Input búsqueda -->
     <div class="px-5 py-3 border-b border-[#E5E7EB]">
       <input
         [value]="query()"
         (input)="onQueryChange($any($event.target).value)"
-        [placeholder]="modo() === 'nombre' ? 'Ej: pechuga de pollo...' : 'Ej: 8410188040601'"
+        placeholder="Ej: pechuga de pollo..."
         class="w-full text-sm font-light placeholder:text-gray-300 outline-none border-b border-black pb-1 focus:border-[#2ED38D] transition-colors"
       />
     </div>

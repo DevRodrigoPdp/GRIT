@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe, DatePipe } from '@angular/common';
 
 import { NutricionService, PlanNutricion, Comida, AlimentoEnPlan } from '../../services/nutricion.service';
-import { AlimentoOFF } from '../../services/open-food-facts.service';
+import { AlimentoOFF } from '../../services/alimentos.service';
 import { BuscadorAlimentoComponent } from '../buscador-alimento/buscador-alimento';
 
 type Vista = 'lista' | 'crear' | 'detalle';
