@@ -94,7 +94,11 @@ public class GlobalExceptionHandler {
 
     // --- 4. ERRORES DE SISTEMA E INFRAESTRUCTURA (500) ---
 
-    @ExceptionHandler({DataAccessException.class, SQLException.class})
+    @ExceptionHandler({
+            DataAccessException.class,
+            SQLException.class,
+            org.springframework.security.authentication.InternalAuthenticationServiceException.class
+    })
     public ProblemDetail handleDatabaseExceptions(Exception ex, HttpServletRequest request) {
         log.error("ERROR CRÍTICO DB en {}: {}", request.getRequestURI(), ex.getMessage());
         return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Error de Persistencia",

@@ -20,8 +20,6 @@ spring:
 
 server:
   port: ${PORT:8080}
-  error:
-    include-message: always # Útil para que el frontend sepa qué falló
 
 application:
   security:
