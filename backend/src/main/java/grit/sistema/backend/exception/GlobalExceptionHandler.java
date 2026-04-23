@@ -146,6 +146,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(RateLimitException.class)
+    public ProblemDetail handleRateLimit(RateLimitException ex, HttpServletRequest request) {
+        return createProblemDetail(
+                HttpStatus.TOO_MANY_REQUESTS,
+                "Demasidas peticiones",
+                "Se ha excedido el límite de peticiones.",
+                request
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGlobalException(Exception ex, HttpServletRequest request) {
         log.error("ERROR NO CONTROLADO en {}: ", request.getRequestURI(), ex);

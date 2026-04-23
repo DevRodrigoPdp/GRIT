@@ -1,5 +1,6 @@
 package grit.sistema.backend.config;
 
+import grit.sistema.backend.security.RateLimitFilter;
 import grit.sistema.backend.security.errorHandler.CustomAccessDeniedHandler;
 import grit.sistema.backend.security.errorHandler.JwtAuthenticationEntryPoint;
 import grit.sistema.backend.security.JwtAuthenticationFilter;
@@ -30,6 +31,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final AuthenticationProvider authenticationProvider;
+    private final RateLimitFilter rateLimitFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -71,7 +73,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
@@ -95,6 +98,9 @@ public class SecurityConfig {
                 "Content-Type",
                 "Cache-Control",
                 "X-Requested-With",
+                "X-RateLimit-Limit",
+                "X-RateLimit-Remaining",
+                "X-RateLimit-Retry-After",
                 "Accept"
         ));
 
