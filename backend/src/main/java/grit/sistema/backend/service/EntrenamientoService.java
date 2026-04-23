@@ -4,10 +4,12 @@ import grit.sistema.backend.dto.training.EjercicioResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
 import grit.sistema.backend.dto.training.RutinaResponseDTO;
+import grit.sistema.backend.mapper.EntrenamientoMapper;
 import grit.sistema.backend.model.training.EjercicioEnSesion;
 import grit.sistema.backend.model.training.Rutina;
 import grit.sistema.backend.model.training.SesionRutina;
 import grit.sistema.backend.repository.AtletaRepository;
+import grit.sistema.backend.repository.EntrenadorRepository;
 import grit.sistema.backend.repository.RutinaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,92 +26,54 @@ import java.util.UUID;
 public class EntrenamientoService {
     private final RutinaRepository rutinaRepository;
     private final AtletaRepository atletaRepository;
-
-    @Transactional(readOnly = true)
-    public List<RutinaDTO> listarRutinas(UUID entrenadorId, UUID atletaId) {
-        List<Rutina> rutinas = atletaId == null
-                ? rutinaRepository.findAllByEntrenadorId(entrenadorId)
-                : rutinaRepository.findAllByEntrenadorIdAndAtletaId(entrenadorId, atletaId);
-
-        return rutinas.stream()
-                .map(this::mapToRutinaDTO)
-                .toList();
-    }
+    private final EntrenadorRepository entrenadorRepository;
+    private final EntrenamientoMapper mapper;
 
     @Transactional
     public RutinaResponseDTO crearRutina(UUID entrenadorId, RutinaRequestDTO request) {
-        atletaRepository.findById(request.atletaId())
+        var atleta = atletaRepository.findById(request.atletaId())
                 .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
+        var entrenador = entrenadorRepository.findById(entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
-        Rutina rutina = new Rutina();
-        rutina.setEntrenadorId(entrenadorId);
-        rutina.setAtletaId(request.atletaId());
-        rutina.setNombre(request.nombre());
-        rutina.setDescripcion(request.descripcion());
-        rutina.setCreadoEn(OffsetDateTime.now());
+        // 1. MapStruct convierte el DTO en Entidad
+        Rutina rutina = mapper.toEntity(request);
 
-        List<SesionRutina> sesiones = request.sesiones().stream()
-                .map((sessionRequest) -> {
-                    SesionRutina sesion = new SesionRutina();
-                    sesion.setRutina(rutina);
-                    sesion.setNombre(sessionRequest.nombre());
-                    sesion.setOrden((short) (request.sesiones().indexOf(sessionRequest) + 1));
-                    List<EjercicioEnSesion> ejercicios = sessionRequest.ejercicios().stream()
-                            .map((ejercicioRequest) -> {
-                                EjercicioEnSesion ejercicio = new EjercicioEnSesion();
-                                ejercicio.setSesion(sesion);
-                                ejercicio.setEjercicioId(ejercicioRequest.id());
-                                ejercicio.setEjercicioNombre(ejercicioRequest.nombre());
-                                ejercicio.setSeries((short) ejercicioRequest.series());
-                                ejercicio.setReps(ejercicioRequest.reps());
-                                ejercicio.setNotas(ejercicioRequest.notas());
-                                ejercicio.setOrden((short) (sessionRequest.ejercicios().indexOf(ejercicioRequest) + 1));
-                                return ejercicio;
-                            })
-                            .toList();
-                    sesion.setEjercicios(ejercicios);
-                    return sesion;
-                })
-                .toList();
+        // 2. Vinculamos las relaciones core
+        rutina.setAtleta(atleta);
+        rutina.setEntrenador(entrenador);
 
-        rutina.setSesiones(sesiones);
-        Rutina guardada = rutinaRepository.save(rutina);
-        return new RutinaResponseDTO(guardada.getId(), guardada.getCreadoEn());
+        // 3. Sincronización bidireccional (Crucial para JPA)
+        rutina.getSesiones().forEach(sesion -> {
+            sesion.setRutina(rutina);
+            sesion.getEjercicios().forEach(ejercicio -> ejercicio.setSesion(sesion));
+        });
+
+        return mapper.toResponseDTO(rutinaRepository.save(rutina));
+    }
+
+    @Transactional(readOnly = true)
+    public List<RutinaDTO> listarRutinas(UUID entrenadorId, UUID atletaId) {
+        List<Rutina> rutinas = (atletaId == null)
+                ? rutinaRepository.findAllByEntrenadorId(entrenadorId)
+                : rutinaRepository.findAllByEntrenadorIdAndAtletaId(entrenadorId, atletaId);
+
+        return rutinas.stream().map(mapper::toDTO).toList();
     }
 
     @Transactional
     public void eliminarRutina(UUID entrenadorId, UUID rutinaId) {
-        Rutina rutina = rutinaRepository.findByIdAndEntrenadorId(rutinaId, entrenadorId)
+        // 1. Buscamos la rutina.
+        // Si tu repositorio ya filtra por entrenadorId, la validación posterior es doble seguridad.
+        Rutina rutina = rutinaRepository.findById(rutinaId)
                 .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
 
-        if (!rutina.getEntrenadorId().equals(entrenadorId)) {
+        // 2. CORRECCIÓN: Comparamos el ID del objeto entrenador con el UUID recibido
+        if (!rutina.getEntrenador().getId().equals(entrenadorId)) {
             throw new AccessDeniedException("No tienes permiso para eliminar esta rutina");
         }
 
+        // 3. Borrado físico (o podrías implementar soft-delete en el futuro)
         rutinaRepository.delete(rutina);
-    }
-
-    private RutinaDTO mapToRutinaDTO(Rutina rutina) {
-        return new RutinaDTO(
-                rutina.getId(),
-                rutina.getAtletaId(),
-                rutina.getNombre(),
-                rutina.getDescripcion(),
-                rutina.getCreadoEn(),
-                rutina.getSesiones().stream().map(sesion -> new grit.sistema.backend.dto.training.SesionRutinaDTO(
-                        sesion.getId(),
-                        sesion.getNombre(),
-                        sesion.getOrden(),
-                        sesion.getEjercicios().stream().map(ejercicio -> new EjercicioResponseDTO(
-                                ejercicio.getId(),
-                                ejercicio.getEjercicioId(),
-                                ejercicio.getEjercicioNombre(),
-                                ejercicio.getSeries(),
-                                ejercicio.getReps(),
-                                ejercicio.getNotas(),
-                                ejercicio.getOrden()
-                        )).toList()
-                )).toList()
-        );
     }
 }

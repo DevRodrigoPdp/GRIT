@@ -66,38 +66,6 @@ public class NutricionController {
         return ResponseEntity.ok(ApiResponseDTO.success(null, "Plan de nutrición eliminado correctamente"));
     }
 
-    @Operation(summary = "Listar recetas de nutrición")
-    @GetMapping("/recetas")
-    public ResponseEntity<ApiResponseDTO<List<RecetaResponseDTO>>> listarRecetas(
-            @AuthenticationPrincipal UserPrincipal principal
-    ) {
-        log.info("Listando recetas de nutrición para entrenador {}", principal.getEmail());
-        List<RecetaResponseDTO> recetas = nutricionService.listarRecetas(principal.getId());
-        return ResponseEntity.ok(ApiResponseDTO.success(recetas, "Recetas encontradas"));
-    }
-
-    @Operation(summary = "Crear receta de nutrición")
-    @PostMapping("/recetas")
-    public ResponseEntity<ApiResponseDTO<RecetaResponseDTO>> crearReceta(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @Valid @RequestBody RecetaRequestDTO request
-    ) {
-        log.info("Creando receta de nutrición para entrenador {}: {}", principal.getEmail(), request.nombre());
-        RecetaResponseDTO receta = nutricionService.crearReceta(principal.getId(), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.success(receta, "Receta creada correctamente"));
-    }
-
-    @Operation(summary = "Eliminar receta de nutrición")
-    @DeleteMapping("/recetas/{id}")
-    public ResponseEntity<ApiResponseDTO<Void>> eliminarReceta(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @PathVariable UUID id
-    ) {
-        log.info("Eliminando receta {} por entrenador {}", id, principal.getEmail());
-        nutricionService.eliminarReceta(principal.getId(), id);
-        return ResponseEntity.ok(ApiResponseDTO.success(null, "Receta eliminada correctamente"));
-    }
-
     @Operation(summary = "Listar alimentos recientes por comida")
     @GetMapping("/recientes")
     public ResponseEntity<ApiResponseDTO<List<AlimentoRecienteDTO>>> listarRecientes(

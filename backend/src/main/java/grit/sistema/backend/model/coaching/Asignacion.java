@@ -3,15 +3,21 @@ package grit.sistema.backend.model.coaching;
 import grit.sistema.backend.model.enums.TipoServicio;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "asignaciones")
+@Table(name = "asignaciones", indexes = {
+        @Index(name = "idx_asignaciones_atleta", columnList = "atleta_id")
+})
 @Getter
 @Setter
+@NoArgsConstructor
 public class Asignacion {
 
     @Id
@@ -27,11 +33,19 @@ public class Asignacion {
     private Atleta atleta;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "servicio", nullable = false, length = 20)
     private TipoServicio tipoServicio;
 
-    private Boolean activa = true;
+    @Column(nullable = false)
+    private boolean activa = true;
 
-    @Column(name = "creada_en", updatable = false)
-    private OffsetDateTime creadaEn = OffsetDateTime.now();
+    @Column(name = "creada_en", updatable = false, nullable = false)
+    private OffsetDateTime creadaEn;
+
+    @PrePersist
+    protected void onCreate() {
+        this.creadaEn = OffsetDateTime.now();
+
+    }
 }

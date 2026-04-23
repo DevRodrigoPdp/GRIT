@@ -1,8 +1,10 @@
 package grit.sistema.backend.dto.nutrition;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public record AlimentoRecienteDTO(
+        UUID id,
         String codigo,
         String nombre,
         String marca,

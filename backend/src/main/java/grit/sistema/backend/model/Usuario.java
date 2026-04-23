@@ -60,7 +60,7 @@ public class Usuario {
 
     // --- HOOKS DE JPA ---
     @PrePersist
-    protected void onCreate() {
+    protected void onPrePersist() {
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
     }

@@ -1,7 +1,10 @@
 package grit.sistema.backend.model.training;
 
+import grit.sistema.backend.model.coaching.Atleta;
+import grit.sistema.backend.model.coaching.Entrenador;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
@@ -13,17 +16,20 @@ import java.util.UUID;
 @Table(name = "rutinas")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Rutina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "entrenador_id", nullable = false)
-    private UUID entrenadorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "entrenador_id", nullable = false)
+    private Entrenador entrenador;
 
-    @Column(name = "atleta_id", nullable = false)
-    private UUID atletaId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "atleta_id", nullable = false)
+    private Atleta atleta;
 
     @Column(nullable = false)
     private String nombre;
@@ -31,9 +37,27 @@ public class Rutina {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    @Column(name = "creado_en", updatable = false)
-    private OffsetDateTime creadoEn = OffsetDateTime.now();
+    @Column(name = "creado_en", updatable = false, nullable = false)
+    private OffsetDateTime creadoEn;
 
     @OneToMany(mappedBy = "rutina", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orden ASC")
     private List<SesionRutina> sesiones = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.creadoEn = OffsetDateTime.now();
+    }
+
+    // --- MÉTODOS DE SINCRONIZACIÓN ---
+
+    public void addSesion(SesionRutina sesion) {
+        sesiones.add(sesion);
+        sesion.setRutina(this);
+    }
+
+    public void removeSesion(SesionRutina sesion) {
+        sesiones.remove(sesion);
+        sesion.setRutina(null);
+    }
 }

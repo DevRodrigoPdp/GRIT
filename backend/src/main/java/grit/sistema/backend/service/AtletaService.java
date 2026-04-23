@@ -9,6 +9,7 @@ import grit.sistema.backend.dto.training.EjercicioResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.exception.PwnedPasswordException;
 import grit.sistema.backend.mapper.AtletaMapper;
+import grit.sistema.backend.mapper.EntrenamientoMapper;
 import grit.sistema.backend.model.coaching.Asignacion;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.coaching.Entrenador;
@@ -34,7 +35,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AtletaService {
     private final AtletaRepository atletaRepository;
-    private final AtletaMapper atletaMapper;
+    private final EntrenamientoMapper entrenamientoMapper;
     private final RutinaRepository rutinaRepository;
     private final AsignacionRepository asignacionRepository;
     private final PwnedPasswordClient pwnedClient;
@@ -64,7 +65,7 @@ public class AtletaService {
     @Transactional(readOnly = true)
     public Optional<RutinaDTO> getPlanActivoAtleta(UUID atletaId) {
         return rutinaRepository.findFirstByAtletaIdOrderByCreadoEnDesc(atletaId)
-                .map(this::mapToRutinaDTO);
+                .map(entrenamientoMapper::toDTO); // ¡Mucho más limpio!
     }
 
     @Transactional(readOnly = true)
@@ -95,29 +96,5 @@ public class AtletaService {
             }
         }
         return resultado;
-    }
-
-    private RutinaDTO mapToRutinaDTO(Rutina rutina) {
-        return new RutinaDTO(
-                rutina.getId(),
-                rutina.getAtletaId(),
-                rutina.getNombre(),
-                rutina.getDescripcion(),
-                rutina.getCreadoEn(),
-                rutina.getSesiones().stream().map(sesion -> new grit.sistema.backend.dto.training.SesionRutinaDTO(
-                        sesion.getId(),
-                        sesion.getNombre(),
-                        sesion.getOrden(),
-                        sesion.getEjercicios().stream().map(ejercicio -> new EjercicioResponseDTO(
-                                ejercicio.getId(),
-                                ejercicio.getEjercicioId(),
-                                ejercicio.getEjercicioNombre(),
-                                ejercicio.getSeries(),
-                                ejercicio.getReps(),
-                                ejercicio.getNotas(),
-                                ejercicio.getOrden()
-                        )).toList()
-                )).toList()
-        );
     }
 }

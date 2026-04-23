@@ -37,7 +37,10 @@ logging:
     org.hibernate.stat: ERROR
     org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: ERROR
     # Seguridad: Vital para entender por qué un JWT es rechazado
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
+    org.springframework.security.web.FilterChainProxy: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springdoc: ERROR
 
 application:
     security:

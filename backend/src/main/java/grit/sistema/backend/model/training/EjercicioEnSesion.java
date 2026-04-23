@@ -26,6 +26,15 @@ public class EjercicioEnSesion {
     @Column(name = "ejercicio_nombre", nullable = false)
     private String ejercicioNombre;
 
+    @Column(name = "ejercicio_categoria", length = 100)
+    private String ejercicioCategoria;
+
+    @Column(name = "ejercicio_musculo_principal", length = 100)
+    private String ejercicioMusculoPrincipal;
+
+    @Column(name = "ejercicio_imagen_url", columnDefinition = "TEXT")
+    private String ejercicioImagenUrl;
+
     @Column(nullable = false)
     private Short series;
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +28,25 @@ public class Comida {
     @Column(nullable = false)
     private Short orden;
 
-    @OneToMany(mappedBy = "comida", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AlimentoEnComida> alimentos;
+    @Column(columnDefinition = "TEXT")
+    private String notas;
+
+    @OneToMany(mappedBy = "comida",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<AlimentoEnComida> alimentos = new ArrayList<>();
+
+
+    /**
+     * Helper para añadir un alimento asegurando que la FK se asigne correctamente.
+     */
+    public void addAlimento(AlimentoEnComida alimento) {
+        alimentos.add(alimento);
+        alimento.setComida(this);
+    }
+
+    public void removeAlimento(AlimentoEnComida alimento) {
+        alimentos.remove(alimento);
+        alimento.setComida(null);
+    }
 }

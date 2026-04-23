@@ -2,6 +2,7 @@ package grit.sistema.backend.model.nutrition;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
@@ -9,16 +10,19 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "alimentos_recientes", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"usuario_id", "nombre_comida", "codigo_alimento"})
+        @UniqueConstraint(
+                name = "uk_usuario_comida_alimento",
+                columnNames = {"usuario_id", "nombre_comida", "alimento_id"}
+        )
 })
 @Getter
 @Setter
+@NoArgsConstructor
 public class AlimentoReciente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
 
     @Column(name = "usuario_id", nullable = false)
     private UUID usuarioId;
@@ -26,26 +30,15 @@ public class AlimentoReciente {
     @Column(name = "nombre_comida", nullable = false, length = 100)
     private String nombreComida;
 
-    @Column(name = "codigo_alimento", nullable = false, length = 50)
-    private String codigoAlimento;
+    @Column(name = "alimento_id", nullable = false)
+    private UUID alimentoId;
 
-    @Column(nullable = false)
-    private String nombre;
+    @Column(name = "usado_en", nullable = false)
+    private OffsetDateTime usadoEn;
 
-    private String marca;
-
-    @Column(name = "kcal_por_100g", precision = 7, scale = 2)
-    private java.math.BigDecimal kcalPor100g;
-
-    @Column(name = "proteinas_por_100g", precision = 7, scale = 2)
-    private java.math.BigDecimal proteinasPor100g;
-
-    @Column(name = "carbs_por_100g", precision = 7, scale = 2)
-    private java.math.BigDecimal carbsPor100g;
-
-    @Column(name = "grasas_por_100g", precision = 7, scale = 2)
-    private java.math.BigDecimal grasasPor100g;
-
-    @Column(name = "usado_en")
-    private OffsetDateTime usadoEn = OffsetDateTime.now();
+    @PrePersist
+    @PreUpdate
+    protected void onUpdate() {
+        this.usadoEn = OffsetDateTime.now();
+    }
 }

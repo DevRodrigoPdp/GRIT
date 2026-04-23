@@ -1,8 +1,11 @@
 package grit.sistema.backend.util;
 
+import org.springframework.stereotype.Component;
+
 import java.security.SecureRandom;
 import java.util.stream.Collectors;
 
+@Component
 public class CodeGenerator {
     private static final String ALPHA_NUMERIC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Excluimos 0, O, 1, I por legibilidad
     private static final SecureRandom random = new SecureRandom();

@@ -10,7 +10,15 @@ import java.util.UUID;
 
 @Repository
 public interface AlimentoRecienteRepository extends JpaRepository<AlimentoReciente, UUID> {
-    Optional<AlimentoReciente> findByUsuarioIdAndNombreComidaAndCodigoAlimento(UUID usuarioId, String nombreComida, String codigoAlimento);
-    List<AlimentoReciente> findTop8ByUsuarioIdAndNombreComidaOrderByUsadoEnDesc(UUID usuarioId, String nombreComida);
-    long countByUsuarioIdAndNombreComida(UUID usuarioId, String nombreComida);
+    Optional<AlimentoReciente> findByUsuarioIdAndNombreComidaAndAlimentoId(
+            UUID usuarioId,
+            String nombreComida,
+            UUID alimentoId
+    );
+
+
+    List<AlimentoReciente> findTop8ByUsuarioIdAndNombreComidaOrderByUsadoEnDesc(
+            UUID usuarioId,
+            String nombreComida
+    );
 }
