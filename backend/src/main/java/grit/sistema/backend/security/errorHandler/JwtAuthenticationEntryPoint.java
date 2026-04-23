@@ -31,6 +31,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 HttpStatus.UNAUTHORIZED,
                 "Token inválido, expirado o inexistente. Debe autenticarse para acceder."
         );
+        pb.setType(URI.create("https://api.GRIT.com/errors/unauthorized"));
         pb.setTitle("No Autenticado");
         pb.setInstance(URI.create(request.getRequestURI()));
         pb.setProperty("timestamp", LocalDateTime.now());

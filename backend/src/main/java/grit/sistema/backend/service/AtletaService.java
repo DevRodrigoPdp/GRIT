@@ -1,10 +1,9 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.ProfesionalAsignadoDTO;
+import grit.sistema.backend.dto.atleta.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
 import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
 import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
-import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.training.EjercicioResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.mapper.AtletaMapper;

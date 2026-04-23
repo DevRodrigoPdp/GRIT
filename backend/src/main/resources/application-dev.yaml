@@ -30,10 +30,14 @@ logging:
   level:
     root: INFO
     grit.sistema.backend: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    # Hibernate / JPA: El "rayo X" de tu base de datos
     org.hibernate.SQL: DEBUG
-    org.flywaydb.core.internal.database.base.Database: ERROR
-    org.flywaydb: INFO
+    org.hibernate.orm.jdbc.bind: TRACE
+    # Limpieza de ruido: No queremos ver estadísticas internas a menos que busquemos fugas
+    org.hibernate.stat: ERROR
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: ERROR
+    # Seguridad: Vital para entender por qué un JWT es rechazado
+    org.springframework.security: DEBUG
 
 application:
     security:

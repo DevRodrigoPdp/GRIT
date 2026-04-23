@@ -31,6 +31,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 HttpStatus.FORBIDDEN,
                 "No tiene los privilegios necesarios para acceder a este recurso."
         );
+        pb.setType(URI.create("https://api.GRIT.com/errors/forbidden"));
         pb.setTitle("Acceso Denegado");
         pb.setInstance(URI.create(request.getRequestURI()));
         pb.setProperty("timestamp", LocalDateTime.now());
