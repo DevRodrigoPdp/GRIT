@@ -62,7 +62,6 @@ public class AuthController {
     public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @io.swagger.v3.oas.annotations.media.Content(
-                            encoding = @io.swagger.v3.oas.annotations.media.Encoding(name = "dto", contentType = "application/json"),
                             mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
                     )
             )
