@@ -1,11 +1,13 @@
 package grit.sistema.backend.service;
 
+import grit.sistema.backend.client.PwnedPasswordClient;
 import grit.sistema.backend.dto.atleta.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
 import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
 import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
 import grit.sistema.backend.dto.training.EjercicioResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
+import grit.sistema.backend.exception.PwnedPasswordException;
 import grit.sistema.backend.mapper.AtletaMapper;
 import grit.sistema.backend.model.coaching.Asignacion;
 import grit.sistema.backend.model.coaching.Atleta;
@@ -35,28 +37,15 @@ public class AtletaService {
     private final AtletaMapper atletaMapper;
     private final RutinaRepository rutinaRepository;
     private final AsignacionRepository asignacionRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PwnedPasswordClient pwnedClient;
+    private final AtletaPersistenceService persistenceService;
 
-    @Transactional
     public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto) {
-
-        if (atletaRepository.findByEmail(dto.email()).isPresent()) {
-            throw new RuntimeException("El correo electrónico ya está registrado");
+        if (pwnedClient.isPasswordPwned(dto.password())) {
+            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
         }
 
-        Atleta atleta = atletaMapper.toEntity(dto);
-
-        validarObjetivoSegunServicio(dto, atleta);
-
-        String passwordWithPepper = dto.password();
-
-        atleta.setPassword(passwordEncoder.encode(passwordWithPepper));
-
-        atleta.setRol(Rol.ATLETA);
-
-        Atleta atletaGuardado = atletaRepository.save(atleta);
-
-        return atletaMapper.toResponseDTO(atletaGuardado);
+        return persistenceService.guardarAtleta(dto);
     }
 
     @Transactional(readOnly = true)
@@ -106,18 +95,6 @@ public class AtletaService {
             }
         }
         return resultado;
-    }
-
-    private void validarObjetivoSegunServicio(AtletaRequestDTO dto, Atleta atleta) {
-        boolean necesitaObjetivo = dto.servicio() == TipoServicio.ENTRENAMIENTO
-                || dto.servicio() == TipoServicio.AMBOS;
-        if (necesitaObjetivo && dto.objetivo() == null) {
-            throw new IllegalArgumentException("OBJETIVO_REQUERIDO");
-        }
-
-        if (dto.servicio() == TipoServicio.NUTRICION) {
-            atleta.setObjetivo(null);
-        }
     }
 
     private RutinaDTO mapToRutinaDTO(Rutina rutina) {

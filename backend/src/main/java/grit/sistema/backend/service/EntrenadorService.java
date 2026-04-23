@@ -1,9 +1,11 @@
 package grit.sistema.backend.service;
 
+import grit.sistema.backend.client.PwnedPasswordClient;
 import grit.sistema.backend.dto.atleta.AtletaResumenDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
+import grit.sistema.backend.exception.PwnedPasswordException;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.EntrenadorMapper;
 import grit.sistema.backend.model.coaching.Asignacion;
@@ -36,10 +38,15 @@ public class EntrenadorService {
     private final UsuarioRepository usuarioRepository;
     private final StorageService storageService;
     private final EntrenadorMapper entrenadorMapper;
+    private final PwnedPasswordClient pwnedClient;
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request) {
+        if (pwnedClient.isPasswordPwned(request.getPassword())) {
+            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
+        }
+
         validarRequisitosProfesionales(request);
         validarTamanoArchivos(request.getDocumentos());
 

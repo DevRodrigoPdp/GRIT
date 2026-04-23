@@ -156,6 +156,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PwnedPasswordException.class)
+    public ProblemDetail handlePwnedPassword(PwnedPasswordException ex, HttpServletRequest request) {
+        return createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Contraseña comprometida",
+                "Seguridad insuficiente: Contraseña detectada en filtraciones de datos.",
+                request
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGlobalException(Exception ex, HttpServletRequest request) {
         log.error("ERROR NO CONTROLADO en {}: ", request.getRequestURI(), ex);
