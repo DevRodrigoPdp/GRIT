@@ -42,41 +42,44 @@ public class EntrenadorService {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request) {
+    public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request, MultipartFile fotoPerfil, List<MultipartFile> certificaciones) {
         if (pwnedClient.isPasswordPwned(request.getPassword())) {
             throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
         }
 
         validarRequisitosProfesionales(request);
-        validarTamanoArchivos(request.getDocumentos());
+        validarTamanoArchivos(certificaciones);
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
 
         // 1. IO Externa (MinIO) - Fuera de transacción
-        List<String> urls = Optional.ofNullable(request.getDocumentos())
+        List<String> urls = Optional.ofNullable(certificaciones)
                 .orElse(List.of())
                 .stream()
                 .map(storageService::uploadFile)
                 .toList();
 
+        String fotoKey = storageService.uploadEntrenadorFoto(fotoPerfil);
+
         // 2. Persistencia - Dentro de transacción
         try {
-            Entrenador entrenador = persistenceService.guardarEntrenador(request, urls);
+            Entrenador entrenador = persistenceService.guardarEntrenador(request, urls, certificaciones, fotoKey);
             return entrenadorMapper.toResponse(entrenador);
         } catch (Exception e) {
             log.error("Error en persistencia. Iniciando compensación de archivos en MinIO...");
             // SI LA DB FALLA, BORRAMOS LO SUBIDO
             urls.forEach(storageService::deleteFile);
+            storageService.deleteFile(fotoKey);
             throw e;
         }
     }
 
     @Transactional(readOnly = true)
-    public EntrenadorPerfilDTO obtenerPerfil(String email){
+    public EntrenadorPerfilDTO obtenerPerfil(String email) {
         Entrenador e = entrenadorRepository.findByEmail(email)
-                .orElseThrow(()-> new EntityNotFoundException("Entrenador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
         return new EntrenadorPerfilDTO(
                 e.getId(), e.getNombre(), e.getEmail(),

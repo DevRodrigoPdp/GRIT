@@ -19,6 +19,7 @@ import grit.sistema.backend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,9 @@ import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Tag(name = "Autenticación")
 @RestController
@@ -60,15 +64,13 @@ public class AuthController {
     })
     @PostMapping(value = "/registro/entrenador", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @io.swagger.v3.oas.annotations.media.Content(
-                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
-                    )
-            )
-            @Valid @ModelAttribute EntrenadorRequestDTO dto) {
+            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart("datos") @Valid EntrenadorRequestDTO dto,
+            @RequestPart("fotoPerfil") MultipartFile fotoPerfil,
+            @RequestPart("certificaciones") List<MultipartFile> certificaciones) {
         log.info(">>> Solicitud de registro de ENTRENADOR recibida: {}", dto.getEmail());
 
-        EntrenadorResponseDTO data = entrenadorService.registrarEntrenador(dto);
+        EntrenadorResponseDTO data = entrenadorService.registrarEntrenador(dto, fotoPerfil, certificaciones);
 
         ApiResponseDTO<EntrenadorResponseDTO> respuesta = ApiResponseDTO.success(
                 data,
@@ -88,11 +90,14 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "Atleta creado y sesión iniciada"),
             @ApiResponse(responseCode = "400", description = "Error en los datos de validación",content = @Content)
     })
-    @PostMapping("/registro/atleta")
-    public ResponseEntity<AtletaResponseDTO> registrarAtleta(@Valid @RequestBody AtletaRequestDTO dto) {
+    @PostMapping(value ="/registro/atleta", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AtletaResponseDTO> registrarAtleta(
+            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart("datos") @Valid AtletaRequestDTO dto,
+            @RequestPart("foto") MultipartFile foto) {
         log.info(">>> Solicitud de registro de atleta recibida: {}", dto.email());
 
-        AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto);
+        AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto, foto);
 
         String accessToken = jwtUtils.generarAccessToken(dto.email(), Rol.ATLETA.name());
         String refreshToken = jwtUtils.generarRefreshToken(dto.email());

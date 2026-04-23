@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,14 +40,17 @@ public class AtletaService {
     private final RutinaRepository rutinaRepository;
     private final AsignacionRepository asignacionRepository;
     private final PwnedPasswordClient pwnedClient;
+    private final StorageService storageService;
     private final AtletaPersistenceService persistenceService;
 
-    public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto) {
+    public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto, MultipartFile foto) {
         if (pwnedClient.isPasswordPwned(dto.password())) {
             throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
         }
 
-        return persistenceService.guardarAtleta(dto);
+        String fotoKey = storageService.uploadAtletaFoto(foto);
+
+        return persistenceService.guardarAtleta(dto, fotoKey);
     }
 
     @Transactional(readOnly = true)

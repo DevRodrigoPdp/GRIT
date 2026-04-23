@@ -76,6 +76,66 @@ public class StorageService {
     }
 
     /**
+     * Sube una foto de perfil optimizada a una carpeta específica.
+     * A diferencia de los documentos, estas suelen ser de acceso público.
+     * * @param file El archivo de imagen desde el controlador.
+     * @param folder Carpeta dentro del bucket (ej: "profiles/atleta")
+     * @return El nombre del objeto guardado para persistir en la DB.
+     */
+    public String uploadProfilePhoto(MultipartFile file, String folder) {
+        if (file.isEmpty()) throw new FileStorageException("La foto de perfil está vacía");
+
+        // 1. Validar que sea estrictamente una imagen
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new FileStorageException("El archivo debe ser una imagen válida (JPG/PNG)");
+        }
+
+        // 2. Generar nombre único estructurado por carpetas
+        String fileName = folder + "/" + UUID.randomUUID() + ".jpg";
+
+        try {
+            // 3. Optimización extrema para perfiles (Cuadrado 500x500 es el estándar)
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Thumbnails.of(file.getInputStream())
+                    .size(500, 500)         // Tamaño estándar para perfiles
+                    .crop(net.coobird.thumbnailator.geometry.Positions.CENTER) // Centramos el recorte
+                    .outputQuality(0.80)    // Buena calidad, poco peso
+                    .outputFormat("jpg")
+                    .toOutputStream(outputStream);
+
+            byte[] photoBytes = outputStream.toByteArray();
+
+            // 4. Subida a S3/Minio
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .contentType("image/jpeg")
+                    // [Nota Senior]: Si tu bucket es privado por defecto,
+                    // aquí podrías añadir el ACL público si MinIO lo permite,
+                    // o simplemente confiar en la política de la carpeta.
+                    .build();
+
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(photoBytes));
+
+            log.info("Foto de perfil subida con éxito: {}", fileName);
+            return fileName;
+
+        } catch (IOException | S3Exception e) {
+            log.error("Error crítico al procesar foto de perfil: {}", e.getMessage());
+            throw new FileStorageException("No se pudo procesar la foto de perfil", e);
+        }
+    }
+
+    public String uploadAtletaFoto(MultipartFile file) {
+        return uploadProfilePhoto(file, "profiles/atletas");
+    }
+
+    public String uploadEntrenadorFoto(MultipartFile file) {
+        return uploadProfilePhoto(file, "profiles/entrenadores");
+    }
+
+    /**
      * Elimina un archivo del bucket de forma definitiva.
      * @param objectKey La clave (key) única del archivo en S3/MinIO.
      */

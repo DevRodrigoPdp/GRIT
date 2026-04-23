@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,16 +31,17 @@ public class EntrenadorPersistenceService {
     private final EntrenadorMapper entrenadorMapper;
 
     @Transactional
-    public Entrenador guardarEntrenador(EntrenadorRequestDTO request, List<String> urls) {
+    public Entrenador guardarEntrenador(EntrenadorRequestDTO request, List<String> urls, List<MultipartFile> certificaciones, String fotoKey) {
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
 
-        Entrenador entrenador = entrenadorMapper.toEntity(request, urls);
+        Entrenador entrenador = entrenadorMapper.toEntity(request, urls, certificaciones);
 
         entrenador.setPassword(passwordEncoder.encode(request.getPassword()));
         entrenador.setRol(Rol.ENTRENADOR);
         entrenador.setEstado(EstadoUsuario.ACTIVO);
+        entrenador.setFotoUrl(fotoKey);
 
         // IMPORTANTE: Vincular los documentos al entrenador (Relación bidireccional)
         if (entrenador.getDocumentos() != null) {

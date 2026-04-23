@@ -4,23 +4,20 @@ import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
 import grit.sistema.backend.model.coaching.DocumentoEntrenador;
 import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.enums.DocStatus;
-import grit.sistema.backend.model.enums.EstadoRevision;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.springframework.stereotype.Component;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntrenadorMapper {
 
-    @Mapping(target = "documentos", expression = "java(mapFilesToDocumentos(request.getDocumentos(), urls))")
+    @Mapping(target = "documentos", expression = "java(mapFilesToDocumentos(certificaciones, urls))")
     @Mapping(target = "estadoRevision", constant = "PENDIENTE_REVISION")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
@@ -28,7 +25,7 @@ public interface EntrenadorMapper {
     @Mapping(target = "estado", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Entrenador toEntity(EntrenadorRequestDTO request, List<String> urls);
+    Entrenador toEntity(EntrenadorRequestDTO request, List<String> urls, List<MultipartFile> certificaciones);
 
     // 2. De Entidad a ResponseDTO (Lectura)
     @Mapping(target = "id", source = "entrenador.id")

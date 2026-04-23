@@ -21,7 +21,7 @@ public class AtletaPersistenceService {
     private final AtletaMapper atletaMapper;
 
     @Transactional
-    public AtletaResponseDTO guardarAtleta(AtletaRequestDTO dto) {
+    public AtletaResponseDTO guardarAtleta(AtletaRequestDTO dto, String fotoKey) {
         if (atletaRepository.existsByEmail(dto.email())) {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
@@ -31,6 +31,7 @@ public class AtletaPersistenceService {
 
         atleta.setPassword(passwordEncoder.encode(dto.password()));
         atleta.setRol(Rol.ATLETA);
+        atleta.setFotoUrl(fotoKey);
 
         Atleta atletaGuardado = atletaRepository.save(atleta);
 

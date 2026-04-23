@@ -1,5 +1,6 @@
 package grit.sistema.backend.dto.atleta;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import grit.sistema.backend.model.enums.GeneroTipo;
 import grit.sistema.backend.model.enums.NivelAtleta;
 import grit.sistema.backend.model.enums.Objetivo;

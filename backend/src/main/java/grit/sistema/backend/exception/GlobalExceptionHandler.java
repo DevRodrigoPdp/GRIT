@@ -6,23 +6,27 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
+import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.URI;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -165,6 +169,42 @@ public class GlobalExceptionHandler {
                 request
         );
     }
+
+    /**
+     * Captura específicamente el error de Content-Type incorrecto (415).
+     */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ProblemDetail handleTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                "El formato de la petición no es válido."
+        );
+
+        problemDetail.setTitle("Tipo de Medio No Soportado");
+        problemDetail.setType(URI.create("https://api.tuapp.com/errors/unsupported-media-type"));
+
+        // Añadimos información útil para el desarrollador del frontend
+        problemDetail.setProperty("enviado", ex.getContentType());
+        problemDetail.setProperty("soportados", ex.getSupportedMediaTypes());
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    /**
+     * Captura errores de lógica de negocio personalizados (Ejemplo: Archivo muy grande o error en MinIO).
+     */
+    @ExceptionHandler(FileStorageException.class)
+    public ProblemDetail handleFileStorageException(FileStorageException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("Error en Almacenamiento de Archivos");
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGlobalException(Exception ex, HttpServletRequest request) {

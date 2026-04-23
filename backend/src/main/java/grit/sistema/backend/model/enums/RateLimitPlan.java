@@ -19,7 +19,10 @@ public enum RateLimitPlan {
 
     // Definimos el límite: 'bucketCapacity' créditos que se recargan cada minuto
     public Bandwidth getLimit() {
-        return Bandwidth.classic(bucketCapacity, Refill.intervally(bucketCapacity, Duration.ofMinutes(1)));
+        return Bandwidth.builder()
+                .capacity(bucketCapacity)
+                .refillIntervally(bucketCapacity, Duration.ofMinutes(1))
+                .build();
     }
 
     public static RateLimitPlan resolvePlanFromRole(String role) {
