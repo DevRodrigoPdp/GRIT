@@ -298,10 +298,15 @@ Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1
 // Request body
 {
   "email": "usuario@ejemplo.com",
-  "password": "contraseña"
+  "password": "contraseña",
+  "visitorId": "abc123xyz"
 }
+```
 
-// Response 200 — los tokens van en cookies, no en el body
+> `visitorId` es el identificador de dispositivo generado por FingerprintJS en el frontend. Si no se envía, tratarlo como dispositivo desconocido.
+
+**Response 200 — dispositivo conocido** (tokens en cookies, flujo normal):
+```json
 {
   "ok": true,
   "data": {
@@ -315,9 +320,20 @@ Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1
 }
 ```
 
+**Response 200 — dispositivo desconocido** (sin cookies, requiere MFA):
+```json
+{
+  "ok": true,
+  "status": "MFA_REQUIRED",
+  "mfaToken": "token-temporal-opaco"
+}
+```
+
+> `mfaToken` identifica la solicitud MFA pendiente. No es un JWT de sesión. Expira en 10 minutos.
+
 > `tituloEntrenamiento` y `tituloNutricion` solo son relevantes cuando `rol === "ENTRENADOR"`. Para atletas devolver `null` en ambos. `servicio` solo es relevante para atletas; para entrenadores devolver `null`.
 
-**Cookies que debe setear el servidor:**
+**Cookies que debe setear el servidor (solo en login exitoso sin MFA):**
 ```
 Set-Cookie: access_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900
 Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age=604800
@@ -325,14 +341,126 @@ Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1
 
 **Lógica de redirección que aplica el frontend según la respuesta:**
 
-| `rol` | `estado` | `tituloEntrenamiento` | `tituloNutricion` | Redirección |
-|---|---|---|---|---|
-| `ATLETA` | `ACTIVO` | `null` | `null` | `/dashboard/atleta` |
-| `ENTRENADOR` | `ACTIVO` | `true` | `true` | `/dashboard/entrenador/nutricion` |
-| `ENTRENADOR` | `ACTIVO` | `true` | `false` | `/dashboard/entrenador` |
-| `ENTRENADOR` | `ACTIVO` | `false` | `true` | `/dashboard/entrenador/solo-nutricion` |
-| `ENTRENADOR` | `PENDIENTE_REVISION` | cualquiera | cualquiera | `/pendiente` |
-| cualquiera | `RECHAZADO` | cualquiera | cualquiera | `/login` con mensaje de error |
+| `status` | `rol` | `estado` | `tituloEntrenamiento` | `tituloNutricion` | Acción frontend |
+|---|---|---|---|---|---|
+| `MFA_REQUIRED` | — | — | — | — | Mostrar pantalla OTP |
+| — | `ATLETA` | `ACTIVO` | `null` | `null` | `/dashboard/atleta` |
+| — | `ENTRENADOR` | `ACTIVO` | `true` | `true` | `/dashboard/entrenador/nutricion` |
+| — | `ENTRENADOR` | `ACTIVO` | `true` | `false` | `/dashboard/entrenador` |
+| — | `ENTRENADOR` | `ACTIVO` | `false` | `true` | `/dashboard/entrenador/solo-nutricion` |
+| — | `ENTRENADOR` | `PENDIENTE_REVISION` | cualquiera | cualquiera | `/pendiente` |
+| — | cualquiera | `RECHAZADO` | cualquiera | cualquiera | `/login` con error |
+
+---
+
+### 3.3.1 Verificación MFA
+
+**`POST /api/v1/auth/mfa/verificar`**
+
+```json
+// Request body
+{
+  "mfaToken": "token-temporal-opaco",
+  "codigo": "847291",
+  "visitorId": "abc123xyz"
+}
+```
+
+**Response 200 — código correcto** (cookies JWT igual que login normal):
+```json
+{
+  "ok": true,
+  "data": {
+    "rol": "ENTRENADOR" | "ATLETA",
+    "estado": "ACTIVO" | "PENDIENTE_REVISION" | "RECHAZADO",
+    "nombre": "Carlos Martínez",
+    "tituloEntrenamiento": true | false | null,
+    "tituloNutricion": true | false | null,
+    "servicio": "ENTRENAMIENTO" | "NUTRICION" | "AMBOS" | null
+  }
+}
+```
+
+**Response 401 — código incorrecto:**
+```json
+{ "ok": false, "error": "CODIGO_INVALIDO", "intentosRestantes": 4 }
+```
+
+**Response 410 — token expirado o agotado:**
+```json
+{ "ok": false, "error": "MFA_EXPIRADO" }
+```
+
+---
+
+### 3.3.2 Flujo completo MFA + FingerprintJS
+
+#### Lo que hace el BACKEND
+
+1. Recibe `POST /auth/login` con `{ email, password, visitorId }`
+2. Verifica credenciales contra la BBDD
+3. Busca `visitorId` en `dispositivos_verificados` para ese usuario
+4. **Si el dispositivo es conocido:**
+   - Emite cookies JWT (`access_token` + `refresh_token`)
+   - Devuelve los datos de sesión normales (`rol`, `nombre`, etc.)
+5. **Si el dispositivo es desconocido:**
+   - Genera un código OTP de 6 dígitos aleatorio
+   - Lo guarda hasheado en `mfa_codigos` con expiración de 10 min
+   - Genera un `mfaToken` opaco (UUID) y lo guarda también en `mfa_codigos`
+   - Envía el código al correo del usuario (asunto: "Tu código de verificación GRIT")
+   - Devuelve `{ status: "MFA_REQUIRED", mfaToken }`
+6. Recibe `POST /auth/mfa/verificar` con `{ mfaToken, codigo, visitorId }`
+7. Busca el `mfaToken` en `mfa_codigos` y verifica que no ha expirado ni está usado
+8. Compara el `codigo` con el hash almacenado
+9. **Si es correcto:**
+   - Registra `visitorId` en `dispositivos_verificados` para ese usuario
+   - Marca `mfa_codigos.usado = true`
+   - Emite cookies JWT
+   - Devuelve los datos de sesión normales
+10. **Si el código es incorrecto:** incrementa `intentos`, devuelve `CODIGO_INVALIDO` con intentos restantes. Al llegar a 5 intentos, invalida el `mfaToken`
+11. **Si el token expiró o se agotaron los intentos:** devuelve `MFA_EXPIRADO`
+
+**BBDD — tabla `dispositivos_verificados`:**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `usuario_id` | UUID FK → usuarios | |
+| `visitor_id` | VARCHAR(255) | `visitorId` de FingerprintJS |
+| `verificado_en` | TIMESTAMP | |
+
+> **Constraint único:** `(usuario_id, visitor_id)` — un dispositivo verificado no vuelve a pedir MFA a ese usuario.
+
+**BBDD — tabla `mfa_codigos`:**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `usuario_id` | UUID FK → usuarios | |
+| `mfa_token` | VARCHAR(255) UNIQUE | Token opaco enviado al frontend |
+| `codigo_hash` | VARCHAR(255) | bcrypt del código de 6 dígitos |
+| `visitor_id` | VARCHAR(255) | Para asociar con el dispositivo al verificar |
+| `intentos` | SMALLINT | Empieza en 0, máximo 5 |
+| `usado` | BOOLEAN | `true` tras verificación correcta |
+| `expira_en` | TIMESTAMP | `created_at + 10 minutos` |
+| `creado_en` | TIMESTAMP | |
+
+---
+
+#### Lo que hace el FRONTEND
+
+1. Al montar el componente `/login`: importar FingerprintJS (`@fingerprintjs/fingerprintjs`), llamar a `FingerprintJS.load()` y obtener `visitorId`. Guardarlo en un signal local
+2. Al hacer submit del formulario de login: enviar `POST /auth/login` con `{ email, password, visitorId }`
+3. **Si la respuesta tiene `status === "MFA_REQUIRED"`:**
+   - Guardar `mfaToken` en un signal local
+   - Ocultar el formulario de login y mostrar la pantalla de código OTP
+   - Mostrar al usuario: *"Hemos enviado un código de verificación a tu correo. Válido 10 minutos."*
+4. Al hacer submit del código: enviar `POST /auth/mfa/verificar` con `{ mfaToken, codigo, visitorId }`
+5. **Si la respuesta es `ok: true`:** redirigir al dashboard igual que en un login normal
+6. **Si la respuesta es `CODIGO_INVALIDO`:** mostrar *"Código incorrecto. Te quedan X intentos."*
+7. **Si la respuesta es `MFA_EXPIRADO`:** volver al formulario de login mostrando *"El código ha caducado. Inicia sesión de nuevo."*
+
+> **Instalación FingerprintJS:** `npm install @fingerprintjs/fingerprintjs`. La versión open source es gratuita y suficiente para identificar dispositivos.
 
 ---
 
