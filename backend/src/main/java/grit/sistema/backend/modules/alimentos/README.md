@@ -184,7 +184,7 @@ El componente `AlimentoSeeder` se ejecuta automáticamente al iniciar la aplicac
 
 ## Migraciones
 
-Migración: `V6__create_alimentos_table.sql`
+Migración: `V7__create_alimentos_and_ejercicios_table.sql`
 
 Crea la tabla y los índices necesarios:
 ```sql

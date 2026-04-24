@@ -1,4 +1,4 @@
-package api.alimentos.model;
+package grit.sistema.backend.modules.alimentos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -32,29 +32,31 @@ public class Alimento {
     private UUID id;
 
     @NotBlank(message = "El nombre del alimento es obligatorio")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String nombre;
 
-    @Column(length = 255)
     private String marca;
 
-    @NotNull(message = "Las calorías por 100g son obligatorias")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Las calorías deben ser >= 0")
+    @Column(name = "categoria") // ¡Te faltaba este campo que pusimos en el SQL!
+    private String categoria;
+
+    @NotNull
+    @DecimalMin("0.0")
     @Column(name = "kcal_por_100g", precision = 7, scale = 2, nullable = false)
     private BigDecimal kcalPor100g;
 
-    @NotNull(message = "Las proteínas por 100g son obligatorias")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Las proteínas deben ser >= 0")
+    @NotNull
+    @DecimalMin("0.0")
     @Column(name = "proteinas_por_100g", precision = 7, scale = 2, nullable = false)
     private BigDecimal proteinasPor100g;
 
-    @NotNull(message = "Los carbohidratos por 100g son obligatorios")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Los carbohidratos deben ser >= 0")
+    @NotNull
+    @DecimalMin("0.0")
     @Column(name = "carbs_por_100g", precision = 7, scale = 2, nullable = false)
     private BigDecimal carbsPor100g;
 
-    @NotNull(message = "Las grasas por 100g son obligatorias")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Las grasas deben ser >= 0")
+    @NotNull
+    @DecimalMin("0.0")
     @Column(name = "grasas_por_100g", precision = 7, scale = 2, nullable = false)
     private BigDecimal grasasPor100g;
 
@@ -64,10 +66,17 @@ public class Alimento {
     @Column(name = "creado_en", nullable = false, updatable = false)
     private ZonedDateTime creadoEn;
 
+    @Column(name = "actualizado_en")
+    private ZonedDateTime actualizadoEn;
+
     @PrePersist
     protected void onCreate() {
-        if (creadoEn == null) {
-            creadoEn = ZonedDateTime.now();
-        }
+        creadoEn = ZonedDateTime.now();
+        actualizadoEn = ZonedDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        actualizadoEn = ZonedDateTime.now();
     }
 }

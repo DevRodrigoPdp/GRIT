@@ -1,9 +1,9 @@
-package api.alimentos.controller;
+package grit.sistema.backend.modules.alimentos.controller;
 
-import api.alimentos.dto.AlimentoCrearRequestDTO;
-import api.alimentos.dto.AlimentoResponseDTO;
-import api.alimentos.service.AlimentoService;
 import grit.sistema.backend.dto.ApiResponseDTO;
+import grit.sistema.backend.modules.alimentos.dto.AlimentoCrearRequestDTO;
+import grit.sistema.backend.modules.alimentos.dto.AlimentoResponseDTO;
+import grit.sistema.backend.modules.alimentos.service.AlimentoService;
 import grit.sistema.backend.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,37 +38,37 @@ public class AlimentoController {
 
     private final AlimentoService alimentoService;
 
-    /**
-     * Busca alimentos por nombre o marca.
-     * Devuelve máximo 15 resultados ordenados por relevancia.
-     * Si q tiene menos de 2 caracteres, devuelve una lista vacía sin error.
-     *
-     * @param q Término de búsqueda (mínimo 2 caracteres)
-     * @return Lista de alimentos encontrados
-     */
-    @Operation(summary = "Buscar alimentos por nombre o marca")
+    @Operation(summary = "Buscar alimentos por nombre, marca o categoría")
     @GetMapping
-    public ResponseEntity<ApiResponseDTO<List<AlimentoResponseDTO>>> buscarAlimentos(
-            @Parameter(description = "Término de búsqueda (mínimo 2 caracteres)", example = "pollo")
-            @RequestParam(name = "q", required = false, defaultValue = "") String q
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponseDTO<Page<AlimentoResponseDTO>>> buscarAlimentos(
+            @Parameter(description = "Búsqueda por nombre o marca")
+            @RequestParam(name = "q", required = false) String q,
+
+            @Parameter(description = "Filtrar por categoría específica")
+            @RequestParam(name = "categoria", required = false) String categoria,
+
+            @PageableDefault(size = 15, sort = "nombre") Pageable pageable
     ) {
-        log.info("Búsqueda de alimentos: '{}'", q);
-        List<AlimentoResponseDTO> alimentos = alimentoService.buscarAlimentos(q);
-        return ResponseEntity.ok(
-                ApiResponseDTO.success(alimentos, "Búsqueda completada")
-        );
+        log.debug("Búsqueda Alimentos - q: '{}', cat: '{}', page: {}", q, categoria, pageable);
+
+        // Pasamos ambos parámetros al service
+        Page<AlimentoResponseDTO> alimentos = alimentoService.buscarAlimentos(q, categoria, pageable);
+
+        return ResponseEntity.ok(ApiResponseDTO.success(alimentos, "Resultados encontrados"));
     }
 
-    /**
-     * Crea un nuevo alimento personalizado.
-     * Solo disponible para entrenadores con titulación en nutrición.
-     *
-     * @param request Datos del alimento a crear
-     * @param principal Usuario autenticado
-     * @return El alimento creado con status 201
-     */
+    @Operation(summary = "Obtener lista de todas las categorías de alimentos disponibles")
+    @GetMapping("/categorias")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponseDTO<List<String>>> obtenerCategorias() {
+        List<String> categorias = alimentoService.listarCategorias();
+        return ResponseEntity.ok(ApiResponseDTO.success(categorias, "Categorías obtenidas"));
+    }
+
     @Operation(summary = "Crear un nuevo alimento personalizado")
     @PostMapping
+    @PreAuthorize("hasRole('ENTRENADOR') and @auth.tieneTituloNutricion()")
     public ResponseEntity<ApiResponseDTO<AlimentoResponseDTO>> crearAlimento(
             @Valid @RequestBody AlimentoCrearRequestDTO request,
             @AuthenticationPrincipal UserPrincipal principal

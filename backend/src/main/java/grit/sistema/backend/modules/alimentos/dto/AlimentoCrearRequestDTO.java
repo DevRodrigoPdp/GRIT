@@ -1,4 +1,4 @@
-package api.alimentos.dto;
+package grit.sistema.backend.modules.alimentos.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;

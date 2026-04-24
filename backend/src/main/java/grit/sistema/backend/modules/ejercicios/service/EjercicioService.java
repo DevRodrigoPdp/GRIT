@@ -1,0 +1,74 @@
+package grit.sistema.backend.modules.ejercicios.service;
+
+import grit.sistema.backend.modules.ejercicios.dto.EjercicioDTO;
+import grit.sistema.backend.modules.ejercicios.model.Ejercicio;
+import grit.sistema.backend.modules.ejercicios.repository.EjercicioRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class EjercicioService {
+
+    private final EjercicioRepository repository;
+
+    /**
+     * Busca ejercicios por nombre y/o grupo muscular de forma paginada.
+     */
+    @Transactional(readOnly = true)
+    public Page<EjercicioDTO> buscarEjercicios(String nombre, String grupoMuscular, Pageable pageable) {
+        Page<Ejercicio> ejercicios;
+
+        String nombreTrim = (nombre != null) ? nombre.trim() : null;
+        String grupoTrim = (grupoMuscular != null) ? grupoMuscular.trim() : null;
+
+        if (estaVacio(nombreTrim) && !estaVacio(grupoTrim)) {
+            // El usuario solo eligió un grupo muscular (usamos la búsqueda parcial mejorada)
+            ejercicios = repository.findByGrupoMuscularContainingIgnoreCase(grupoTrim, pageable);
+
+        } else if (!estaVacio(nombreTrim) && estaVacio(grupoTrim)) {
+            // El usuario solo escribió en el buscador de texto
+            ejercicios = repository.findByNombreContainingIgnoreCase(nombreTrim, pageable);
+
+        } else if (!estaVacio(nombreTrim) && !estaVacio(grupoTrim)) {
+            // El usuario filtró por ambos campos
+            // USAMOS LA NUEVA QUERY FLEXIBLE O LA COMBINADA
+            ejercicios = repository.findByNombreContainingIgnoreCaseAndGrupoMuscularContainingIgnoreCase(nombreTrim, grupoTrim, pageable);
+
+        } else {
+            // Sin filtros: devolver todo paginado
+            ejercicios = repository.findAll(pageable);
+        }
+
+        return ejercicios.map(this::convertirADTO);
+    }
+
+    /**
+     * Buscador global que busca tanto en nombre como en grupo muscular con un solo término.
+     */
+    @Transactional(readOnly = true)
+    public Page<EjercicioDTO> buscadorGlobal(String query, Pageable pageable) {
+        if (estaVacio(query)) return repository.findAll(pageable).map(this::convertirADTO);
+
+        return repository.buscarFlexible(query.trim(), pageable)
+                .map(this::convertirADTO);
+    }
+
+    // Helper para limpiar el código de nulos y vacíos
+    private boolean estaVacio(String str) {
+        return str == null || str.isBlank();
+    }
+
+    private EjercicioDTO convertirADTO(Ejercicio e) {
+        return new EjercicioDTO(
+                e.getId(),
+                e.getNombre(),
+                e.getGrupoMuscular(),
+                e.getDificultad() != null ? e.getDificultad().toString() : "N/A",
+                e.getEquipoNecesario()
+        );
+    }
+}

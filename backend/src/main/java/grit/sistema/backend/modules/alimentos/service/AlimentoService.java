@@ -1,12 +1,14 @@
-package api.alimentos.service;
+package grit.sistema.backend.modules.alimentos.service;
 
-import api.alimentos.dto.AlimentoCrearRequestDTO;
-import api.alimentos.dto.AlimentoResponseDTO;
-import api.alimentos.model.Alimento;
-import api.alimentos.repository.AlimentoRepository;
+import grit.sistema.backend.modules.alimentos.dto.AlimentoCrearRequestDTO;
+import grit.sistema.backend.modules.alimentos.dto.AlimentoResponseDTO;
+import grit.sistema.backend.modules.alimentos.model.Alimento;
+import grit.sistema.backend.modules.alimentos.repository.AlimentoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,25 +31,36 @@ public class AlimentoService {
      * Si q tiene menos de 2 caracteres o es nulo/vacío, devuelve una lista vacía.
      * Devuelve máximo 15 resultados ordenados por relevancia.
      *
-     * @param q Texto a buscar (mínimo 2 caracteres)
+     * @param query Texto a buscar (mínimo 2 caracteres)
      * @return Lista de alimentos encontrados (máximo 15)
      */
     @Transactional(readOnly = true)
-    public List<AlimentoResponseDTO> buscarAlimentos(String q) {
-        log.info("Buscando alimentos con término: '{}'", q);
+    public Page<AlimentoResponseDTO> buscarAlimentos(String query, String categoria, Pageable pageable) {
+        Page<Alimento> alimentos;
 
-        // Si q es nulo, vacío o tiene menos de 2 caracteres, devolver lista vacía
-        if (q == null || q.trim().isEmpty() || q.trim().length() < 2) {
-            log.info("Búsqueda rechazada: término insuficiente");
-            return List.of();
+        String q = (query != null) ? query.trim() : "";
+        String cat = (categoria != null) ? categoria.trim() : "";
+
+        if (!q.isEmpty() && !cat.isEmpty()) {
+            // Filtro avanzado: texto + categoría
+            alimentos = alimentoRepository.buscarPorNombreYCategoria(q, cat, pageable);
+        } else if (!q.isEmpty()) {
+            // Buscador global (nombre, marca o categoría coincidente con q)
+            alimentos = alimentoRepository.buscadorGlobal(q, pageable);
+        } else if (!cat.isEmpty()) {
+            // Solo filtro por categoría
+            alimentos = alimentoRepository.findByCategoriaContainingIgnoreCase(cat, pageable);
+        } else {
+            // Sin filtros: listado general
+            alimentos = alimentoRepository.findAll(pageable);
         }
 
-        List<Alimento> alimentos = alimentoRepository.buscarPorNombreOMarca(q.trim());
-        log.info("Se encontraron {} alimentos para el término '{}'", alimentos.size(), q);
+        return alimentos.map(this::mapToResponseDTO);
+    }
 
-        return alimentos.stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+    @Transactional(readOnly = true)
+    public List<String> listarCategorias() {
+        return alimentoRepository.obtenerCategoriasUnicas();
     }
 
     /**
@@ -96,17 +109,18 @@ public class AlimentoService {
     }
 
     /**
-     * Mapea una entidad Alimento a AlimentoResponseDTO.
+     * Mapea una entidad Alimento a AlimentoResponseDTO (Record).
      */
     private AlimentoResponseDTO mapToResponseDTO(Alimento alimento) {
-        return AlimentoResponseDTO.builder()
-                .id(alimento.getId())
-                .nombre(alimento.getNombre())
-                .marca(alimento.getMarca())
-                .kcalPor100g(alimento.getKcalPor100g())
-                .proteinasPor100g(alimento.getProteinasPor100g())
-                .carbsPor100g(alimento.getCarbsPor100g())
-                .grasasPor100g(alimento.getGrasasPor100g())
-                .build();
+        return new AlimentoResponseDTO(
+                alimento.getId(),
+                alimento.getNombre(),
+                alimento.getMarca(),
+                alimento.getCategoria(),
+                alimento.getKcalPor100g(),
+                alimento.getProteinasPor100g(),
+                alimento.getCarbsPor100g(),
+                alimento.getGrasasPor100g()
+        );
     }
 }
