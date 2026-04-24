@@ -204,6 +204,29 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public ProblemDetail handleBusinessException(BusinessException ex, HttpServletRequest request) {
+        // 1. Logueamos la advertencia (no es un error de sistema, es una regla de negocio)
+        log.warn("Regla de negocio violada en {}: {} - {}",
+                request.getRequestURI(), ex.getErrorCode(), ex.getMessage());
+
+        // 2. Determinamos el status.
+        // Si es "YA_VINCULADO" podría ser CONFLICT (409), de lo contrario BAD_REQUEST (400)
+        HttpStatus status = "YA_VINCULADO".equals(ex.getErrorCode())
+                ? HttpStatus.CONFLICT
+                : HttpStatus.BAD_REQUEST;
+
+        // 3. Creamos el ProblemDetail usando tu método utilitario
+        // Usamos ex.getErrorCode() como el slug para que la URL de documentación sea dinámica
+        return createProblemDetail(
+                status,
+                "Conflicto de Negocio",
+                ex.getMessage(),
+                ex.getErrorCode().toLowerCase().replace("_", "-"),
+                request
+        );
+    }
+
 
 
     @ExceptionHandler(Exception.class)

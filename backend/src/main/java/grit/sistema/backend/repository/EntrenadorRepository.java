@@ -3,6 +3,7 @@ package grit.sistema.backend.repository;
 import grit.sistema.backend.model.coaching.Entrenador;
 import grit.sistema.backend.model.enums.EstadoRevision;
 
+import grit.sistema.backend.model.enums.EstadoUsuario;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,8 @@ public interface EntrenadorRepository  extends JpaRepository<Entrenador, UUID> {
     Page<Entrenador> findByEstadoRevision(EstadoRevision estado, Pageable pageable);
 
     boolean existsById(UUID id);
+
+    Optional<Entrenador> findByCodigoInvitacionAndEstado(String codigo, EstadoUsuario activo);
+
+    Optional<Entrenador> findByCodigoInvitacion(String codigo);
 }

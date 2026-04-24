@@ -3,20 +3,21 @@ package grit.sistema.backend.controller;
 import grit.sistema.backend.dto.ApiResponseDTO;
 import grit.sistema.backend.dto.atleta.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
+import grit.sistema.backend.dto.atleta.VinculacionRequestDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.security.UserPrincipal;
 import grit.sistema.backend.service.AtletaService;
+import grit.sistema.backend.service.VinculacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ import java.util.List;
 @Slf4j
 public class AtletaController {
     private final AtletaService atletaService;
+    private final VinculacionService vinculacionService;
 
     @Operation(summary = "Ver perfil del atleta")
     @GetMapping("/perfil")
@@ -52,5 +54,20 @@ public class AtletaController {
         log.info("Consultando profesionales del atleta: {}", usuario.getUsername());
         List<ProfesionalAsignadoDTO> profesionales = atletaService.getProfesionalesAsignados(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Profesionales del atleta", profesionales));
+    }
+
+    @Operation(summary = "Conexión con el entrenador por código de invitación en el perfil")
+    @PostMapping("/conectar")
+    public ResponseEntity<ApiResponseDTO> conectarConEntrenador(
+            @Valid @RequestBody VinculacionRequestDTO request,
+            @AuthenticationPrincipal UserPrincipal usuario
+    ) {
+        vinculacionService.conectarConEntrenador(usuario.getId(), request.codigo());
+
+        return ResponseEntity.ok(new ApiResponseDTO(
+                true,
+                "Vinculado correctamente con el entrenador.",
+                null
+        ));
     }
 }
