@@ -32,7 +32,7 @@ public class EjercicioController {
     @GetMapping("/search")
     public ResponseEntity<Page<EjercicioDTO>> buscadorGlobal(
             @RequestParam(name = "q", required = false, defaultValue = "") String q,
-            @PageableDefault(size = 10, sort = "nombre") Pageable pageable
+            @PageableDefault(size = 15, sort = "nombre") Pageable pageable
     ) {
         // Delegamos al nuevo método del service
         Page<EjercicioDTO> resultados = ejercicioService.buscadorGlobal(q, pageable);
@@ -48,10 +48,9 @@ public class EjercicioController {
     public ResponseEntity<Page<EjercicioDTO>> listarEjercicios(
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String grupoMuscular,
-            @PageableDefault(size = 10, sort = "nombre") Pageable pageable
+            @PageableDefault(size = 15, sort = "nombre") Pageable pageable
     ) {
         Page<EjercicioDTO> respuesta = ejercicioService.buscarEjercicios(nombre, grupoMuscular, pageable);
-        System.out.println(respuesta);
         return ResponseEntity.ok(respuesta);
     }
 

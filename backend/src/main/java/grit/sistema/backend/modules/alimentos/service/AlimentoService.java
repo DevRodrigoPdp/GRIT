@@ -59,6 +59,15 @@ public class AlimentoService {
     }
 
     @Transactional(readOnly = true)
+    public Page<AlimentoResponseDTO> buscadorGlobal(String query, Pageable pageable) {
+        if (query == null || query.isBlank()) {
+            return alimentoRepository.findAll(pageable).map(this::mapToResponseDTO);
+        }
+        // Llama a la Query Nativa con el CASE WHEN de relevancia
+        return alimentoRepository.buscadorGlobal(query.trim(), pageable).map(this::mapToResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
     public List<String> listarCategorias() {
         return alimentoRepository.obtenerCategoriasUnicas();
     }

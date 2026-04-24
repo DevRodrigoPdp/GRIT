@@ -38,24 +38,38 @@ public class AlimentoController {
 
     private final AlimentoService alimentoService;
 
-    @Operation(summary = "Buscar alimentos por nombre, marca o categoría")
-    @GetMapping
+    /**
+     * BUSCADOR GLOBAL (Omnibox)
+     * Busca en nombre, marca y categoría simultáneamente con lógica de relevancia.
+     * GET /api/v1/alimentos/search?q=avena
+     */
+    @Operation(summary = "Buscador global de alimentos por término único")
+    @GetMapping("/search")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponseDTO<Page<AlimentoResponseDTO>>> buscarAlimentos(
-            @Parameter(description = "Búsqueda por nombre o marca")
-            @RequestParam(name = "q", required = false) String q,
-
-            @Parameter(description = "Filtrar por categoría específica")
-            @RequestParam(name = "categoria", required = false) String categoria,
-
+    public ResponseEntity<ApiResponseDTO<Page<AlimentoResponseDTO>>> buscadorGlobal(
+            @RequestParam(name = "q", required = false, defaultValue = "") String q,
             @PageableDefault(size = 15, sort = "nombre") Pageable pageable
     ) {
-        log.debug("Búsqueda Alimentos - q: '{}', cat: '{}', page: {}", q, categoria, pageable);
+        log.debug("Buscador Global Alimentos - q: '{}'", q);
+        Page<AlimentoResponseDTO> resultados = alimentoService.buscadorGlobal(q, pageable);
+        return ResponseEntity.ok(ApiResponseDTO.success(resultados, "Resultados globales encontrados"));
+    }
 
-        // Pasamos ambos parámetros al service
-        Page<AlimentoResponseDTO> alimentos = alimentoService.buscarAlimentos(q, categoria, pageable);
-
-        return ResponseEntity.ok(ApiResponseDTO.success(alimentos, "Resultados encontrados"));
+    /**
+     * BÚSQUEDA POR FILTROS ESPECÍFICOS
+     * GET /api/v1/alimentos?q=pollo&categoria=Carnes
+     */
+    @Operation(summary = "Filtrar alimentos por nombre/marca y categoría")
+    @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponseDTO<Page<AlimentoResponseDTO>>> listarConFiltros(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String categoria,
+            @PageableDefault(size = 15, sort = "nombre") Pageable pageable
+    ) {
+        log.debug("Filtro Alimentos - q: '{}', cat: '{}'", q, categoria);
+        Page<AlimentoResponseDTO> resultados = alimentoService.buscarAlimentos(q, categoria, pageable);
+        return ResponseEntity.ok(ApiResponseDTO.success(resultados, "Listado filtrado obtenido"));
     }
 
     @Operation(summary = "Obtener lista de todas las categorías de alimentos disponibles")
