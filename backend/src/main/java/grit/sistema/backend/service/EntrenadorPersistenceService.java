@@ -10,6 +10,7 @@ import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.model.enums.Rol;
 import grit.sistema.backend.repository.EntrenadorRepository;
 import grit.sistema.backend.repository.UsuarioRepository;
+import grit.sistema.backend.util.CodeGenerator;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class EntrenadorPersistenceService {
     private final EntrenadorRepository entrenadorRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntrenadorMapper entrenadorMapper;
+    private final CodeGenerator codeGenerator;
 
     @Transactional
     public Entrenador guardarEntrenador(EntrenadorRequestDTO request, List<String> urls, List<MultipartFile> certificaciones, String fotoKey) {
@@ -38,10 +40,13 @@ public class EntrenadorPersistenceService {
 
         Entrenador entrenador = entrenadorMapper.toEntity(request, urls, certificaciones);
 
+        String nuevoCodigo = codeGenerator.generateGritFormat();
+
         entrenador.setPassword(passwordEncoder.encode(request.getPassword()));
         entrenador.setRol(Rol.ENTRENADOR);
         entrenador.setEstado(EstadoUsuario.ACTIVO);
         entrenador.setFotoUrl(fotoKey);
+        entrenador.setCodigoInvitacion(nuevoCodigo);
 
         // IMPORTANTE: Vincular los documentos al entrenador (Relación bidireccional)
         if (entrenador.getDocumentos() != null) {

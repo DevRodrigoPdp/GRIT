@@ -79,9 +79,6 @@ public class Entrenador extends Usuario {
         if (this.getEstadoRevision() == null) {
             this.setEstadoRevision(EstadoRevision.PENDIENTE_REVISION);
         }
-        if (this.getCodigoInvitacion() == null) {
-            this.setCodigoInvitacion(CodeGenerator.generateGritFormat());
-        }
     }
     public void addDocumento(DocumentoEntrenador documento) {
         documentos.add(documento);
