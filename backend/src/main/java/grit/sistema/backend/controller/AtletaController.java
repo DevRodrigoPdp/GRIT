@@ -4,6 +4,7 @@ import grit.sistema.backend.dto.ApiResponseDTO;
 import grit.sistema.backend.dto.atleta.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
 import grit.sistema.backend.dto.atleta.VinculacionRequestDTO;
+import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.training.*;
 import grit.sistema.backend.security.UserPrincipal;
 import grit.sistema.backend.service.AtletaService;
@@ -22,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/atleta")
@@ -90,5 +92,11 @@ public class AtletaController {
     public ResponseEntity<ApiResponseDTO<List<HistorialPesoDTO>>> getHistorial(@AuthenticationPrincipal UserPrincipal usuario) {
         var data = pesoService.obtenerHistorialAtleta(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Historial recuperado", data));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
+        atletaService.cambiarPassword(usuario.getEmail(), dto);
+        return ResponseEntity.ok(Map.of("ok", true));
     }
 }

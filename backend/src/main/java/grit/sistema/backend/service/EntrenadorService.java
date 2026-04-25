@@ -2,6 +2,7 @@ package grit.sistema.backend.service;
 
 import grit.sistema.backend.client.PwnedPasswordClient;
 import grit.sistema.backend.dto.atleta.AtletaResumenDTO;
+import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
@@ -19,6 +20,8 @@ import grit.sistema.backend.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +41,7 @@ public class EntrenadorService {
     private final UsuarioRepository usuarioRepository;
     private final StorageService storageService;
     private final EntrenadorMapper entrenadorMapper;
+    private final PasswordEncoder passwordEncoder;
     private final PwnedPasswordClient pwnedClient;
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -118,6 +122,23 @@ public class EntrenadorService {
                     );
                 })
                 .toList();
+    }
+
+    @Transactional
+    public void cambiarPassword(String email, PasswordUpdateDTO dto) {
+        if (pwnedClient.isPasswordPwned(dto.nueva())) {
+            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
+        }
+
+        Entrenador entrenador = entrenadorRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+
+        if (!passwordEncoder.matches(dto.actual(), entrenador.getPassword())) {
+            throw new BadCredentialsException("PASSWORD_INCORRECTO");
+        }
+
+        entrenador.setPassword(passwordEncoder.encode(dto.nueva()));
+        entrenadorRepository.save(entrenador);
     }
 
     private String determinarServicioLabel(List<Asignacion> asigs) {

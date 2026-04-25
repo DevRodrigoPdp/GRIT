@@ -5,10 +5,9 @@ import grit.sistema.backend.dto.atleta.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
 import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
 import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
-import grit.sistema.backend.dto.training.EjercicioResponseDTO;
+import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.exception.PwnedPasswordException;
-import grit.sistema.backend.mapper.AtletaMapper;
 import grit.sistema.backend.mapper.EntrenamientoMapper;
 import grit.sistema.backend.model.coaching.Asignacion;
 import grit.sistema.backend.model.coaching.Atleta;
@@ -21,6 +20,7 @@ import grit.sistema.backend.repository.AtletaRepository;
 import grit.sistema.backend.repository.RutinaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +38,7 @@ public class AtletaService {
     private final AtletaRepository atletaRepository;
     private final EntrenamientoMapper entrenamientoMapper;
     private final RutinaRepository rutinaRepository;
+    private final PasswordEncoder passwordEncoder;
     private final AsignacionRepository asignacionRepository;
     private final PwnedPasswordClient pwnedClient;
     private final StorageService storageService;
@@ -100,5 +101,22 @@ public class AtletaService {
             }
         }
         return resultado;
+    }
+
+    @Transactional
+    public void cambiarPassword(String email, PasswordUpdateDTO dto) {
+        if (pwnedClient.isPasswordPwned(dto.nueva())) {
+            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
+        }
+
+        Atleta atleta = atletaRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
+
+        if (!passwordEncoder.matches(dto.actual(), atleta.getPassword())) {
+            throw new BadCredentialsException("PASSWORD_INCORRECTO");
+        }
+
+        atleta.setPassword(passwordEncoder.encode(dto.nueva()));
+        atletaRepository.save(atleta);
     }
 }

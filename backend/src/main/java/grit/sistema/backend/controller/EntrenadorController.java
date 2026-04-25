@@ -2,6 +2,7 @@ package grit.sistema.backend.controller;
 
 import grit.sistema.backend.dto.ApiResponseDTO;
 import grit.sistema.backend.dto.atleta.AtletaResumenDTO;
+import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
 import grit.sistema.backend.security.UserPrincipal;
@@ -9,6 +10,7 @@ import grit.sistema.backend.service.EntrenadorService;
 import grit.sistema.backend.service.PesoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -66,5 +68,11 @@ public class EntrenadorController {
     public ResponseEntity<ApiResponseDTO<List<HistorialPesoDTO>>> getHistorialAtleta(@PathVariable UUID atletaId) {
         var data = pesoService.obtenerHistorialAtleta(atletaId);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Historial del atleta recuperado", data));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
+        entrenadorService.cambiarPassword(usuario.getEmail(), dto);
+        return ResponseEntity.ok(Map.of("ok", true));
     }
 }
