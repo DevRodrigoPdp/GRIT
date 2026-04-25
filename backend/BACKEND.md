@@ -2,7 +2,7 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 22 de abril de 2026 — cobertura completa: historial y estado pendiente de peso desde entrenador (3.14.5); escritura notas nutricionista (3.12); endpoints admin para aprobar/rechazar ampliaciones (3.9); foto de perfil (3.14.8, 3.19); endpoint unificado ampliación formación (3.7); eliminación recetas
+> **Última actualización:** 25 de abril de 2026 — MFA + FingerprintJS (3.3.2); API propia de alimentos reemplaza USDA (sección 11); limpieza de rutas obsoletas y correcciones de contratos
 
 ---
 
@@ -89,7 +89,7 @@ frontend/src/app/
 
 ## 1. Contexto del Producto
 
-GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de usuario y **cuatro dashboards diferenciados**:
+GRIT es una plataforma de rendimiento deportivo de alto nivel con dos tipos de usuario y **dos dashboards diferenciados** (entrenador y atleta), cuyo contenido se adapta según las titulaciones del entrenador:
 
 | Rol | Titulaciones | Dashboard | Descripción |
 |---|---|---|---|
@@ -345,9 +345,9 @@ Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1
 |---|---|---|---|---|---|
 | `MFA_REQUIRED` | — | — | — | — | Mostrar pantalla OTP |
 | — | `ATLETA` | `ACTIVO` | `null` | `null` | `/dashboard/atleta` |
-| — | `ENTRENADOR` | `ACTIVO` | `true` | `true` | `/dashboard/entrenador/nutricion` |
+| — | `ENTRENADOR` | `ACTIVO` | `true` | `true` | `/dashboard/entrenador` |
 | — | `ENTRENADOR` | `ACTIVO` | `true` | `false` | `/dashboard/entrenador` |
-| — | `ENTRENADOR` | `ACTIVO` | `false` | `true` | `/dashboard/entrenador/solo-nutricion` |
+| — | `ENTRENADOR` | `ACTIVO` | `false` | `true` | `/dashboard/entrenador` |
 | — | `ENTRENADOR` | `PENDIENTE_REVISION` | cualquiera | cualquiera | `/pendiente` |
 | — | cualquiera | `RECHAZADO` | cualquiera | cualquiera | `/login` con error |
 
@@ -622,9 +622,9 @@ Todos los endpoints bajo `/api/v1/nutricion/**` y `/api/v1/entrenamiento/**` req
 
 > **Seguridad:** Todos estos endpoints requieren cookie `access_token` válida con `rol === 'ADMIN'`.
 
-**`GET /api/v1/admin/entrenadores?status=pending`**
+**`GET /api/v1/admin/entrenadores`**
 
-Devuelve la lista de entrenadores cuya documentación está pendiente de revisión.
+Devuelve la lista de entrenadores registrados. Acepta el parámetro opcional `?status=pending` para filtrar solo los que tienen documentación pendiente de revisión.
 
 ```json
 {
@@ -678,9 +678,9 @@ Body: `{ "motivo": "El PDF es ilegible..." }`
 
 ---
 
-**`GET /api/v1/admin/ampliaciones?status=pending`**
+**`GET /api/v1/admin/ampliaciones`**
 
-Devuelve la lista de solicitudes de ampliación de formación pendientes de revisión (entrenadores que ya tienen cuenta activa y quieren habilitar el módulo adicional).
+Devuelve la lista de solicitudes de ampliación de formación (entrenadores que ya tienen cuenta activa y quieren habilitar el módulo adicional). Acepta el parámetro opcional `?status=pending` para filtrar solo las pendientes de revisión.
 
 ```json
 {
@@ -905,7 +905,7 @@ Devuelve todos los planes de nutrición creados para un atleta.
           "alimentos": [
             {
               "alimento": {
-                "codigo": "3017620425400",
+                "codigo": "uuid-alimento",
                 "nombre": "Avena",
                 "marca": "Quaker",
                 "kcalPor100g": 366,
@@ -945,7 +945,7 @@ Crea un nuevo plan de nutrición para un atleta.
       "alimentos": [
         {
           "alimento": {
-            "codigo": "3017620425400",
+            "codigo": "uuid-alimento",
             "nombre": "Avena",
             "marca": "Quaker",
             "kcalPor100g": 366,
@@ -1150,7 +1150,7 @@ Marca una rutina como activa para el atleta. Desactiva automáticamente cualquie
 
 > Requieren cookie `access_token` con `rol === 'ENTRENADOR'` y `titulo_nutricion === true`.
 >
-> Almacenan los últimos alimentos usados en cada tipo de comida ("Desayuno", "Almuerzo", etc.) por entrenador. Actualmente se guardan en `localStorage`. **Deben persistirse en backend** para que el historial esté disponible entre sesiones y dispositivos.
+> Almacenan los últimos alimentos usados en cada tipo de comida ("Desayuno", "Almuerzo", etc.) por entrenador. Se persisten en backend para que el historial esté disponible entre sesiones y dispositivos.
 
 **`GET /api/v1/nutricion/recientes?comida=<nombre>`**
 
@@ -1161,7 +1161,7 @@ Devuelve los últimos alimentos usados en una comida concreta por el entrenador 
   "ok": true,
   "data": [
     {
-      "codigo": "3017620425400",
+      "codigo": "uuid-alimento",
       "nombre": "Avena",
       "marca": "Quaker",
       "kcalPor100g": 366,
@@ -1177,21 +1177,13 @@ Devuelve los últimos alimentos usados en una comida concreta por el entrenador 
 
 **`POST /api/v1/nutricion/recientes`**
 
-Registra el uso de un alimento en una comida. Si ya existe la combinación `(usuario_id, nombre_comida, codigo_alimento)`, actualiza `usado_en`. Si hay más de 8 para ese `nombre_comida`, elimina el más antiguo.
+Registra el uso de un alimento en una comida. Si ya existe la combinación `(usuario_id, nombre_comida, alimento_id)`, actualiza `usado_en`. Si hay más de 8 para ese `nombre_comida`, elimina el más antiguo.
 
 ```json
 // Request body
 {
   "nombreComida": "Desayuno",
-  "alimento": {
-    "codigo": "3017620425400",
-    "nombre": "Avena",
-    "marca": "Quaker",
-    "kcalPor100g": 366,
-    "proteinasPor100g": 13.2,
-    "carbsPor100g": 58.7,
-    "grasasPor100g": 6.9
-  }
+  "alimentoId": "uuid-alimento"
 }
 
 // Response 200
@@ -1356,7 +1348,7 @@ Los macros a nivel de plan (`proteinas`, `carbos`, `grasas`) son opcionales — 
         "alimentos": [
           {
             "nombre": "Avena",
-            "cantidad": "80 g",
+            "cantidadG": 80,
             "kcal": 300,
             "proteinas": 10,
             "carbos": 54,
@@ -1364,7 +1356,7 @@ Los macros a nivel de plan (`proteinas`, `carbos`, `grasas`) son opcionales — 
           },
           {
             "nombre": "Leche desnatada",
-            "cantidad": "200 ml",
+            "cantidadG": 200,
             "kcal": 70,
             "proteinas": 7,
             "carbos": 10,
@@ -1381,9 +1373,9 @@ Los macros a nivel de plan (`proteinas`, `carbos`, `grasas`) son opcionales — 
 - `notas` es `string | null`. El nutricionista puede añadir una nota por comida al crear el plan.
 - El frontend del atleta la muestra al expandir la comida con la etiqueta "NOTA DE TU NUTRICIONISTA".
 
-**Notas sobre el campo `cantidad`:**
-- Es un `string` libre tal como lo escribió el nutricionista: `"80 g"`, `"200 ml"`, `"1 unidad"`, `"2 cdas"`.
-- El frontend lo muestra literalmente; no intenta parsearlo.
+**Notas sobre el campo `cantidadG`:**
+- Es un `number` (DECIMAL) que indica los gramos del alimento tal como lo definió el entrenador al crear el plan.
+- El frontend lo muestra como `"{cantidadG} g"`.
 
 **Notas sobre los macros por alimento:**
 - `kcal`, `proteinas`, `carbos`, `grasas` son todos opcionales (`null` si el nutricionista no los incluyó).
@@ -2625,7 +2617,7 @@ SENDGRID_API_KEY=...
 21. **Ajustes de cuenta del entrenador** — contraseña + eliminación + foto (sección 3.19)
 22. **Ampliación de formación** — endpoint unificado `POST /api/v1/entrenador/ampliar-formacion` (sección 3.7)
 23. **Rate limiting + seguridad adicional**
-23. **Tests de integración** para todos los endpoints
+24. **Tests de integración** para todos los endpoints
 
 ---
 
