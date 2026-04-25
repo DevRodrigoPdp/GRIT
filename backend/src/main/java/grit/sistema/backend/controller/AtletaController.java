@@ -4,15 +4,17 @@ import grit.sistema.backend.dto.ApiResponseDTO;
 import grit.sistema.backend.dto.atleta.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
 import grit.sistema.backend.dto.atleta.VinculacionRequestDTO;
-import grit.sistema.backend.dto.training.RutinaDTO;
+import grit.sistema.backend.dto.training.*;
 import grit.sistema.backend.security.UserPrincipal;
 import grit.sistema.backend.service.AtletaService;
+import grit.sistema.backend.service.PesoService;
 import grit.sistema.backend.service.VinculacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,11 +27,12 @@ import java.util.List;
 @RequestMapping("/api/v1/atleta")
 @Tag(name = "Atletas")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ATLETA') or hasRole('ADMIN')")
+@PreAuthorize("hasRole('ATLETA')")
 @Slf4j
 public class AtletaController {
     private final AtletaService atletaService;
     private final VinculacionService vinculacionService;
+    private final PesoService pesoService;
 
     @Operation(summary = "Ver perfil del atleta")
     @GetMapping("/perfil")
@@ -69,5 +72,23 @@ public class AtletaController {
                 "Vinculado correctamente con el entrenador.",
                 null
         ));
+    }
+
+    @GetMapping("/peso/solicitud-pendiente")
+    public ResponseEntity<ApiResponseDTO<SolicitudPendienteDTO>> getPendiente(@AuthenticationPrincipal UserPrincipal usuario) {
+        var data = pesoService.obtenerSolicitudPendiente(usuario.getId());
+        return ResponseEntity.ok(new ApiResponseDTO<>(true,"Solicitud recuperada", data));
+    }
+
+    @PostMapping("/peso")
+    public ResponseEntity<ApiResponseDTO<PesoResponseDTO>> registrar(@Valid @RequestBody PesoRequestDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
+        var data = pesoService.registrarPeso(dto, usuario.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, "Peso registrado con éxito",data));
+    }
+
+    @GetMapping("peso/historial")
+    public ResponseEntity<ApiResponseDTO<List<HistorialPesoDTO>>> getHistorial(@AuthenticationPrincipal UserPrincipal usuario) {
+        var data = pesoService.obtenerHistorialAtleta(usuario.getId());
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Historial recuperado", data));
     }
 }
