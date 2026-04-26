@@ -65,7 +65,9 @@ public class UserPrincipal implements UserDetails {
     public String getUsername() { return email; }
 
     @Override
-    public boolean isEnabled() { return activo; }
+    public boolean isEnabled() {
+        return this.estado == EstadoUsuario.ACTIVO;
+    }
 
     // Métodos obligatorios de UserDetails (puedes dejarlos en true si no manejas bloqueo)
     @Override public boolean isAccountNonExpired() { return true; }

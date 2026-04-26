@@ -5,15 +5,19 @@ import grit.sistema.backend.dto.atleta.AtletaResumenDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
+import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.security.UserPrincipal;
 import grit.sistema.backend.service.EntrenadorService;
 import grit.sistema.backend.service.PesoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -74,5 +78,23 @@ public class EntrenadorController {
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
         entrenadorService.cambiarPassword(usuario.getEmail(), dto);
         return ResponseEntity.ok(Map.of("ok", true));
+    }
+
+    @DeleteMapping("/cuenta")
+    public ResponseEntity<ApiResponseDTO> eliminarCuenta(
+            @AuthenticationPrincipal UserPrincipal usuario,
+            HttpServletResponse response) {
+
+        entrenadorService.solicitarBajaCuenta(usuario.getId());
+
+        ResponseCookie cookie = ResponseCookie.from("access_token", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok(new ApiResponseDTO(true, "Cuenta desactivada correctamente.",null));
     }
 }

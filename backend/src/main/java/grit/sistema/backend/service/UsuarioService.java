@@ -11,6 +11,7 @@ import grit.sistema.backend.mapper.UsuarioMapper;
 import grit.sistema.backend.model.Usuario;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.coaching.Entrenador;
+import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.repository.UsuarioRepository;
 import grit.sistema.backend.security.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
@@ -73,6 +74,17 @@ public class UsuarioService {
         Usuario guardado = usuarioRepository.save(usuario);
 
         return usuarioMapper.toDTO(guardado);
+    }
+
+    @Transactional
+    public void suspenderUsuario(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
+
+        usuario.setEstado(EstadoUsuario.SUSPENDIDO);
+        // No es estrictamente necesario llamar a save() si estamos en una transacción,
+        // pero ayuda a la legibilidad para un desarrollador junior.
+        usuarioRepository.save(usuario);
     }
 
     public UsuarioDTO findByUuid(UUID uuid) {

@@ -1,5 +1,7 @@
 package grit.sistema.backend.config;
 
+import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.repository.UsuarioRepository;
 import grit.sistema.backend.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,9 +28,16 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> usuarioRepository.findByEmail(username)
-                .map(UserPrincipal::new) // <--- CRÍTICO: Mapeamos la entidad al Principal de seguridad
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+        return username -> {
+            Usuario usuario = usuarioRepository.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+
+            if (usuario.getEstado() != EstadoUsuario.ACTIVO) {
+                throw new DisabledException("La cuenta no está activa o ha sido eliminada.");
+            }
+
+            return new UserPrincipal(usuario);
+        };
     }
     @Bean
     public AuthenticationProvider  authenticationProvider() {

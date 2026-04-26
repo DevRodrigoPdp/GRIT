@@ -47,6 +47,19 @@ public class GlobalExceptionHandler {
                 request);
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
+    public ProblemDetail handleDisabledAccount(org.springframework.security.authentication.DisabledException ex, HttpServletRequest request) {
+        log.warn("Intento de acceso con cuenta desactivada en {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return createProblemDetail(
+                HttpStatus.UNAUTHORIZED, // 401: El usuario no puede autenticarse
+                "Cuenta Desactivada",
+                "Su cuenta ha sido eliminada o suspendida. Póngase en contacto con soporte.",
+                "account-disabled", // Slug para la documentación de error
+                request
+        );
+    }
+
     @ExceptionHandler({AccessDeniedException.class, AccesoDenegadoException.class, AuthorizationDeniedException.class})
     public ProblemDetail handleAccessDenied(Exception ex, HttpServletRequest request) {
         log.warn("Acceso denegado en {}: {}", request.getRequestURI(), ex.getMessage());

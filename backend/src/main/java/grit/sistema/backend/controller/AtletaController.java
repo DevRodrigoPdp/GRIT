@@ -12,10 +12,13 @@ import grit.sistema.backend.service.PesoService;
 import grit.sistema.backend.service.VinculacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -98,5 +101,24 @@ public class AtletaController {
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
         atletaService.cambiarPassword(usuario.getEmail(), dto);
         return ResponseEntity.ok(Map.of("ok", true));
+    }
+
+    @DeleteMapping("/cuenta")
+    public ResponseEntity<ApiResponseDTO> eliminarCuenta(
+            @AuthenticationPrincipal UserPrincipal usuario,
+            HttpServletResponse response) {
+
+        atletaService.solicitarBajaCuenta(usuario.getId());
+
+        // Invalidar Cookie
+        ResponseCookie cookie = ResponseCookie.from("access_token", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok(new ApiResponseDTO(true, "Tu cuenta de atleta ha sido desactivada.", null));
     }
 }

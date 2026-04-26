@@ -12,6 +12,7 @@ import grit.sistema.backend.mapper.EntrenadorMapper;
 import grit.sistema.backend.model.coaching.Asignacion;
 import grit.sistema.backend.model.coaching.Atleta;
 import grit.sistema.backend.model.coaching.Entrenador;
+import grit.sistema.backend.model.enums.EstadoUsuario;
 import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.model.enums.TitulacionNutricion;
 import grit.sistema.backend.repository.AsignacionRepository;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +43,7 @@ public class EntrenadorService {
     private final UsuarioRepository usuarioRepository;
     private final StorageService storageService;
     private final EntrenadorMapper entrenadorMapper;
+    private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
     private final PwnedPasswordClient pwnedClient;
 
@@ -139,6 +142,17 @@ public class EntrenadorService {
 
         entrenador.setPassword(passwordEncoder.encode(dto.nueva()));
         entrenadorRepository.save(entrenador);
+    }
+
+    @Transactional
+    public void solicitarBajaCuenta(UUID entrenadorId) {
+        if (!entrenadorRepository.existsById(entrenadorId)) {
+            throw new EntityNotFoundException("El perfil de entrenador no existe");
+        }
+
+        asignacionRepository.desactivarAsignacionesPorEntrenador(entrenadorId);
+
+        usuarioService.suspenderUsuario(entrenadorId);
     }
 
     private String determinarServicioLabel(List<Asignacion> asigs) {

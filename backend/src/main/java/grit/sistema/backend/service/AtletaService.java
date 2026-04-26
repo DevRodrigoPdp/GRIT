@@ -40,6 +40,7 @@ public class AtletaService {
     private final RutinaRepository rutinaRepository;
     private final PasswordEncoder passwordEncoder;
     private final AsignacionRepository asignacionRepository;
+    private final UsuarioService usuarioService;
     private final PwnedPasswordClient pwnedClient;
     private final StorageService storageService;
     private final AtletaPersistenceService persistenceService;
@@ -118,5 +119,16 @@ public class AtletaService {
 
         atleta.setPassword(passwordEncoder.encode(dto.nueva()));
         atletaRepository.save(atleta);
+    }
+
+    @Transactional
+    public void solicitarBajaCuenta(UUID atletaId) {
+        if (!atletaRepository.existsById(atletaId)) {
+            throw new EntityNotFoundException("El perfil de atleta no existe");
+        }
+
+        asignacionRepository.desactivarAsignacionesPorAtleta(atletaId);
+
+        usuarioService.suspenderUsuario(atletaId);
     }
 }
