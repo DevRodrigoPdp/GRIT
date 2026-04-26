@@ -36,7 +36,8 @@ export interface RegistroEntrenadorPayload {
   anosExperiencia?: number | null;
   sobreMi?: string | null;
   masters?: string[];
-  documentos: File[];
+  fotoPerfil: File | null;
+  certificaciones: File[];
 }
 
 // ── Respuestas del backend ───────────────────────────────────────────────────
@@ -137,20 +138,30 @@ export class AuthService {
   registroEntrenador(payload: RegistroEntrenadorPayload): Observable<RegistroResponse> {
     this.loading.set(true);
     const formData = new FormData();
-    formData.append('nombre', payload.nombre);
-    formData.append('email', payload.email);
-    formData.append('password', payload.password);
-    if (payload.codigoProfesional) {
-      formData.append('codigoProfesional', payload.codigoProfesional);
+
+    // ── Construir DTO para la parte "datos" ─────────────────────────────────
+    const dto = {
+      nombre: payload.nombre,
+      email: payload.email,
+      password: payload.password,
+      codigoProfesional: payload.codigoProfesional || null,
+      titulacionEntrenamiento: payload.titulacionEntrenamiento || null,
+      titulacionNutricion: payload.titulacionNutricion || null,
+      experienciaAnos: payload.anosExperiencia || null,
+      descripcion: payload.sobreMi || null,
+    };
+
+    // Enviar DTO como JSON en la parte "datos"
+    formData.append('datos', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
+
+    // Enviar foto en la parte "fotoPerfil"
+    if (payload.fotoPerfil) {
+      formData.append('fotoPerfil', payload.fotoPerfil);
     }
-    if (payload.titulacionEntrenamiento) {
-      formData.append('titulacionEntrenamiento', payload.titulacionEntrenamiento);
-    }
-    if (payload.titulacionNutricion) {
-      formData.append('titulacionNutricion', payload.titulacionNutricion);
-    }
-    payload.documentos.forEach((file) => {
-      formData.append('documentos', file);
+
+    // Enviar certificaciones en la parte "certificaciones"
+    payload.certificaciones.forEach((file) => {
+      formData.append('certificaciones', file);
     });
 
     return this.http

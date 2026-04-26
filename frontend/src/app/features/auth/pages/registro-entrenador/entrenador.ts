@@ -304,14 +304,12 @@ export class EntrenadorPage implements OnInit {
       anosExperiencia: v.anosExperiencia ? parseInt(v.anosExperiencia, 10) : null,
       sobreMi: v.sobreMi?.trim() || null,
       masters: Array.from(this.mastersSeleccionados()),
-      documentos: this.archivos().map(a => a.file),
+      fotoPerfil: this.fotoFile(),
+      certificaciones: this.archivos().map(a => a.file),
     })
     .subscribe({
       next: () => {
-        const foto = this.fotoFile();
-        if (foto) {
-          this.entrenadorService.subirFotoPerfil(foto).subscribe();
-        }
+        // Ya se envía la foto junto con los certificados en el registro
       },
       error: () => {},
     });
