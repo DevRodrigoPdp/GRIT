@@ -3,18 +3,20 @@ import { HeaderComponent } from '../../shared/header/header';
 import { HeroComponent } from './components/hero/hero';
 import { VerificationComponent } from './components/verification/verification';
 import { DashboardComponent } from './components/dashboard/dashboard';
+import { PreciosComponent } from './components/precios/precios';
 import { FooterComponent } from '../../shared/footer/footer';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [HeaderComponent, HeroComponent, VerificationComponent, DashboardComponent, FooterComponent],
+  imports: [HeaderComponent, HeroComponent, VerificationComponent, DashboardComponent, PreciosComponent, FooterComponent],
   template: `
     <app-header />
     <main>
       <app-hero />
       <app-verification />
       <app-dashboard />
+      <app-precios />
     </main>
     <app-footer />
   `,

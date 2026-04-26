@@ -1,83 +1,104 @@
-<section id="para-quien" class="border-b border-[#E5E7EB] bg-white">
+<section id="para-quien" class="bg-white border-b border-[#E5E7EB]">
   <div class="max-w-7xl mx-auto px-6 py-20">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-16">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
       <div>
         <div class="flex items-center gap-3 mb-4">
           <div class="w-5 h-px bg-[#2ED38D]"></div>
-          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">PARA QUIÉN ES GRIT</span>
+          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">Para quién es GRIT</span>
         </div>
-        <h2 class="text-5xl md:text-7xl font-black uppercase tracking-tighter text-black leading-[0.9]">
+        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9]">
           DOS PERFILES.<br>
           UN SISTEMA.
         </h2>
       </div>
       <p class="text-sm font-light leading-relaxed text-gray-500 max-w-xs">
-        GRIT está diseñado desde el primer día para dos tipos de usuario con necesidades distintas pero un objetivo común: el rendimiento.
+        Diseñado desde el primer día para profesionales del deporte y la nutrición, y para los atletas que los eligen.
       </p>
     </div>
 
-    <!-- Two Panels -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Paneles con foto -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <!-- Panel Entrenadores -->
-      <div class="bg-black p-10 flex flex-col gap-8">
-        <div>
-          <span class="text-[11px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-3 block">PARA ENTRENADORES</span>
-          <h3 class="text-4xl font-black uppercase tracking-tighter text-white leading-[0.9]">
-            GESTIONA.<br>PLANIFICA.<br>CONTROLA.
-          </h3>
+      <!-- Panel Profesionales (Entrenadores + Nutricionistas) -->
+      <div
+        class="relative rounded-2xl overflow-hidden min-h-[520px] flex flex-col justify-end"
+        style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80'); background-size: cover; background-position: center;"
+      >
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+
+        <!-- Contenido -->
+        <div class="relative z-10 p-10 flex flex-col gap-6">
+          <div>
+            <span class="text-[11px] font-black tracking-[0.25em] uppercase text-[#2ED38D] mb-3 block">
+              Para entrenadores y nutricionistas
+            </span>
+            <h3 class="text-3xl font-black uppercase tracking-tighter text-white leading-[0.9]">
+              GESTIONA.<br>PLANIFICA.<br>CONTROLA.
+            </h3>
+          </div>
+          <div class="w-10 h-px bg-[#2ED38D]"></div>
+          <ul class="flex flex-col gap-3">
+            @for (item of entrenadorFeatures; track item) {
+              <li class="flex items-start gap-3">
+                <span class="text-[#2ED38D] text-xs font-black mt-0.5 flex-shrink-0">→</span>
+                <span class="text-sm font-light text-gray-300 leading-relaxed">{{ item }}</span>
+              </li>
+            }
+          </ul>
+          <a
+            routerLink="/para-profesionales"
+            class="mt-2 inline-flex items-center gap-3 bg-[#2ED38D] text-black px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline group w-fit"
+          >
+            Saber más
+            <svg class="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            </svg>
+          </a>
         </div>
-        <div class="w-12 h-px bg-[#2ED38D]"></div>
-        <ul class="flex flex-col gap-4">
-          @for (item of entrenadorFeatures; track item) {
-            <li class="flex items-start gap-3">
-              <span class="text-[#2ED38D] text-xs font-black mt-0.5 flex-shrink-0">→</span>
-              <span class="text-sm font-light text-gray-400 leading-relaxed">{{ item }}</span>
-            </li>
-          }
-        </ul>
-        <a
-          routerLink="/registro/entrenador"
-          class="mt-auto inline-flex items-center gap-3 border border-[#2ED38D] text-[#2ED38D] px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#2ED38D] hover:text-black transition-all duration-300 no-underline group w-fit"
-        >
-          REGISTRARME COMO ENTRENADOR
-          <svg class="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-          </svg>
-        </a>
       </div>
 
       <!-- Panel Atletas -->
-      <div class="border border-[#E5E7EB] p-10 flex flex-col gap-8">
-        <div>
-          <span class="text-[11px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-3 block">PARA ATLETAS</span>
-          <h3 class="text-4xl font-black uppercase tracking-tighter text-black leading-[0.9]">
-            CONFÍA.<br>SIGUE.<br>SUPERA.
-          </h3>
+      <div
+        class="relative rounded-2xl overflow-hidden min-h-[520px] flex flex-col justify-end"
+        style="background-image: url('https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=800&q=80'); background-size: cover; background-position: center;"
+      >
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+
+        <!-- Contenido -->
+        <div class="relative z-10 p-10 flex flex-col gap-6">
+          <div>
+            <span class="text-[11px] font-black tracking-[0.25em] uppercase text-[#2ED38D] mb-3 block">
+              Para atletas
+            </span>
+            <h3 class="text-3xl font-black uppercase tracking-tighter text-white leading-[0.9]">
+              CONFÍA.<br>SIGUE.<br>SUPERA.
+            </h3>
+          </div>
+          <div class="w-10 h-px bg-[#2ED38D]"></div>
+          <ul class="flex flex-col gap-3">
+            @for (item of atletaFeatures; track item) {
+              <li class="flex items-start gap-3">
+                <span class="text-[#2ED38D] text-xs font-black mt-0.5 flex-shrink-0">→</span>
+                <span class="text-sm font-light text-gray-300 leading-relaxed">{{ item }}</span>
+              </li>
+            }
+          </ul>
+          <a
+            routerLink="/para-atletas"
+            class="mt-2 inline-flex items-center gap-3 bg-white text-black px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-[#2ED38D] transition-all duration-300 no-underline group w-fit"
+          >
+            Saber más
+            <svg class="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            </svg>
+          </a>
         </div>
-        <div class="w-12 h-px bg-black"></div>
-        <ul class="flex flex-col gap-4">
-          @for (item of atletaFeatures; track item) {
-            <li class="flex items-start gap-3">
-              <span class="text-black text-xs font-black mt-0.5 flex-shrink-0">→</span>
-              <span class="text-sm font-light text-gray-500 leading-relaxed">{{ item }}</span>
-            </li>
-          }
-        </ul>
-        <a
-          routerLink="/registro/atleta"
-          class="mt-auto inline-flex items-center gap-3 bg-black text-white px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#2ED38D] hover:text-black transition-all duration-300 no-underline group w-fit"
-        >
-          UNIRME COMO ATLETA
-          <svg class="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-          </svg>
-        </a>
       </div>
 
     </div>
-
   </div>
 </section>

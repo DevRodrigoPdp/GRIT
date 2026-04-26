@@ -14,6 +14,7 @@ export class HeaderComponent {
   readonly navLinks: NavLink[] = [
     { label: 'CÓMO FUNCIONA', href: '#como-funciona' },
     { label: 'PARA QUIÉN', href: '#para-quien' },
+    { label: 'PRECIOS', href: '#precios' },
   ];
 
   toggleMenu(): void {

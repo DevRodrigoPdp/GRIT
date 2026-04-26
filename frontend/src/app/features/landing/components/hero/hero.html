@@ -1,73 +1,75 @@
-<section id="inicio" class="min-h-screen pt-16 flex flex-col justify-center border-b border-[#E5E7EB] overflow-hidden">
-  <div class="max-w-7xl mx-auto px-6 py-20 w-full">
+<section id="inicio" class="relative min-h-screen flex flex-col justify-end overflow-hidden">
+
+  <!-- Imagen de fondo -->
+  <div
+    class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1920&q=80')"
+  ></div>
+
+  <!-- Overlay gradiente -->
+  <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/20"></div>
+
+  <!-- Contenido -->
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-16 pt-32 w-full">
 
     <!-- Label -->
-    <div class="flex items-center gap-3 mb-10 fade-up fade-up-delay-1">
+    <div class="flex items-center gap-3 mb-8">
       <div class="w-8 h-px bg-[#2ED38D]"></div>
-      <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">PLATAFORMA DE ENTRENAMIENTO CERTIFICADO</span>
+      <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">
+        Plataforma de entrenamiento y nutrición certificada
+      </span>
     </div>
 
-    <!-- Main headline -->
-    <h1 class="text-[clamp(2.5rem,11vw,10rem)] font-black uppercase tracking-tighter leading-[0.88] text-black mb-10 fade-up fade-up-delay-2">
+    <!-- Titular -->
+    <h1 class="text-[clamp(3rem,9vw,8rem)] font-black uppercase tracking-tighter leading-[0.88] text-white mb-8">
       ENTRENA.<br>
       NUTRE.<br>
       <span class="text-[#2ED38D]">EVOLUCIONA.</span>
     </h1>
 
-    <!-- Description row -->
-    <div class="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12 border-t border-[#E5E7EB] pt-8 fade-up fade-up-delay-3">
-      <p class="text-lg font-light leading-relaxed text-gray-600 max-w-xl">
-        Conectamos <strong class="font-bold text-black">entrenadores certificados</strong> con atletas que buscan resultados reales. Un único sistema para planificar, seguir y mejorar.
-      </p>
-      <div class="hidden md:block w-px h-16 bg-[#E5E7EB] flex-shrink-0"></div>
-      <div class="flex items-center gap-2">
-        <div class="w-2 h-2 bg-[#2ED38D]"></div>
-        <span class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400">Titulaciones verificadas por GRIT</span>
-      </div>
-    </div>
+    <!-- Descripción -->
+    <p class="text-lg font-light leading-relaxed text-gray-200 max-w-xl mb-12">
+      Conectamos <strong class="font-bold text-white">entrenadores y nutricionistas certificados</strong>
+      con atletas que buscan resultados reales. Un único sistema para planificar, seguir y mejorar.
+    </p>
 
-    <!-- Dual CTAs -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 fade-up fade-up-delay-4">
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-16">
       <a
         routerLink="/registro/entrenador"
-        class="inline-flex items-center gap-3 bg-black text-white px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-[#2ED38D] hover:text-black transition-all duration-300 no-underline group"
+        class="inline-flex items-center gap-3 bg-[#2ED38D] text-black px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline group"
       >
-        SOY ENTRENADOR
+        Soy entrenador / nutricionista
         <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
           <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
         </svg>
       </a>
       <a
-        id="empezar"
-        routerLink="/registro"
-        class="inline-flex items-center gap-3 bg-black text-white px-10 py-4 text-lg font-bold uppercase tracking-widest hover:bg-[#2ED38D] hover:text-black transition-all duration-300 no-underline group"
+        routerLink="/registro/atleta"
+        class="inline-flex items-center gap-3 border border-white/40 backdrop-blur-sm text-white px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white hover:text-black transition-all duration-300 no-underline group"
       >
-        SOY ATLETA
+        Soy atleta
         <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
           <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
         </svg>
       </a>
     </div>
 
-    <!-- Scroll hint -->
-    <div class="flex xl:hidden items-center gap-3 mt-10 scroll-hint">
-      <div class="w-5 h-8 border border-black rounded-full flex items-start justify-center pt-1.5">
-        <div class="w-0.5 h-2 bg-black rounded-full scroll-dot"></div>
+    <!-- Stats -->
+    <div class="flex flex-wrap gap-10 pt-8 border-t border-white/20">
+      <div class="flex flex-col gap-1">
+        <span class="text-4xl font-black text-white tracking-tighter">120+</span>
+        <span class="text-xs font-medium tracking-widest uppercase text-gray-400">Profesionales verificados</span>
       </div>
-      <span class="text-xs font-bold tracking-[0.25em] uppercase text-gray-400">Scroll</span>
-    </div>
-
-    <!-- Bottom ticker -->
-    <div class="mt-20 border-t border-[#E5E7EB] pt-6 overflow-hidden">
-      <div class="flex gap-16 text-xs font-bold tracking-[0.3em] uppercase text-[#E5E7EB] whitespace-nowrap select-none">
-        <span>ENTRENAMIENTO</span><span class="text-[#2ED38D]">✦</span>
-        <span>NUTRICIÓN</span><span class="text-[#2ED38D]">✦</span>
-        <span>CERTIFICACIÓN</span><span class="text-[#2ED38D]">✦</span>
-        <span>ATLETAS</span><span class="text-[#2ED38D]">✦</span>
-        <span>RESULTADOS</span><span class="text-[#2ED38D]">✦</span>
-        <span>GRIT</span><span class="text-[#2ED38D]">✦</span>
-        <span>VERIFICACIÓN</span><span class="text-[#2ED38D]">✦</span>
-        <span>PROGRESO</span><span class="text-[#2ED38D]">✦</span>
+      <div class="w-px h-12 bg-white/20 hidden sm:block self-center"></div>
+      <div class="flex flex-col gap-1">
+        <span class="text-4xl font-black text-white tracking-tighter">500+</span>
+        <span class="text-xs font-medium tracking-widest uppercase text-gray-400">Atletas activos</span>
+      </div>
+      <div class="w-px h-12 bg-white/20 hidden sm:block self-center"></div>
+      <div class="flex flex-col gap-1">
+        <span class="text-4xl font-black text-white tracking-tighter">1.200+</span>
+        <span class="text-xs font-medium tracking-widest uppercase text-gray-400">Planes completados</span>
       </div>
     </div>
 
