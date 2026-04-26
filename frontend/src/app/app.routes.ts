@@ -55,7 +55,12 @@ export const routes: Routes = [
       },
     ],
   },
-  // TODO: ruta admin — pendiente de integrar feat/admin-panel
+  {
+    path: 'admin',
+    canActivate: [rolGuard('ADMIN')],
+    loadComponent: () =>
+      import('./features/admin/admin').then(m => m.AdminPage),
+  },
   {
     path: '**',
     redirectTo: '',
