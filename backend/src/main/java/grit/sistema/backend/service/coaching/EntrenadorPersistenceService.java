@@ -7,7 +7,7 @@ import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.entity.common.enums.Rol;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
-import grit.sistema.backend.repository.UsuarioRepository;
+import grit.sistema.backend.repository.usuario.UsuarioRepository;
 import grit.sistema.backend.util.CodeGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

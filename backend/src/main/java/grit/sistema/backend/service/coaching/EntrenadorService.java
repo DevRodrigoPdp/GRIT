@@ -16,7 +16,7 @@ import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
-import grit.sistema.backend.repository.UsuarioRepository;
+import grit.sistema.backend.repository.usuario.UsuarioRepository;
 import grit.sistema.backend.service.common.StorageService;
 import grit.sistema.backend.service.auth.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;

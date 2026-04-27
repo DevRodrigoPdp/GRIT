@@ -1,4 +1,4 @@
-package grit.sistema.backend.controller;
+package grit.sistema.backend.controller.auth;
 
 import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
 import grit.sistema.backend.dto.coaching.AtletaResponseDTO;

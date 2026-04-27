@@ -1,4 +1,4 @@
-package grit.sistema.backend.service.common;
+package grit.sistema.backend.service.admin;
 
 import grit.sistema.backend.dto.coaching.DocumentoDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
@@ -8,6 +8,7 @@ import grit.sistema.backend.entity.coaching.enums.DocStatus;
 import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
+import grit.sistema.backend.service.common.StorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

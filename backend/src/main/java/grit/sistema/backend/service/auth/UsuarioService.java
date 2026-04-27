@@ -12,7 +12,7 @@ import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
-import grit.sistema.backend.repository.UsuarioRepository;
+import grit.sistema.backend.repository.usuario.UsuarioRepository;
 import grit.sistema.backend.security.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

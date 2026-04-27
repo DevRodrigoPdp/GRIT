@@ -1,4 +1,4 @@
-package grit.sistema.backend.repository;
+package grit.sistema.backend.repository.usuario;
 
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;

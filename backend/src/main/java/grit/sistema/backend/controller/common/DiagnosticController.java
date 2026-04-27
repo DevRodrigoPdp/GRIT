@@ -1,4 +1,4 @@
-package grit.sistema.backend.controller;
+package grit.sistema.backend.controller.common;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;

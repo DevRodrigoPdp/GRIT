@@ -1,4 +1,4 @@
-package grit.sistema.backend.controller;
+package grit.sistema.backend.controller.usuario;
 
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.service.auth.UsuarioService;

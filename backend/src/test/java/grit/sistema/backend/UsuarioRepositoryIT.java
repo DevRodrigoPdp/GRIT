@@ -1,7 +1,7 @@
 package grit.sistema.backend;
 
 import grit.sistema.backend.entity.Usuario;
-import grit.sistema.backend.repository.UsuarioRepository;
+import grit.sistema.backend.repository.usuario.UsuarioRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package grit.sistema.backend.controller;
+package grit.sistema.backend.controller.training;
 
 import grit.sistema.backend.dto.training.EjercicioDTO;
 import grit.sistema.backend.service.training.EjercicioService;
