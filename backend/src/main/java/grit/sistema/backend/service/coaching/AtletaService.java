@@ -20,6 +20,9 @@ import grit.sistema.backend.service.common.StorageService;
 import grit.sistema.backend.service.auth.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,6 +59,7 @@ public class AtletaService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "perfilesAtletas", key = "#email")
     public AtletaPerfilDTO obtenerPerfil(String email) {
         Atleta a = atletaRepository.findByEmail(email)
                 .orElseThrow(()->new EntityNotFoundException("Atleta no encontrado"));
@@ -69,6 +73,7 @@ public class AtletaService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "rutinasActivas", key = "#atletaId", unless = "#result == null")
     public Optional<RutinaDTO> getPlanActivoAtleta(UUID atletaId) {
         return rutinaRepository.findFirstByAtletaIdOrderByCreadoEnDesc(atletaId)
                 .map(entrenamientoMapper::toDTO); // ¡Mucho más limpio!
@@ -119,16 +124,26 @@ public class AtletaService {
 
         atleta.setPassword(passwordEncoder.encode(dto.nueva()));
         atletaRepository.save(atleta);
+
+        this.evictAllAtletaData(email, atleta.getId());
     }
 
     @Transactional
     public void solicitarBajaCuenta(UUID atletaId) {
-        if (!atletaRepository.existsById(atletaId)) {
-            throw new EntityNotFoundException("El perfil de atleta no existe");
-        }
+        Atleta atleta = atletaRepository.findById(atletaId)
+                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
 
         asignacionRepository.desactivarAsignacionesPorAtleta(atletaId);
-
         usuarioService.suspenderUsuario(atletaId);
+
+        this.evictAllAtletaData(atleta.getEmail(), atletaId);
+    }
+
+    @Caching(evict = {
+            @CacheEvict(value = "perfilesAtletas", key = "#email"),
+            @CacheEvict(value = "rutinasActivas", key = "#atletaId"),
+            @CacheEvict(value = "usuariosSecurity", key = "#email")
+    })
+    public void evictAllAtletaData(String email, UUID atletaId) {
     }
 }
