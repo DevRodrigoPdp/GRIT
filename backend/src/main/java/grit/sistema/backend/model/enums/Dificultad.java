@@ -1,4 +1,4 @@
-package grit.sistema.backend.modules.ejercicios.model.enums;
+package grit.sistema.backend.model.enums;
 
 public enum Dificultad {
     PRINCIPIANTE, INTERMEDIO, AVANZADO

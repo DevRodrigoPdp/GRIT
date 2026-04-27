@@ -1,12 +1,11 @@
-package grit.sistema.backend.modules.alimentos.controller;
+package grit.sistema.backend.controller;
 
 import grit.sistema.backend.dto.ApiResponseDTO;
-import grit.sistema.backend.modules.alimentos.dto.AlimentoCrearRequestDTO;
-import grit.sistema.backend.modules.alimentos.dto.AlimentoResponseDTO;
-import grit.sistema.backend.modules.alimentos.service.AlimentoService;
+import grit.sistema.backend.dto.AlimentoCrearRequestDTO;
+import grit.sistema.backend.dto.AlimentoResponseDTO;
+import grit.sistema.backend.service.AlimentoService;
 import grit.sistema.backend.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

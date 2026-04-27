@@ -1,4 +1,4 @@
-package grit.sistema.backend.modules.ejercicios.dto;
+package grit.sistema.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

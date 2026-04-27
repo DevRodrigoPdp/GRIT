@@ -1,9 +1,9 @@
-package grit.sistema.backend.modules.alimentos.service;
+package grit.sistema.backend.service;
 
-import grit.sistema.backend.modules.alimentos.dto.AlimentoCrearRequestDTO;
-import grit.sistema.backend.modules.alimentos.dto.AlimentoResponseDTO;
-import grit.sistema.backend.modules.alimentos.model.Alimento;
-import grit.sistema.backend.modules.alimentos.repository.AlimentoRepository;
+import grit.sistema.backend.dto.AlimentoCrearRequestDTO;
+import grit.sistema.backend.dto.AlimentoResponseDTO;
+import grit.sistema.backend.model.nutrition.Alimento;
+import grit.sistema.backend.repository.AlimentoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,8 +1,8 @@
-package grit.sistema.backend.modules.ejercicios.service;
+package grit.sistema.backend.service;
 
-import grit.sistema.backend.modules.ejercicios.dto.EjercicioDTO;
-import grit.sistema.backend.modules.ejercicios.model.Ejercicio;
-import grit.sistema.backend.modules.ejercicios.repository.EjercicioRepository;
+import grit.sistema.backend.dto.EjercicioDTO;
+import grit.sistema.backend.model.training.Ejercicio;
+import grit.sistema.backend.repository.EjercicioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

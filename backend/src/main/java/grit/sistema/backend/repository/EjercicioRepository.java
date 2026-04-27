@@ -1,6 +1,6 @@
-package grit.sistema.backend.modules.ejercicios.repository;
+package grit.sistema.backend.repository;
 
-import grit.sistema.backend.modules.ejercicios.model.Ejercicio;
+import grit.sistema.backend.model.training.Ejercicio;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

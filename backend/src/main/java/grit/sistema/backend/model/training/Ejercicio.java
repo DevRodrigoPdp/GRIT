@@ -1,6 +1,6 @@
-package grit.sistema.backend.modules.ejercicios.model;
+package grit.sistema.backend.model.training;
 
-import grit.sistema.backend.modules.ejercicios.model.enums.Dificultad;
+import grit.sistema.backend.model.enums.Dificultad;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

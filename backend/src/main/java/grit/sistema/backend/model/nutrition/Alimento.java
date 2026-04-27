@@ -1,4 +1,4 @@
-package grit.sistema.backend.modules.alimentos.model;
+package grit.sistema.backend.model.nutrition;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;

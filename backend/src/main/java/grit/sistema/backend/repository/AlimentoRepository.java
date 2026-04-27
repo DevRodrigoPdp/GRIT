@@ -1,6 +1,6 @@
-package grit.sistema.backend.modules.alimentos.repository;
+package grit.sistema.backend.repository;
 
-import grit.sistema.backend.modules.alimentos.model.Alimento;
+import grit.sistema.backend.model.nutrition.Alimento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
