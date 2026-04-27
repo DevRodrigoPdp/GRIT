@@ -95,8 +95,8 @@ export class AtletaPage implements OnInit {
       confirmPassword: ['', Validators.required],
       fechaNac:  ['', [Validators.required, this.fechaNacValidator]],
       genero:    ['', Validators.required],
-      peso:      ['', [Validators.required, Validators.min(40), Validators.max(300), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-      altura:    ['', [Validators.required, Validators.min(130), Validators.max(240), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      peso:      ['', [Validators.required, Validators.min(30), Validators.max(300), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      altura:    ['', [Validators.required, Validators.min(100), Validators.max(250), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       deporte:   ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
       nivel:     ['', Validators.required],
       objetivo:  ['', Validators.required],
@@ -120,10 +120,10 @@ export class AtletaPage implements OnInit {
     const edad = hoy.getFullYear() - fecha.getFullYear();
     const mes = hoy.getMonth() - fecha.getMonth();
     if (mes < 0 || (mes === 0 && hoy.getDate() < fecha.getDate())) {
-      if (edad - 1 < 13) return { tooYoung: true };
+      if (edad - 1 < 14) return { tooYoung: true };
       if (edad - 1 > 120) return { tooOld: true };
     } else {
-      if (edad < 13) return { tooYoung: true };
+      if (edad < 14) return { tooYoung: true };
       if (edad > 120) return { tooOld: true };
     }
     return null;
