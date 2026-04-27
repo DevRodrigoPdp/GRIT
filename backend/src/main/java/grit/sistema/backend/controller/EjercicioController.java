@@ -1,6 +1,6 @@
 package grit.sistema.backend.controller;
 
-import grit.sistema.backend.dto.EjercicioDTO;
+import grit.sistema.backend.dto.training.EjercicioDTO;
 import grit.sistema.backend.service.EjercicioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

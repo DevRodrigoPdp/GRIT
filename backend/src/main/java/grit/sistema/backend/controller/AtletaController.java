@@ -1,9 +1,9 @@
 package grit.sistema.backend.controller;
 
-import grit.sistema.backend.dto.ApiResponseDTO;
-import grit.sistema.backend.dto.atleta.ProfesionalAsignadoDTO;
-import grit.sistema.backend.dto.atleta.AtletaPerfilDTO;
-import grit.sistema.backend.dto.atleta.VinculacionRequestDTO;
+import grit.sistema.backend.dto.common.ApiResponseDTO;
+import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
+import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
+import grit.sistema.backend.dto.coaching.VinculacionRequestDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.training.*;
 import grit.sistema.backend.security.UserPrincipal;

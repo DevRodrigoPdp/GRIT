@@ -1,6 +1,6 @@
 package grit.sistema.backend.validator;
 
-import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
 import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
 import jakarta.validation.ConstraintValidator;

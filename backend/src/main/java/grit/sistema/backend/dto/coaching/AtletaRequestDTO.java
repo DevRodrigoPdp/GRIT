@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto.atleta;
+package grit.sistema.backend.dto.coaching;
 
 import grit.sistema.backend.entity.coaching.enums.GeneroTipo;
 import grit.sistema.backend.entity.coaching.enums.NivelAtleta;

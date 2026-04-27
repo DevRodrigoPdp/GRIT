@@ -1,8 +1,8 @@
 package grit.sistema.backend.mapper;
 
-import grit.sistema.backend.dto.atleta.AtletaData;
-import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
-import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
+import grit.sistema.backend.dto.coaching.AtletaData;
+import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
+import grit.sistema.backend.dto.coaching.AtletaResponseDTO;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.enums.Objetivo;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;

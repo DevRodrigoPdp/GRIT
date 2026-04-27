@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto.auth;
+package grit.sistema.backend.dto.usuario;
 
 import java.util.UUID;
 

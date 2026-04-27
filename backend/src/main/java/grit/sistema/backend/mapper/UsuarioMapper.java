@@ -1,6 +1,6 @@
 package grit.sistema.backend.mapper;
 
-import grit.sistema.backend.dto.login.LoginData;
+import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.Usuario;

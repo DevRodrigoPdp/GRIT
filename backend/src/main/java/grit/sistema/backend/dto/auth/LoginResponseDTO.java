@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto.login;
+package grit.sistema.backend.dto.auth;
 
 public record LoginResponseDTO(
         boolean ok,

@@ -1,7 +1,7 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.atleta.AtletaRequestDTO;
-import grit.sistema.backend.dto.atleta.AtletaResponseDTO;
+import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
+import grit.sistema.backend.dto.coaching.AtletaResponseDTO;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.AtletaMapper;
 import grit.sistema.backend.entity.coaching.Atleta;

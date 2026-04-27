@@ -1,6 +1,6 @@
 package grit.sistema.backend.controller;
 
-import grit.sistema.backend.dto.ApiResponseDTO;
+import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
 import grit.sistema.backend.dto.training.RutinaResponseDTO;

@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto;
+package grit.sistema.backend.dto.nutrition;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

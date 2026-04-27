@@ -1,11 +1,11 @@
 package grit.sistema.backend.service;
 
 import grit.sistema.backend.clientAPI.PwnedPasswordClient;
-import grit.sistema.backend.dto.atleta.AtletaResumenDTO;
+import grit.sistema.backend.dto.coaching.AtletaResumenDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
-import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
-import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
-import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorPerfilDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorResponseDTO;
 import grit.sistema.backend.exception.PwnedPasswordException;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.EntrenadorMapper;

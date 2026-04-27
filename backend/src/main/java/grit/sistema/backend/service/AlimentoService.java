@@ -1,7 +1,7 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.AlimentoCrearRequestDTO;
-import grit.sistema.backend.dto.AlimentoResponseDTO;
+import grit.sistema.backend.dto.nutrition.AlimentoCrearRequestDTO;
+import grit.sistema.backend.dto.nutrition.AlimentoResponseDTO;
 import grit.sistema.backend.entity.nutrition.Alimento;
 import grit.sistema.backend.repository.AlimentoRepository;
 import jakarta.persistence.EntityNotFoundException;

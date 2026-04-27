@@ -1,13 +1,11 @@
 package grit.sistema.backend.controller;
 
-import grit.sistema.backend.dto.ApiResponseDTO;
+import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoRecienteDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoRecienteRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
-import grit.sistema.backend.dto.nutrition.RecetaRequestDTO;
-import grit.sistema.backend.dto.nutrition.RecetaResponseDTO;
 import grit.sistema.backend.security.UserPrincipal;
 import grit.sistema.backend.service.NutricionService;
 import io.swagger.v3.oas.annotations.Operation;

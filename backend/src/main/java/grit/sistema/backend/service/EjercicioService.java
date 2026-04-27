@@ -1,6 +1,6 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.EjercicioDTO;
+import grit.sistema.backend.dto.training.EjercicioDTO;
 import grit.sistema.backend.entity.training.Ejercicio;
 import grit.sistema.backend.repository.EjercicioRepository;
 import lombok.RequiredArgsConstructor;

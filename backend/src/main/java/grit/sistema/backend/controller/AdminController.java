@@ -1,6 +1,6 @@
 package grit.sistema.backend.controller;
 
-import grit.sistema.backend.dto.entrenador.EntrenadorPendienteDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.service.AdminService;
 import grit.sistema.backend.service.UsuarioService;

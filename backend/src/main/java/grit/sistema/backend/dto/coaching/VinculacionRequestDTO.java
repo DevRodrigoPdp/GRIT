@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto.atleta;
+package grit.sistema.backend.dto.coaching;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

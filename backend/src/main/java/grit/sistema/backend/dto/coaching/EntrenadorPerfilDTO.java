@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto.entrenador;
+package grit.sistema.backend.dto.coaching;
 
 import java.util.UUID;
 

@@ -1,9 +1,9 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.auth.MeResponseDTO;
-import grit.sistema.backend.dto.login.LoginData;
-import grit.sistema.backend.dto.login.LoginRequestDTO;
-import grit.sistema.backend.dto.login.LoginResponseDTO;
+import grit.sistema.backend.dto.usuario.MeResponseDTO;
+import grit.sistema.backend.dto.auth.LoginData;
+import grit.sistema.backend.dto.auth.LoginRequestDTO;
+import grit.sistema.backend.dto.auth.LoginResponseDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.exception.SesionActivaException;
 import grit.sistema.backend.exception.UsuarioExistenteException;

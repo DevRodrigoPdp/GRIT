@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto.entrenador;
+package grit.sistema.backend.dto.coaching;
 
 import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
 import grit.sistema.backend.entity.common.enums.Rol;

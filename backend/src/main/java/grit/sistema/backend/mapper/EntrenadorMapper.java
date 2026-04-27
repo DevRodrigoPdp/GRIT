@@ -1,7 +1,7 @@
 package grit.sistema.backend.mapper;
 
-import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
-import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorResponseDTO;
 import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.DocStatus;

@@ -1,7 +1,7 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.entrenador.DocumentoDTO;
-import grit.sistema.backend.dto.entrenador.EntrenadorPendienteDTO;
+import grit.sistema.backend.dto.coaching.DocumentoDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.DocStatus;
