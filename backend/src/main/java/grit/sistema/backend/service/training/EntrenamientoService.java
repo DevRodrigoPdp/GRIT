@@ -3,7 +3,7 @@ package grit.sistema.backend.service.training;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
 import grit.sistema.backend.dto.training.RutinaResponseDTO;
-import grit.sistema.backend.mapper.EntrenamientoMapper;
+import grit.sistema.backend.mapper.training.EntrenamientoMapper;
 import grit.sistema.backend.entity.training.Rutina;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;

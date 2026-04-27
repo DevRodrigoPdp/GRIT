@@ -5,7 +5,7 @@ import grit.sistema.backend.dto.coaching.AtletaResumenDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
-import grit.sistema.backend.security.UserPrincipal;
+import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.coaching.EntrenadorService;
 import grit.sistema.backend.service.training.PesoService;
 import io.swagger.v3.oas.annotations.Operation;

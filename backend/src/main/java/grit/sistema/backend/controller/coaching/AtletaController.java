@@ -6,7 +6,7 @@ import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
 import grit.sistema.backend.dto.coaching.AsignacionRequestDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.training.*;
-import grit.sistema.backend.security.UserPrincipal;
+import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.coaching.AtletaService;
 import grit.sistema.backend.service.training.PesoService;
 import grit.sistema.backend.service.coaching.AsignacionService;

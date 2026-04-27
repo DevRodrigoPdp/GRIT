@@ -1,7 +1,7 @@
 package grit.sistema.backend.service.nutrition;
 
 import grit.sistema.backend.dto.nutrition.*;
-import grit.sistema.backend.mapper.NutricionMapper;
+import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.entity.nutrition.AlimentoReciente;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
 import grit.sistema.backend.repository.nutrition.AlimentoRecienteRepository;

@@ -1,5 +1,13 @@
 package grit.sistema.backend.exception;
 
+import grit.sistema.backend.exception.business.BusinessException;
+import grit.sistema.backend.exception.business.SesionActivaException;
+import grit.sistema.backend.exception.business.TituloFaltanteException;
+import grit.sistema.backend.exception.business.UsuarioExistenteException;
+import grit.sistema.backend.exception.infrastructure.FileStorageException;
+import grit.sistema.backend.exception.infrastructure.RateLimitException;
+import grit.sistema.backend.exception.security.AccesoDenegadoException;
+import grit.sistema.backend.exception.security.PwnedPasswordException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -17,16 +25,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.URI;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 

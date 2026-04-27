@@ -2,8 +2,8 @@ package grit.sistema.backend.service.coaching;
 
 import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
 import grit.sistema.backend.dto.coaching.AtletaResponseDTO;
-import grit.sistema.backend.exception.UsuarioExistenteException;
-import grit.sistema.backend.mapper.AtletaMapper;
+import grit.sistema.backend.exception.business.UsuarioExistenteException;
+import grit.sistema.backend.mapper.coaching.AtletaMapper;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.common.enums.Rol;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;

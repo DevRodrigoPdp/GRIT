@@ -1,6 +1,6 @@
 package grit.sistema.backend.service.coaching;
 
-import grit.sistema.backend.exception.BusinessException;
+import grit.sistema.backend.exception.business.BusinessException;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;

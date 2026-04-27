@@ -1,6 +1,6 @@
 package grit.sistema.backend.service.common;
 
-import grit.sistema.backend.exception.FileStorageException;
+import grit.sistema.backend.exception.infrastructure.FileStorageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;

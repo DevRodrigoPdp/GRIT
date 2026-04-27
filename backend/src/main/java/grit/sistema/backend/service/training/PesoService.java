@@ -4,7 +4,7 @@ import grit.sistema.backend.dto.training.HistorialPesoDTO;
 import grit.sistema.backend.dto.training.PesoRequestDTO;
 import grit.sistema.backend.dto.training.PesoResponseDTO;
 import grit.sistema.backend.dto.training.SolicitudPendienteDTO;
-import grit.sistema.backend.exception.BusinessException;
+import grit.sistema.backend.exception.business.BusinessException;
 import grit.sistema.backend.entity.training.enums.EstadoCheckin;
 import grit.sistema.backend.entity.training.PesoCheckin;
 import grit.sistema.backend.entity.training.PesoSolicitud;

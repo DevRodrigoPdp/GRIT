@@ -6,7 +6,7 @@ import grit.sistema.backend.dto.nutrition.AlimentoRecienteRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
-import grit.sistema.backend.security.UserPrincipal;
+import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.nutrition.NutricionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
