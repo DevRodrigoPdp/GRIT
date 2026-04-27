@@ -7,7 +7,7 @@ import grit.sistema.backend.mapper.AtletaMapper;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.common.enums.Rol;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
-import grit.sistema.backend.repository.AtletaRepository;
+import grit.sistema.backend.repository.coaching.AtletaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

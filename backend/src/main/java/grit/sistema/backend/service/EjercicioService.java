@@ -2,7 +2,7 @@ package grit.sistema.backend.service;
 
 import grit.sistema.backend.dto.training.EjercicioDTO;
 import grit.sistema.backend.entity.training.Ejercicio;
-import grit.sistema.backend.repository.EjercicioRepository;
+import grit.sistema.backend.repository.training.EjercicioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

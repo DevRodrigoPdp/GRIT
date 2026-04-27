@@ -3,7 +3,7 @@ package grit.sistema.backend.service;
 import grit.sistema.backend.dto.nutrition.AlimentoCrearRequestDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoResponseDTO;
 import grit.sistema.backend.entity.nutrition.Alimento;
-import grit.sistema.backend.repository.AlimentoRepository;
+import grit.sistema.backend.repository.nutrition.AlimentoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

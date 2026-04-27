@@ -1,4 +1,4 @@
-package grit.sistema.backend.repository;
+package grit.sistema.backend.repository.coaching;
 
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;

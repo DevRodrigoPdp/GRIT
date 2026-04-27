@@ -1,4 +1,4 @@
-package grit.sistema.backend.repository;
+package grit.sistema.backend.repository.nutrition;
 
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
 import org.springframework.data.jpa.repository.JpaRepository;

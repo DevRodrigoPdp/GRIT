@@ -1,4 +1,4 @@
-package grit.sistema.backend.repository;
+package grit.sistema.backend.repository.training;
 
 import grit.sistema.backend.entity.training.Rutina;
 import org.springframework.data.jpa.repository.JpaRepository;

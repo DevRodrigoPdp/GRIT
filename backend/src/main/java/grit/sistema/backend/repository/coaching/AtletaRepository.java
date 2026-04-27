@@ -1,4 +1,4 @@
-package grit.sistema.backend.repository;
+package grit.sistema.backend.repository.coaching;
 
 import grit.sistema.backend.entity.coaching.Atleta;
 import org.springframework.data.jpa.repository.JpaRepository;

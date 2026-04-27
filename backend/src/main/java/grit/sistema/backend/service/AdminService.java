@@ -7,7 +7,7 @@ import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.DocStatus;
 import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
-import grit.sistema.backend.repository.EntrenadorRepository;
+import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
