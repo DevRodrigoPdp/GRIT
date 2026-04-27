@@ -1,7 +1,7 @@
 package grit.sistema.backend.controller;
 
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
-import grit.sistema.backend.service.UsuarioService;
+import grit.sistema.backend.service.auth.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

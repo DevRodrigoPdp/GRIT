@@ -3,7 +3,7 @@ package grit.sistema.backend.controller;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoCrearRequestDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoResponseDTO;
-import grit.sistema.backend.service.AlimentoService;
+import grit.sistema.backend.service.nutrition.AlimentoService;
 import grit.sistema.backend.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

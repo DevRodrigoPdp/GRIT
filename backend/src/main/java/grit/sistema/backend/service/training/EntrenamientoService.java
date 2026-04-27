@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.service.training;
 
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;

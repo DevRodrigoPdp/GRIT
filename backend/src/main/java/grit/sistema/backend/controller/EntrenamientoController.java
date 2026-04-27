@@ -5,7 +5,7 @@ import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
 import grit.sistema.backend.dto.training.RutinaResponseDTO;
 import grit.sistema.backend.security.UserPrincipal;
-import grit.sistema.backend.service.EntrenamientoService;
+import grit.sistema.backend.service.training.EntrenamientoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

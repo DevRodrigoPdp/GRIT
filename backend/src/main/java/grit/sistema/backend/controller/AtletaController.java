@@ -3,13 +3,13 @@ package grit.sistema.backend.controller;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
-import grit.sistema.backend.dto.coaching.VinculacionRequestDTO;
+import grit.sistema.backend.dto.coaching.AsignacionRequestDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.training.*;
 import grit.sistema.backend.security.UserPrincipal;
-import grit.sistema.backend.service.AtletaService;
-import grit.sistema.backend.service.PesoService;
-import grit.sistema.backend.service.VinculacionService;
+import grit.sistema.backend.service.coaching.AtletaService;
+import grit.sistema.backend.service.training.PesoService;
+import grit.sistema.backend.service.coaching.AsignacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,7 +36,7 @@ import java.util.Map;
 @Slf4j
 public class AtletaController {
     private final AtletaService atletaService;
-    private final VinculacionService vinculacionService;
+    private final AsignacionService asignacionService;
     private final PesoService pesoService;
 
     @Operation(summary = "Ver perfil del atleta")
@@ -67,10 +67,10 @@ public class AtletaController {
     @Operation(summary = "Conexión con el entrenador por código de invitación en el perfil")
     @PostMapping("/conectar")
     public ResponseEntity<ApiResponseDTO> conectarConEntrenador(
-            @Valid @RequestBody VinculacionRequestDTO request,
+            @Valid @RequestBody AsignacionRequestDTO request,
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
-        vinculacionService.conectarConEntrenador(usuario.getId(), request.codigo());
+        asignacionService.conectarConEntrenador(usuario.getId(), request.codigo());
 
         return ResponseEntity.ok(new ApiResponseDTO(
                 true,

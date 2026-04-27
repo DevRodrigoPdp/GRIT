@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.service.common;
 
 import grit.sistema.backend.dto.coaching.DocumentoDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;

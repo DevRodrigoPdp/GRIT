@@ -1,7 +1,7 @@
 package grit.sistema.backend.controller;
 
 import grit.sistema.backend.dto.training.EjercicioDTO;
-import grit.sistema.backend.service.EjercicioService;
+import grit.sistema.backend.service.training.EjercicioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

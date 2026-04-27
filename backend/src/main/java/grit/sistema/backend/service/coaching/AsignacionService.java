@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.service.coaching;
 
 import grit.sistema.backend.exception.BusinessException;
 import grit.sistema.backend.entity.coaching.Asignacion;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor // Inyección por constructor automática [cite: 25, 26]
-public class VinculacionService {
+public class AsignacionService {
 
     private final EntrenadorRepository entrenadorRepo;
     private final AsignacionRepository asignacionRepo;

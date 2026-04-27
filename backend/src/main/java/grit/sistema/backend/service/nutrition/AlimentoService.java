@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.service.nutrition;
 
 import grit.sistema.backend.dto.nutrition.AlimentoCrearRequestDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoResponseDTO;

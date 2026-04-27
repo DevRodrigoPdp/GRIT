@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.service.coaching;
 
 import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
 import grit.sistema.backend.exception.UsuarioExistenteException;

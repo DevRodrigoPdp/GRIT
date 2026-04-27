@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.service.auth;
 
 import grit.sistema.backend.dto.usuario.MeResponseDTO;
 import grit.sistema.backend.dto.auth.LoginData;

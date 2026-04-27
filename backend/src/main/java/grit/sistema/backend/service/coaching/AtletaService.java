@@ -1,4 +1,4 @@
-package grit.sistema.backend.service;
+package grit.sistema.backend.service.coaching;
 
 import grit.sistema.backend.clientAPI.PwnedPasswordClient;
 import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
@@ -16,6 +16,8 @@ import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.training.RutinaRepository;
+import grit.sistema.backend.service.common.StorageService;
+import grit.sistema.backend.service.auth.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
