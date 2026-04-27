@@ -1,6 +1,6 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.client.PwnedPasswordClient;
+import grit.sistema.backend.clientAPI.PwnedPasswordClient;
 import grit.sistema.backend.dto.atleta.AtletaResumenDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorPerfilDTO;
@@ -9,12 +9,11 @@ import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
 import grit.sistema.backend.exception.PwnedPasswordException;
 import grit.sistema.backend.exception.UsuarioExistenteException;
 import grit.sistema.backend.mapper.EntrenadorMapper;
-import grit.sistema.backend.model.coaching.Asignacion;
-import grit.sistema.backend.model.coaching.Atleta;
-import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.enums.EstadoUsuario;
-import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
-import grit.sistema.backend.model.enums.TitulacionNutricion;
+import grit.sistema.backend.entity.coaching.Asignacion;
+import grit.sistema.backend.entity.coaching.Atleta;
+import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
+import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
 import grit.sistema.backend.repository.AsignacionRepository;
 import grit.sistema.backend.repository.EntrenadorRepository;
 import grit.sistema.backend.repository.UsuarioRepository;

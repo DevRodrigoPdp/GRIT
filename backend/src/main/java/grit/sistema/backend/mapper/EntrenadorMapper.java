@@ -2,9 +2,9 @@ package grit.sistema.backend.mapper;
 
 import grit.sistema.backend.dto.entrenador.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorResponseDTO;
-import grit.sistema.backend.model.coaching.DocumentoEntrenador;
-import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.enums.DocStatus;
+import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
+import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.enums.DocStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

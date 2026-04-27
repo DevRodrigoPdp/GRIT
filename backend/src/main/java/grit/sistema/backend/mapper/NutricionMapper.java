@@ -1,10 +1,10 @@
 package grit.sistema.backend.mapper;
 
 import grit.sistema.backend.dto.nutrition.*;
-import grit.sistema.backend.model.nutrition.AlimentoEnComida;
-import grit.sistema.backend.model.nutrition.AlimentoReciente;
-import grit.sistema.backend.model.nutrition.Comida;
-import grit.sistema.backend.model.nutrition.PlanNutricion;
+import grit.sistema.backend.entity.nutrition.AlimentoEnComida;
+import grit.sistema.backend.entity.nutrition.AlimentoReciente;
+import grit.sistema.backend.entity.nutrition.Comida;
+import grit.sistema.backend.entity.nutrition.PlanNutricion;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

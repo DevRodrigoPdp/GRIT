@@ -1,7 +1,7 @@
 package grit.sistema.backend.repository;
 
-import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.model.enums.EstadoUsuario;
+import grit.sistema.backend.entity.Usuario;
+import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

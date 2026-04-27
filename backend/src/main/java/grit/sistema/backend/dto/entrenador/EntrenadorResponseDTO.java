@@ -1,7 +1,7 @@
 package grit.sistema.backend.dto.entrenador;
 
-import grit.sistema.backend.model.enums.EstadoRevision;
-import grit.sistema.backend.model.enums.Rol;
+import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
+import grit.sistema.backend.entity.common.enums.Rol;
 
 import java.util.UUID;
 

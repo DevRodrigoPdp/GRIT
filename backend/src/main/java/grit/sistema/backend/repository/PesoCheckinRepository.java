@@ -1,6 +1,6 @@
 package grit.sistema.backend.repository;
 
-import grit.sistema.backend.model.training.PesoCheckin;
+import grit.sistema.backend.entity.training.PesoCheckin;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

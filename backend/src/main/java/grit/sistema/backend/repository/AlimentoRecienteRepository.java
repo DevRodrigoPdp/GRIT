@@ -1,6 +1,6 @@
 package grit.sistema.backend.repository;
 
-import grit.sistema.backend.model.nutrition.AlimentoReciente;
+import grit.sistema.backend.entity.nutrition.AlimentoReciente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

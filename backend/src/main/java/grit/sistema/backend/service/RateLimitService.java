@@ -2,7 +2,7 @@ package grit.sistema.backend.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import grit.sistema.backend.model.enums.RateLimitPlan;
+import grit.sistema.backend.entity.common.enums.RateLimitPlan;
 import io.github.bucket4j.Bucket;
 import org.springframework.stereotype.Service;
 

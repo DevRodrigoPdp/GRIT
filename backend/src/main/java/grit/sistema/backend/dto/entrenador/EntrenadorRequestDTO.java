@@ -1,15 +1,11 @@
 package grit.sistema.backend.dto.entrenador;
 
-import grit.sistema.backend.model.enums.TitulacionEntrenamiento;
-import grit.sistema.backend.model.enums.TitulacionNutricion;
+import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
+import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
 import grit.sistema.backend.validator.ValidEntrenadorProfesional;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter

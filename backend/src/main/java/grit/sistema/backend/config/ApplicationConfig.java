@@ -1,7 +1,7 @@
 package grit.sistema.backend.config;
 
-import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.model.enums.EstadoUsuario;
+import grit.sistema.backend.entity.Usuario;
+import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.repository.UsuarioRepository;
 import grit.sistema.backend.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;

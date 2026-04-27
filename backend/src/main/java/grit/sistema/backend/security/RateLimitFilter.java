@@ -1,7 +1,7 @@
 package grit.sistema.backend.security;
 
 import grit.sistema.backend.exception.RateLimitException;
-import grit.sistema.backend.model.enums.RateLimitPlan;
+import grit.sistema.backend.entity.common.enums.RateLimitPlan;
 import grit.sistema.backend.service.RateLimitService;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;

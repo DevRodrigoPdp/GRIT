@@ -1,9 +1,9 @@
 package grit.sistema.backend.dto.atleta;
 
-import grit.sistema.backend.model.enums.GeneroTipo;
-import grit.sistema.backend.model.enums.NivelAtleta;
-import grit.sistema.backend.model.enums.Objetivo;
-import grit.sistema.backend.model.enums.TipoServicio;
+import grit.sistema.backend.entity.coaching.enums.GeneroTipo;
+import grit.sistema.backend.entity.coaching.enums.NivelAtleta;
+import grit.sistema.backend.entity.coaching.enums.Objetivo;
+import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 
 
 import java.math.BigDecimal;

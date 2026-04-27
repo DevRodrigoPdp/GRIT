@@ -1,9 +1,9 @@
 package grit.sistema.backend.mapper;
 
 import grit.sistema.backend.dto.training.*;
-import grit.sistema.backend.model.training.EjercicioEnSesion;
-import grit.sistema.backend.model.training.Rutina;
-import grit.sistema.backend.model.training.SesionRutina;
+import grit.sistema.backend.entity.training.EjercicioEnSesion;
+import grit.sistema.backend.entity.training.Rutina;
+import grit.sistema.backend.entity.training.SesionRutina;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

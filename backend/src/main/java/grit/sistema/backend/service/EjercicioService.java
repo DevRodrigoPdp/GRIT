@@ -1,7 +1,7 @@
 package grit.sistema.backend.service;
 
 import grit.sistema.backend.dto.EjercicioDTO;
-import grit.sistema.backend.model.training.Ejercicio;
+import grit.sistema.backend.entity.training.Ejercicio;
 import grit.sistema.backend.repository.EjercicioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

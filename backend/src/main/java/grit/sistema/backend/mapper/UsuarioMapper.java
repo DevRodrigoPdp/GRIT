@@ -2,9 +2,9 @@ package grit.sistema.backend.mapper;
 
 import grit.sistema.backend.dto.login.LoginData;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
-import grit.sistema.backend.model.coaching.Atleta;
-import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.model.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.Atleta;
+import grit.sistema.backend.entity.Usuario;
+import grit.sistema.backend.entity.coaching.Entrenador;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

@@ -1,9 +1,11 @@
 package grit.sistema.backend.initializer;
 
-import grit.sistema.backend.model.coaching.Atleta;
-import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.model.enums.*;
+import grit.sistema.backend.entity.coaching.Atleta;
+import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.Usuario;
+import grit.sistema.backend.entity.coaching.enums.*;
+import grit.sistema.backend.entity.common.enums.EstadoUsuario;
+import grit.sistema.backend.entity.common.enums.Rol;
 import grit.sistema.backend.repository.AtletaRepository;
 import grit.sistema.backend.repository.EntrenadorRepository;
 import grit.sistema.backend.repository.UsuarioRepository;
@@ -17,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Component
 @Profile("dev") // Solo se ejecuta en modo desarrollo

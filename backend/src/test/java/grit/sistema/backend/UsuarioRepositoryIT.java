@@ -1,6 +1,6 @@
 package grit.sistema.backend;
 
-import grit.sistema.backend.model.Usuario;
+import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.repository.UsuarioRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,13 +1,10 @@
 package grit.sistema.backend.service;
 
-import grit.sistema.backend.dto.training.EjercicioResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
 import grit.sistema.backend.dto.training.RutinaResponseDTO;
 import grit.sistema.backend.mapper.EntrenamientoMapper;
-import grit.sistema.backend.model.training.EjercicioEnSesion;
-import grit.sistema.backend.model.training.Rutina;
-import grit.sistema.backend.model.training.SesionRutina;
+import grit.sistema.backend.entity.training.Rutina;
 import grit.sistema.backend.repository.AtletaRepository;
 import grit.sistema.backend.repository.EntrenadorRepository;
 import grit.sistema.backend.repository.RutinaRepository;
@@ -17,7 +14,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 

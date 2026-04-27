@@ -1,9 +1,9 @@
 package grit.sistema.backend.repository;
 
-import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.enums.EstadoRevision;
+import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
 
-import grit.sistema.backend.model.enums.EstadoUsuario;
+import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

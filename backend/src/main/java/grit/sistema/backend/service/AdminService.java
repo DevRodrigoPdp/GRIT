@@ -2,11 +2,11 @@ package grit.sistema.backend.service;
 
 import grit.sistema.backend.dto.entrenador.DocumentoDTO;
 import grit.sistema.backend.dto.entrenador.EntrenadorPendienteDTO;
-import grit.sistema.backend.model.coaching.DocumentoEntrenador;
-import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.enums.DocStatus;
-import grit.sistema.backend.model.enums.EstadoRevision;
-import grit.sistema.backend.model.enums.EstadoUsuario;
+import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
+import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.enums.DocStatus;
+import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
+import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.repository.EntrenadorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

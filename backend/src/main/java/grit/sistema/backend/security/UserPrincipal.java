@@ -1,11 +1,11 @@
 package grit.sistema.backend.security;
 
-import grit.sistema.backend.model.Usuario;
-import grit.sistema.backend.model.coaching.Atleta;
-import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.enums.EstadoUsuario;
-import grit.sistema.backend.model.enums.Rol;
-import grit.sistema.backend.model.enums.TipoServicio;
+import grit.sistema.backend.entity.Usuario;
+import grit.sistema.backend.entity.coaching.Atleta;
+import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.common.enums.EstadoUsuario;
+import grit.sistema.backend.entity.common.enums.Rol;
+import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,10 +1,9 @@
 package grit.sistema.backend.dto.atleta;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import grit.sistema.backend.model.enums.GeneroTipo;
-import grit.sistema.backend.model.enums.NivelAtleta;
-import grit.sistema.backend.model.enums.Objetivo;
-import grit.sistema.backend.model.enums.TipoServicio;
+import grit.sistema.backend.entity.coaching.enums.GeneroTipo;
+import grit.sistema.backend.entity.coaching.enums.NivelAtleta;
+import grit.sistema.backend.entity.coaching.enums.Objetivo;
+import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Range;

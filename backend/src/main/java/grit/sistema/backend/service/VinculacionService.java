@@ -1,10 +1,10 @@
 package grit.sistema.backend.service;
 
 import grit.sistema.backend.exception.BusinessException;
-import grit.sistema.backend.model.coaching.Asignacion;
-import grit.sistema.backend.model.coaching.Atleta;
-import grit.sistema.backend.model.coaching.Entrenador;
-import grit.sistema.backend.model.enums.TipoServicio;
+import grit.sistema.backend.entity.coaching.Asignacion;
+import grit.sistema.backend.entity.coaching.Atleta;
+import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.repository.AsignacionRepository;
 import grit.sistema.backend.repository.AtletaRepository;
 import grit.sistema.backend.repository.EntrenadorRepository;

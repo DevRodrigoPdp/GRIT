@@ -1,7 +1,7 @@
 package grit.sistema.backend.repository;
 
-import grit.sistema.backend.model.coaching.Asignacion;
-import grit.sistema.backend.model.enums.TipoServicio;
+import grit.sistema.backend.entity.coaching.Asignacion;
+import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
