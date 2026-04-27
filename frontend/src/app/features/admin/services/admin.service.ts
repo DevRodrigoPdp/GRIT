@@ -1,24 +1,26 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface SolicitudEntrenador {
+export interface DocumentoDTO {
+  id: string;
+  nombre_archivo: string;
+  url_firmada: string;
+  uploaded_at: string;
+}
+
+export interface EntrenadorPendienteDTO {
   id: string;
   nombre: string;
   correo: string;
   titulacionEntrenamiento: string | null;
   titulacionNutricion: string | null;
   codigoProfesional: string;
-  uploaded_at: string;
-  documentos: {
-    id: string;
-    nombre_archivo: string;
-    url_firmada: string;
-    uploaded_at: string;
-  }[];
+  createdAt: string;
+  documentos: DocumentoDTO[];
 }
 
-export interface UsuarioAdmin {
+export interface UsuarioDTO {
   id: string;
   nombre: string;
   correo: string;
@@ -35,9 +37,26 @@ export interface UsuarioAdmin {
   };
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface DashboardStats {
+  mensaje: string;
+  usuario: number;
+  suscripciones_premium: number;
+  estado_servidor: string;
+}
+
 export interface AdminResponse<T> {
-  ok: boolean;
-  data: T;
+  ok?: boolean;
+  data?: T;
   message?: string;
 }
 
@@ -49,9 +68,19 @@ export class AdminService {
   /**
    * Obtiene la lista de todos los usuarios registrados (Atletas y Entrenadores).
    */
-  getUsuarios(): Observable<AdminResponse<UsuarioAdmin[]>> {
-    return this.http.get<AdminResponse<UsuarioAdmin[]>>(
+  getUsuarios(): Observable<UsuarioDTO[]> {
+    return this.http.get<UsuarioDTO[]>(
       `${this.API}/usuarios`,
+      { withCredentials: true }
+    );
+  }
+
+  /**
+   * Obtiene un usuario por ID.
+   */
+  getUsuario(id: string): Observable<UsuarioDTO> {
+    return this.http.get<UsuarioDTO>(
+      `${this.API}/usuarios/${id}`,
       { withCredentials: true }
     );
   }
@@ -59,41 +88,51 @@ export class AdminService {
   /**
    * Elimina permanentemente un usuario.
    */
-  eliminarUsuario(id: string): Observable<AdminResponse<void>> {
-    return this.http.delete<AdminResponse<void>>(
+  eliminarUsuario(id: string): Observable<void> {
+    return this.http.delete<void>(
       `${this.API}/usuarios/${id}`,
       { withCredentials: true }
     );
   }
 
   /**
-   * Obtiene la lista de entrenadores con documentación pendiente.
+   * Obtiene la lista de entrenadores con documentación pendiente (con paginación).
    */
-  getPendingTrainers(): Observable<AdminResponse<SolicitudEntrenador[]>> {
-    return this.http.get<AdminResponse<SolicitudEntrenador[]>>(
-      `${this.API}/entrenadores?status=pending`,
-      { withCredentials: true }
+  getPendingTrainers(page: number = 0, size: number = 10): Observable<PageResponse<EntrenadorPendienteDTO>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    return this.http.get<PageResponse<EntrenadorPendienteDTO>>(
+      `${this.API}/entrenadores/pendientes`,
+      { params, withCredentials: true }
     );
   }
 
   /**
-   * Aprueba a un entrenador.
+   * Procesa la revisión de un entrenador (aprueba o rechaza).
+   * @param id ID del entrenador
+   * @param aprobado true para aprobar, false para rechazar
+   * @param motivo Motivo del rechazo (obligatorio si aprobado es false)
    */
-  approveTrainer(id: string): Observable<AdminResponse<void>> {
-    return this.http.post<AdminResponse<void>>(
-      `${this.API}/entrenadores/${id}/aprobar`,
+  processReview(id: string, aprobado: boolean, motivo?: string): Observable<void> {
+    const params = new HttpParams()
+      .set('aprobado', aprobado.toString())
+      .set('motivo', motivo || '');
+    
+    return this.http.post<void>(
+      `${this.API}/entrenadores/${id}/revision`,
       {},
-      { withCredentials: true }
+      { params, withCredentials: true }
     );
   }
 
   /**
-   * Rechaza a un entrenador con un motivo.
+   * Obtiene estadísticas del dashboard de administración.
    */
-  rejectTrainer(id: string, motivo: string): Observable<AdminResponse<void>> {
-    return this.http.post<AdminResponse<void>>(
-      `${this.API}/entrenadores/${id}/rechazar`,
-      { motivo },
+  getDashboardStats(): Observable<DashboardStats> {
+    return this.http.get<DashboardStats>(
+      `${this.API}/dashboard`,
       { withCredentials: true }
     );
   }

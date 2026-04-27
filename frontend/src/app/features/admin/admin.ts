@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, SolicitudEntrenador, UsuarioAdmin } from './services/admin.service';
+import { AdminService, EntrenadorPendienteDTO, UsuarioDTO } from './services/admin.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -17,12 +17,15 @@ export class AdminPage implements OnInit {
   // Navegación
   readonly seccionActual = signal<'SOLICITUDES' | 'USUARIOS'>('SOLICITUDES');
 
-  // Estados Solicitudes
-  readonly solicitudes = signal<SolicitudEntrenador[]>([]);
+  // Estados Solicitudes con paginación
+  readonly solicitudes = signal<EntrenadorPendienteDTO[]>([]);
   readonly loadingSolicitudes = signal(false);
+  readonly paginaSolicitudes = signal(0);
+  readonly totalPaginasSolicitudes = signal(0);
+  readonly pageSize = 10;
   
   // Estados Usuarios
-  readonly usuarios = signal<UsuarioAdmin[]>([]);
+  readonly usuarios = signal<UsuarioDTO[]>([]);
   readonly loadingUsuarios = signal(false);
   readonly filtroRol = signal<'TODOS' | 'ATLETA' | 'ENTRENADOR'>('TODOS');
 
@@ -31,8 +34,8 @@ export class AdminPage implements OnInit {
   readonly error = signal<string | null>(null);
 
   // Selección y Modales
-  readonly entrenadorSeleccionado = signal<SolicitudEntrenador | null>(null);
-  readonly usuarioSeleccionado = signal<UsuarioAdmin | null>(null);
+  readonly entrenadorSeleccionado = signal<EntrenadorPendienteDTO | null>(null);
+  readonly usuarioSeleccionado = signal<UsuarioDTO | null>(null);
   readonly mostrarModalRechazo = signal(false);
   readonly motivoRechazo = signal('');
   readonly mostrarModalConfirmacion = signal(false);
@@ -83,119 +86,30 @@ export class AdminPage implements OnInit {
 
   cargarUsuarios() {
     this.loadingUsuarios.set(true);
+    this.error.set(null);
     
-    // --- MOCK DATA PARA USUARIOS ---
-    setTimeout(() => {
-      const mockUsuarios: UsuarioAdmin[] = [
-        {
-          id: 'u1',
-          nombre: 'RODRIGO PÉREZ',
-          correo: 'rodrigo@test.com',
-          rol: 'ATLETA',
-          estado: 'ACTIVO',
-          fechaRegistro: '2026-03-01T10:00:00Z',
-          detallesAtleta: { servicio: 'AMBOS', entrenadorAsignado: 'Carlos Martínez' }
-        },
-        {
-          id: 'u2',
-          nombre: 'MARÍA GARCÍA',
-          correo: 'maria@test.com',
-          rol: 'ENTRENADOR',
-          estado: 'ACTIVO',
-          fechaRegistro: '2026-02-15T09:30:00Z',
-          detallesEntrenador: { numAtletas: 12, titulacion: 'GRADO_CAFYD' }
-        },
-        {
-          id: 'u3',
-          nombre: 'JUAN LÓPEZ',
-          correo: 'juan@test.com',
-          rol: 'ATLETA',
-          estado: 'INACTIVO',
-          fechaRegistro: '2026-04-10T11:00:00Z',
-          detallesAtleta: { servicio: 'ENTRENAMIENTO', entrenadorAsignado: 'Carlos Martínez' }
-        },
-        {
-          id: 'u4',
-          nombre: 'SARA MONTES',
-          correo: 'sara@test.com',
-          rol: 'ENTRENADOR',
-          estado: 'ACTIVO',
-          fechaRegistro: '2026-01-20T14:20:00Z',
-          detallesEntrenador: { numAtletas: 8, titulacion: 'TSD' }
-        }
-      ];
-      this.usuarios.set(mockUsuarios);
-      this.loadingUsuarios.set(false);
-    }, 1000);
-
-    /*
-    // COMENTADO: Llamada real
     this.adminService.getUsuarios().subscribe({
-      next: (res) => {
-        this.usuarios.set(res.data);
+      next: (usuarios) => {
+        this.usuarios.set(usuarios);
         this.loadingUsuarios.set(false);
       },
-      error: () => this.loadingUsuarios.set(false)
+      error: (err) => {
+        console.error(err);
+        this.error.set('Error al cargar usuarios. Inténtalo de nuevo más tarde.');
+        this.loadingUsuarios.set(false);
+      }
     });
-    */
   }
 
-  cargarSolicitudes() {
+  cargarSolicitudes(pagina: number = 0) {
     this.loadingSolicitudes.set(true);
     this.error.set(null);
+    this.paginaSolicitudes.set(pagina);
 
-    // --- MOCK DATA PARA SOLICITUDES ---
-    setTimeout(() => {
-      const mockSolicitudes: SolicitudEntrenador[] = [
-        {
-          id: '550e8400-e29b-41d4-a716-446655440000',
-          nombre: 'CARLOS MARTÍNEZ RUIZ',
-          correo: 'carlos.mtz@rendimiento.com',
-          titulacionEntrenamiento: 'GRADO_CAFYD',
-          titulacionNutricion: 'GRADO_NUTRICION_DIETETICA',
-          codigoProfesional: 'COL. 45.231',
-          uploaded_at: new Date().toISOString(),
-          documentos: [
-            { id: 'd1', nombre_archivo: 'TITULO_GRADO_CAFYD.pdf', url_firmada: '#', uploaded_at: '' },
-            { id: 'd2', nombre_archivo: 'TITULO_NUTRICION.pdf', url_firmada: '#', uploaded_at: '' },
-            { id: 'd3', nombre_archivo: 'DNI_FRONTAL.jpg', url_firmada: '#', uploaded_at: '' }
-          ]
-        },
-        {
-          id: '67c8dc00-f12b-42d4-b716-557766551111',
-          nombre: 'ELENA GÓMEZ SILVA',
-          correo: 'elena.gomez@grit-atletismo.es',
-          titulacionEntrenamiento: 'TSAF_TSEAS',
-          titulacionNutricion: null,
-          codigoProfesional: 'REG. 12-B-99',
-          uploaded_at: new Date(Date.now() - 86400000).toISOString(),
-          documentos: [
-            { id: 'd4', nombre_archivo: 'CERTIFICADO_TSAF.pdf', url_firmada: '#', uploaded_at: '' },
-            { id: 'd5', nombre_archivo: 'VIDA_LABORAL.pdf', url_firmada: '#', uploaded_at: '' }
-          ]
-        },
-        {
-          id: '88d9ec11-a33c-55e5-c817-668877662222',
-          nombre: 'MARIO CASAS PESCADO',
-          correo: 'mario.nutritionist@fitness.io',
-          titulacionEntrenamiento: null,
-          titulacionNutricion: 'TSD',
-          codigoProfesional: 'ASOC-77821',
-          uploaded_at: new Date(Date.now() - 172800000).toISOString(),
-          documentos: [
-            { id: 'd6', nombre_archivo: 'TECNICO_SUPERIOR_DIETETICA.pdf', url_firmada: '#', uploaded_at: '' }
-          ]
-        }
-      ];
-      this.solicitudes.set(mockSolicitudes);
-      this.loadingSolicitudes.set(false);
-    }, 800);
-
-    /* 
-    // COMENTADO: Llamada real al backend
-    this.adminService.getPendingTrainers().subscribe({
+    this.adminService.getPendingTrainers(pagina, this.pageSize).subscribe({
       next: (res) => {
-        this.solicitudes.set(res.data);
+        this.solicitudes.set(res.content);
+        this.totalPaginasSolicitudes.set(res.totalPages);
         this.loadingSolicitudes.set(false);
       },
       error: (err) => {
@@ -204,14 +118,13 @@ export class AdminPage implements OnInit {
         this.loadingSolicitudes.set(false);
       }
     });
-    */
   }
 
-  seleccionarSolicitud(entrenador: SolicitudEntrenador) {
+  seleccionarSolicitud(entrenador: EntrenadorPendienteDTO) {
     this.entrenadorSeleccionado.set(entrenador);
   }
 
-  seleccionarUsuario(usuario: UsuarioAdmin) {
+  seleccionarUsuario(usuario: UsuarioDTO) {
     this.usuarioSeleccionado.set(usuario);
   }
 
@@ -228,7 +141,7 @@ export class AdminPage implements OnInit {
 
     this.mostrarModalConfirmacion.set(false);
     this.loadingSolicitudes.set(true);
-    this.adminService.approveTrainer(e.id).subscribe({
+    this.adminService.processReview(e.id, true).subscribe({
       next: () => {
         this.nombreAprobado.set(e.nombre);
         this.solicitudes.update(list => list.filter(item => item.id !== e.id));
@@ -236,7 +149,8 @@ export class AdminPage implements OnInit {
         this.loadingSolicitudes.set(false);
         this.mostrarModalExito.set(true);
       },
-      error: () => {
+      error: (err) => {
+        console.error(err);
         this.error.set('No se pudo aprobar al entrenador.');
         this.loadingSolicitudes.set(false);
       }
@@ -250,7 +164,7 @@ export class AdminPage implements OnInit {
 
   // --- ELIMINACIÓN DE USUARIOS ---
 
-  pedirConfirmacionEliminacion(usuario: UsuarioAdmin) {
+  pedirConfirmacionEliminacion(usuario: UsuarioDTO) {
     this.usuarioSeleccionado.set(usuario);
     this.mostrarModalEliminacion.set(true);
   }
@@ -266,23 +180,13 @@ export class AdminPage implements OnInit {
         this.usuarioSeleccionado.set(null);
         this.mostrarModalEliminacion.set(false);
         this.loadingUsuarios.set(false);
-        // Podríamos mostrar un mensaje de éxito, pero el borrado es inmediato en la UI
       },
-      error: () => {
+      error: (err) => {
+        console.error(err);
         this.error.set('No se pudo eliminar el usuario.');
         this.loadingUsuarios.set(false);
       }
     });
-
-    // Simulando éxito para el mock si falla el backend
-    /*
-    setTimeout(() => {
-      this.usuarios.update(list => list.filter(item => item.id !== u.id));
-      this.usuarioSeleccionado.set(null);
-      this.mostrarModalEliminacion.set(false);
-      this.loadingUsuarios.set(false);
-    }, 500);
-    */
   }
 
   abrirModalRechazo() {
@@ -296,15 +200,16 @@ export class AdminPage implements OnInit {
     if (!e || !motivo) return;
 
     this.loadingSolicitudes.set(true);
-    this.adminService.rejectTrainer(e.id, motivo).subscribe({
+    this.adminService.processReview(e.id, false, motivo).subscribe({
       next: () => {
         this.solicitudes.update(list => list.filter(item => item.id !== e.id));
         this.entrenadorSeleccionado.set(null);
         this.mostrarModalRechazo.set(false);
+        this.motivoRechazo.set('');
         this.loadingSolicitudes.set(false);
-        alert('Solicitud rechazada correctamente.');
       },
-      error: () => {
+      error: (err) => {
+        console.error(err);
         this.error.set('No se pudo rechazar la solicitud.');
         this.loadingSolicitudes.set(false);
       }
@@ -318,6 +223,28 @@ export class AdminPage implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  // ── Paginación ──────────────────────────────────────────────────────────
+
+  irPaginaAnterior() {
+    const pagina = this.paginaSolicitudes();
+    if (pagina > 0) {
+      this.cargarSolicitudes(pagina - 1);
+    }
+  }
+
+  irPaginaSiguiente() {
+    const pagina = this.paginaSolicitudes();
+    if (pagina < this.totalPaginasSolicitudes() - 1) {
+      this.cargarSolicitudes(pagina + 1);
+    }
+  }
+
+  irPagina(pagina: number) {
+    if (pagina >= 0 && pagina < this.totalPaginasSolicitudes()) {
+      this.cargarSolicitudes(pagina);
+    }
   }
 
   cerrarSesion() {
