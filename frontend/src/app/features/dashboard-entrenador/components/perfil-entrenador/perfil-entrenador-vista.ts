@@ -52,7 +52,7 @@ export class PerfilEntrenadorVistaComponent {
 
   readonly experiencia = computed(() => this.perfil()?.experienciaAnos ?? null);
   readonly descripcion = computed(() => this.perfil()?.descripcion ?? null);
-  readonly correo      = computed(() => this.perfil()?.correo ?? null);
+  readonly email       = computed(() => this.perfil()?.email ?? null);
 
   // ── Ampliación de formación ──────────────────────────────────────────────
 

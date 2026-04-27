@@ -1,14 +1,21 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 // ── Tipos de respuesta del backend ─────────────────────────────────────────
 
+export interface ApiResponseDTO<T> {
+  ok: boolean;
+  message: string;
+  data: T;
+}
+
 export interface PerfilEntrenador {
   id: string;
   nombre: string;
-  correo: string;
+  email: string;
   titulacionEntrenamiento: 'GRADO_CAFYD' | 'TSAF_TSEAS' | 'CERT_AFDA0210' | null;
   titulacionNutricion: 'GRADO_NUTRICION_DIETETICA' | 'TSD' | null;
   experienciaAnos: number;
@@ -35,47 +42,11 @@ export interface AtletaAsignado {
   intolerancias?: string[];
 }
 
-// ── Mocks ────────────────────────────────────────────────────────────────────
-
-// ── Cambia este mock según el perfil que quieras probar ──────────────────────
-
-const MOCK_PERFIL_AMBOS: PerfilEntrenador = {
-  id: 'mock-uuid-entrenador',
-  nombre: 'Entrenador Demo',
-  correo: 'entrenador@demo.com',
-  titulacionEntrenamiento: 'GRADO_CAFYD',
-  titulacionNutricion: 'GRADO_NUTRICION_DIETETICA',
-  experienciaAnos: 5,
-  descripcion: 'Especialista en rendimiento deportivo.',
-  masters: ['Máster en Alto Rendimiento Deportivo', 'Máster en Nutrición Deportiva'],
-  estado: 'ACTIVO',
-  codigoInvitacion: 'GRIT-X7K2-9PQR',
-  fotoUrl: null,
-};
-
-const MOCK_PERFIL_NUTRICION: PerfilEntrenador = {
-  id: 'mock-uuid-nutricionista',
-  nombre: 'Nutricionista Demo',
-  correo: 'nutricionista@demo.com',
-  titulacionEntrenamiento: null,
-  titulacionNutricion: 'GRADO_NUTRICION_DIETETICA',
-  experienciaAnos: 7,
-  descripcion: 'Dietista-nutricionista especializada en deporte de resistencia.',
-  masters: ['Máster en Nutrición Deportiva y Rendimiento'],
-  estado: 'ACTIVO',
-  codigoInvitacion: 'GRIT-N3TR-5KWZ',
-  fotoUrl: null,
-};
-
-// ← Cambia aquí para probar distintos perfiles
-const MOCK_PERFIL = MOCK_PERFIL_AMBOS;
-
-const MOCK_ATLETAS: AtletaAsignado[] = [
-  { id: 'atleta-1', nombre: 'Carlos Ruiz',   deporte: 'Fútbol',    nivel: 'AVANZADO',     servicio: 'AMBOS',         tienePlanActivo: true,  alergias: ['Frutos secos', 'Marisco'], intolerancias: ['Lactosa'] },
-  { id: 'atleta-2', nombre: 'Laura Sánchez', deporte: 'CrossFit',  nivel: 'INTERMEDIO',   servicio: 'ENTRENAMIENTO', tienePlanActivo: true  },
-  { id: 'atleta-3', nombre: 'Marcos Ibáñez', deporte: 'Natación',  nivel: 'ELITE',        servicio: 'NUTRICION',     tienePlanActivo: false, intolerancias: ['Gluten'] },
-  { id: 'atleta-4', nombre: 'Sara Molina',   deporte: 'Atletismo', nivel: 'PRINCIPIANTE', servicio: 'AMBOS',         tienePlanActivo: false },
-];
+export interface CheckInPeso {
+  id: string;
+  fecha: string;
+  pesoKg: number;
+}
 
 // ── Servicio ─────────────────────────────────────────────────────────────────
 
@@ -86,75 +57,64 @@ export class EntrenadorService {
 
   private readonly API = '/api/v1/entrenador';
 
-  /**
-   * Devuelve el perfil completo del entrenador autenticado.
-   * TODO: descomentar llamada real cuando haya backend.
-   */
   getPerfil(): Observable<PerfilEntrenador> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.get<PerfilEntrenador>(`${this.API}/perfil`, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    return of({
-      ...MOCK_PERFIL,
-      nombre: this.auth.nombre() ?? MOCK_PERFIL.nombre,
-    });
-  }
-
-  /**
-   * Verifica si un código de colegiado ya existe en la base de datos.
-   * TODO: descomentar llamada real cuando haya backend.
-   */
-  checkCodigoColegiadoExists(codigo: string): Observable<boolean> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.get<boolean>(`${this.API}/check-codigo/${codigo}`, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    return of(codigo === 'MAD-12345' || codigo === 'AND-00123');
+    return this.http.get<ApiResponseDTO<PerfilEntrenador>>(`${this.API}/perfil`, { withCredentials: true })
+      .pipe(map(response => response.data));
   }
 
   getMisAtletas(): Observable<AtletaAsignado[]> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.get<AtletaAsignado[]>(`${this.API}/atletas`, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    return of(MOCK_ATLETAS);
+    return this.http.get<ApiResponseDTO<AtletaAsignado[]>>(`${this.API}/atletas`, { withCredentials: true })
+      .pipe(map(response => response.data || []));
   }
 
-  invitarAtleta(email: string): Observable<void> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.post<void>(`${this.API}/invitar`, { email }, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    console.log('[mock] Invitación enviada a', email);
-    return of(undefined);
+  solicitarCheckinPeso(atletaId: string): Observable<void> {
+    return this.http.post<ApiResponseDTO<string>>(`${this.API}/atletas/${atletaId}/peso/solicitar`, {}, { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
+
+  tieneSolicitudPesoPendiente(atletaId: string): Observable<boolean> {
+    return this.http.get<ApiResponseDTO<{ pendiente: boolean }>>(`${this.API}/atletas/${atletaId}/peso/pendiente`, { withCredentials: true })
+      .pipe(map(response => response.data.pendiente));
+  }
+
+  getHistorialPesosAtleta(atletaId: string): Observable<CheckInPeso[]> {
+    return this.http.get<ApiResponseDTO<CheckInPeso[]>>(`${this.API}/atletas/${atletaId}/peso/historial`, { withCredentials: true })
+      .pipe(map(response => response.data || []));
   }
 
   subirFotoPerfil(archivo: File): Observable<string> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // const form = new FormData();
-    // form.append('foto', archivo);
-    // return this.http.post<{ url: string }>(`${this.API}/foto`, form, { withCredentials: true })
-    //   .pipe(map(r => r.url));
-    return of(URL.createObjectURL(archivo));
+    const form = new FormData();
+    form.append('foto', archivo);
+    return this.http.post<ApiResponseDTO<{ url: string }>>(`${this.API}/foto`, form, { withCredentials: true })
+      .pipe(map(r => r.data.url));
   }
 
   cambiarPassword(actual: string, nueva: string): Observable<void> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.put<void>('/api/v1/entrenador/password', { actual, nueva }, { withCredentials: true });
-    return of(undefined);
+    return this.http.put<ApiResponseDTO<void>>(`${this.API}/password`, { actual, nueva }, { withCredentials: true })
+      .pipe(map(() => undefined));
   }
 
   eliminarCuenta(): Observable<void> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.delete<void>('/api/v1/entrenador/cuenta', { withCredentials: true });
-    return of(undefined);
+    return this.http.delete<ApiResponseDTO<void>>(`${this.API}/cuenta`, { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
+
+  invitarAtleta(email: string): Observable<void> {
+    return this.http.post<ApiResponseDTO<void>>(`${this.API}/invitar`, { email }, { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
+
+  checkCodigoColegiadoExists(codigo: string): Observable<boolean> {
+    return this.http.get<ApiResponseDTO<boolean>>(`${this.API}/check-codigo/${codigo}`, { withCredentials: true })
+      .pipe(map(response => response.data ?? false));
   }
 
   solicitarAmpliacionFormacion(modulo: 'ENTRENAMIENTO' | 'NUTRICION', titulacion: string, documentos: File[]): Observable<void> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // const fd = new FormData();
-    // fd.append('modulo', modulo);
-    // fd.append('titulacion', titulacion);
-    // documentos.forEach(f => fd.append('documentos', f));
-    // return this.http.post<void>(`${this.API}/ampliar-formacion`, fd, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    return of(undefined);
+    const fd = new FormData();
+    fd.append('modulo', modulo);
+    fd.append('titulacion', titulacion);
+    documentos.forEach(f => fd.append('documentos', f));
+    return this.http.post<ApiResponseDTO<void>>(`${this.API}/ampliar-formacion`, fd, { withCredentials: true })
+      .pipe(map(() => undefined));
   }
 }
