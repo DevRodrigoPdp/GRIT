@@ -95,11 +95,22 @@ export class DashboardAtletaPage implements OnInit {
     this.enviandoCodigo.set(true);
     this.codigoError.set('');
     this.codigoExito.set(false);
-    // TODO: conectar con POST /api/v1/atleta/conectar { codigo }
-    setTimeout(() => {
-      this.enviandoCodigo.set(false);
-      this.codigoError.set('Código no válido o ya utilizado.');
-    }, 800);
+
+    this.atleta.conectarConEntrenador(codigo).subscribe({
+      next: () => {
+        this.codigoExito.set(true);
+        this.codigoEntrenador.set('');
+        this.enviandoCodigo.set(false);
+        // Recargar profesionales después de conectar
+        this.atleta.getProfesionalesAsignados().subscribe(p => {
+          this.profesionales.set(p);
+        });
+      },
+      error: () => {
+        this.codigoError.set('Código no válido o ya utilizado.');
+        this.enviandoCodigo.set(false);
+      }
+    });
   }
 
   agregarAlergia(): void {
