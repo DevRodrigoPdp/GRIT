@@ -48,6 +48,8 @@ application:
       jwt:
         # Clave de desarrollo (puede ser conocida por el equipo)
         secret-key: ${JWT_SECRET_KEY:clave_de_desarrollo_muy_larga_y_segura_1234567890}
+      cookie:
+        secure: false
     storage:
       # Configuración personalizada para nuestro Service
       endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}

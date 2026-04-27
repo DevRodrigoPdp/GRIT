@@ -50,6 +50,9 @@ public class AuthController {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
+    @Value("${application.security.cookie.secure}")
+    private boolean isSecure;
+
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
@@ -64,9 +67,8 @@ public class AuthController {
     })
     @PostMapping(value = "/registro/entrenador", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> registrarEntrenador(
-            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart("datos") @Valid EntrenadorRequestDTO dto,
-            @RequestPart("fotoPerfil") MultipartFile fotoPerfil,
+            @RequestPart(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
             @RequestPart("certificaciones") List<MultipartFile> certificaciones) {
         log.info(">>> Solicitud de registro de ENTRENADOR recibida: {}", dto.getEmail());
 
@@ -92,9 +94,8 @@ public class AuthController {
     })
     @PostMapping(value ="/registro/atleta", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AtletaResponseDTO> registrarAtleta(
-            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart("datos") @Valid AtletaRequestDTO dto,
-            @RequestPart("foto") MultipartFile foto) {
+            @RequestPart(value = "fotoPerfil", required = false) MultipartFile foto) {
         log.info(">>> Solicitud de registro de atleta recibida: {}", dto.email());
 
         AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto, foto);
@@ -236,7 +237,7 @@ public class AuthController {
     private ResponseCookie construirCookie(String nombre, String valor, long maxAge, String path) {
         return ResponseCookie.from(nombre, valor)
                 .httpOnly(true)
-                .secure(false) // Importante: Solo viaja por HTTPS para desarrollo dejarlo en false
+                .secure(isSecure) // Importante: Solo viaja por HTTPS para desarrollo dejarlo en false
                 .sameSite("Strict")
                 .path(path)
                 .maxAge(maxAge)

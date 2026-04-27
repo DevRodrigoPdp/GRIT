@@ -7,9 +7,9 @@ import java.time.Duration;
 
 public enum RateLimitPlan {
     ADMIN(100), // 100 peticiones por minuto
-    ENTRENADOR(20),   // 20 peticiones por minuto
-    ATLETA(20),   // 20 peticiones por minuto
-    FREE(5);    // 5 peticiones por minuto
+    ENTRENADOR(100),   // 20 peticiones por minuto
+    ATLETA(100),   // 20 peticiones por minuto
+    FREE(100);    // 5 peticiones por minuto
 
     private final int bucketCapacity;
 

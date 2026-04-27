@@ -38,6 +38,8 @@ application:
     pepper: ${SECURITY_PEPPER_PROD}
     jwt:
       secret-key: ${JWT_SECRET_KEY}
+    cookie:
+      secure: true
   storage:
     # Configuración personalizada para nuestro Service
     # No hay localhost, usamos el endpoint real de AWS S3
