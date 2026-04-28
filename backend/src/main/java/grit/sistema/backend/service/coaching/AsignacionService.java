@@ -36,7 +36,7 @@ public class AsignacionService {
                 .orElseThrow(() -> new BusinessException("CODIGO_INVALIDO", "El código de invitación no existe."));
 
         // 3. VALIDACIÓN DE TITULACIÓN (Regla de negocio core)
-        validarCompetenciaProfesional(entrenador, servicioRequerido);
+//        validarCompetenciaProfesional(entrenador, servicioRequerido);
 
         // 4. Verificar si ya existe una vinculación activa para ese servicio
         if (asignacionRepo.existsByAtletaIdAndTipoServicioAndActivaTrue(atletaId, servicioRequerido)) {
@@ -53,17 +53,17 @@ public class AsignacionService {
         asignacionRepo.save(nuevaAsignacion);
     }
 
-    private void validarCompetenciaProfesional(Entrenador entrenador, TipoServicio servicio) {
-        boolean esApto = switch (servicio) {
-            case AMBOS -> entrenador.isTieneAccesoEntrenamiento() && entrenador.isTieneAccesoNutricion();
-            case ENTRENAMIENTO -> entrenador.isTieneAccesoEntrenamiento();
-            case NUTRICION -> entrenador.isTieneAccesoNutricion();
-            default -> false;
-        };
-
-        if (!esApto) {
-            throw new BusinessException("SIN_TITULACION",
-                    "El entrenador no cuenta con la titulación verificada para el servicio: " + servicio);
-        }
-    }
+//    private void validarCompetenciaProfesional(Entrenador entrenador, TipoServicio servicio) {
+//        boolean esApto = switch (servicio) {
+//            case AMBOS -> entrenador.isTieneAccesoEntrenamiento() && entrenador.isTieneAccesoNutricion();
+//            case ENTRENAMIENTO -> entrenador.isTieneAccesoEntrenamiento();
+//            case NUTRICION -> entrenador.isTieneAccesoNutricion();
+//            default -> false;
+//        };
+//
+//        if (!esApto) {
+//            throw new BusinessException("SIN_TITULACION",
+//                    "El entrenador no cuenta con la titulación verificada para el servicio: " + servicio);
+//        }
+//    }
 }

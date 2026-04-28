@@ -30,9 +30,6 @@ public class DataInitializer implements CommandLineRunner {
     private final AtletaRepository atletaRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${application.security.pepper}")
-    private String pepper;
-
     @Value("${app.seed.admin-email:admin@test.com}")
     private String adminEmail;
 
@@ -80,7 +77,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setEmail(email);
             admin.setRol(Rol.ADMIN);
             admin.setEstado(EstadoUsuario.ACTIVO);
-            admin.setPassword(passwordEncoder.encode("password123" + pepper));
+            admin.setPassword(passwordEncoder.encode("password123"));
             usuarioRepository.save(admin);
             log.info("Admin creado: {}", email);
         }
@@ -94,7 +91,7 @@ public class DataInitializer implements CommandLineRunner {
             coach.setEmail(email);
             coach.setRol(Rol.ENTRENADOR);
             coach.setEstado(EstadoUsuario.ACTIVO);
-            coach.setPassword(passwordEncoder.encode("password123" + pepper));
+            coach.setPassword(passwordEncoder.encode("password123"));
 
             // Datos del Hijo (Entrenador)
             coach.setCodigoProfesional("COL-00000");
@@ -114,7 +111,7 @@ public class DataInitializer implements CommandLineRunner {
             atleta.setEmail(email);
             atleta.setRol(Rol.ATLETA);
             atleta.setEstado(EstadoUsuario.ACTIVO);
-            atleta.setPassword(passwordEncoder.encode("password123" + pepper));
+            atleta.setPassword(passwordEncoder.encode("password123"));
 
             // Datos del Hijo (Atleta)
             atleta.setPesoKg(new BigDecimal("80.0"));
