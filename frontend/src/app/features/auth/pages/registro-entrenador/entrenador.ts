@@ -184,7 +184,7 @@ export class EntrenadorPage implements OnInit {
       correo:                  ['', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
       password:                ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/)]],
       confirmPassword:         ['', Validators.required],
-      codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)], [this.codigoColegiadoValidator()]],
+      codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
       titulacionEntrenamiento: [null],
       titulacionNutricion:     [null],
       anosExperiencia:         ['', [Validators.min(0), Validators.max(50), Validators.pattern(/^\d+$/)]],
@@ -234,9 +234,8 @@ export class EntrenadorPage implements OnInit {
     const syncValidators = esUniversitaria
       ? [Validators.required, Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]
       : [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)];
-    const asyncValidators = esUniversitaria ? [this.codigoColegiadoValidator()] : [];
     campo.setValidators(syncValidators);
-    campo.setAsyncValidators(asyncValidators);
+    campo.clearAsyncValidators();
     campo.updateValueAndValidity();
   }
 
