@@ -12,14 +12,25 @@ import org.testcontainers.utility.DockerImageName;
 @ActiveProfiles("test")
 public abstract class AbstractIntegrationTest {
 
-    static final PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>(DockerImageName.parse("postgres:17-alpine"))
-                    .withDatabaseName("grit_db_test")
-                    .withUsername("test")
-                    .withPassword("test");
+    static final PostgreSQLContainer<?> postgres;
 
     static {
-        // Solo el arranque, la config de conexión la lee del archivo de usuario
+        // Forzamos el host
+        System.setProperty("DOCKER_HOST", "tcp://127.0.0.1:2375");
+
+        // Esta línea es nueva: obliga a usar el transporte HTTP e ignora los Pipes
+        System.setProperty("org.testcontainers.dockerclient.transport.type", "httpclient5");
+
+        // Bloqueamos a Testcontainers para que no intente buscar otras formas de conectar
+        System.setProperty("testcontainers.docker.client.strategy", "org.testcontainers.dockerclient.EnvironmentAndSystemPropertyClientProviderStrategy");
+
+        System.setProperty("TESTCONTAINERS_RYUK_DISABLED", "true");
+
+        postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17-alpine"))
+                .withDatabaseName("grit_db_test")
+                .withUsername("test")
+                .withPassword("test");
+
         postgres.start();
     }
 

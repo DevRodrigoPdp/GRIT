@@ -59,7 +59,6 @@ public class AtletaService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "perfilesAtletas", key = "#email")
     public AtletaPerfilDTO obtenerPerfil(String email) {
         Atleta a = atletaRepository.findByEmail(email)
                 .orElseThrow(()->new EntityNotFoundException("Atleta no encontrado"));
@@ -73,7 +72,6 @@ public class AtletaService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "rutinasActivas", key = "#atletaId", unless = "#result == null")
     public Optional<RutinaDTO> getPlanActivoAtleta(UUID atletaId) {
         return rutinaRepository.findFirstByAtletaIdOrderByCreadoEnDesc(atletaId)
                 .map(entrenamientoMapper::toDTO); // ¡Mucho más limpio!
@@ -124,8 +122,6 @@ public class AtletaService {
 
         atleta.setPassword(passwordEncoder.encode(dto.nueva()));
         atletaRepository.save(atleta);
-
-        this.evictAllAtletaData(email, atleta.getId());
     }
 
     @Transactional
@@ -135,15 +131,6 @@ public class AtletaService {
 
         asignacionRepository.desactivarAsignacionesPorAtleta(atletaId);
         usuarioService.suspenderUsuario(atletaId);
-
-        this.evictAllAtletaData(atleta.getEmail(), atletaId);
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "perfilesAtletas", key = "#email"),
-            @CacheEvict(value = "rutinasActivas", key = "#atletaId"),
-            @CacheEvict(value = "usuariosSecurity", key = "#email")
-    })
-    public void evictAllAtletaData(String email, UUID atletaId) {
-    }
 }

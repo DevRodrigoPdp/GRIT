@@ -13,27 +13,27 @@ import java.util.concurrent.TimeUnit;
 @EnableCaching
 public class CacheConfig {
 
-    @Bean
-    public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-
-        // 1. Configuración para Seguridad (TTL corto: 15 min)
-        // Por si baneamos a alguien, que no tarde mucho en surtir efecto
-        cacheManager.registerCustomCache("usuariosSecurity",
-                Caffeine.newBuilder()
-                        .expireAfterWrite(15, TimeUnit.MINUTES)
-                        .maximumSize(500)
-                        .build());
-
-        // 2. Configuración para Perfiles y Rutinas (TTL largo: 60 min)
-        // Son datos que no cambian cada minuto
-        Caffeine<Object, Object> longLivedCache = Caffeine.newBuilder()
-                .expireAfterWrite(60, TimeUnit.MINUTES)
-                .maximumSize(1000);
-
-        cacheManager.registerCustomCache("perfilesAtletas", longLivedCache.build());
-        cacheManager.registerCustomCache("rutinasActivas", longLivedCache.build());
-
-        return cacheManager;
-    }
+//    @Bean
+//    public CacheManager cacheManager() {
+//        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+//
+//        // 1. Configuración para Seguridad (TTL corto: 15 min)
+//        // Por si baneamos a alguien, que no tarde mucho en surtir efecto
+//        cacheManager.registerCustomCache("usuariosSecurity",
+//                Caffeine.newBuilder()
+//                        .expireAfterWrite(15, TimeUnit.MINUTES)
+//                        .maximumSize(500)
+//                        .build());
+//
+//        // 2. Configuración para Perfiles y Rutinas (TTL largo: 60 min)
+//        // Son datos que no cambian cada minuto
+//        Caffeine<Object, Object> longLivedCache = Caffeine.newBuilder()
+//                .expireAfterWrite(60, TimeUnit.MINUTES)
+//                .maximumSize(1000);
+//
+//        cacheManager.registerCustomCache("perfilesAtletas", longLivedCache.build());
+//        cacheManager.registerCustomCache("rutinasActivas", longLivedCache.build());
+//
+//        return cacheManager;
+//    }
 }
