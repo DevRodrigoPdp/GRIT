@@ -42,6 +42,10 @@ export class AdminPage implements OnInit {
   readonly mostrarModalExito = signal(false);
   readonly mostrarModalEliminacion = signal(false);
   readonly nombreAprobado = signal('');
+  
+  // Edición de usuario
+  readonly mostrarModalEdicion = signal(false);
+  readonly usuarioEnEdicion = signal<Partial<UsuarioDTO> | null>(null);
 
   // Solicitudes filtradas
   readonly solicitudesFiltradas = computed(() => {
@@ -171,7 +175,7 @@ export class AdminPage implements OnInit {
 
   confirmarEliminacion() {
     const u = this.usuarioSeleccionado();
-    if (!u) return;
+    if (!u || !u.id) return;
 
     this.loadingUsuarios.set(true);
     this.adminService.eliminarUsuario(u.id).subscribe({
@@ -200,13 +204,25 @@ export class AdminPage implements OnInit {
     if (!e || !motivo) return;
 
     this.loadingSolicitudes.set(true);
+    
+    // Primero rechazar la solicitud, luego eliminar el usuario
     this.adminService.processReview(e.id, false, motivo).subscribe({
       next: () => {
-        this.solicitudes.update(list => list.filter(item => item.id !== e.id));
-        this.entrenadorSeleccionado.set(null);
-        this.mostrarModalRechazo.set(false);
-        this.motivoRechazo.set('');
-        this.loadingSolicitudes.set(false);
+        // Eliminar también el usuario definitivamente
+        this.adminService.eliminarUsuario(e.id).subscribe({
+          next: () => {
+            this.solicitudes.update(list => list.filter(item => item.id !== e.id));
+            this.entrenadorSeleccionado.set(null);
+            this.mostrarModalRechazo.set(false);
+            this.motivoRechazo.set('');
+            this.loadingSolicitudes.set(false);
+          },
+          error: (err) => {
+            console.error('Error al eliminar usuario:', err);
+            this.error.set('La solicitud fue rechazada pero hubo un error al eliminar la cuenta.');
+            this.loadingSolicitudes.set(false);
+          }
+        });
       },
       error: (err) => {
         console.error(err);
@@ -245,6 +261,43 @@ export class AdminPage implements OnInit {
     if (pagina >= 0 && pagina < this.totalPaginasSolicitudes()) {
       this.cargarSolicitudes(pagina);
     }
+  }
+
+  // --- EDICIÓN DE USUARIOS ---
+
+  abrirModalEdicion(usuario: UsuarioDTO) {
+    this.usuarioSeleccionado.set(usuario);
+    this.usuarioEnEdicion.set({
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      estado: usuario.estado
+    });
+    this.mostrarModalEdicion.set(true);
+  }
+
+  confirmarEdicion() {
+    const u = this.usuarioSeleccionado();
+    const edicion = this.usuarioEnEdicion();
+    if (!u || !edicion) return;
+
+    this.loadingUsuarios.set(true);
+    this.adminService.actualizarUsuario(u.id, edicion).subscribe({
+      next: (usuarioActualizado) => {
+        // Actualizar la lista de usuarios
+        this.usuarios.update(list => 
+          list.map(item => item.id === u.id ? usuarioActualizado : item)
+        );
+        this.mostrarModalEdicion.set(false);
+        this.usuarioSeleccionado.set(null);
+        this.usuarioEnEdicion.set(null);
+        this.loadingUsuarios.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.error.set('No se pudieron guardar los cambios.');
+        this.loadingUsuarios.set(false);
+      }
+    });
   }
 
   cerrarSesion() {

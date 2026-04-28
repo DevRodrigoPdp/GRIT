@@ -92,7 +92,7 @@
               </div>
             } @else {
               <div class="grid grid-cols-1 gap-4">
-                @for (s of solicitudesFiltradas(); track s.id) {
+                @for (s of solicitudesFiltradas(); track s.id ?? $index) {
                   <button 
                     (click)="seleccionarSolicitud(s)"
                     [class]="entrenadorSeleccionado()?.id === s.id ? 'border-2 border-black bg-white shadow-xl translate-x-2' : 'border border-gray-200 bg-white hover:border-black'"
@@ -258,7 +258,7 @@
 
               <!-- Filas -->
               <div class="divide-y divide-gray-50">
-                @for (u of usuariosFiltrados(); track u.id) {
+                @for (u of usuariosFiltrados(); track u.id ?? $index) {
                   <div class="grid grid-cols-6 px-12 py-5 items-center hover:bg-gray-50/50 transition-colors group">
                     <div class="col-span-2 flex items-center gap-4">
                       <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center font-black text-xs"
@@ -287,8 +287,8 @@
                       {{ u.fechaRegistro | date:'dd/MM/yyyy' }}
                     </div>
                     <div class="flex justify-end gap-3 text-gray-200 group-hover:text-gray-400">
-                      <!-- Edit (placeholder) -->
-                      <button class="hover:text-black transition-colors">
+                      <!-- Edit -->
+                      <button (click)="abrirModalEdicion(u)" class="hover:text-black transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                           <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="square"/>
                         </svg>
@@ -398,6 +398,128 @@
           </button>
           <button (click)="mostrarModalEliminacion.set(false)" class="w-full text-gray-300 py-3 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black transition-all">
             CANCELAR OPERACIÓN
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Rechazar Solicitud -->
+  @if (mostrarModalRechazo()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6" (click)="mostrarModalRechazo.set(false)">
+      <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
+        <div class="absolute top-0 left-0 w-full h-1 bg-red-600"></div>
+        <div class="w-12 h-12 bg-red-50 flex items-center justify-center mb-8">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="square"/>
+          </svg>
+        </div>
+        <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">¿RECHAZAR SOLICITUD?</h3>
+        @if (entrenadorSeleccionado(); as e) {
+          <p class="text-sm text-gray-400 font-bold tracking-tight mb-2">
+            Vas a rechazar y eliminar la cuenta de:
+          </p>
+          <p class="text-lg font-black uppercase tracking-tight text-black mb-8">{{ e.nombre }}</p>
+        }
+        
+        <div class="mb-6">
+          <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-3">
+            MOTIVO DEL RECHAZO (REQUERIDO)
+          </label>
+          <textarea 
+            [ngModel]="motivoRechazo()"
+            (ngModelChange)="motivoRechazo.set($event)"
+            (keydown.escape)="mostrarModalRechazo.set(false)"
+            placeholder="Explica por qué rechazas esta solicitud..."
+            class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black resize-none h-24"
+          ></textarea>
+        </div>
+
+        <p class="text-xs text-gray-400 uppercase tracking-[0.15em] font-bold mb-10">
+          Se eliminará la cuenta y se enviará un email con el motivo del rechazo.
+        </p>
+
+        <div class="flex gap-4">
+          <button (click)="confirmarRechazo()" [disabled]="loadingSolicitudes() || !motivoRechazo().trim()" class="flex-1 bg-red-600 text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-red-700 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+            RECHAZAR Y ELIMINAR
+          </button>
+          <button (click)="mostrarModalRechazo.set(false)" class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
+            CANCELAR
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Editar Usuario -->
+  @if (mostrarModalEdicion()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6" (click)="mostrarModalEdicion.set(false)">
+      <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
+        <div class="absolute top-0 left-0 w-full h-1 bg-[#2ED38D]"></div>
+        <div class="w-12 h-12 bg-[#2ED38D] flex items-center justify-center mb-8">
+          <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="square"/>
+          </svg>
+        </div>
+        <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">EDITAR USUARIO</h3>
+        @if (usuarioSeleccionado(); as u) {
+          <p class="text-sm text-gray-400 font-bold tracking-tight mb-6">
+            {{ u.nombre }} ({{ u.rol }})
+          </p>
+        }
+        
+        @if (usuarioEnEdicion(); as edicion) {
+          <div class="space-y-4 mb-8">
+            <!-- Nombre -->
+            <div>
+              <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
+                NOMBRE
+              </label>
+              <input 
+                [ngModel]="edicion.nombre"
+                (ngModelChange)="usuarioEnEdicion.set({...edicion, nombre: $event})"
+                type="text"
+                class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black"
+              />
+            </div>
+
+            <!-- Correo -->
+            <div>
+              <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
+                CORREO
+              </label>
+              <input 
+                [ngModel]="edicion.correo"
+                (ngModelChange)="usuarioEnEdicion.set({...edicion, correo: $event})"
+                type="email"
+                class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black"
+              />
+            </div>
+
+            <!-- Estado -->
+            <div>
+              <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
+                ESTADO
+              </label>
+              <select 
+                [ngModel]="edicion.estado"
+                (ngModelChange)="usuarioEnEdicion.set({...edicion, estado: $event})"
+                class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black"
+              >
+                <option value="ACTIVO">ACTIVO</option>
+                <option value="INACTIVO">INACTIVO</option>
+                <option value="BLOQUEADO">BLOQUEADO</option>
+              </select>
+            </div>
+          </div>
+        }
+
+        <div class="flex gap-4">
+          <button (click)="confirmarEdicion()" [disabled]="loadingUsuarios()" class="flex-1 bg-black text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300 disabled:opacity-30">
+            GUARDAR CAMBIOS
+          </button>
+          <button (click)="mostrarModalEdicion.set(false)" class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
+            CANCELAR
           </button>
         </div>
       </div>

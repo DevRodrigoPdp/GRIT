@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface DocumentoDTO {
   id: string;
@@ -22,6 +23,7 @@ export interface EntrenadorPendienteDTO {
 
 export interface UsuarioDTO {
   id: string;
+  uuid?: string;
   nombre: string;
   correo: string;
   rol: 'ATLETA' | 'ENTRENADOR';
@@ -72,6 +74,8 @@ export class AdminService {
     return this.http.get<UsuarioDTO[]>(
       `${this.API}/usuarios`,
       { withCredentials: true }
+    ).pipe(
+      map(usuarios => usuarios.map(u => this.normalizarUsuario(u)))
     );
   }
 
@@ -81,6 +85,29 @@ export class AdminService {
   getUsuario(id: string): Observable<UsuarioDTO> {
     return this.http.get<UsuarioDTO>(
       `${this.API}/usuarios/${id}`,
+      { withCredentials: true }
+    ).pipe(
+      map(u => this.normalizarUsuario(u))
+    );
+  }
+
+  /**
+   * Normaliza el usuario asegurando que siempre tiene un id válido
+   */
+  private normalizarUsuario(usuario: any): UsuarioDTO {
+    return {
+      ...usuario,
+      id: usuario.id || usuario.uuid || usuario.userId || ''
+    };
+  }
+
+  /**
+   * Actualiza los datos de un usuario.
+   */
+  actualizarUsuario(id: string, data: Partial<UsuarioDTO>): Observable<UsuarioDTO> {
+    return this.http.put<UsuarioDTO>(
+      `${this.API}/usuarios/${id}`,
+      data,
       { withCredentials: true }
     );
   }
