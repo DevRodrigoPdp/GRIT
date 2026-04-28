@@ -56,14 +56,23 @@ application:
       access-key: ${STORAGE_ACCESS_KEY:minioadmin}
       secret-key: ${STORAGE_SECRET_KEY:minioadmin}
       bucket-name: grit-certificaciones-entrenadores
+    seed:
+      admin-email: "admin@test.com"
+      coach-email: "coach@test.com"
+      atleta-email: "atleta@test.com"
 
 management:
+  metrics:
+    tags:
+      application: grit-backend
   endpoints:
     web:
       exposure:
-        include: "health,info,metrics,loggers" # Exponemos solo lo necesario para monitorear
+        include: "health,info,metrics,prometheus,loggers" # Exponemos solo lo necesario para monitorear
   endpoint:
     health:
       show-details: always
       probes:
         enabled: true # Docker/Kubernetes para saber si la app está lista
+    prometheus:
+      enabled: true # Aseguramos que el endpoint específico esté habilitado

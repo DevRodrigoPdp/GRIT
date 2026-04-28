@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Component
-@Profile("dev") // Solo se ejecuta en modo desarrollo
+@Profile({"dev", "docker"}) // Se activa en ambos entornos
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
@@ -32,6 +32,15 @@ public class DataInitializer implements CommandLineRunner {
 
     @Value("${application.security.pepper}")
     private String pepper;
+
+    @Value("${app.seed.admin-email:admin@test.com}")
+    private String adminEmail;
+
+    @Value("${app.seed.coach-email:coach@test.com}")
+    private String coachEmail;
+
+    @Value("${app.seed.athlete-email:atleta@test.com}")
+    private String athleteEmail;
 
     public DataInitializer(UsuarioRepository usuarioRepository,
                            EntrenadorRepository entrenadorRepository,
@@ -47,89 +56,78 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         if (usuarioRepository.count() == 0) {
-            log.info("Base de datos vacía. Creando usuarios iniciales...");
-            // 1. Crear Admin primero (independiente)
-            crearAdminSiNoExiste();
-            // 2. Forzar envío a DB para limpiar el contexto
+            log.info(">>>> [SEED] Base de datos vacía. Iniciando creación de usuarios para entorno: {}",
+                    System.getProperty("spring.profiles.active"));
+
+            crearAdminSiNoExiste(adminEmail);
             usuarioRepository.flush();
 
-            crearEntrenadorSiNoExiste();
+            crearEntrenadorSiNoExiste(coachEmail);
             usuarioRepository.flush();
 
-            crearAtletaSiNoExiste();
+            crearAtletaSiNoExiste(athleteEmail);
+
+            log.info(">>>> [SEED] Inicialización completada exitosamente.");
         } else {
-            log.info("La base de datos ya tiene datos. Saltando inicialización.");
+            log.info(">>>> [SEED] La base de datos ya contiene datos. Saltando inicialización.");
         }
     }
 
-    private void crearAdminSiNoExiste() {
-        String email = "admin@test.com";
+    private void crearAdminSiNoExiste(String email) {
         if (!usuarioRepository.existsByEmail(email)) {
             Usuario admin = new Usuario();
-            admin.setNombre("Admin de Prueba");
+            admin.setNombre("Administrador Sistema");
             admin.setEmail(email);
             admin.setRol(Rol.ADMIN);
             admin.setEstado(EstadoUsuario.ACTIVO);
             admin.setPassword(passwordEncoder.encode("password123" + pepper));
             usuarioRepository.save(admin);
+            log.info("Admin creado: {}", email);
         }
     }
 
-    private void crearEntrenadorSiNoExiste() {
-        String email = "coach@test.com";
+    private void crearEntrenadorSiNoExiste(String email) {
         if (!usuarioRepository.existsByEmail(email)) {
-            // CORRECCIÓN: Instanciamos al hijo directamente
             Entrenador coach = new Entrenador();
-
-            // Campos del PADRE (Heredados)
-            coach.setNombre("Coach de Prueba");
+            // Datos del Padre
+            coach.setNombre("Entrenador de Prueba");
             coach.setEmail(email);
             coach.setRol(Rol.ENTRENADOR);
-            coach.setEstado(EstadoUsuario.ACTIVO); // Estado de cuenta
+            coach.setEstado(EstadoUsuario.ACTIVO);
             coach.setPassword(passwordEncoder.encode("password123" + pepper));
 
-            // Campos del HIJO (Específicos de Entrenador)
+            // Datos del Hijo (Entrenador)
             coach.setCodigoProfesional("COL-00000");
             coach.setTitulacionEntrenamiento(TitulacionEntrenamiento.GRADO_CAFYD);
-
-            // CORRECCIÓN: Usamos el nuevo nombre del campo de negocio
             coach.setEstadoRevision(EstadoRevision.APROBADO);
 
-            // Eliminamos setFechaSolicitud y setTieneTituloEntrenamiento
-            // ya que no están en tu entidad física actual.
-
             entrenadorRepository.save(coach);
-            log.info(">>>> Usuario Entrenador creado: coach@test.com");
+            log.info("Coach creado: {}", email);
         }
     }
 
-    private void crearAtletaSiNoExiste() {
-        String email = "atleta@test.com";
+    private void crearAtletaSiNoExiste(String email) {
         if (!usuarioRepository.existsByEmail(email)) {
             Atleta atleta = new Atleta();
-
-            // Campos PADRE
+            // Datos del Padre
             atleta.setNombre("Atleta de Prueba");
             atleta.setEmail(email);
             atleta.setRol(Rol.ATLETA);
             atleta.setEstado(EstadoUsuario.ACTIVO);
             atleta.setPassword(passwordEncoder.encode("password123" + pepper));
 
-            // Campos HIJO
+            // Datos del Hijo (Atleta)
             atleta.setPesoKg(new BigDecimal("80.0"));
             atleta.setAlturaCm(180);
             atleta.setDeporte("Gimnasio");
             atleta.setObjetivo(Objetivo.PERDER_PESO);
             atleta.setServicio(TipoServicio.AMBOS);
-
-            // CORRECCIÓN: Usar el Enum GeneroTipo en lugar de String
             atleta.setGenero(GeneroTipo.HOMBRE);
-
             atleta.setFechaNac(LocalDate.of(1990, 1, 1));
             atleta.setNivel(NivelAtleta.INTERMEDIO);
 
             atletaRepository.save(atleta);
-            log.info(">>>> Usuario Atleta creado: atleta@test.com");
+            log.info("Atleta creado: {}", email);
         }
     }
 }

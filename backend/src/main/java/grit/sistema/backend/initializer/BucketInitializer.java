@@ -16,14 +16,17 @@ public class BucketInitializer {
     CommandLineRunner setupBucket(S3Client s3Client, @Value("${application.storage.bucket-name}") String bucketName) {
         return args -> {
             try {
+                // Intentamos verificar si el bucket ya existe
                 s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
                 System.out.println("El bucket ya existe: " + bucketName);
             } catch (NoSuchBucketException e) {
+                // Si no existe, lo creamos
                 s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
                 System.out.println("Bucket creado exitosamente: " + bucketName);
             } catch (Exception e) {
-                // Un senior nunca deja caer la app por un log de inicialización si no es crítico
-                System.err.println("No se pudo conectar con el storage al iniciar. Verifica que Docker esté corriendo.");
+                // Un senior siempre imprime la causa real para poder debugear
+                System.err.println("Error al inicializar el storage: " + e.getMessage());
+                // e.printStackTrace(); // Descomenta esto para ver el error completo (Timeout, Auth, etc)
             }
         };
     }

@@ -1,0 +1,58 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://db-postgresql:5432/grit_db}
+    username: ${DB_USERNAME:app_user}
+    password: ${DB_PASSWORD:password_container_prod_secret}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: Grit-Docker-Pool
+      connection-timeout: 10000
+      maximum-pool-size: 15
+      minimum-idle: 5
+
+  flyway:
+    enabled: true
+    connect-retries: 10
+    baseline-on-migrate: true
+    clean-disabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # Obligatorio: la DB se gestiona solo vía Flyway
+    show-sql: false
+
+logging:
+  level:
+    root: INFO
+    # Reducimos el ruido en logs de contenedores para no saturar el storage de logs
+    grit.sistema.backend: INFO
+    org.hibernate.SQL: ERROR
+    org.springframework.security: WARN
+
+application:
+  security:
+    pepper: ${SECURITY_PEPPER:secret_pepper_docker_2026}
+    jwt:
+      secret-key: ${JWT_SECRET_KEY:clave_ultra_secreta_generada_para_el_contenedor_9876}
+    cookie:
+      secure: false
+  storage:
+    # El endpoint apunta al nombre del servicio de MinIO en Docker
+    endpoint: ${STORAGE_ENDPOINT:http://minio-service:9000}
+    access-key: ${STORAGE_ACCESS_KEY:minio_container_user}
+    secret-key: ${STORAGE_SECRET_KEY:minio_container_password}
+    bucket-name: grit-certificaciones-entrenadores
+  seed:
+    admin-email: "admin@docker.com"
+    coach-email: "coach@docker.com"
+    atleta-email: "atleta@docker.com"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true

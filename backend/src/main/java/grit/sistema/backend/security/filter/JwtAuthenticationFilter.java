@@ -33,6 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException{
 
+        if (request.getServletPath().contains("/management")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 1. Extraer JWT de la cookie de forma limpia
         String jwt = null;
         if (request.getCookies() != null) {

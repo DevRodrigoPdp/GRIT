@@ -1,6 +1,8 @@
 package grit.sistema.backend.config;
 
 import grit.sistema.backend.security.service.CustomUserDetailsService;
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -53,5 +55,10 @@ public class ApplicationConfig {
                 return bCrypt.matches(rawPassword + pepper, encodedPassword);
             }
         };
+    }
+
+    @Bean
+    public TimedAspect timedAspect(MeterRegistry registry) {
+        return new TimedAspect(registry);
     }
 }

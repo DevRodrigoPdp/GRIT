@@ -38,6 +38,9 @@ management:
       base-path: /management
       exposure:
         include: [health, info, metrics, prometheus]
+  metrics:
+    tags:
+      application: grit-backend
   endpoint:
     health:
       probes:

@@ -51,11 +51,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/api/v1/auth/**",
                                 "/api/v1/diagnostic/**",
-                                "/management/health" // Salud pública para monitoreo
+                                "/management/**"
                         ).permitAll()
-
-                        // 2. Endpoints específicos de Actuator para ADMIN
-                        .requestMatchers("/management/**").hasRole("ADMIN")
 
                         // 3. Lógica de negocio específica
                         .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated()
