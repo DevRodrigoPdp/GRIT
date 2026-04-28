@@ -206,18 +206,24 @@ export class AtletaPage implements OnInit {
 
     this.loading.set(true);
     const v = this.form.value;
+    const parseLista = (raw: string): string[] =>
+      raw ? raw.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+
     this.auth.registroAtleta({
-      nombre:   v.nombre,
-      email:    v.correo,
-      password: v.password,
-      fechaNac: v.fechaNac,
-      genero:   v.genero,
-      pesoKg:   v.peso,
-      alturaCm: v.altura,
-      deporte:  v.deporte,
-      nivel:    (v.nivel as string).toUpperCase(),
-      servicio: (v.servicio as Servicio).toUpperCase() as ServicioAtleta,
-      objetivo: v.objetivo ? (v.objetivo as string).toUpperCase() : null,
+      nombre:           v.nombre,
+      email:            v.correo,
+      password:         v.password,
+      fechaNac:         v.fechaNac,
+      genero:           (v.genero as string).toUpperCase(),
+      pesoKg:           parseFloat(v.peso),
+      alturaCm:         parseFloat(v.altura),
+      deporte:          v.deporte,
+      nivel:            (v.nivel as string).toUpperCase(),
+      servicio:         (v.servicio as Servicio).toUpperCase() as ServicioAtleta,
+      objetivo:         v.objetivo ? (v.objetivo as string).toUpperCase() : null,
+      codigoInvitacion: v.codigoEntrenador || null,
+      alergias:         parseLista(v.alergias),
+      intolerancias:    parseLista(v.lesiones),
     }).subscribe({
       next: () => {
         const foto = this.fotoFile();

@@ -13,17 +13,20 @@ export type ServicioAtleta = 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
 // ── Payloads de registro ─────────────────────────────────────────────────────
 
 export interface RegistroAtletaPayload {
-  nombre:   string;
-  email:    string;
-  password: string;
-  fechaNac: string;
-  genero:   string;
-  pesoKg:   number;
-  alturaCm: number;
-  deporte:  string;
-  nivel:    string;
-  servicio: ServicioAtleta;
-  objetivo: string | null;
+  nombre:            string;
+  email:             string;
+  password:          string;
+  fechaNac:          string;
+  genero:            string;
+  pesoKg:            number;
+  alturaCm:          number;
+  deporte:           string;
+  nivel:             string;
+  servicio:          ServicioAtleta;
+  objetivo:          string | null;
+  codigoInvitacion:  string | null;
+  alergias:          string[];
+  intolerancias:     string[];
 }
 
 export interface RegistroEntrenadorPayload {
@@ -192,17 +195,21 @@ export class AuthService {
         tap({
           next: (res) => {
             this.loading.set(false);
+            if (res.data.estado === 'PENDIENTE_REVISION') {
+              this.loginError.set('cuenta_pendiente');
+              return;
+            }
             this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
             this.redirigir(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
           },
           error: (err) => {
             this.loading.set(false);
             if (err.status === 401) {
-              this.loginError.set('Correo o contraseña incorrectos.');
+              this.loginError.set('credenciales_invalidas');
             } else if (err.status === 403) {
-              this.loginError.set('Tu cuenta ha sido rechazada. Contacta con soporte.');
+              this.loginError.set('cuenta_rechazada');
             } else {
-              this.loginError.set('Error de conexión. Inténtalo de nuevo.');
+              this.loginError.set('error_servidor');
             }
           },
         })

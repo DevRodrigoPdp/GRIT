@@ -80,9 +80,10 @@
             autocomplete="email"
             class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D]"
             [class.border-red-400]="fieldError('correo')"
+            (input)="onInput()"
           />
           @if (fieldError('correo')) {
-            <span class="text-xs font-bold text-red-400 tracking-wide">Introduce un correo válido</span>
+            <span class="text-xs font-bold text-red-400 tracking-wide">Introduce un correo electrónico válido</span>
           }
         </div>
 
@@ -107,6 +108,7 @@
               autocomplete="current-password"
               class="w-full border-b border-black bg-transparent py-3 text-sm font-medium text-black placeholder-gray-300 outline-none transition-colors duration-200 focus:border-[#2ED38D] pr-10"
               [class.border-red-400]="fieldError('password')"
+              (input)="onInput()"
             />
             <button
               type="button"
@@ -131,14 +133,11 @@
           }
         </div>
 
-        <!-- Error general del servidor -->
-        @if (auth.loginError()) {
-          <div class="border border-red-400 px-4 py-3 flex items-center gap-3">
-            <svg class="w-4 h-4 text-red-400 flex-shrink-0" viewBox="0 0 16 16" fill="none">
-              <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-              <rect x="1.5" y="1.5" width="13" height="13"/>
-            </svg>
-            <span class="text-xs font-bold text-red-400 tracking-wide">{{ auth.loginError() }}</span>
+        <!-- Error del servidor -->
+        @if (errorActual) {
+          <div class="border-l-2 border-red-400 pl-4 py-1 flex flex-col gap-1" role="alert" aria-live="assertive">
+            <p class="text-xs font-black uppercase tracking-widest text-red-400">{{ errorActual.titulo }}</p>
+            <p class="text-sm font-light text-gray-500 leading-relaxed">{{ errorActual.desc }}</p>
           </div>
         }
 
