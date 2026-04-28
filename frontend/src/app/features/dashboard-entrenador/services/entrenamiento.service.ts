@@ -1,5 +1,6 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 
 export interface EjercicioManual {
   id:     string;
@@ -12,10 +13,10 @@ export interface EjercicioManual {
 export type TipoDescanso = 'completo' | 'activo' | 'movilidad' | 'stretching';
 
 export const TIPOS_DESCANSO: { value: TipoDescanso; label: string; desc: string }[] = [
-  { value: 'completo',   label: 'DESCANSO COMPLETO', desc: 'Sin actividad física'          },
-  { value: 'activo',     label: 'DESCANSO ACTIVO',   desc: 'Paseo, natación suave...'       },
-  { value: 'movilidad',  label: 'MOVILIDAD',          desc: 'Trabajo articular y de rango'  },
-  { value: 'stretching', label: 'STRETCHING',         desc: 'Estiramientos y recuperación'  },
+  { value: 'completo',   label: 'DESCANSO COMPLETO', desc: 'Sin actividad física'         },
+  { value: 'activo',     label: 'DESCANSO ACTIVO',   desc: 'Paseo, natación suave...'      },
+  { value: 'movilidad',  label: 'MOVILIDAD',          desc: 'Trabajo articular y de rango' },
+  { value: 'stretching', label: 'STRETCHING',         desc: 'Estiramientos y recuperación' },
 ];
 
 export interface Sesion {
@@ -36,7 +37,6 @@ export interface Rutina {
   activa:      boolean;
 }
 
-const STORAGE_KEY         = 'grit_rutinas';
 const STORAGE_KEY_HISTORIAL = 'grit_ejercicios_historial';
 
 const BIBLIOTECA: string[] = [
@@ -59,14 +59,17 @@ const BIBLIOTECA: string[] = [
   'Burpees', 'Saltos a cajón', 'Kettlebell swing', 'Mountain climbers', 'Sprints',
 ];
 
+interface ApiResponse<T> { ok: boolean; data: T; }
+
 @Injectable({ providedIn: 'root' })
 export class EntrenamientoService {
-  private rutinasMap = new Map<string, Rutina[]>();
+  private http = inject(HttpClient);
+
+  private readonly API = '/api/v1/entrenamiento';
 
   readonly historial = signal<string[]>([]);
 
   constructor() {
-    this.cargarRutinas();
     this.cargarHistorial();
   }
 
@@ -95,49 +98,38 @@ export class EntrenamientoService {
   }
 
   getRutinas(atletaId: string): Observable<Rutina[]> {
-    return of(this.rutinasMap.get(atletaId) ?? []);
+    return this.http
+      .get<ApiResponse<Rutina[]>>(`${this.API}/rutinas`, { params: { atletaId } })
+      .pipe(map(r => r.data.map(x => ({ ...x, creadoEn: new Date(x.creadoEn) }))));
   }
 
   crearRutina(atletaId: string, nombre: string, descripcion: string, sesiones: Sesion[]): Observable<Rutina> {
-    const rutina: Rutina = {
-      id: crypto.randomUUID(), atletaId, nombre, descripcion, sesiones, creadoEn: new Date(), activa: false,
-    };
-    const existentes = this.rutinasMap.get(atletaId) ?? [];
-    this.rutinasMap.set(atletaId, [...existentes, rutina]);
-    this.persistir();
-    return of(rutina);
+    return this.http
+      .post<ApiResponse<{ id: string; creadoEn: string }>>(`${this.API}/rutinas`, { atletaId, nombre, descripcion, sesiones })
+      .pipe(map(r => ({
+        id:          r.data.id,
+        atletaId,
+        nombre,
+        descripcion,
+        sesiones,
+        creadoEn:    new Date(r.data.creadoEn),
+        activa:      false,
+      })));
   }
 
-  eliminarRutina(atletaId: string, rutinaId: string): Observable<void> {
-    this.rutinasMap.set(atletaId, (this.rutinasMap.get(atletaId) ?? []).filter(r => r.id !== rutinaId));
-    this.persistir();
-    return of(undefined);
+  eliminarRutina(_atletaId: string, rutinaId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<void>>(`${this.API}/rutinas/${rutinaId}`)
+      .pipe(map(() => undefined));
   }
 
-  activarRutina(atletaId: string, rutinaId: string): Observable<void> {
-    this.rutinasMap.set(atletaId, (this.rutinasMap.get(atletaId) ?? []).map(r => ({ ...r, activa: r.id === rutinaId })));
-    this.persistir();
-    return of(undefined);
+  activarRutina(_atletaId: string, rutinaId: string): Observable<void> {
+    return this.http
+      .put<ApiResponse<void>>(`${this.API}/rutinas/${rutinaId}/activar`, {})
+      .pipe(map(() => undefined));
   }
 
   totalEjercicios(rutina: Rutina): number {
     return rutina.sesiones.reduce((s, ses) => s + ses.ejercicios.length, 0);
-  }
-
-  private cargarRutinas(): void {
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as Rutina[];
-      for (const r of raw) {
-        const lista = this.rutinasMap.get(r.atletaId) ?? [];
-        lista.push(r);
-        this.rutinasMap.set(r.atletaId, lista);
-      }
-    } catch { /* storage corrupto */ }
-  }
-
-  private persistir(): void {
-    const todas: Rutina[] = [];
-    this.rutinasMap.forEach(lista => todas.push(...lista));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todas));
   }
 }
