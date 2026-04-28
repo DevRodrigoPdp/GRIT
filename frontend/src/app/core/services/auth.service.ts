@@ -27,6 +27,7 @@ export interface RegistroAtletaPayload {
   codigoInvitacion:  string | null;
   alergias:          string[];
   intolerancias:     string[];
+  fotoPerfil:        File | null;
 }
 
 export interface RegistroEntrenadorPayload {
@@ -108,20 +109,38 @@ export class AuthService {
    * Normaliza los valores del formulario (lowercase → UPPERCASE) antes de enviar.
    */
   registroAtleta(payload: RegistroAtletaPayload): Observable<RegistroResponse> {
+    const formData = new FormData();
+
+    const dto = {
+      nombre:           payload.nombre,
+      email:            payload.email,
+      password:         payload.password,
+      fechaNac:         payload.fechaNac,
+      genero:           payload.genero,
+      pesoKg:           payload.pesoKg,
+      alturaCm:         payload.alturaCm,
+      deporte:          payload.deporte,
+      nivel:            payload.nivel,
+      servicio:         payload.servicio,
+      objetivo:         payload.objetivo,
+      codigoInvitacion: payload.codigoInvitacion,
+      alergias:         payload.alergias,
+      intolerancias:    payload.intolerancias,
+    };
+
+    formData.append('datos', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
+
+    if (payload.fotoPerfil) {
+      formData.append('fotoPerfil', payload.fotoPerfil);
+    }
+
     return this.http
-      .post<RegistroResponse>(`${this.API}/registro/atleta`, payload, { withCredentials: true })
+      .post<RegistroResponse>(`${this.API}/registro/atleta`, formData, { withCredentials: true })
       .pipe(
         tap({
           next: (res) => {
             const data = res.data;
-            this.setSession(
-              data.rol,
-              data.estado,
-              null,
-              null,
-              payload.servicio as ServicioAtleta,
-              payload.nombre
-            );
+            this.setSession(data.rol, data.estado, null, null, payload.servicio, payload.nombre);
             this.redirigir(data.rol, data.estado, null, null);
           },
         })

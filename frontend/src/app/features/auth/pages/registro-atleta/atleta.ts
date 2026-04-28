@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService, ServicioAtleta } from '../../../../core/services/auth.service';
-import { AtletaService } from '../../../dashboard-atleta/services/atleta.service';
 
 export type Objetivo = 'rendimiento' | 'masa_muscular' | 'perder_peso' | 'salud' | 'resistencia';
 export type Nivel     = 'principiante' | 'intermedio' | 'avanzado' | 'elite';
@@ -19,7 +18,6 @@ export type Servicio  = 'entrenamiento' | 'nutricion' | 'ambos';
 export class AtletaPage implements OnInit {
   private el   = inject(ElementRef);
   private auth  = inject(AuthService);
-  private atleta = inject(AtletaService);
   readonly form: FormGroup;
 
   @ViewChild('inputFoto') inputFoto?: ElementRef<HTMLInputElement>;
@@ -224,14 +222,9 @@ export class AtletaPage implements OnInit {
       codigoInvitacion: v.codigoEntrenador || null,
       alergias:         parseLista(v.alergias),
       intolerancias:    parseLista(v.lesiones),
+      fotoPerfil:       this.fotoFile(),
     }).subscribe({
-      next: () => {
-        const foto = this.fotoFile();
-        if (foto) {
-          this.atleta.subirFotoPerfil(foto).subscribe();
-        }
-        this.loading.set(false);
-      },
+      next: () => this.loading.set(false),
       error: (err) => {
         this.loading.set(false);
         if (err.status === 409) {
