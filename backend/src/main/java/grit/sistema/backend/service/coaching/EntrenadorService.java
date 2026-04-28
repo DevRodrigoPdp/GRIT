@@ -90,10 +90,20 @@ public class EntrenadorService {
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
         return new EntrenadorPerfilDTO(
-                e.getId(), e.getNombre(), e.getEmail(),
+                e.getId(),
+                e.getNombre(),
+                e.getEmail(),
                 e.getTitulacionEntrenamiento() != null ? e.getTitulacionEntrenamiento().name() : null,
                 e.getTitulacionNutricion() != null ? e.getTitulacionNutricion().name() : null,
-                e.getExperienciaAnos(), e.getDescripcion(), e.getEstado().name()
+                e.getExperienciaAnos(),
+                e.getCodigoInvitacion(),
+                e.getDescripcion(),
+                e.getEstado().name(),
+                e.isTieneAccesoEntrenamiento(),
+                e.isTieneAccesoNutricion(),
+                e.getFotoUrl(),
+                e.getMasters(),
+                e.getSolicitudAmpliacionPendiente()
         );
     }
 
