@@ -55,9 +55,9 @@ public class AsignacionService {
 
     private void validarCompetenciaProfesional(Entrenador entrenador, TipoServicio servicio) {
         boolean esApto = switch (servicio) {
+            case AMBOS -> entrenador.isTieneAccesoEntrenamiento() && entrenador.isTieneAccesoNutricion();
             case ENTRENAMIENTO -> entrenador.isTieneAccesoEntrenamiento();
             case NUTRICION -> entrenador.isTieneAccesoNutricion();
-            case AMBOS -> entrenador.isTieneAccesoEntrenamiento() && entrenador.isTieneAccesoNutricion();
             default -> false;
         };
 
