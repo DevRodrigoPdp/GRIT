@@ -143,10 +143,8 @@ public class UsuarioService {
     public LoginResponseDTO login(LoginRequestDTO loginDto) {
         log.info(">>> Intentando autenticar usuario: {}", loginDto.email());
 
-        String passwordWithPepper = loginDto.password() + pepper;
-
         var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.email(), passwordWithPepper)
+                new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
         );
 
         // 2. Obtener el Principal (Adaptador)
