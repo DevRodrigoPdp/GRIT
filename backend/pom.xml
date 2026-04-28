@@ -32,7 +32,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <flyway.version>10.15.2</flyway.version>
         <aws.sdk.version>2.25.27</aws.sdk.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <testcontainers.version>1.19.7</testcontainers.version>
