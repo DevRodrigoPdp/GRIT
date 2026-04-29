@@ -2,7 +2,7 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 25 de abril de 2026 — MFA + FingerprintJS (3.3.2); API propia de alimentos reemplaza USDA (sección 11); limpieza de rutas obsoletas y correcciones de contratos
+> **Última actualización:** 29 de abril de 2026 — Sección 3.17 reemplazada: chat en tiempo real eliminado, nuevo sistema de hilos de comunicación asíncrona (blog) con adjuntos multimedia; tablas `hilos_comunicacion`, `mensajes_hilo`, `adjuntos_mensaje`, `lecturas_hilo`
 
 ---
 
@@ -2005,98 +2005,207 @@ El atleta puede vincularse a un entrenador desde la pestaña **MI PERFIL** de su
 
 ---
 
-### 3.17 Chat desde el Dashboard del Entrenador
+### 3.17 Hilos de Comunicación (Blog asíncrono Entrenador ↔ Atleta)
 
-> Requieren cookie `access_token` con `rol === 'ENTRENADOR'` y asignación activa con el atleta.
+> **El chat en tiempo real ha sido eliminado y sustituido por un sistema de hilos asíncronos.**
+> Requieren cookie `access_token` válida. El entrenador accede con `rol === 'ENTRENADOR'`; el atleta con `rol === 'ATLETA'`. Ambos deben tener una asignación activa entre sí.
 
-El entrenador/nutricionista puede leer y responder los chats de sus atletas desde su dashboard.
+El sistema de comunicación funciona como un foro de hilos temáticos. Cada hilo tiene un asunto, una categoría y una lista de mensajes. Tanto el entrenador como el atleta pueden abrir hilos y responder en los existentes. Los adjuntos (imágenes y vídeos) se almacenan en S3 y se devuelven como pre-signed URLs.
 
-**`GET /api/v1/entrenador/atletas/:atletaId/chat`**
+**Categorías de hilo:**
 
-Devuelve el historial del chat entre el entrenador autenticado y el atleta indicado. El `servicio` se resuelve por la asignación activa. Los mensajes con adjunto incluyen la URL pre-signed de S3.
+| Valor | Descripción |
+|---|---|
+| `TECNICA` | El entrenador pide un vídeo de técnica o el atleta pregunta cómo se ejecuta un ejercicio |
+| `DUDA` | Pregunta general sobre el plan, la dieta o cualquier aspecto del entrenamiento |
+| `APUNTE` | Nota o comentario de seguimiento sin necesidad de respuesta urgente |
+
+---
+
+**`GET /api/v1/comunicacion/hilos?atletaId=<uuid>`**
+
+Devuelve todos los hilos entre el usuario autenticado y el atleta indicado, ordenados por fecha de último mensaje descendente.
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid-hilo",
+      "titulo": "Revisa tu técnica en sentadilla",
+      "categoria": "TECNICA",
+      "creadoPor": "ENTRENADOR",
+      "fechaAbierto": "2026-04-27T10:00:00Z",
+      "totalMensajes": 3,
+      "ultimoMensaje": {
+        "texto": "Sin cinturón para ver bien la posición del core.",
+        "fecha": "2026-04-27T10:29:00Z",
+        "de": "ENTRENADOR"
+      },
+      "leidoPorMi": true
+    }
+  ]
+}
+```
+
+> `leidoPorMi` indica si el usuario autenticado ha leído el último mensaje del hilo. El frontend usa este campo para mostrar el punto verde de "no leído".
+
+---
+
+**`POST /api/v1/comunicacion/hilos`**
+
+Crea un nuevo hilo con su primer mensaje. Request: `multipart/form-data`.
+
+| Campo | Tipo | Requerido | Notas |
+|---|---|---|---|
+| `atletaId` | `string (UUID)` | ✅ | Atleta destinatario |
+| `titulo` | `string` | ✅ | Asunto del hilo, máx. 120 caracteres |
+| `categoria` | `enum` | ✅ | `TECNICA` \| `DUDA` \| `APUNTE` |
+| `texto` | `string` | ✅ | Primer mensaje del hilo |
+| `archivos` | `File[]` | ❌ | Imágenes o vídeos adjuntos, máx. 100 MB por archivo |
+
+```json
+// Response 201
+{
+  "ok": true,
+  "data": {
+    "id": "uuid-hilo",
+    "fechaAbierto": "2026-04-29T13:00:00Z",
+    "primerMensajeId": "uuid-msg"
+  }
+}
+```
+
+---
+
+**`GET /api/v1/comunicacion/hilos/:hiloId`**
+
+Devuelve el hilo completo con todos sus mensajes. Marca el hilo como leído para el usuario autenticado.
 
 ```json
 {
   "ok": true,
   "data": {
-    "atletaNombre": "Carlos Ruiz",
+    "id": "uuid-hilo",
+    "titulo": "Revisa tu técnica en sentadilla",
+    "categoria": "TECNICA",
+    "creadoPor": "ENTRENADOR",
+    "fechaAbierto": "2026-04-27T10:00:00Z",
     "mensajes": [
       {
-        "id": "uuid-msg",
-        "texto": "¡Hola! ¿Cómo llevas la semana?",
-        "fecha": "2026-04-10",
-        "esAtleta": false,
-        "autor": "Carlos López",
-        "adjunto": null
+        "id": "uuid-msg-1",
+        "texto": "Necesito que me mandes un vídeo lateral de tu sentadilla con el 60% de tu RM.",
+        "de": "ENTRENADOR",
+        "fecha": "2026-04-27T10:00:00Z",
+        "adjuntos": []
       },
       {
-        "id": "uuid-msg2",
-        "texto": "Mira mi técnica de sentadilla",
-        "fecha": "2026-04-21",
-        "esAtleta": true,
-        "autor": "Carlos Ruiz",
-        "adjunto": {
-          "url": "https://s3.amazonaws.com/grit-documentos/chat/uuid-media.mp4?X-Amz-Expires=900&...",
-          "tipo": "video",
-          "nombre": "sentadilla.mp4"
-        }
+        "id": "uuid-msg-2",
+        "texto": null,
+        "de": "ATLETA",
+        "fecha": "2026-04-27T18:00:00Z",
+        "adjuntos": [
+          {
+            "id": "uuid-adj",
+            "url": "https://s3.amazonaws.com/grit/hilos/uuid-adj.mp4?X-Amz-Expires=900&...",
+            "tipo": "VIDEO",
+            "nombre": "sentadilla.mp4"
+          }
+        ]
       }
     ]
   }
 }
 ```
 
+> Las URLs de adjuntos son pre-signed URLs de S3 con expiración de 15 minutos (`X-Amz-Expires=900`). El frontend las usa directamente en `<img>` y `<video>`.
+
 ---
 
-**`POST /api/v1/entrenador/atletas/:atletaId/chat/mensaje`**
+**`POST /api/v1/comunicacion/hilos/:hiloId/mensajes`**
 
-El entrenador envía un mensaje al chat con el atleta. Request: `multipart/form-data`.
+Añade un mensaje de respuesta al hilo. Request: `multipart/form-data`.
 
 | Campo | Tipo | Requerido | Notas |
 |---|---|---|---|
-| `texto` | `string` | Condicional | Obligatorio si no hay `archivo` |
-| `archivo` | `File` | Condicional | Imagen o vídeo, max 100 MB |
+| `texto` | `string` | Condicional | Obligatorio si no hay `archivos` |
+| `archivos` | `File[]` | Condicional | Obligatorio si no hay `texto`. Imágenes o vídeos, máx. 100 MB por archivo |
 
 ```json
 // Response 201
 {
   "ok": true,
   "data": {
-    "id": "uuid-msg",
-    "texto": "Muy bien la sesión de hoy, sigue así.",
-    "fecha": "2026-04-21",
-    "esAtleta": false,
-    "autor": "Carlos López",
-    "adjunto": null
+    "id": "uuid-msg-nuevo",
+    "texto": "Muy bien, la rodilla está bien alineada.",
+    "de": "ENTRENADOR",
+    "fecha": "2026-04-29T09:00:00Z",
+    "adjuntos": []
   }
 }
+```
+
+**Validaciones:**
+- El usuario autenticado debe tener asignación activa con el atleta del hilo (400 `ACCESO_DENEGADO` si no).
+- Al menos `texto` o un archivo es obligatorio (400 si ambos vacíos).
+- Al responder, marcar el hilo como no leído para el otro participante.
+
+---
+
+**`PUT /api/v1/comunicacion/hilos/:hiloId/leer`**
+
+Marca el hilo como leído para el usuario autenticado. Lo llama el frontend al abrir un hilo.
+
+```json
+// Response 200
+{ "ok": true }
 ```
 
 ---
 
-**`POST /api/v1/entrenador/atletas/:atletaId/nutricion/hilo/mensaje`**
+### Tablas de BBDD — Hilos de comunicación
 
-El nutricionista responde en el hilo de una comida concreta del atleta.
+**`hilos_comunicacion`**
 
-```json
-// Request body
-{
-  "comidaNombre": "Desayuno",
-  "texto": "Sí, puedes sustituir la leche por bebida de avena sin azúcares añadidos."
-}
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `atleta_id` | UUID FK → usuarios | |
+| `entrenador_id` | UUID FK → usuarios | |
+| `titulo` | VARCHAR(120) | |
+| `categoria` | ENUM | `TECNICA`, `DUDA`, `APUNTE` |
+| `creado_por` | ENUM | `ENTRENADOR`, `ATLETA` |
+| `creado_en` | TIMESTAMP | |
 
-// Response 201
-{
-  "ok": true,
-  "data": {
-    "id": "uuid-msg",
-    "texto": "Sí, puedes sustituir la leche por bebida de avena sin azúcares añadidos.",
-    "fecha": "2026-04-20",
-    "esAtleta": false,
-    "autor": "María González"
-  }
-}
-```
+**`mensajes_hilo`**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `hilo_id` | UUID FK → hilos_comunicacion | |
+| `texto` | TEXT NULLABLE | Nulo si el mensaje es solo adjuntos |
+| `enviado_por` | ENUM | `ENTRENADOR`, `ATLETA` |
+| `enviado_en` | TIMESTAMP | |
+
+**`adjuntos_mensaje`**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID PK | |
+| `mensaje_id` | UUID FK → mensajes_hilo | |
+| `s3_key` | VARCHAR | Clave S3 para generar pre-signed URL |
+| `tipo` | ENUM | `IMAGEN`, `VIDEO` |
+| `nombre_original` | VARCHAR | Nombre del archivo subido |
+
+**`lecturas_hilo`**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `hilo_id` | UUID FK → hilos_comunicacion | PK compuesta |
+| `usuario_id` | UUID FK → usuarios | PK compuesta |
+| `leido_en` | TIMESTAMP | Última vez que el usuario abrió el hilo |
+
+> Al crear un nuevo mensaje en un hilo, eliminar o actualizar el registro de `lecturas_hilo` del otro participante para que `leidoPorMi = false` en el siguiente `GET /hilos`.
 
 ---
 

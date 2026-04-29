@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 
 export interface EjercicioManual {
   id:     string;
@@ -97,10 +97,11 @@ export class EntrenamientoService {
     } catch { /* storage corrupto */ }
   }
 
-  getRutinas(atletaId: string): Observable<Rutina[]> {
-    return this.http
-      .get<ApiResponse<Rutina[]>>(`${this.API}/rutinas`, { params: { atletaId } })
-      .pipe(map(r => r.data.map(x => ({ ...x, creadoEn: new Date(x.creadoEn) }))));
+  getRutinas(_atletaId: string): Observable<Rutina[]> {
+    // return this.http
+    //   .get<ApiResponse<Rutina[]>>(`${this.API}/rutinas`, { params: { atletaId } })
+    //   .pipe(map(r => r.data.map(x => ({ ...x, creadoEn: new Date(x.creadoEn) }))));
+    return of([]);
   }
 
   crearRutina(atletaId: string, nombre: string, descripcion: string, sesiones: Sesion[]): Observable<Rutina> {
