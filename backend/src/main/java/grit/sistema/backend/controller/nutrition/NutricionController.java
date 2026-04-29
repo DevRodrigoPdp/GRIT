@@ -33,12 +33,12 @@ public class NutricionController {
 
     @Operation(summary = "Listar planes de nutrición")
     @GetMapping("/planes")
-    public ResponseEntity<ApiResponseDTO<List<PlanNutricionDTO>>> listarPlanes(
+    public ResponseEntity<ApiResponseDTO<List<PlanNutricionResponseDTO>>> listarPlanes(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(required = false) UUID atletaId
     ) {
         log.info("Listando planes de nutrición para entrenador {} y atleta {}", principal.getEmail(), atletaId);
-        List<PlanNutricionDTO> planes = nutricionService.listarPlanes(principal.getId(), atletaId);
+        List<PlanNutricionResponseDTO> planes = nutricionService.listarPlanes(principal.getId(), atletaId);
         return ResponseEntity.ok(ApiResponseDTO.success(planes, "Planes de nutrición encontrados"));
     }
 
@@ -51,6 +51,21 @@ public class NutricionController {
         log.info("Creando plan de nutrición para entrenador {} y atleta {}", principal.getEmail(), request.atletaId());
         PlanNutricionResponseDTO response = nutricionService.crearPlan(principal.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.success(response, "Plan de nutrición creado correctamente"));
+    }
+
+    @Operation(summary = "Actualizar plan de nutrición")
+    @PutMapping("/planes/{id}")
+    public ResponseEntity<ApiResponseDTO<PlanNutricionResponseDTO>> actualizarPlan(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id,
+            @Valid @RequestBody PlanNutricionRequestDTO request
+    ) {
+        log.info("Actualizando plan de nutrición {} por entrenador {}", id, principal.getEmail());
+
+        // Delegamos al servicio pasando el ID de la URL y el ID del token
+        PlanNutricionResponseDTO response = nutricionService.actualizarPlan(principal.getId(), id, request);
+
+        return ResponseEntity.ok(ApiResponseDTO.success(response, "Plan de nutrición actualizado correctamente"));
     }
 
     @Operation(summary = "Eliminar plan de nutrición")

@@ -24,40 +24,64 @@ public class NutricionService {
     private final AlimentoRecienteRepository recienteRepository;
     private final AtletaRepository atletaRepository;
     private final EntrenadorRepository entrenadorRepository;
-    private final NutricionMapper mapper; // Inyectamos el Mapper
+    private final NutricionMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<PlanNutricionDTO> listarPlanes(UUID entrenadorId, UUID atletaId) {
+    public List<PlanNutricionResponseDTO> listarPlanes(UUID entrenadorId, UUID atletaId) {
         List<PlanNutricion> planes = (atletaId == null)
                 ? planRepository.findAllByEntrenadorId(entrenadorId)
                 : planRepository.findAllByEntrenadorIdAndAtletaId(entrenadorId, atletaId);
-
-        return planes.stream().map(mapper::toDTO).toList();
+        return planes.stream().map(mapper::toResponseDTO).toList();
     }
 
     @Transactional
     public PlanNutricionResponseDTO crearPlan(UUID entrenadorId, PlanNutricionRequestDTO request) {
-        // 1. Validaciones de existencia (Regla de negocio)
         var atleta = atletaRepository.findById(request.atletaId())
                 .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
         var entrenador = entrenadorRepository.findById(entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
-        // 2. Uso de MapStruct para convertir el Request en Entidad
         PlanNutricion plan = mapper.toEntity(request);
-
-        // 3. Vincular relaciones core (JPA maneja el resto por Cascada)
         plan.setEntrenador(entrenador);
         plan.setAtleta(atleta);
 
-        // Importante: Asegurar bidireccionalidad si MapStruct no lo hace automáticamente
-        plan.getComidas().forEach(comida -> {
-            comida.setPlan(plan);
-            comida.getAlimentos().forEach(alimento -> alimento.setComida(comida));
-        });
+        // La bidireccionalidad la maneja el @AfterMapping del mapper
+        return mapper.toResponseDTO(planRepository.save(plan));
+    }
 
-        PlanNutricion guardado = planRepository.save(plan);
-        return mapper.toResponseDTO(guardado);
+    @Transactional
+    public PlanNutricionResponseDTO actualizarPlan(UUID entrenadorId, UUID planId, PlanNutricionRequestDTO request) {
+        // 1. Validar propiedad y existencia
+        PlanNutricion planExistente = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado o acceso denegado"));
+
+        // 2. Actualizar datos básicos (el atleta no se cambia por regla de negocio)
+        planExistente.setNombre(request.nombre());
+        planExistente.setDescripcion(request.descripcion());
+
+        // 3. Limpiar jerarquía antigua (orphanRemoval = true se encarga del resto)
+        planExistente.getComidas().clear();
+        planRepository.saveAndFlush(planExistente); // Limpia la DB antes de insertar lo nuevo
+
+        // 4. Mapear y añadir nuevas comidas (sin IDs para evitar 'detached entity')
+        PlanNutricion datosNuevos = mapper.toEntity(request);
+        if (datosNuevos.getComidas() != null) {
+            datosNuevos.getComidas().forEach(comida -> {
+                comida.setId(null); // Triple seguro contra detached
+                comida.setPlan(planExistente);
+                comida.getAlimentos().forEach(a -> a.setId(null));
+                planExistente.getComidas().add(comida);
+            });
+        }
+
+        return mapper.toResponseDTO(planRepository.save(planExistente));
+    }
+
+    @Transactional
+    public void eliminarPlan(UUID entrenadorId, UUID planId) {
+        PlanNutricion plan = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
+        planRepository.delete(plan);
     }
 
     @Transactional
@@ -70,28 +94,15 @@ public class NutricionService {
                     nuevo.setNombreComida(request.nombreComida());
                     return nuevo;
                 });
-
         reciente.setUsadoEn(OffsetDateTime.now());
         recienteRepository.save(reciente);
     }
 
     @Transactional(readOnly = true)
     public List<AlimentoRecienteDTO> listarAlimentosRecientes(UUID usuarioId, String nombreComida) {
-        // 1. Obtener entidades de la DB
-        List<AlimentoReciente> entidades = recienteRepository
-                .findTop8ByUsuarioIdAndNombreComidaOrderByUsadoEnDesc(usuarioId, nombreComida);
-
-        // 2. Mapear explícitamente al DTO de salida
-        return entidades.stream()
-                .map(mapper::toAlimentoRecienteDTO)
-                .toList();
-    }
-
-    @Transactional
-    public void eliminarPlan(UUID entrenadorId, UUID planId) {
-        PlanNutricion plan = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
-                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado o no pertenece al entrenador"));
-
-        planRepository.delete(plan);
+        return recienteRepository
+                .findTop8ByUsuarioIdAndNombreComidaOrderByUsadoEnDesc(usuarioId, nombreComida)
+                .stream()
+                .map(mapper::toAlimentoRecienteDTO).toList();
     }
 }
