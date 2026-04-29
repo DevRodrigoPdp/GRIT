@@ -1,6 +1,7 @@
 import { Component, inject, input, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SeguimientoService, CheckInPeso } from '../../services/seguimiento.service';
+// import { HttpClient } from '@angular/common/http';
 
 export type CategoriaHilo = 'tecnica' | 'duda' | 'apunte';
 
@@ -41,6 +42,9 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
 })
 export class ComunicacionComponent implements OnInit {
   private seg = inject(SeguimientoService);
+  // private http = inject(HttpClient);
+
+  // private readonly API = '/api/v1/comunicacion';
 
   readonly atletaId     = input.required<string>();
   readonly atletaNombre = input.required<string>();
@@ -56,10 +60,13 @@ export class ComunicacionComponent implements OnInit {
   nuevaCategoria = signal<CategoriaHilo>('apunte');
   nuevoTexto     = '';
   readonly nuevoAdjuntos = signal<Adjunto[]>([]);
+  // Cuando se conecte la API: guardar los File reales aquí en paralelo a nuevoAdjuntos
+  // private nuevoFiles: File[] = [];
 
   // ── Formulario respuesta ──────────────────────────────────────────────────
   textoRespuesta = '';
   readonly respuestaAdjuntos = signal<Adjunto[]>([]);
+  // private respuestaFiles: File[] = [];
 
   readonly categorias: { value: CategoriaHilo; label: string }[] = [
     { value: 'tecnica', label: 'TÉCNICA' },
@@ -109,6 +116,20 @@ export class ComunicacionComponent implements OnInit {
     const id = this.atletaId();
     this.seg.getHistorialPesos(id).subscribe(h => this.historialPesos.set(h));
     this.seg.tieneCheckInPendiente(id).subscribe(b => this.checkInPendiente.set(b));
+
+    // ── Descomentar para cargar hilos desde la API ──────────────────────────
+    // const ctx = this.servicio() === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
+    // this.http.get<{ ok: boolean; data: any[] }>(
+    //   `${this.API}/hilos?atletaId=${id}&contexto=${ctx}`
+    // ).subscribe(r => this.hilos.set(r.data.map((h: any) => ({
+    //   id:           h.id,
+    //   titulo:       h.titulo,
+    //   categoria:    h.categoria.toLowerCase() as CategoriaHilo,
+    //   de:           h.creadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta',
+    //   fechaAbierto: new Date(h.fechaAbierto),
+    //   leido:        h.leidoPorMi,
+    //   mensajes:     [],
+    // }))));
   }
 
   // ── Multimedia ────────────────────────────────────────────────────────────
@@ -126,8 +147,10 @@ export class ComunicacionComponent implements OnInit {
       };
       if (destino === 'nuevo') {
         this.nuevoAdjuntos.update(l => [...l, adjunto]);
+        // this.nuevoFiles.push(file);
       } else {
         this.respuestaAdjuntos.update(l => [...l, adjunto]);
+        // this.respuestaFiles.push(file);
       }
     });
     (event.target as HTMLInputElement).value = '';
@@ -136,8 +159,10 @@ export class ComunicacionComponent implements OnInit {
   quitarAdjunto(id: string, destino: 'nuevo' | 'respuesta'): void {
     if (destino === 'nuevo') {
       this.nuevoAdjuntos.update(l => l.filter(a => a.id !== id));
+      // this.nuevoFiles = this.nuevoFiles.filter((_, i) => this.nuevoAdjuntos()[i]?.id !== id);
     } else {
       this.respuestaAdjuntos.update(l => l.filter(a => a.id !== id));
+      // this.respuestaFiles = this.respuestaFiles.filter((_, i) => this.respuestaAdjuntos()[i]?.id !== id);
     }
   }
 
@@ -149,6 +174,34 @@ export class ComunicacionComponent implements OnInit {
     this.textoRespuesta = '';
     this.respuestaAdjuntos.set([]);
     this.vista.set('detalle');
+
+    // ── Descomentar para cargar mensajes completos desde la API ────────────
+    // El GET /hilos/:hiloId ya marca el hilo como leído en el backend (no hace falta PUT /leer aparte)
+    // this.http.get<{ ok: boolean; data: any }>(`${this.API}/hilos/${hilo.id}`)
+    //   .subscribe(r => {
+    //     const h = r.data;
+    //     const hiloCompleto: Hilo = {
+    //       id:           h.id,
+    //       titulo:       h.titulo,
+    //       categoria:    h.categoria.toLowerCase() as CategoriaHilo,
+    //       de:           h.creadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta',
+    //       fechaAbierto: new Date(h.fechaAbierto),
+    //       leido:        true,
+    //       mensajes:     h.mensajes.map((m: any) => ({
+    //         id:       m.id,
+    //         texto:    m.texto ?? '',
+    //         de:       m.de === 'ENTRENADOR' ? 'entrenador' : 'atleta',
+    //         fecha:    new Date(m.fecha),
+    //         adjuntos: m.adjuntos?.map((a: any) => ({
+    //           id: a.id, url: a.url,
+    //           tipo: a.tipo.toLowerCase() as 'imagen' | 'video',
+    //           nombre: a.nombre,
+    //         })),
+    //       })),
+    //     };
+    //     this.hilos.update(list => list.map(x => x.id === hilo.id ? hiloCompleto : x));
+    //     this.hiloActivo.set(hiloCompleto);
+    //   });
   }
 
   volverALista(): void {
@@ -184,6 +237,24 @@ export class ComunicacionComponent implements OnInit {
     this.nuevaCategoria.set('apunte');
     this.nuevoAdjuntos.set([]);
     this.vista.set('lista');
+
+    // ── Descomentar para persistir en la API ──────────────────────────────
+    // const fd = new FormData();
+    // fd.append('atletaId',  this.atletaId());
+    // fd.append('titulo',    titulo);
+    // fd.append('categoria', this.nuevaCategoria().toUpperCase());
+    // fd.append('contexto',  this.servicio() === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO');
+    // fd.append('texto',     texto);
+    // this.nuevoFiles.forEach(f => fd.append('archivos', f));
+    // this.http.post<{ ok: boolean; data: { id: string; fechaAbierto: string } }>(
+    //   `${this.API}/hilos`, fd
+    // ).subscribe(r => {
+    //   // Reemplaza el id temporal con el UUID real del backend
+    //   this.hilos.update(list => list.map(h =>
+    //     h.id === hilo.id ? { ...h, id: r.data.id, fechaAbierto: new Date(r.data.fechaAbierto) } : h
+    //   ));
+    // });
+    // this.nuevoFiles = [];
   }
 
   responder(): void {
@@ -203,6 +274,25 @@ export class ComunicacionComponent implements OnInit {
     this.hiloActivo.set(hiloActualizado);
     this.textoRespuesta = '';
     this.respuestaAdjuntos.set([]);
+
+    // ── Descomentar para persistir en la API ──────────────────────────────
+    // const fd = new FormData();
+    // if (texto) fd.append('texto', texto);
+    // this.respuestaFiles.forEach(f => fd.append('archivos', f));
+    // this.http.post<{ ok: boolean; data: { id: string; fecha: string } }>(
+    //   `${this.API}/hilos/${hilo.id}/mensajes`, fd
+    // ).subscribe(r => {
+    //   // Reemplaza el id temporal con el UUID real del backend
+    //   this.hilos.update(list => list.map(h => {
+    //     if (h.id !== hilo.id) return h;
+    //     return { ...h, mensajes: h.mensajes.map(m =>
+    //       m.id === msg.id ? { ...m, id: r.data.id, fecha: new Date(r.data.fecha) } : m
+    //     )};
+    //   }));
+    //   const actualizado = this.hilos().find(h => h.id === hilo.id)!;
+    //   this.hiloActivo.set(actualizado);
+    // });
+    // this.respuestaFiles = [];
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@
 
 > **Rama de trabajo:** `frontend` (en desarrollo) · **Stack frontend:** Angular 21 + Tailwind CSS
 > **Este documento** describe todos los contratos de API, modelos de datos y requisitos que el equipo de backend debe implementar para dar soporte a la plataforma GRIT.
-> **Última actualización:** 29 de abril de 2026 — Sección 3.17 reemplazada: chat en tiempo real eliminado, nuevo sistema de hilos de comunicación asíncrona (blog) con adjuntos multimedia; tablas `hilos_comunicacion`, `mensajes_hilo`, `adjuntos_mensaje`, `lecturas_hilo`
+> **Última actualización:** 29 de abril de 2026 — Sección 3.17: campo `contexto` añadido a hilos para separar conversaciones de ENTRENAMIENTO y NUTRICION; sección 3.17 creada con 5 endpoints y 4 tablas de BBDD
 
 ---
 
@@ -2010,7 +2010,14 @@ El atleta puede vincularse a un entrenador desde la pestaña **MI PERFIL** de su
 > **El chat en tiempo real ha sido eliminado y sustituido por un sistema de hilos asíncronos.**
 > Requieren cookie `access_token` válida. El entrenador accede con `rol === 'ENTRENADOR'`; el atleta con `rol === 'ATLETA'`. Ambos deben tener una asignación activa entre sí.
 
-El sistema de comunicación funciona como un foro de hilos temáticos. Cada hilo tiene un asunto, una categoría y una lista de mensajes. Tanto el entrenador como el atleta pueden abrir hilos y responder en los existentes. Los adjuntos (imágenes y vídeos) se almacenan en S3 y se devuelven como pre-signed URLs.
+El sistema de comunicación funciona como un foro de hilos temáticos. Cada hilo tiene un asunto, una categoría, un **contexto** y una lista de mensajes. Tanto el entrenador como el atleta pueden abrir hilos y responder en los existentes. Los adjuntos (imágenes y vídeos) se almacenan en S3 y se devuelven como pre-signed URLs.
+
+**Contexto del hilo:** cada hilo pertenece a un contexto que indica si la conversación es de entrenamiento o de nutrición. Esto permite que el mismo entrenador que también actúa como nutricionista tenga conversaciones separadas con el mismo atleta según el servicio que le esté prestando. El frontend pasa siempre el contexto al crear un hilo y lo usa para filtrar la lista.
+
+| Valor | Cuándo se usa |
+|---|---|
+| `ENTRENAMIENTO` | El entrenador abre el hilo desde la sección de entrenamiento del dashboard |
+| `NUTRICION` | El entrenador/nutricionista abre el hilo desde la sección de nutrición del dashboard |
 
 **Categorías de hilo:**
 
@@ -2022,9 +2029,9 @@ El sistema de comunicación funciona como un foro de hilos temáticos. Cada hilo
 
 ---
 
-**`GET /api/v1/comunicacion/hilos?atletaId=<uuid>`**
+**`GET /api/v1/comunicacion/hilos?atletaId=<uuid>&contexto=<ENTRENAMIENTO|NUTRICION>`**
 
-Devuelve todos los hilos entre el usuario autenticado y el atleta indicado, ordenados por fecha de último mensaje descendente.
+Devuelve los hilos entre el usuario autenticado y el atleta indicado, filtrados por contexto, ordenados por fecha de último mensaje descendente. El parámetro `contexto` es **obligatorio** — el frontend siempre lo envía según la sección del dashboard desde la que se consulta.
 
 ```json
 {
@@ -2034,6 +2041,7 @@ Devuelve todos los hilos entre el usuario autenticado y el atleta indicado, orde
       "id": "uuid-hilo",
       "titulo": "Revisa tu técnica en sentadilla",
       "categoria": "TECNICA",
+      "contexto": "ENTRENAMIENTO",
       "creadoPor": "ENTRENADOR",
       "fechaAbierto": "2026-04-27T10:00:00Z",
       "totalMensajes": 3,
@@ -2061,6 +2069,7 @@ Crea un nuevo hilo con su primer mensaje. Request: `multipart/form-data`.
 | `atletaId` | `string (UUID)` | ✅ | Atleta destinatario |
 | `titulo` | `string` | ✅ | Asunto del hilo, máx. 120 caracteres |
 | `categoria` | `enum` | ✅ | `TECNICA` \| `DUDA` \| `APUNTE` |
+| `contexto` | `enum` | ✅ | `ENTRENAMIENTO` \| `NUTRICION` — indica la sección desde la que se abre |
 | `texto` | `string` | ✅ | Primer mensaje del hilo |
 | `archivos` | `File[]` | ❌ | Imágenes o vídeos adjuntos, máx. 100 MB por archivo |
 
@@ -2089,6 +2098,7 @@ Devuelve el hilo completo con todos sus mensajes. Marca el hilo como leído para
     "id": "uuid-hilo",
     "titulo": "Revisa tu técnica en sentadilla",
     "categoria": "TECNICA",
+    "contexto": "ENTRENAMIENTO",
     "creadoPor": "ENTRENADOR",
     "fechaAbierto": "2026-04-27T10:00:00Z",
     "mensajes": [
@@ -2174,6 +2184,7 @@ Marca el hilo como leído para el usuario autenticado. Lo llama el frontend al a
 | `entrenador_id` | UUID FK → usuarios | |
 | `titulo` | VARCHAR(120) | |
 | `categoria` | ENUM | `TECNICA`, `DUDA`, `APUNTE` |
+| `contexto` | ENUM | `ENTRENAMIENTO`, `NUTRICION` — separa los hilos de entrenamiento de los de nutrición para el mismo par entrenador-atleta |
 | `creado_por` | ENUM | `ENTRENADOR`, `ATLETA` |
 | `creado_en` | TIMESTAMP | |
 
