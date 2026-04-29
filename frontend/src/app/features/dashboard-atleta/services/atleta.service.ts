@@ -176,7 +176,11 @@ export class AtletaService {
 
   getPerfil(): Observable<PerfilAtleta> {
     return this.http.get<ApiResponseDTO<PerfilAtleta>>(`${this.API}/perfil`, { withCredentials: true })
-      .pipe(map(response => response.data));
+      .pipe(map(r => ({
+        ...r.data,
+        alergias: r.data.alergias ?? [],
+        lesiones: r.data.lesiones ?? [],
+      })));
   }
 
   getProfesionalesAsignados(): Observable<ProfesionalAsignado[]> {

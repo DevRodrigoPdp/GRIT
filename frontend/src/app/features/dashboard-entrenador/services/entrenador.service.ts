@@ -58,33 +58,13 @@ export class EntrenadorService {
   private readonly API = '/api/v1/entrenador';
 
   getPerfil(): Observable<PerfilEntrenador> {
-    // return this.http.get<ApiResponseDTO<PerfilEntrenador>>(`${this.API}/perfil`, { withCredentials: true })
-    //   .pipe(map(response => response.data));
-    return of({
-      id: 'mock-entrenador-1',
-      nombre: this.auth.nombre() ?? 'Entrenador Demo',
-      email: 'entrenador@grit.com',
-      titulacionEntrenamiento: 'GRADO_CAFYD' as const,
-      titulacionNutricion: 'GRADO_NUTRICION_DIETETICA' as const,
-      experienciaAnos: 8,
-      descripcion: 'Especialista en fuerza y acondicionamiento físico con más de 8 años de experiencia.',
-      masters: ['Máster en Alto Rendimiento Deportivo'],
-      estado: 'ACTIVO' as const,
-      solicitudAmpliacionPendiente: null,
-      codigoInvitacion: 'GRIT-DEMO-2024',
-      fotoUrl: null,
-    });
+    return this.http.get<ApiResponseDTO<PerfilEntrenador>>(`${this.API}/perfil`, { withCredentials: true })
+      .pipe(map(response => response.data));
   }
 
   getMisAtletas(): Observable<AtletaAsignado[]> {
-    // return this.http.get<ApiResponseDTO<AtletaAsignado[]>>(`${this.API}/atletas`, { withCredentials: true })
-    //   .pipe(map(response => response.data || []));
-    return of([
-      { id: 'atleta-1', nombre: 'Carlos Martínez', deporte: 'Fútbol',       nivel: 'AVANZADO',     servicio: 'AMBOS',          tienePlanActivo: true  },
-      { id: 'atleta-2', nombre: 'Sara López',       deporte: 'Atletismo',    nivel: 'INTERMEDIO',   servicio: 'ENTRENAMIENTO',  tienePlanActivo: false },
-      { id: 'atleta-3', nombre: 'Miguel Torres',    deporte: 'Powerlifting', nivel: 'ELITE',        servicio: 'ENTRENAMIENTO',  tienePlanActivo: true  },
-      { id: 'atleta-4', nombre: 'Ana García',       deporte: 'Natación',     nivel: 'PRINCIPIANTE', servicio: 'NUTRICION',      tienePlanActivo: false },
-    ]);
+    return this.http.get<ApiResponseDTO<AtletaAsignado[]>>(`${this.API}/atletas`, { withCredentials: true })
+      .pipe(map(response => response.data || []));
   }
 
   solicitarCheckinPeso(atletaId: string): Observable<void> {

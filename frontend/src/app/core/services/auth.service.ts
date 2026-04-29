@@ -243,30 +243,19 @@ export class AuthService {
    * TODO: descomentar llamada real y eliminar bloque mock cuando haya backend.
    */
   me(): Observable<MeResponse | null> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http
-    //   .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
-    //   .pipe(
-    //     tap((res) => {
-    //       this.setSession(res.data.rol, res.data.estado,
-    //         res.data.tituloEntrenamiento, res.data.tituloNutricion,
-    //         res.data.servicio, res.data.nombre);
-    //     }),
-    //     catchError((err) => {
-    //       if (err.status === 401) { this.clearSession(); this.router.navigate(['/login']); }
-    //       return of(null);
-    //     })
-    //   );
-    // ── MOCK ── descomenta UNA línea según la vista que quieras probar ──────
-    // -- Atleta --
-    // this.setSession('ATLETA', 'ACTIVO', null, null, 'AMBOS',          'Atleta Demo');        // atleta ambos servicios
-    // this.setSession('ATLETA', 'ACTIVO', null, null, 'ENTRENAMIENTO',  'Atleta Demo');        // atleta solo entrenamiento
-    // this.setSession('ATLETA', 'ACTIVO', null, null, 'NUTRICION',      'Atleta Demo');        // atleta solo nutrición
-    // -- Entrenador/Nutricionista --
-    this.setSession('ENTRENADOR', 'ACTIVO', true,  true,  null, 'Entrenador Demo');          // coach ambos módulos
-    // this.setSession('ENTRENADOR', 'ACTIVO', true,  false, null, 'Entrenador Demo');          // solo entrenamiento
-    // this.setSession('ENTRENADOR', 'ACTIVO', false, true,  null, 'Nutricionista Demo');       // solo nutrición
-    return of(null);
+    return this.http
+      .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
+      .pipe(
+        tap((res) => {
+          this.setSession(res.data.rol, res.data.estado,
+            res.data.tituloEntrenamiento, res.data.tituloNutricion,
+            res.data.servicio, res.data.nombre);
+        }),
+        catchError((err) => {
+          if (err.status === 401) { this.clearSession(); this.router.navigate(['/login']); }
+          return of(null);
+        })
+      );
   }
 
   // ── Logout ───────────────────────────────────────────────────────────────

@@ -1,5 +1,7 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AlimentoOFF } from './alimentos.service';
 
 // ── Tipos públicos ────────────────────────────────────────────────────────────
@@ -32,13 +34,15 @@ export interface MacrosTotales {
   grasa: number;
 }
 
+interface ApiResponse<T> { ok: boolean; data: T; }
+
 // ── Servicio ──────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
 export class NutricionService {
-  /** Almacén en memoria: atletaId → planes */
-  private planes = new Map<string, PlanNutricion[]>();
+  private http = inject(HttpClient);
 
+  private readonly API = '/api/v1/nutricion';
   private readonly STORAGE_KEY = 'grit_ultimos_por_comida';
 
   /** Últimos alimentos por nombre de comida: { "Desayuno": [...], "Cena": [...] } */
@@ -46,12 +50,10 @@ export class NutricionService {
     JSON.parse(localStorage.getItem(this.STORAGE_KEY) ?? '{}')
   );
 
-  /** Devuelve los últimos alimentos usados en una comida concreta. */
   ultimosDeComida(nombre: string): AlimentoOFF[] {
     return this.ultimosPorComida()[nombre] ?? [];
   }
 
-  /** Registra un alimento como reciente para la comida indicada. */
   registrarUso(alimento: AlimentoOFF, comidaNombre: string): void {
     this.ultimosPorComida.update(mapa => {
       const existentes = mapa[comidaNombre] ?? [];
@@ -65,73 +67,49 @@ export class NutricionService {
     });
   }
 
-  /**
-   * Devuelve los planes de un atleta.
-   * TODO: reemplazar por GET /api/v1/nutricion/planes?atletaId=
-   */
   getPlanes(atletaId: string): Observable<PlanNutricion[]> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.get<PlanNutricion[]>(`/api/v1/nutricion/planes`, {
-    //   params: { atletaId }, withCredentials: true
-    // });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    return of(this.planes.get(atletaId) ?? []);
+    return this.http
+      .get<ApiResponse<any[]>>(`${this.API}/planes`, { params: { atletaId }, withCredentials: true })
+      .pipe(map(r => (r.data ?? []).map((p: any) => ({
+        ...p,
+        creadoEn: new Date(p.creadoEn),
+        activo: p.activo ?? false,
+      }))));
   }
 
-  /**
-   * Crea un plan de nutrición para un atleta.
-   * TODO: reemplazar por POST /api/v1/nutricion/planes
-   */
   crearPlan(
     atletaId: string,
     nombre: string,
     descripcion: string,
     comidas: Comida[]
   ): Observable<PlanNutricion> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.post<PlanNutricion>(`/api/v1/nutricion/planes`, {
-    //   atletaId, nombre, descripcion, comidas
-    // }, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    const plan: PlanNutricion = {
-      id: crypto.randomUUID(),
-      atletaId,
-      nombre,
-      descripcion,
-      comidas,
-      creadoEn: new Date(),
-      activo: false,
-    };
-    const existentes = this.planes.get(atletaId) ?? [];
-    this.planes.set(atletaId, [...existentes, plan]);
-    return of(plan);
+    return this.http
+      .post<ApiResponse<{ id: string; creadoEn: string }>>(`${this.API}/planes`, {
+        atletaId, nombre, descripcion, comidas,
+      }, { withCredentials: true })
+      .pipe(map(r => ({
+        id:          r.data.id,
+        atletaId,
+        nombre,
+        descripcion,
+        comidas,
+        creadoEn:    new Date(r.data.creadoEn),
+        activo:      false,
+      })));
   }
 
-  /**
-   * Elimina un plan por id.
-   * TODO: reemplazar por DELETE /api/v1/nutricion/planes/:id
-   */
-  eliminarPlan(atletaId: string, planId: string): Observable<void> {
-    // ── REAL ──────────────────────────────────────────────────────────────
-    // return this.http.delete<void>(`/api/v1/nutricion/planes/${planId}`, { withCredentials: true });
-    // ── MOCK ──────────────────────────────────────────────────────────────
-    const existentes = this.planes.get(atletaId) ?? [];
-    this.planes.set(atletaId, existentes.filter(p => p.id !== planId));
-    return of(undefined);
+  eliminarPlan(_atletaId: string, planId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<void>>(`${this.API}/planes/${planId}`, { withCredentials: true })
+      .pipe(map(() => undefined));
   }
 
-  /**
-   * Marca un plan como activo (desactiva el resto del atleta).
-   * TODO: reemplazar por PUT /api/v1/nutricion/planes/:id/activar
-   */
-  activarPlan(atletaId: string, planId: string): Observable<void> {
-    // return this.http.put<void>(`/api/v1/nutricion/planes/${planId}/activar`, {}, { withCredentials: true });
-    const existentes = this.planes.get(atletaId) ?? [];
-    this.planes.set(atletaId, existentes.map(p => ({ ...p, activo: p.id === planId })));
-    return of(undefined);
+  activarPlan(_atletaId: string, planId: string): Observable<void> {
+    return this.http
+      .put<ApiResponse<void>>(`${this.API}/planes/${planId}/activar`, {}, { withCredentials: true })
+      .pipe(map(() => undefined));
   }
 
-  /** Calcula los macros totales de una lista de comidas. */
   calcularMacros(comidas: Comida[]): MacrosTotales {
     let kcal = 0, prot = 0, carbs = 0, grasa = 0;
     for (const comida of comidas) {

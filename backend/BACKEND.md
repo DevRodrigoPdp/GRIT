@@ -2920,3 +2920,201 @@ El backend debe incluir un seeder que cargue al menos los alimentos más habitua
 
 ---
 
+## 12. Cambios del Frontend — Sesión 2026-04-29
+
+Este bloque documenta todos los cambios realizados en el frontend durante las últimas sesiones de desarrollo. El backend debe alinear su implementación con estos contratos.
+
+---
+
+### 12.1 Rutas protegidas y guards
+
+**Nuevas rutas añadidas a `app.routes.ts`:**
+
+| Ruta | Guard | Componente |
+|---|---|---|
+| `/admin` | `rolGuard('ADMIN')` | `AdminPage` |
+| `/login` | `noAuthGuard` | redirige al dashboard si ya autenticado |
+| `/registro` y subrutas | `noAuthGuard` | redirige al dashboard si ya autenticado |
+
+`noAuthGuard` llama a `GET /api/v1/auth/me` si el rol no está en memoria. El backend **debe** devolver el rol correcto en ese endpoint para que el guard redirija apropiadamente.
+
+---
+
+### 12.2 Interceptor de token (`auth.interceptor.ts`)
+
+Todos los requests del frontend ya incluyen `withCredentials: true` automáticamente vía interceptor. El interceptor implementa la lógica de refresco:
+
+1. Si una petición devuelve `401`, llama a `POST /api/v1/auth/refresh`.
+2. Si el refresh tiene éxito, reintenta la petición original.
+3. Si el refresh falla o la petición era `/auth/login` o `/auth/refresh`, redirige a `/login` y limpia la sesión.
+4. Las peticiones concurrentes que llegan mientras hay un refresh en curso se encolan y se reintentan cuando el refresh termina.
+
+**Requisito crítico:** `POST /api/v1/auth/refresh` debe devolver `200` con las nuevas cookies si el `refresh_token` es válido, y `401` si ha expirado. No devolver `200` con `ok: false` — el interceptor solo distingue por código HTTP.
+
+---
+
+### 12.3 `GET /api/v1/auth/me` — campos obligatorios
+
+El frontend llama a este endpoint al iniciar cada sesión para restaurar el estado de autenticación. La respuesta debe incluir:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "rol":    "ATLETA | ENTRENADOR | ADMIN",
+    "estado": "ACTIVO | PENDIENTE_REVISION | RECHAZADO",
+    "servicio": "ENTRENAMIENTO | NUTRICION | AMBOS",
+    "tituloEntrenamiento": true,
+    "tituloNutricion":     false
+  }
+}
+```
+
+`servicio` se usa para mostrar/ocultar tabs en el dashboard del atleta. `tituloEntrenamiento` y `tituloNutricion` controlan qué tabs ve el entrenador al seleccionar un atleta. Para el rol `ATLETA`, los campos de título pueden ser `null` o ausentes. Para el rol `ENTRENADOR`, el campo `servicio` puede ser `null` o ausente.
+
+---
+
+### 12.4 `GET /api/v1/entrenador/atletas` — IDs deben ser UUID válidos
+
+**Error detectado:** el backend devolvía `id: "atleta-1"` (datos de prueba con IDs no-UUID). Esto provoca `HttpMessageNotReadableException` en Spring al intentar deserializar ese ID como `UUID` en endpoints posteriores (`POST /api/v1/entrenamiento/rutinas`, etc.).
+
+**Requisito:** todos los registros de la tabla `atletas` deben tener UUIDs estándar (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`). Incluir UUIDs reales también en los seeders y datos de prueba.
+
+La respuesta de este endpoint:
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "nombre": "...",
+      "deporte": "...",
+      "nivel": "PRINCIPIANTE | INTERMEDIO | AVANZADO | ELITE",
+      "servicio": "ENTRENAMIENTO | NUTRICION | AMBOS",
+      "tienePlanActivo": true,
+      "alergias": [],
+      "intolerancias": []
+    }
+  ]
+}
+```
+
+---
+
+### 12.5 `POST /api/v1/entrenamiento/rutinas` — estructura de ejercicios
+
+**Problema corregido en el frontend:** el componente enviaba ejercicios en formato plano. Ahora los transforma correctamente al formato anidado antes de enviar.
+
+Body que llega al backend:
+
+```json
+{
+  "atletaId": "uuid-atleta",
+  "nombre": "Fuerza Semana A",
+  "descripcion": "...",
+  "sesiones": [
+    {
+      "id": "uuid-generado-local",
+      "nombre": "Piernas",
+      "ejercicios": [
+        {
+          "ejercicio": { "id": "uuid-o-slug", "nombre": "Sentadilla" },
+          "series": 4,
+          "reps": "6",
+          "notas": "Con pausa abajo"
+        }
+      ]
+    }
+  ]
+}
+```
+
+`ejercicio.id` puede ser un UUID generado localmente si el ejercicio se introdujo manualmente (no desde la API externa). El backend debe aceptarlo sin exigir que exista en ninguna tabla.
+
+**Respuesta esperada `201`:**
+```json
+{ "ok": true, "data": { "id": "uuid-nueva-rutina", "creadoEn": "2026-04-10T12:00:00Z" } }
+```
+
+---
+
+### 12.6 `GET /api/v1/entrenamiento/rutinas?atletaId=` — estructura de respuesta requerida
+
+El frontend transforma `ejercicio.nombre` al leer. El campo `ejercicio` dentro de cada entrada de `ejercicios` es **obligatorio** en la respuesta:
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid-rutina",
+      "atletaId": "uuid-atleta",
+      "nombre": "...",
+      "descripcion": "...",
+      "activa": false,
+      "creadoEn": "2026-04-10T10:00:00Z",
+      "sesiones": [
+        {
+          "id": "uuid-sesion",
+          "nombre": "Piernas",
+          "ejercicios": [
+            {
+              "ejercicio": { "id": "...", "nombre": "Sentadilla" },
+              "series": 4,
+              "reps": "6",
+              "notas": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### 12.7 `GET /api/v1/nutricion/planes?atletaId=` — campo `activo` obligatorio
+
+El frontend espera el campo `activo: boolean` en cada plan. El fallback `?? false` existe en el frontend pero lo correcto es incluirlo siempre:
+
+```json
+{ "id": "uuid", "atletaId": "uuid", "nombre": "...", "activo": true, "creadoEn": "...", "comidas": [...] }
+```
+
+---
+
+### 12.8 `POST /api/v1/atleta/conectar` — códigos HTTP de error diferenciados
+
+El frontend distingue exactamente estos dos casos:
+
+| HTTP | `error` | Mensaje mostrado al usuario |
+|---|---|---|
+| `400` | `CODIGO_INVALIDO` | "Código no válido. Comprueba que lo has introducido correctamente." |
+| `409` | `YA_VINCULADO` | "Ya tienes un profesional asignado para este servicio." |
+
+El backend **debe** devolver `409` (no `400`) cuando el atleta ya tiene un profesional asignado para ese servicio.
+
+---
+
+### 12.9 `GET /api/v1/atleta/perfil` — arrays `alergias` y `lesiones` nunca `null`
+
+El backend debe devolver siempre estos campos como array:
+
+```json
+{ "alergias": [], "lesiones": [] }
+```
+
+Nunca `null`. La ausencia del campo causaba errores de renderizado en el template del atleta.
+
+---
+
+### 12.10 Sistema de comunicación — hilos asincrónicos (frontend preparado)
+
+El frontend del atleta incluye `ComunicacionAtletaComponent`, simétrico al del entrenador. Los endpoints de hilos (sección 3.14 del BACKEND.md) deben contemplar que tanto el atleta como el entrenador crean y responden hilos.
+
+El campo `de` en los mensajes/hilos distingue el origen: `'atleta'` o `'entrenador'`. Las llamadas HTTP en el componente del atleta están **preparadas pero comentadas**, listas para activar cuando el backend las implemente. Ver el patrón en `comunicacion-atleta.ts`.
+
+---
+

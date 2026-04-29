@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export interface EjercicioManual {
   id:     string;
@@ -39,25 +39,26 @@ export interface Rutina {
 
 const STORAGE_KEY_HISTORIAL = 'grit_ejercicios_historial';
 
-const BIBLIOTECA: string[] = [
-  // Pecho
-  'Press de banca', 'Press inclinado', 'Press declinado', 'Aperturas con mancuernas', 'Fondos en paralelas',
-  // Espalda
-  'Dominadas', 'Jalón al pecho', 'Remo con barra', 'Remo en polea baja', 'Remo con mancuerna', 'Pull-over',
-  // Hombros
-  'Press militar', 'Press Arnold', 'Elevaciones laterales', 'Elevaciones frontales', 'Pájaros', 'Face pull',
-  // Bíceps
-  'Curl de bíceps', 'Curl martillo', 'Curl concentrado', 'Curl en polea baja',
-  // Tríceps
-  'Extensión de tríceps en polea', 'Press francés', 'Patada de tríceps',
-  // Pierna
-  'Sentadilla', 'Sentadilla búlgara', 'Prensa 45°', 'Extensión de cuádriceps', 'Peso muerto', 'Peso muerto rumano',
-  'Hip thrust', 'Curl femoral', 'Zancadas', 'Elevación de talones',
-  // Core
-  'Plancha', 'Crunch', 'Rueda abdominal', 'Elevación de piernas', 'Russian twist',
-  // Funcional / cardio
-  'Burpees', 'Saltos a cajón', 'Kettlebell swing', 'Mountain climbers', 'Sprints',
-];
+// Fallback local — descomentar si la API no está disponible
+// const BIBLIOTECA: string[] = [
+//   'Press de banca', 'Press inclinado', 'Press declinado', 'Aperturas con mancuernas', 'Fondos en paralelas',
+//   'Dominadas', 'Jalón al pecho', 'Remo con barra', 'Remo en polea baja', 'Remo con mancuerna', 'Pull-over',
+//   'Press militar', 'Press Arnold', 'Elevaciones laterales', 'Elevaciones frontales', 'Pájaros', 'Face pull',
+//   'Curl de bíceps', 'Curl martillo', 'Curl concentrado', 'Curl en polea baja',
+//   'Extensión de tríceps en polea', 'Press francés', 'Patada de tríceps',
+//   'Sentadilla', 'Sentadilla búlgara', 'Prensa 45°', 'Extensión de cuádriceps', 'Peso muerto', 'Peso muerto rumano',
+//   'Hip thrust', 'Curl femoral', 'Zancadas', 'Elevación de talones',
+//   'Plancha', 'Crunch', 'Rueda abdominal', 'Elevación de piernas', 'Russian twist',
+//   'Burpees', 'Saltos a cajón', 'Kettlebell swing', 'Mountain climbers', 'Sprints',
+// ];
+
+export interface EjercicioSugerencia {
+  id:              string;
+  nombre:          string;
+  dificultad:      string;
+  grupoMuscular:   string;
+  equipoNecesario: string;
+}
 
 interface ApiResponse<T> { ok: boolean; data: T; }
 
@@ -65,22 +66,29 @@ interface ApiResponse<T> { ok: boolean; data: T; }
 export class EntrenamientoService {
   private http = inject(HttpClient);
 
-  private readonly API = '/api/v1/entrenamiento';
+  private readonly API    = '/api/v1/entrenamiento';
+  private readonly API_EJ = '/api/v1/ejercicios';
 
-  readonly historial = signal<string[]>([]);
+  readonly historial        = signal<string[]>([]);
+  readonly sugerenciasCache = signal<EjercicioSugerencia[]>([]);
 
   constructor() {
     this.cargarHistorial();
   }
 
-  sugerencias(query: string): string[] {
-    const q = query.trim().toLowerCase();
-    const historial = this.historial();
-    if (!q) return historial.slice(0, 8);
-    const coincide = (n: string) => n.toLowerCase().includes(q);
-    const deHistorial = historial.filter(coincide);
-    const deBiblioteca = BIBLIOTECA.filter(n => coincide(n) && !deHistorial.includes(n));
-    return [...deHistorial, ...deBiblioteca].slice(0, 8);
+  buscarEjercicios(query: string): void {
+    this.http
+      .get<ApiResponse<EjercicioSugerencia[]>>(`${this.API_EJ}/search`, { params: { q: query.trim() } })
+      .subscribe(r => this.sugerenciasCache.set(r.data ?? []));
+
+    // ── Fallback local (descomentar si la API no está disponible) ────────────
+    // const q = query.trim().toLowerCase();
+    // const historial = this.historial();
+    // if (!q) { this.sugerenciasCache.set(historial.slice(0, 8).map(nombre => ({ id: '', nombre, dificultad: '', grupoMuscular: '', equipoNecesario: '' }))); return; }
+    // const coincide = (n: string) => n.toLowerCase().includes(q);
+    // const deHistorial = historial.filter(coincide);
+    // const deBiblioteca = BIBLIOTECA.filter(n => coincide(n) && !deHistorial.includes(n));
+    // this.sugerenciasCache.set([...deHistorial, ...deBiblioteca].slice(0, 8).map(nombre => ({ id: '', nombre, dificultad: '', grupoMuscular: '', equipoNecesario: '' })));
   }
 
   registrarUsoEjercicio(nombre: string): void {
@@ -97,16 +105,43 @@ export class EntrenamientoService {
     } catch { /* storage corrupto */ }
   }
 
-  getRutinas(_atletaId: string): Observable<Rutina[]> {
-    // return this.http
-    //   .get<ApiResponse<Rutina[]>>(`${this.API}/rutinas`, { params: { atletaId } })
-    //   .pipe(map(r => r.data.map(x => ({ ...x, creadoEn: new Date(x.creadoEn) }))));
-    return of([]);
+  getRutinas(atletaId: string): Observable<Rutina[]> {
+    return this.http
+      .get<ApiResponse<any[]>>(`${this.API}/rutinas`, { params: { atletaId } })
+      .pipe(map(r => r.data.map((x: any) => ({
+        ...x,
+        creadoEn: new Date(x.creadoEn),
+        sesiones: (x.sesiones ?? []).map((s: any) => ({
+          ...s,
+          ejercicios: (s.ejercicios ?? []).map((e: any) => ({
+            id:     e.ejercicio?.id     ?? crypto.randomUUID(),
+            nombre: e.ejercicio?.nombre ?? '',
+            series: e.series,
+            reps:   e.reps,
+            notas:  e.notas ?? '',
+          })),
+        })),
+      }))));
   }
 
   crearRutina(atletaId: string, nombre: string, descripcion: string, sesiones: Sesion[]): Observable<Rutina> {
+    const payload = {
+      atletaId,
+      nombre,
+      descripcion,
+      sesiones: sesiones.map(s => ({
+        id:     s.id,
+        nombre: s.nombre,
+        ejercicios: s.ejercicios.map(e => ({
+          ejercicio: { id: e.id, nombre: e.nombre },
+          series: e.series,
+          reps:   e.reps,
+          notas:  e.notas,
+        })),
+      })),
+    };
     return this.http
-      .post<ApiResponse<{ id: string; creadoEn: string }>>(`${this.API}/rutinas`, { atletaId, nombre, descripcion, sesiones })
+      .post<ApiResponse<{ id: string; creadoEn: string }>>(`${this.API}/rutinas`, payload)
       .pipe(map(r => ({
         id:          r.data.id,
         atletaId,

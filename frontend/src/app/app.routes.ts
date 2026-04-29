@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { rolGuard } from './core/guards/auth.guard';
+import { rolGuard, noAuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -9,6 +9,7 @@ export const routes: Routes = [
   },
   {
     path: 'login',
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./features/auth/pages/login/login').then(m => m.LoginPage),
   },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   },
   {
     path: 'registro',
+    canActivate: [noAuthGuard],
     children: [
       {
         path: '',
@@ -80,7 +82,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/para-atletas/para-atletas').then(m => m.ParaAtletasPage),
   },
-  // TODO: ruta admin — pendiente de integrar feat/admin-panel
+  {
+    path: 'admin',
+    canActivate: [rolGuard('ADMIN')],
+    loadComponent: () =>
+      import('./features/admin/admin').then(m => m.AdminPage),
+  },
   {
     path: '**',
     redirectTo: '',

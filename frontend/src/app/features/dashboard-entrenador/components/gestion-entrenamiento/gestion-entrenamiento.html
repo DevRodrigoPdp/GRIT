@@ -61,8 +61,8 @@
           <label class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">NOMBRE DEL EJERCICIO <span class="text-[#2ED38D]">*</span></label>
           <input
             [value]="nuevoNombre()"
-            (input)="nuevoNombre.set($any($event.target).value); mostrarSugerencias.set(true)"
-            (focus)="mostrarSugerencias.set(true)"
+            (input)="nuevoNombre.set($any($event.target).value); entrenamiento.buscarEjercicios($any($event.target).value); mostrarSugerencias.set(true)"
+            (focus)="entrenamiento.buscarEjercicios(nuevoNombre()); mostrarSugerencias.set(true)"
             (keydown.enter)="agregarEjercicio(); mostrarSugerencias.set(false)"
             (keydown.escape)="mostrarSugerencias.set(false)"
             placeholder="Ej. Press de banca, Sentadilla..."
@@ -70,18 +70,23 @@
             class="border-b-2 border-black bg-transparent py-3 text-xl font-black uppercase tracking-tight text-black placeholder-gray-200 outline-none focus:border-[#2ED38D] transition-colors"
           />
           @if (mostrarSugerencias()) {
-            @let sugs = entrenamiento.sugerencias(nuevoNombre());
+            @let sugs = entrenamiento.sugerenciasCache();
             @if (sugs.length > 0) {
               <div class="flex flex-col border border-[#E5E7EB] mt-1">
                 @if (!nuevoNombre().trim()) {
                   <p class="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-300 px-3 pt-2 pb-1">USADOS RECIENTEMENTE</p>
                 }
-                @for (sug of sugs; track sug) {
+                @for (sug of sugs; track sug.id) {
                   <button
                     type="button"
-                    (mousedown)="nuevoNombre.set(sug); mostrarSugerencias.set(false)"
-                    class="text-left px-3 py-2 text-sm font-bold uppercase tracking-tight text-black hover:bg-[#F9FAFB] border-t border-[#F3F4F6] first:border-t-0 transition-colors"
-                  >{{ sug }}</button>
+                    (mousedown)="nuevoNombre.set(sug.nombre); mostrarSugerencias.set(false)"
+                    class="text-left px-3 py-2 hover:bg-[#F9FAFB] border-t border-[#F3F4F6] first:border-t-0 transition-colors flex items-center justify-between gap-4"
+                  >
+                    <span class="text-sm font-bold uppercase tracking-tight text-black">{{ sug.nombre }}</span>
+                    @if (sug.grupoMuscular) {
+                      <span class="text-[10px] font-medium tracking-widest uppercase text-gray-300 flex-shrink-0">{{ sug.grupoMuscular }}</span>
+                    }
+                  </button>
                 }
               </div>
             }
