@@ -1,0 +1,290 @@
+<!-- Barra única de página -->
+<header class="bg-white border-b border-[#E5E7EB] sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="Miga de pan" class="flex items-center gap-2 min-w-0">
+      <a routerLink="/" class="font-black tracking-tighter text-base text-black uppercase no-underline hover:text-[#2ED38D] transition-colors flex-shrink-0">GRIT</a>
+      <svg class="w-3 h-3 text-gray-300 flex-shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="text-xs font-black tracking-widest uppercase text-black truncate" aria-current="page">Para atletas</span>
+    </nav>
+
+    <!-- Acciones -->
+    <div class="flex items-center gap-4 flex-shrink-0">
+      <a routerLink="/login" class="hidden sm:block text-xs font-bold tracking-widest uppercase text-gray-400 hover:text-black transition-colors no-underline">
+        Iniciar sesión
+      </a>
+      <a
+        routerLink="/registro/atleta"
+        class="bg-[#2ED38D] text-black text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full hover:bg-black hover:text-white transition-all duration-200 no-underline"
+      >
+        Unirme gratis
+      </a>
+    </div>
+
+  </div>
+</header>
+
+<!-- Hero -->
+<section
+  class="relative min-h-[65vh] flex flex-col justify-end overflow-hidden"
+  style="background-image: url('https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;"
+  aria-label="Cabecera para atletas"
+>
+  <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/20"></div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-16 pt-12 w-full">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-5 h-px bg-[#2ED38D]" aria-hidden="true"></div>
+      <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">Para atletas</span>
+    </div>
+    <h1 class="text-[clamp(2.5rem,7vw,6rem)] font-black uppercase tracking-tighter leading-[0.88] text-white mb-6">
+      ENTRENA CON<br>LOS MEJORES<br><span class="text-[#2ED38D]">PROFESIONALES.</span>
+    </h1>
+    <p class="text-lg font-light text-gray-200 max-w-xl mb-10">
+      Accede a <strong class="font-bold text-white">planes de entrenamiento y nutrición personalizados</strong>
+      diseñados por profesionales certificados y adaptados a tus objetivos reales.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <a
+        routerLink="/registro/atleta"
+        class="inline-flex items-center gap-3 bg-[#2ED38D] text-black px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline group"
+      >
+        Registrarme como atleta
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <a
+        href="#como-funciona"
+        class="inline-flex items-center gap-3 border border-white/40 text-white px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white hover:text-black transition-all duration-300 no-underline"
+      >
+        Cómo funciona
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Badges resumen -->
+<div class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+  <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-full bg-[#2ED38D]/10 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+        <svg class="w-5 h-5 text-[#2ED38D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M6 4v16M18 4v16M4 9h2M18 9h2M4 15h2M18 15h2M8 9h8M8 15h8"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-black uppercase tracking-widest text-black">Entrenamiento</p>
+        <p class="text-xs font-light text-gray-500">Rutinas personalizadas por tu entrenador</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-full bg-[#2ED38D]/10 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+        <svg class="w-5 h-5 text-[#2ED38D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8 2 5 6 5 10c0 3 1.5 5.5 4 7v2h6v-2c2.5-1.5 4-4 4-7 0-4-3-8-7-8z"/>
+          <circle cx="12" cy="9" r="2"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-black uppercase tracking-widest text-black">Nutrición</p>
+        <p class="text-xs font-light text-gray-500">Planes con macros calculados al detalle</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-full bg-[#2ED38D]/10 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+        <svg class="w-5 h-5 text-[#2ED38D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-black uppercase tracking-widest text-black">Seguimiento directo</p>
+        <p class="text-xs font-light text-gray-500">Tu profesional monitoriza tu progreso</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Entrenamiento -->
+<section id="entrenamiento" class="bg-white border-b border-[#E5E7EB]" aria-labelledby="titulo-entrenamiento">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+      <div>
+        <div class="flex items-center gap-3 mb-4" aria-hidden="true">
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">Entrenamiento personalizado</span>
+        </div>
+        <h2 id="titulo-entrenamiento" class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black leading-[0.9]">
+          ENTRENA CON<br>UN PLAN.
+        </h2>
+      </div>
+      <p class="text-sm font-light text-gray-500 max-w-sm">
+        Tu entrenador diseña rutinas adaptadas a tu nivel, objetivo y disponibilidad. Cada sesión, cada ejercicio — todo pensado para ti.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch rounded-2xl overflow-hidden border border-[#E5E7EB]">
+      <div
+        class="h-72 lg:h-auto min-h-[360px]"
+        style="background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80'); background-size: cover; background-position: center;"
+        role="img"
+        aria-label="Atleta entrenando en gimnasio"
+      ></div>
+      <div class="p-10 flex flex-col gap-6 bg-white">
+        <ul class="flex flex-col gap-4" aria-label="Características del plan de entrenamiento">
+          @for (f of servicios[0].features; track f) {
+            <li class="flex items-start gap-3">
+              <span class="text-[#2ED38D] font-black text-xs mt-0.5 flex-shrink-0" aria-hidden="true">→</span>
+              <span class="text-sm font-light text-gray-600">{{ f }}</span>
+            </li>
+          }
+        </ul>
+        <a
+          routerLink="/registro/atleta"
+          class="mt-2 inline-flex items-center gap-3 bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-[#2ED38D] hover:text-black transition-all duration-300 no-underline group w-fit"
+        >
+          Empezar ahora
+          <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Nutrición -->
+<section id="nutricion" class="bg-[#F9FAFB] border-b border-[#E5E7EB]" aria-labelledby="titulo-nutricion">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+      <div>
+        <div class="flex items-center gap-3 mb-4" aria-hidden="true">
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">Nutrición personalizada</span>
+        </div>
+        <h2 id="titulo-nutricion" class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black leading-[0.9]">
+          COME CON<br>PROPÓSITO.
+        </h2>
+      </div>
+      <p class="text-sm font-light text-gray-500 max-w-sm">
+        Tu nutricionista crea planes detallados con comidas, cantidades exactas y macros calculados. Sin adivinanzas, sin dietas genéricas.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch rounded-2xl overflow-hidden border border-[#E5E7EB]">
+      <div class="p-10 flex flex-col gap-6 bg-white order-2 lg:order-1">
+        <ul class="flex flex-col gap-4" aria-label="Características del plan nutricional">
+          @for (f of servicios[1].features; track f) {
+            <li class="flex items-start gap-3">
+              <span class="text-[#2ED38D] font-black text-xs mt-0.5 flex-shrink-0" aria-hidden="true">→</span>
+              <span class="text-sm font-light text-gray-600">{{ f }}</span>
+            </li>
+          }
+        </ul>
+        <a
+          routerLink="/registro/atleta"
+          class="mt-2 inline-flex items-center gap-3 bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-[#2ED38D] hover:text-black transition-all duration-300 no-underline group w-fit"
+        >
+          Empezar ahora
+          <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+      <div
+        class="h-72 lg:h-auto min-h-[360px] order-1 lg:order-2"
+        style="background-image: url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80'); background-size: cover; background-position: center;"
+        role="img"
+        aria-label="Plato de comida saludable y nutritiva"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<!-- Cómo funciona -->
+<section id="como-funciona" class="bg-white border-b border-[#E5E7EB]" aria-labelledby="titulo-como-funciona">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+      <div>
+        <div class="flex items-center gap-3 mb-4" aria-hidden="true">
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">Cómo funciona para ti</span>
+        </div>
+        <h2 id="titulo-como-funciona" class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black leading-[0.9]">
+          EMPIEZA EN<br>TRES PASOS.
+        </h2>
+      </div>
+      <a
+        routerLink="/registro/atleta"
+        class="flex-shrink-0 inline-flex items-center gap-3 bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-[#2ED38D] hover:text-black transition-all duration-300 no-underline group"
+      >
+        Crear mi cuenta
+        <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+    </div>
+    <ol class="grid grid-cols-1 md:grid-cols-3 gap-5 list-none">
+      @for (paso of pasos; track paso.num) {
+        <li class="bg-[#F9FAFB] rounded-2xl p-10 flex flex-col border border-[#E5E7EB]">
+          <span class="text-7xl font-extrabold text-[#F3F4F6] leading-none mb-6 select-none" aria-hidden="true">{{ paso.num }}</span>
+          <div class="w-8 h-0.5 bg-[#2ED38D] mb-6" aria-hidden="true"></div>
+          <h3 class="text-sm font-black uppercase tracking-widest text-black mb-3">{{ paso.titulo }}</h3>
+          <p class="text-sm font-light leading-relaxed text-gray-500">{{ paso.desc }}</p>
+        </li>
+      }
+    </ol>
+  </div>
+</section>
+
+<!-- CTA final -->
+<section class="bg-black" aria-label="Llamada a la acción">
+  <div class="max-w-7xl mx-auto px-6 py-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+    <div>
+      <h2 class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white leading-[0.9] mb-4">
+        ¿LISTO PARA<br><span class="text-[#2ED38D]">EVOLUCIONAR?</span>
+      </h2>
+      <p class="text-sm font-light text-gray-400 max-w-md">
+        Tu entrenador o nutricionista ya está en GRIT. Solo falta que te unas tú.
+      </p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-4 flex-shrink-0">
+      <a
+        routerLink="/registro/atleta"
+        class="inline-flex items-center justify-center gap-3 bg-[#2ED38D] text-black px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline group"
+      >
+        Crear mi cuenta
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <a
+        routerLink="/"
+        class="inline-flex items-center justify-center gap-2 border border-white/30 text-white px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full hover:border-white transition-all duration-300 no-underline group"
+      >
+        <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Volver al inicio
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Mini footer -->
+<footer class="bg-black border-t border-white/10">
+  <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <span class="font-black tracking-tighter text-base text-white uppercase">GRIT</span>
+    <div class="flex flex-wrap justify-center gap-6 text-[11px] font-bold tracking-[0.2em] uppercase text-white/40">
+      <a routerLink="/para-profesionales" class="hover:text-white transition-colors no-underline">Para profesionales</a>
+      <a href="#" class="hover:text-white transition-colors no-underline">Privacidad</a>
+      <a href="#" class="hover:text-white transition-colors no-underline">Términos</a>
+    </div>
+    <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-white/20">© 2025 GRIT</span>
+  </div>
+</footer>

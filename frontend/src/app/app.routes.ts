@@ -56,11 +56,31 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'admin',
-    canActivate: [rolGuard('ADMIN')],
-    loadComponent: () =>
-      import('./features/admin/admin').then(m => m.AdminPage),
+    path: 'para-profesionales',
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/para-profesionales/para-profesionales').then(m => m.ParaProfesionalesPage),
+      },
+      {
+        path: 'entrenadores',
+        loadComponent: () =>
+          import('./features/para-profesionales/entrenadores/entrenadores').then(m => m.EntrenadoresPage),
+      },
+      {
+        path: 'nutricionistas',
+        loadComponent: () =>
+          import('./features/para-profesionales/nutricionistas/nutricionistas').then(m => m.NutricionistasPage),
+      },
+    ],
   },
+  {
+    path: 'para-atletas',
+    loadComponent: () =>
+      import('./features/para-atletas/para-atletas').then(m => m.ParaAtletasPage),
+  },
+  // TODO: ruta admin — pendiente de integrar feat/admin-panel
   {
     path: '**',
     redirectTo: '',

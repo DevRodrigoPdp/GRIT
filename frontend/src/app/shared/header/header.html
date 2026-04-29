@@ -1,4 +1,4 @@
-<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#E5E7EB]">
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#E5E7EB]">
   <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
     <!-- Logo -->
@@ -7,12 +7,12 @@
     </a>
 
     <!-- Desktop Nav -->
-    <div class="hidden md:flex items-center gap-10">
+    <div class="hidden md:flex items-center gap-8">
       @for (link of navLinks; track link.label) {
         <a
           [href]="link.href"
           (click)="scrollTo($event, link.href)"
-          class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors duration-200 no-underline"
+          class="text-xs font-semibold tracking-widest text-gray-500 uppercase hover:text-black transition-colors duration-200 no-underline"
         >
           {{ link.label }}
         </a>
@@ -23,15 +23,15 @@
     <div class="flex items-center gap-4">
       <a
         routerLink="/login"
-        class="hidden md:inline-flex items-center text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors duration-200 no-underline"
+        class="hidden md:inline-flex items-center text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-black transition-colors duration-200 no-underline"
       >
-        INICIAR SESIÓN
+        Iniciar sesión
       </a>
       <a
         routerLink="/registro"
-        class="hidden md:inline-flex items-center border border-black px-6 py-2 text-sm font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all duration-200 no-underline"
+        class="hidden md:inline-flex items-center bg-[#2ED38D] text-black px-6 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-black hover:text-white transition-all duration-200 no-underline"
       >
-        EMPEZAR
+        Empezar gratis
       </a>
 
       <!-- Mobile menu button -->
@@ -49,11 +49,11 @@
 
   <!-- Mobile menu -->
   @if (isMenuOpen()) {
-    <div class="md:hidden border-t border-[#E5E7EB] bg-white px-6 py-4 flex flex-col gap-4">
+    <div class="md:hidden border-t border-[#E5E7EB] bg-white px-6 py-6 flex flex-col gap-5">
       @for (link of navLinks; track link.label) {
         <a
           [href]="link.href"
-          class="text-xs font-bold tracking-[0.2em] text-black uppercase hover:text-[#2ED38D] transition-colors no-underline"
+          class="text-xs font-semibold tracking-widest text-gray-500 uppercase hover:text-black transition-colors no-underline"
           (click)="scrollTo($event, link.href); toggleMenu()"
         >
           {{ link.label }}
@@ -61,17 +61,17 @@
       }
       <a
         routerLink="/login"
-        class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors no-underline"
+        class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-black transition-colors no-underline"
         (click)="toggleMenu()"
       >
-        INICIAR SESIÓN
+        Iniciar sesión
       </a>
       <a
         routerLink="/registro"
-        class="inline-flex items-center border border-black px-6 py-2 text-sm font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all duration-200 no-underline w-fit"
+        class="inline-flex items-center justify-center bg-[#2ED38D] text-black px-6 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-black hover:text-white transition-all duration-200 no-underline w-fit"
         (click)="toggleMenu()"
       >
-        EMPEZAR
+        Empezar gratis
       </a>
     </div>
   }

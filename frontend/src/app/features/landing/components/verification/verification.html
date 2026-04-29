@@ -1,51 +1,44 @@
-<section id="como-funciona" class="border-b border-[#E5E7EB]">
-  <div class="max-w-7xl mx-auto px-6">
+<section id="como-funciona" class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+  <div class="max-w-7xl mx-auto px-6 py-20">
 
-    <!-- Section Header -->
-    <div class="py-16 border-b border-[#E5E7EB] flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
       <div>
         <div class="flex items-center gap-3 mb-4">
           <div class="w-5 h-px bg-[#2ED38D]"></div>
-          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">CÓMO FUNCIONA</span>
+          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">Cómo funciona</span>
         </div>
-        <h2 class="text-5xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9]">
+        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9]">
           SIMPLE.<br>
           VERIFICADO.<br>
           EFECTIVO.
         </h2>
       </div>
-      <div class="max-w-xs">
-        <p class="text-sm font-light leading-relaxed text-gray-500">
-          Tres pasos para conectar a los mejores entrenadores certificados con atletas que quieren ir en serio.
-        </p>
-      </div>
+      <p class="text-sm font-light leading-relaxed text-gray-500 max-w-xs">
+        Tres pasos para conectar a los mejores profesionales certificados con atletas que quieren ir en serio.
+      </p>
     </div>
 
-    <!-- Grid Items -->
-    <div class="grid grid-cols-1 md:grid-cols-3 border-b border-[#E5E7EB]">
+    <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       @for (item of items(); track item.number) {
-        <div
-          class="p-12 flex flex-col"
-          [class.border-r]="!item.isLast"
-          [class.border-[#E5E7EB]]="!item.isLast"
-          [class.border-b]="!item.isLast"
-          [class.md:border-b-0]="true"
-        >
-          <!-- Big Number -->
-          <span class="text-8xl font-extrabold text-[#F3F4F6] leading-none mb-6 select-none">
+        <div class="bg-white rounded-2xl p-10 flex flex-col shadow-sm border border-[#E5E7EB] hover:shadow-md transition-shadow duration-300">
+
+          <!-- Número grande -->
+          <span class="text-7xl font-extrabold text-[#F3F4F6] leading-none mb-6 select-none">
             {{ item.number }}
           </span>
 
-          <!-- Accent Line -->
+          <!-- Línea verde -->
           <div class="w-8 h-0.5 bg-[#2ED38D] mb-6"></div>
 
-          <!-- Title -->
-          <h3 class="text-sm font-black uppercase tracking-[0.15em] text-black mb-4 leading-tight">
+          <!-- Título -->
+          <h3 class="text-sm font-black uppercase tracking-[0.15em] text-black mb-3 leading-tight">
             {{ item.title }}
           </h3>
 
-          <!-- Description -->
-          <p class="text-sm font-light leading-relaxed text-gray-500 flex-1">
+          <!-- Descripción -->
+          <p class="text-sm font-light leading-relaxed text-gray-500">
             {{ item.description }}
           </p>
         </div>
