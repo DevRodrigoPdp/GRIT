@@ -37,6 +37,8 @@ public abstract class AtletaMapper {
     @Mapping(target = "data", source = "atleta")
     public abstract AtletaResponseDTO toResponseDTO(Atleta atleta);
 
+    @Mapping(target = "peso", source = "pesoKg")
+    @Mapping(target = "altura", source = "alturaCm")
     @Mapping(target = "fotoUrl", source = "fotoUrl", qualifiedByName = "toPresignedUrl")
     public abstract AtletaPerfilDTO toPerfilDTO(Atleta atleta);
 
