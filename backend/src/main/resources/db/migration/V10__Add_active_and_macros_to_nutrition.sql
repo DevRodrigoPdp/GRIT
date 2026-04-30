@@ -25,3 +25,6 @@ CREATE INDEX IF NOT EXISTS idx_atleta_rutina_activa
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_unico_entrenamiento_activo_atleta
     ON rutinas (atleta_id) WHERE (activo = true);
+
+ALTER TABLE ejercicios_en_sesion
+ALTER COLUMN ejercicio_id TYPE UUID USING ejercicio_id::uuid;
