@@ -13,6 +13,7 @@ public record RutinaRequestDTO(
         @NotBlank(message = "El nombre de la rutina es obligatorio")
         String nombre,
         String descripcion,
+        boolean activo,
         @NotNull(message = "La rutina debe contener sesiones")
         @Valid
         List<SesionRutinaRequestDTO> sesiones

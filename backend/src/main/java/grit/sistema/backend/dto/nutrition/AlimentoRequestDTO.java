@@ -8,26 +8,19 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record AlimentoRequestDTO(
-        @NotNull(message = "El ID del alimento es obligatorio")
-        UUID id,
-
-        String codigo, // Código de barras o ID externo (opcional)
-
         @NotBlank(message = "El nombre del alimento es obligatorio")
         String nombre,
 
-        String marca,
+        @NotNull @DecimalMin("0.1")
+        Double cantidadG, // Gramos definidos por el entrenador
 
-        @NotNull(message = "Las calorías son obligatorias")
-        @DecimalMin(value = "0.0")
-        BigDecimal kcalPor100g,
+        // Estos campos son opcionales según tu requerimiento
+        // Pero si vienen, se guardan por 100g para poder recalcular
+        Double kcalPor100g,
+        Double proteinasPor100g,
+        Double carbsPor100g,
+        Double grasasPor100g,
 
-        @NotNull BigDecimal proteinasPor100g,
-        @NotNull BigDecimal carbsPor100g,
-        @NotNull BigDecimal grasasPor100g,
-
-        // Cantidad en gramos que se va a consumir (Opcional en Recientes, obligatorio en Plan)
-        @DecimalMin(value = "0.0", message = "La cantidad debe ser positiva")
-        BigDecimal cantidadG
+        String marca
 ) {
 }

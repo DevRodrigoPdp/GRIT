@@ -12,6 +12,5 @@ import java.util.UUID;
 public interface RutinaRepository extends JpaRepository<Rutina, UUID> {
     List<Rutina> findAllByEntrenadorId(UUID entrenadorId);
     List<Rutina> findAllByEntrenadorIdAndAtletaId(UUID entrenadorId, UUID atletaId);
-    Optional<Rutina> findByIdAndEntrenadorId(UUID id, UUID entrenadorId);
-    Optional<Rutina> findFirstByAtletaIdOrderByCreadoEnDesc(UUID atletaId);
+    Optional<Rutina> findByAtletaIdAndActivoTrue(UUID atletaId);
 }

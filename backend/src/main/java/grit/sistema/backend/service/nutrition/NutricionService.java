@@ -1,6 +1,7 @@
 package grit.sistema.backend.service.nutrition;
 
 import grit.sistema.backend.dto.nutrition.*;
+import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.entity.nutrition.AlimentoReciente;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,6 +27,27 @@ public class NutricionService {
     private final AtletaRepository atletaRepository;
     private final EntrenadorRepository entrenadorRepository;
     private final NutricionMapper mapper;
+
+    @Transactional(readOnly = true)
+    public PlanNutricionActivoResponseDTO getPlanNutricionActivoAtleta(UUID atletaId) {
+        return planRepository.findByAtletaIdAndActivoTrue(atletaId)
+                .map(plan -> new PlanNutricionActivoResponseDTO(true, mapper.toDataDTO(plan)))
+                .orElse(new PlanNutricionActivoResponseDTO(true, null));
+    }
+
+    @Transactional
+    public void activarPlan(UUID entrenadorId, UUID planId) {
+        PlanNutricion plan = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
+
+        // 1. Desactivar plan actual del atleta (si existe)
+        planRepository.findByAtletaIdAndActivoTrue(plan.getAtleta().getId())
+                .ifPresent(p -> p.setActivo(false));
+
+        // 2. Activar el nuevo
+        plan.setActivo(true);
+        planRepository.save(plan);
+    }
 
     @Transactional(readOnly = true)
     public List<PlanNutricionResponseDTO> listarPlanes(UUID entrenadorId, UUID atletaId) {
@@ -45,34 +68,49 @@ public class NutricionService {
         plan.setEntrenador(entrenador);
         plan.setAtleta(atleta);
 
-        // La bidireccionalidad la maneja el @AfterMapping del mapper
+        // Sincronizar macros globales del request (BigDecimal/Double según decidiste)
+        plan.setKcalDiarias(request.kcalDiarias());
+        plan.setProteinas(request.proteinas());
+        plan.setCarbos(request.carbos());
+        plan.setGrasas(request.grasas());
+
+        // Si el request dice que este plan nace activo, ejecutamos la lógica de desactivación previa
+        if (request.activo()) {
+            planRepository.findByAtletaIdAndActivoTrue(atleta.getId())
+                    .ifPresent(p -> p.setActivo(false));
+        }
+        plan.setActivo(request.activo());
+
         return mapper.toResponseDTO(planRepository.save(plan));
     }
 
+
     @Transactional
     public PlanNutricionResponseDTO actualizarPlan(UUID entrenadorId, UUID planId, PlanNutricionRequestDTO request) {
-        // 1. Validar propiedad y existencia
         PlanNutricion planExistente = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
-                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado o acceso denegado"));
+                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
 
-        // 2. Actualizar datos básicos (el atleta no se cambia por regla de negocio)
+        // 1. Actualización de campos básicos (MapStruct podría hacerlo, pero así es muy seguro)
         planExistente.setNombre(request.nombre());
         planExistente.setDescripcion(request.descripcion());
+        planExistente.setKcalDiarias(request.kcalDiarias());
+        planExistente.setProteinas(request.proteinas());
+        planExistente.setCarbos(request.carbos());
+        planExistente.setGrasas(request.grasas());
 
-        // 3. Limpiar jerarquía antigua (orphanRemoval = true se encarga del resto)
-        planExistente.getComidas().clear();
-        planRepository.saveAndFlush(planExistente); // Limpia la DB antes de insertar lo nuevo
-
-        // 4. Mapear y añadir nuevas comidas (sin IDs para evitar 'detached entity')
-        PlanNutricion datosNuevos = mapper.toEntity(request);
-        if (datosNuevos.getComidas() != null) {
-            datosNuevos.getComidas().forEach(comida -> {
-                comida.setId(null); // Triple seguro contra detached
-                comida.setPlan(planExistente);
-                comida.getAlimentos().forEach(a -> a.setId(null));
-                planExistente.getComidas().add(comida);
-            });
+        // 2. Manejo de estado activo
+        if (request.activo() && !planExistente.isActivo()) {
+            planRepository.findByAtletaIdAndActivoTrue(planExistente.getAtleta().getId())
+                    .ifPresent(p -> p.setActivo(false));
         }
+        planExistente.setActivo(request.activo());
+
+        // 3. LA CLAVE: Usamos el método de conveniencia
+        // Primero obtenemos las entidades del mapper
+        PlanNutricion datosNuevos = mapper.toEntity(request);
+
+        // Esto dispara el orphanRemoval de forma controlada por Hibernate
+        planExistente.setComidas(datosNuevos.getComidas());
 
         return mapper.toResponseDTO(planRepository.save(planExistente));
     }
@@ -87,16 +125,25 @@ public class NutricionService {
     @Transactional
     public void registrarAlimentoReciente(UUID usuarioId, AlimentoRecienteRequestDTO request) {
         AlimentoReciente reciente = recienteRepository
-                .findByUsuarioIdAndNombreComidaAndAlimentoId(usuarioId, request.nombreComida(), request.alimento().id())
+                .findByUsuarioIdAndNombreComidaAndAlimentoId(
+                        usuarioId,
+                        request.nombreComida(),
+                        request.alimento().id()
+                )
+                .map(existente -> {
+                    existente.setUsadoEn(OffsetDateTime.now());
+                    return existente;
+                })
                 .orElseGet(() -> {
                     AlimentoReciente nuevo = mapper.toAlimentoRecienteEntity(request.alimento());
                     nuevo.setUsuarioId(usuarioId);
                     nuevo.setNombreComida(request.nombreComida());
                     return nuevo;
                 });
-        reciente.setUsadoEn(OffsetDateTime.now());
+
         recienteRepository.save(reciente);
     }
+
 
     @Transactional(readOnly = true)
     public List<AlimentoRecienteDTO> listarAlimentosRecientes(UUID usuarioId, String nombreComida) {

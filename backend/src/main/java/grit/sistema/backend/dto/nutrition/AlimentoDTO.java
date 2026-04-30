@@ -1,15 +1,17 @@
 package grit.sistema.backend.dto.nutrition;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public record AlimentoDTO(
+        UUID id,
         String codigo,
         String nombre,
         String marca,
-        BigDecimal kcalPor100g,
-        BigDecimal proteinasPor100g,
-        BigDecimal carbsPor100g,
-        BigDecimal grasasPor100g,
-        BigDecimal cantidadG
+        BigDecimal cantidadG,
+        Integer kcal,
+        Double proteinas,
+        Double carbos,
+        Double grasas
 ) {
 }

@@ -4,15 +4,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.UUID;
-
 public record AlimentoRecienteRequestDTO(
-
-        @NotBlank(message = "El nombre de la comida es obligatorio")
+        @NotBlank(message = "El nombre de la comida es obligatorio (ej: Desayuno)")
         String nombreComida,
 
-        @NotNull(message = "El alimento es obligatorio")
+        @NotNull(message = "Los datos del alimento son obligatorios")
         @Valid
-        AlimentoRequestDTO alimento
+        AlimentoDTO alimento // Usamos AlimentoDTO que ya tiene la estructura calculada o de entidad
 ) {
 }

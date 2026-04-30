@@ -6,16 +6,13 @@ import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
 import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
 import grit.sistema.backend.dto.coaching.AtletaResponseDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
-import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.exception.security.PwnedPasswordException;
-import grit.sistema.backend.mapper.training.EntrenamientoMapper;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
-import grit.sistema.backend.repository.training.RutinaRepository;
 import grit.sistema.backend.service.common.StorageService;
 import grit.sistema.backend.service.usuario.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -36,8 +32,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AtletaService {
     private final AtletaRepository atletaRepository;
-    private final EntrenamientoMapper entrenamientoMapper;
-    private final RutinaRepository rutinaRepository;
     private final PasswordEncoder passwordEncoder;
     private final AsignacionRepository asignacionRepository;
     private final UsuarioService usuarioService;
@@ -66,12 +60,6 @@ public class AtletaService {
                 a.getAlturaCm(), a.getDeporte(), a.getNivel(),
                 a.getServicio(), a.getObjetivo()
         );
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<RutinaDTO> getPlanActivoAtleta(UUID atletaId) {
-        return rutinaRepository.findFirstByAtletaIdOrderByCreadoEnDesc(atletaId)
-                .map(entrenamientoMapper::toDTO); // ¡Mucho más limpio!
     }
 
     @Transactional(readOnly = true)

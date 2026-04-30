@@ -37,6 +37,9 @@ public class Rutina {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @Column(nullable = false)
+    private boolean activo = false;
+
     @Column(name = "creado_en", updatable = false, nullable = false)
     private OffsetDateTime creadoEn;
 

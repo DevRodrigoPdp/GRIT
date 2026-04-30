@@ -5,9 +5,12 @@ import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
 import grit.sistema.backend.dto.coaching.AsignacionRequestDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
 import grit.sistema.backend.dto.training.*;
 import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.coaching.AtletaService;
+import grit.sistema.backend.service.nutrition.NutricionService;
+import grit.sistema.backend.service.training.EntrenamientoService;
 import grit.sistema.backend.service.training.PesoService;
 import grit.sistema.backend.service.coaching.AsignacionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/atleta")
@@ -36,6 +40,8 @@ import java.util.Map;
 @Slf4j
 public class AtletaController {
     private final AtletaService atletaService;
+    private final NutricionService nutricionService;
+    private final EntrenamientoService entrenamientoService;
     private final AsignacionService asignacionService;
     private final PesoService pesoService;
 
@@ -47,13 +53,36 @@ public class AtletaController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta", perfilDTO));
     }
 
-    @Operation(summary = "Ver plan activo del atleta")
+    @Operation(summary = "Ver plan activo entrenamiento del atleta")
     @GetMapping("/entrenamiento/plan-activo")
-    public ResponseEntity<ApiResponseDTO<RutinaDTO>> getPlanActivo(@AuthenticationPrincipal UserPrincipal usuario) {
-        log.info("Consultando plan activo para el atleta: {}", usuario.getUsername());
-        return atletaService.getPlanActivoAtleta(usuario.getId())
-                .map(plan -> ResponseEntity.ok(new ApiResponseDTO<>(true, "Plan activo", plan)))
-                .orElseGet(() -> ResponseEntity.ok(new ApiResponseDTO<>(true, "No hay plan activo", null)));
+    public ResponseEntity<ApiResponseDTO<RutinaDTO>> getPlanEntrenamientoActivo(@AuthenticationPrincipal UserPrincipal usuario) {
+        log.info("Consultando plan entrenamiento activo para el atleta: {}", usuario.getUsername());
+        return entrenamientoService.getPlanEntrenamientoActivoAtleta(usuario.getId())
+                .map(plan -> ResponseEntity.ok(new ApiResponseDTO<>(true, "Plan entrenamiento activo", plan)))
+                .orElseGet(() -> ResponseEntity.ok(new ApiResponseDTO<>(true, "No hay plan entrenamiento activo", null)));
+    }
+
+    @Operation(summary = "Ver plan activo nutrición del atleta")
+    @GetMapping("/nutricion/plan-activo")
+    public ResponseEntity<PlanNutricionActivoResponseDTO> getPlanNutricionActivo(@AuthenticationPrincipal UserPrincipal usuario) {
+        log.info("Consultando plan activo nutrición para el atleta: {}", usuario.getUsername());
+
+        PlanNutricionActivoResponseDTO response = nutricionService.getPlanNutricionActivoAtleta(usuario.getId());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Activar un plan de nutrición específico para un atleta")
+    @PatchMapping("/nutricion/planes/{planId}/activar")
+    public ResponseEntity<ApiResponseDTO<Void>> activarPlan(
+            @AuthenticationPrincipal UserPrincipal entrenador,
+            @PathVariable UUID planId) {
+
+        log.info("Entrenador {} activando plan de nutrición {}", entrenador.getId(), planId);
+
+        nutricionService.activarPlan(entrenador.getId(), planId);
+
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Plan activado correctamente", null));
     }
 
     @Operation(summary = "Ver profesionales asignados a un atleta")

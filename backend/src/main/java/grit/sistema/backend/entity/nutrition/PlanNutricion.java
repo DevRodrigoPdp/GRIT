@@ -24,7 +24,6 @@ public class PlanNutricion {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // En PlanNutricion.java
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entrenador_id", nullable = false)
     private Entrenador entrenador;
@@ -39,10 +38,25 @@ public class PlanNutricion {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @Column(nullable = false)
+    private boolean activo = false;
+
+    @Column(name = "kcal_diarias")
+    private Integer kcalDiarias;
+
+    @Column(name = "proteinas", columnDefinition = "numeric(7,2)")
+    private Double proteinas;
+
+    @Column(name = "carbos", columnDefinition = "numeric(7,2)")
+    private Double carbos;
+
+    @Column(name = "grasas", columnDefinition = "numeric(7,2)")
+    private Double grasas;
+
     @Column(name = "creado_en", updatable = false)
     private OffsetDateTime creadoEn = OffsetDateTime.now();
 
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comida> comidas = new ArrayList<>();
 
     @PrePersist
@@ -51,6 +65,16 @@ public class PlanNutricion {
     }
 
     // --- MÉTODOS DE CONVENIENCIA ---
+
+    public void setComidas(List<Comida> nuevasComidas) {
+        this.comidas.clear();
+        if (nuevasComidas != null) {
+            nuevasComidas.forEach(c -> {
+                c.setPlan(this);
+                this.comidas.add(c);
+            });
+        }
+    }
 
     public void addComida(Comida comida) {
         comidas.add(comida);

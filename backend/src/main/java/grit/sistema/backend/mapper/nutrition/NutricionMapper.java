@@ -9,24 +9,73 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface NutricionMapper {
-    // --- MAPEO DE PLAN ---
+    // --- 1. PLANES ---
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "atleta", ignore = true)
     @Mapping(target = "entrenador", ignore = true)
     @Mapping(target = "creadoEn", ignore = true)
     PlanNutricion toEntity(PlanNutricionRequestDTO request);
 
-    // --- MAPEOS SIN ID (Para Actualizaciones Seguras) ---
+    PlanNutricionResponseDTO toResponseDTO(PlanNutricion plan);
+
+    // Este es para el dashboard del atleta
+    PlanData toDataDTO(PlanNutricion plan);
+
+    // --- 2. COMIDAS ---
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "plan", ignore = true)
-    Comida toComidaEntitySinId(ComidaRequestDTO dto);
+    Comida toComidaEntity(ComidaRequestDTO dto);
 
+    ComidaDTO toComidaDTO(Comida entity);
+
+    // --- 3. ALIMENTOS (La parte técnica resuelta) ---
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "comida", ignore = true)
-    @Mapping(target = "codigoAlimento", source = "codigo")
-    AlimentoEnComida toAlimentoEnComidaEntitySinId(AlimentoRequestDTO dto);
+    @Mapping(target = "codigoAlimento", source = "codigo") // Sincroniza nombres si DTO dice 'codigo' y Entity 'codigoAlimento'
+    @Mapping(target = "cantidadG", source = "cantidadG")
+    @Mapping(target = "kcalPor100g", ignore = true)
+    @Mapping(target = "proteinasPor100g", ignore = true)
+    @Mapping(target = "carbsPor100g", ignore = true)
+    @Mapping(target = "grasasPor100g", ignore = true)
+    AlimentoEnComida toAlimentoEntity(AlimentoDTO dto);
 
-    // --- LÓGICA DE VINCULACIÓN ---
+    @Mapping(target = "kcal", source = "entity", qualifiedByName = "calcularKcal")
+    @Mapping(target = "proteinas", source = "entity", qualifiedByName = "calcularProteinas")
+    @Mapping(target = "carbos", source = "entity", qualifiedByName = "calcularCarbos")
+    @Mapping(target = "grasas", source = "entity", qualifiedByName = "calcularGrasas")
+    @Mapping(target = "codigo", source = "codigoAlimento")
+    AlimentoDTO toAlimentoDTO(AlimentoEnComida entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "alimentoId", source = "id")
+    @Mapping(target = "usadoEn", expression = "java(java.time.OffsetDateTime.now())")
+    AlimentoReciente toAlimentoRecienteEntity(AlimentoDTO dto);
+
+    @Mapping(target = "id", source = "alimentoId")
+    AlimentoRecienteDTO toAlimentoRecienteDTO(AlimentoReciente entity);
+
+    // --- 5. LÓGICA DE CÁLCULO (DELEGADA A ENTIDAD) ---
+    @Named("calcularKcal")
+    default Integer calcularKcal(AlimentoEnComida a) {
+        return (a == null || a.getKcalTotales() == null) ? 0 : a.getKcalTotales().intValue();
+    }
+
+    @Named("calcularProteinas")
+    default Double calcularProteinas(AlimentoEnComida a) {
+        return (a == null || a.getProteinasTotales() == null) ? 0.0 : a.getProteinasTotales().doubleValue();
+    }
+
+    @Named("calcularCarbos")
+    default Double calcularCarbos(AlimentoEnComida a) {
+        return (a == null || a.getCarbsTotales() == null) ? 0.0 : a.getCarbsTotales().doubleValue();
+    }
+
+    @Named("calcularGrasas")
+    default Double calcularGrasas(AlimentoEnComida a) {
+        return (a == null || a.getGrasasTotales() == null) ? 0.0 : a.getGrasasTotales().doubleValue();
+    }
+
+    // --- 6. VINCULACIÓN (LÓGICA DE NEGOCIO JPA) ---
     @AfterMapping
     default void establecerRelaciones(@MappingTarget PlanNutricion plan) {
         if (plan.getComidas() != null) {
@@ -38,18 +87,4 @@ public interface NutricionMapper {
             });
         }
     }
-
-    // --- ALIMENTOS RECIENTES ---
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "alimentoId", source = "id")
-    @Mapping(target = "nombreComida", ignore = true)
-    @Mapping(target = "usuarioId", ignore = true)
-    @Mapping(target = "usadoEn", expression = "java(java.time.OffsetDateTime.now())")
-    AlimentoReciente toAlimentoRecienteEntity(AlimentoRequestDTO dto);
-
-    @Mapping(target = "id", source = "alimentoId")
-    AlimentoRecienteDTO toAlimentoRecienteDTO(AlimentoReciente entity);
-
-    // --- RESPUESTAS ---
-    PlanNutricionResponseDTO toResponseDTO(PlanNutricion plan);
 }
