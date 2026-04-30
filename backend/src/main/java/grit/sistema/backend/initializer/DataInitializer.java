@@ -8,7 +8,7 @@ import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.entity.common.enums.Rol;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
-import grit.sistema.backend.repository.usuario.UsuarioRepository;
+import grit.sistema.backend.repository.user.UsuarioRepository;
 import grit.sistema.backend.util.CodeGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

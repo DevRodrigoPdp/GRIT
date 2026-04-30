@@ -1,10 +1,9 @@
 package grit.sistema.backend.controller.admin;
 
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
-import grit.sistema.backend.dto.usuario.UsuarioDTO;
-import grit.sistema.backend.dto.usuario.UsuarioResponseDTO;
+import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import grit.sistema.backend.service.admin.AdminService;
-import grit.sistema.backend.service.usuario.UsuarioService;
+import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

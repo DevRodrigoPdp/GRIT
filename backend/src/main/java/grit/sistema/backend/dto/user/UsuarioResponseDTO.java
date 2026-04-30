@@ -1,4 +1,4 @@
-package grit.sistema.backend.dto.usuario;
+package grit.sistema.backend.dto.user;
 
 import java.time.OffsetDateTime;
 

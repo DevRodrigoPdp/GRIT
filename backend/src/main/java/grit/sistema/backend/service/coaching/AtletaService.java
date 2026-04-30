@@ -15,7 +15,7 @@ import grit.sistema.backend.mapper.coaching.AtletaMapper;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.service.common.StorageService;
-import grit.sistema.backend.service.usuario.UsuarioService;
+import grit.sistema.backend.service.user.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;

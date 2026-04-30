@@ -1,26 +1,20 @@
-package grit.sistema.backend.service.usuario;
+package grit.sistema.backend.service.user;
 
-import grit.sistema.backend.dto.usuario.MeResponseDTO;
+import grit.sistema.backend.dto.user.MeResponseDTO;
 import grit.sistema.backend.dto.auth.LoginData;
-import grit.sistema.backend.dto.auth.LoginRequestDTO;
-import grit.sistema.backend.dto.auth.LoginResponseDTO;
-import grit.sistema.backend.dto.usuario.UsuarioDTO;
-import grit.sistema.backend.dto.usuario.UsuarioResponseDTO;
+import grit.sistema.backend.dto.user.UsuarioDTO;
+import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import grit.sistema.backend.exception.business.SesionActivaException;
-import grit.sistema.backend.mapper.usuario.UsuarioMapper;
+import grit.sistema.backend.mapper.user.UsuarioMapper;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
-import grit.sistema.backend.repository.usuario.UsuarioRepository;
-import grit.sistema.backend.security.user.UserPrincipal;
+import grit.sistema.backend.repository.user.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
