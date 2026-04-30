@@ -1,6 +1,8 @@
 package grit.sistema.backend.repository.coaching;
 
 import grit.sistema.backend.entity.coaching.Asignacion;
+import grit.sistema.backend.entity.coaching.Atleta;
+import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -33,4 +35,6 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Asignacion a SET a.activa = false WHERE a.atleta.id = :atletaId AND a.activa = true")
     void desactivarAsignacionesPorAtleta(UUID atletaId);
+
+    boolean existsByAtletaIdAndEntrenadorIdAndActivaTrue(UUID atletaId, UUID entrenadorId);
 }

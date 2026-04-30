@@ -115,11 +115,17 @@ public class AdminService {
     private void aprobarEntrenador(Entrenador entrenador) {
         entrenador.setEstadoRevision(EstadoRevision.APROBADO);
         entrenador.setEstado(EstadoUsuario.ACTIVO);
+        evaluarAccesosIniciales(entrenador);
 
         entrenador.getDocumentos().forEach(d -> {
             d.setStatus(DocStatus.verified);
             d.setReviewedAt(java.time.OffsetDateTime.now());
         });
+    }
+
+    private void evaluarAccesosIniciales(Entrenador entrenador) {
+        entrenador.setTieneAccesoEntrenamiento(entrenador.getTitulacionEntrenamiento() != null);
+        entrenador.setTieneAccesoNutricion(entrenador.getTitulacionNutricion() != null);
     }
 
     private void rechazarEntrenador(Entrenador entrenador, String motivo) {

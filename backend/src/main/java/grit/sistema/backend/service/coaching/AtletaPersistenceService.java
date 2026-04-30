@@ -9,16 +9,19 @@ import grit.sistema.backend.entity.common.enums.Rol;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AtletaPersistenceService {
     private final AtletaRepository atletaRepository;
     private final PasswordEncoder passwordEncoder;
     private final AtletaMapper atletaMapper;
+    private final AsignacionService asignacionService;
 
     @Transactional
     public AtletaResponseDTO guardarAtleta(AtletaRequestDTO dto, String fotoKey) {
@@ -34,6 +37,13 @@ public class AtletaPersistenceService {
         atleta.setFotoUrl(fotoKey);
 
         Atleta atletaGuardado = atletaRepository.save(atleta);
+
+        // 2. Lógica de conexión automática
+        if (dto.codigoInvitacion() != null && !dto.codigoInvitacion().isBlank()) {
+            log.info("Procesando código de invitación automático para el nuevo atleta: {}", dto.email());
+            // Reutilizamos el servicio que ya valida códigos, estados y competencias
+            asignacionService.conectarConEntrenador(atletaGuardado.getId(), dto.codigoInvitacion());
+        }
 
         return atletaMapper.toResponseDTO(atletaGuardado);
     }

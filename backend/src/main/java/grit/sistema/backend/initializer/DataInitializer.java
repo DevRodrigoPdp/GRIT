@@ -101,6 +101,8 @@ public class DataInitializer implements CommandLineRunner {
             coach.setCodigoProfesional("COL-00000");
             coach.setTitulacionEntrenamiento(TitulacionEntrenamiento.GRADO_CAFYD);
             coach.setTitulacionNutricion(TitulacionNutricion.GRADO_NUTRICION_DIETETICA);
+            coach.setTieneAccesoEntrenamiento(true);
+            coach.setTieneAccesoNutricion(true);
             coach.setEstadoRevision(EstadoRevision.APROBADO);
             String nuevoCodigo = codeGenerator.generateGritFormat();
             coach.setCodigoInvitacion(nuevoCodigo);
