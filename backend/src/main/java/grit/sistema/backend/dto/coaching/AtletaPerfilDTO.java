@@ -8,6 +8,7 @@ import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record AtletaPerfilDTO(
@@ -21,6 +22,9 @@ public record AtletaPerfilDTO(
         String deporte,
         NivelAtleta nivel,
         TipoServicio servicio,
-        Objetivo objetivo
+        Objetivo objetivo,
+        List<String> alergias,
+        List<String> intolerancias,
+        String fotoUrl
 ) {
 }

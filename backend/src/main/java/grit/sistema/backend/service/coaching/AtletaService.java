@@ -11,6 +11,7 @@ import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
+import grit.sistema.backend.mapper.coaching.AtletaMapper;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.service.common.StorageService;
@@ -37,6 +38,7 @@ public class AtletaService {
     private final UsuarioService usuarioService;
     private final PwnedPasswordClient pwnedClient;
     private final StorageService storageService;
+    private final AtletaMapper atletaMapper;
     private final AtletaPersistenceService persistenceService;
 
     public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto, MultipartFile foto) {
@@ -51,15 +53,9 @@ public class AtletaService {
 
     @Transactional(readOnly = true)
     public AtletaPerfilDTO obtenerPerfil(String email) {
-        Atleta a = atletaRepository.findByEmail(email)
-                .orElseThrow(()->new EntityNotFoundException("Atleta no encontrado"));
-
-        return new AtletaPerfilDTO(
-                a.getId(), a.getNombre(), a.getEmail(),
-                a.getFechaNac(), a.getGenero(), a.getPesoKg(),
-                a.getAlturaCm(), a.getDeporte(), a.getNivel(),
-                a.getServicio(), a.getObjetivo()
-        );
+        return atletaRepository.findByEmail(email)
+                .map(atletaMapper::toPerfilDTO)
+                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
     }
 
     @Transactional(readOnly = true)

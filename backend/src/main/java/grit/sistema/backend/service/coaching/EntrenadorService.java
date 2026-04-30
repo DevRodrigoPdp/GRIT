@@ -86,25 +86,9 @@ public class EntrenadorService {
 
     @Transactional(readOnly = true)
     public EntrenadorPerfilDTO obtenerPerfil(String email) {
-        Entrenador e = entrenadorRepository.findByEmail(email)
+        return entrenadorRepository.findByEmail(email)
+                .map(entrenadorMapper::toPerfilDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
-
-        return new EntrenadorPerfilDTO(
-                e.getId(),
-                e.getNombre(),
-                e.getEmail(),
-                e.getTitulacionEntrenamiento() != null ? e.getTitulacionEntrenamiento().name() : null,
-                e.getTitulacionNutricion() != null ? e.getTitulacionNutricion().name() : null,
-                e.getExperienciaAnos(),
-                e.getCodigoInvitacion(),
-                e.getDescripcion(),
-                e.getEstado().name(),
-                e.isTieneAccesoEntrenamiento(),
-                e.isTieneAccesoNutricion(),
-                e.getFotoUrl(),
-                e.getMasters(),
-                e.getSolicitudAmpliacionPendiente()
-        );
     }
 
     @Transactional(readOnly = true)
