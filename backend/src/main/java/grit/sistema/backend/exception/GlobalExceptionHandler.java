@@ -7,6 +7,7 @@ import grit.sistema.backend.exception.business.UsuarioExistenteException;
 import grit.sistema.backend.exception.infrastructure.FileStorageException;
 import grit.sistema.backend.exception.infrastructure.RateLimitException;
 import grit.sistema.backend.exception.security.AccesoDenegadoException;
+import grit.sistema.backend.exception.security.AccountNotActiveException;
 import grit.sistema.backend.exception.security.PwnedPasswordException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +19,9 @@ import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -52,7 +55,7 @@ public class GlobalExceptionHandler {
                 request);
     }
 
-    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
+    @ExceptionHandler(AccountNotActiveException.class)
     public ProblemDetail handleDisabledAccount(org.springframework.security.authentication.DisabledException ex, HttpServletRequest request) {
         log.warn("Intento de acceso con cuenta desactivada en {}: {}", request.getRequestURI(), ex.getMessage());
 
@@ -61,6 +64,18 @@ public class GlobalExceptionHandler {
                 "Cuenta Desactivada",
                 "Su cuenta ha sido eliminada o suspendida. Póngase en contacto con soporte.",
                 "account-disabled", // Slug para la documentación de error
+                request
+        );
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ProblemDetail handleInternalAuth(InternalAuthenticationServiceException ex, HttpServletRequest request) {
+        log.error("Error de autenticación interna: {}", ex.getMessage());
+        return createProblemDetail(
+                HttpStatus.UNAUTHORIZED, // 401: El usuario no puede autenticarse
+                "Cuenta Desactivada",
+                "Su cuenta ha sido eliminada o suspendida. Póngase en contacto con soporte.",
+                "account-disabled",
                 request
         );
     }
@@ -124,8 +139,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             DataAccessException.class,
-            SQLException.class,
-            org.springframework.security.authentication.InternalAuthenticationServiceException.class
+            SQLException.class
     })
     public ProblemDetail handleDatabaseExceptions(Exception ex, HttpServletRequest request) {
         log.error("ERROR CRÍTICO DB en {}: {}", request.getRequestURI(), ex.getMessage());
