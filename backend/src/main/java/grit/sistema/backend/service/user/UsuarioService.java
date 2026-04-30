@@ -1,10 +1,13 @@
 package grit.sistema.backend.service.user;
 
+import grit.sistema.backend.clientAPI.PwnedPasswordClient;
+import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.user.MeResponseDTO;
 import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.user.UsuarioDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import grit.sistema.backend.exception.business.SesionActivaException;
+import grit.sistema.backend.exception.security.PwnedPasswordException;
 import grit.sistema.backend.mapper.user.UsuarioMapper;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
@@ -14,10 +17,13 @@ import grit.sistema.backend.repository.user.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +33,8 @@ import java.util.UUID;
 public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PwnedPasswordClient pwnedClient;
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> findAll() {
@@ -94,18 +102,6 @@ public class UsuarioService {
         return new MeResponseDTO(true, meData);
     }
 
-    @Transactional
-    public void suspenderUsuario(UUID usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
-
-        usuario.setEstado(EstadoUsuario.SUSPENDIDO);
-        // No es estrictamente necesario llamar a save() si estamos en una transacción,
-        // pero ayuda a la legibilidad para un desarrollador junior.
-        usuarioRepository.save(usuario);
-    }
-
-
     @Transactional(readOnly = true)
     public UsuarioDTO obtenerUsuarioActual() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -117,5 +113,32 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return usuarioMapper.toDTO(usuario);
+    }
+
+    @Transactional
+    public void actualizarPassword(UUID usuarioId, PasswordUpdateDTO dto) {
+        if (pwnedClient.isPasswordPwned(dto.nueva())) {
+            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
+        }
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        // 3. Validar password actual
+        if (!passwordEncoder.matches(dto.actual(), usuario.getPassword())) {
+            throw new BadCredentialsException("PASSWORD_INCORRECTO");
+        }
+
+        usuario.setPassword(passwordEncoder.encode(dto.nueva()));
+    }
+
+    @Transactional
+    public void suspenderUsuario(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
+
+        usuario.setEstado(EstadoUsuario.SUSPENDIDO);
+
+        usuarioRepository.save(usuario);
     }
 }

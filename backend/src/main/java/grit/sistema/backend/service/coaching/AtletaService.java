@@ -89,28 +89,12 @@ public class AtletaService {
     }
 
     @Transactional
-    public void cambiarPassword(String email, PasswordUpdateDTO dto) {
-        if (pwnedClient.isPasswordPwned(dto.nueva())) {
-            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
-        }
-
-        Atleta atleta = atletaRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
-
-        if (!passwordEncoder.matches(dto.actual(), atleta.getPassword())) {
-            throw new BadCredentialsException("PASSWORD_INCORRECTO");
-        }
-
-        atleta.setPassword(passwordEncoder.encode(dto.nueva()));
-        atletaRepository.save(atleta);
-    }
-
-    @Transactional
     public void solicitarBajaCuenta(UUID atletaId) {
-        Atleta atleta = atletaRepository.findById(atletaId)
-                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
-
+        if (!atletaRepository.existsById(atletaId)) {
+            throw new EntityNotFoundException("Entrenador no encontrado.");
+        }
         asignacionRepository.desactivarAsignacionesPorAtleta(atletaId);
+
         usuarioService.suspenderUsuario(atletaId);
     }
 

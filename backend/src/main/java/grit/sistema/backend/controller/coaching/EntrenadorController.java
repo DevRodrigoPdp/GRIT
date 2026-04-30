@@ -8,6 +8,7 @@ import grit.sistema.backend.dto.training.HistorialPesoDTO;
 import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.coaching.EntrenadorService;
 import grit.sistema.backend.service.training.PesoService;
+import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +37,7 @@ import java.util.UUID;
 public class EntrenadorController {
     private final EntrenadorService entrenadorService;
     private final PesoService pesoService;
+    private final UsuarioService usuarioService;
 
     @Operation(summary = "Ver perfil de entrenador")
     @GetMapping("/perfil")
@@ -75,7 +77,7 @@ public class EntrenadorController {
 
     @PutMapping("/password")
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
-        entrenadorService.cambiarPassword(usuario.getEmail(), dto);
+        usuarioService.actualizarPassword(usuario.getId(), dto);
         return ResponseEntity.ok(Map.of("ok", true));
     }
 

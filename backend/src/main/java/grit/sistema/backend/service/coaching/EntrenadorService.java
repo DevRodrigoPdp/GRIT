@@ -123,26 +123,9 @@ public class EntrenadorService {
     }
 
     @Transactional
-    public void cambiarPassword(String email, PasswordUpdateDTO dto) {
-        if (pwnedClient.isPasswordPwned(dto.nueva())) {
-            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
-        }
-
-        Entrenador entrenador = entrenadorRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
-
-        if (!passwordEncoder.matches(dto.actual(), entrenador.getPassword())) {
-            throw new BadCredentialsException("PASSWORD_INCORRECTO");
-        }
-
-        entrenador.setPassword(passwordEncoder.encode(dto.nueva()));
-        entrenadorRepository.save(entrenador);
-    }
-
-    @Transactional
     public void solicitarBajaCuenta(UUID entrenadorId) {
         if (!entrenadorRepository.existsById(entrenadorId)) {
-            throw new EntityNotFoundException("El perfil de entrenador no existe");
+            throw new EntityNotFoundException("Entrenador no encontrado.");
         }
 
         asignacionRepository.desactivarAsignacionesPorEntrenador(entrenadorId);
@@ -156,8 +139,6 @@ public class EntrenadorService {
     }
 
     private boolean calcularSiTienePlanActivo(Atleta a, String entrenadorEmail) {
-        // Aquí debes consultar tu PlanRepository
-        // countByAtletaIdAndEntrenadorEmailAndActivoTrue > 0
         return asignacionRepository.existsByAtletaIdAndEntrenadorEmailAndActivaTrue(a.getId(), entrenadorEmail);
     }
 

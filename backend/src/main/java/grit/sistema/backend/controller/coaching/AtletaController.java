@@ -13,6 +13,7 @@ import grit.sistema.backend.service.nutrition.NutricionService;
 import grit.sistema.backend.service.training.EntrenamientoService;
 import grit.sistema.backend.service.training.PesoService;
 import grit.sistema.backend.service.coaching.AsignacionService;
+import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,6 +40,7 @@ import java.util.UUID;
 @PreAuthorize("hasRole('ATLETA')")
 @Slf4j
 public class AtletaController {
+    private final UsuarioService usuarioService;
     private final AtletaService atletaService;
     private final NutricionService nutricionService;
     private final EntrenamientoService entrenamientoService;
@@ -128,7 +130,7 @@ public class AtletaController {
 
     @PutMapping("/password")
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
-        atletaService.cambiarPassword(usuario.getEmail(), dto);
+        usuarioService.actualizarPassword(usuario.getId(), dto);
         return ResponseEntity.ok(Map.of("ok", true));
     }
 
