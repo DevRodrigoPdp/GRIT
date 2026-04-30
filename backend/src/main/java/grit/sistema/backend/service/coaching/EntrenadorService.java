@@ -18,7 +18,7 @@ import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.repository.usuario.UsuarioRepository;
 import grit.sistema.backend.service.common.StorageService;
-import grit.sistema.backend.service.auth.UsuarioService;
+import grit.sistema.backend.service.usuario.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

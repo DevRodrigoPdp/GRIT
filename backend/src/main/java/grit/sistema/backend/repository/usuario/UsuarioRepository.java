@@ -2,6 +2,8 @@ package grit.sistema.backend.repository.usuario;
 
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,11 +13,12 @@ import java.util.UUID;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+    Page<Usuario> findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(
+            String nombre, String email, Pageable pageable);
+
     Optional<Usuario> findByEmail(String email);
 
     Optional<Usuario> findById(UUID id);
-
-    List<Usuario> findByEstado(EstadoUsuario estado);
 
     boolean existsByEmail(String email);
 }

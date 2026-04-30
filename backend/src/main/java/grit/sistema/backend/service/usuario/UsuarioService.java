@@ -1,4 +1,4 @@
-package grit.sistema.backend.service.auth;
+package grit.sistema.backend.service.usuario;
 
 import grit.sistema.backend.dto.usuario.MeResponseDTO;
 import grit.sistema.backend.dto.auth.LoginData;
@@ -6,7 +6,6 @@ import grit.sistema.backend.dto.auth.LoginRequestDTO;
 import grit.sistema.backend.dto.auth.LoginResponseDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.exception.business.SesionActivaException;
-import grit.sistema.backend.exception.business.UsuarioExistenteException;
 import grit.sistema.backend.mapper.usuario.UsuarioMapper;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
@@ -17,7 +16,6 @@ import grit.sistema.backend.security.user.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,12 +32,8 @@ import java.util.UUID;
 public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
 
-    @Value("${application.security.pepper}")
-    private String pepper;
-
+    @Transactional(readOnly = true)
     public List<UsuarioDTO> findAll() {
         return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
     }
@@ -50,47 +44,11 @@ public class UsuarioService {
         return usuarioMapper.toLoginData(usuario);
     }
 
+    @Transactional(readOnly = true)
     public UsuarioDTO findByEmail(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con el email: " + email));
-
-
-        return usuarioMapper.toDTO(usuario);
-    }
-
-    @Transactional
-    public UsuarioDTO guardar(UsuarioDTO usuarioDTO) {
-        log.info("Iniciando creación de usuario para: {}", usuarioDTO.email());
-
-        if (usuarioRepository.existsByEmail(usuarioDTO.email())) {
-            throw new UsuarioExistenteException("El correo electrónico ya está registrado");
-        }
-
-        Usuario usuario = usuarioMapper.toEntity(usuarioDTO);
-
-        String passwordWithPepper = usuarioDTO.password() + pepper;
-        usuario.setPassword(passwordEncoder.encode(passwordWithPepper));
-
-        Usuario guardado = usuarioRepository.save(usuario);
-
-        return usuarioMapper.toDTO(guardado);
-    }
-
-    @Transactional
-    public void suspenderUsuario(UUID usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
-
-        usuario.setEstado(EstadoUsuario.SUSPENDIDO);
-        // No es estrictamente necesario llamar a save() si estamos en una transacción,
-        // pero ayuda a la legibilidad para un desarrollador junior.
-        usuarioRepository.save(usuario);
-    }
-
-    public UsuarioDTO findByUuid(UUID uuid) {
-        Usuario usuario = usuarioRepository.findById(uuid).orElseThrow(() -> new RuntimeException("Usuario no encontrado con el UUID: " + uuid));
-
-        return usuarioMapper.toDTO(usuario);
+        return usuarioRepository.findByEmail(email)
+                .map(usuarioMapper::toDTO)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + email));
     }
 
     @Transactional(readOnly = true)
@@ -140,32 +98,19 @@ public class UsuarioService {
         return new MeResponseDTO(true, meData);
     }
 
-    public LoginResponseDTO login(LoginRequestDTO loginDto) {
-        log.info(">>> Intentando autenticar usuario: {}", loginDto.email());
+    @Transactional
+    public void suspenderUsuario(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
 
-        var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
-        );
-
-        // 2. Obtener el Principal (Adaptador)
-        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
-
-        // 3. Construir la data de respuesta directamente del principal
-        // ¡Sin tocar la base de datos otra vez!
-        LoginData data = new LoginData(
-                principal.getRol().name(),
-                principal.getUsername(),
-                principal.getEstado().name(),
-                principal.isTieneTituloNutricion(),
-                principal.isTieneTituloEntrenamiento(),
-                principal.getServicio() != null ? principal.getServicio().name() : null
-        );
-
-        log.info("<<< Autenticación exitosa para: {}", principal.getEmail());
-
-        return new LoginResponseDTO(true, data);
+        usuario.setEstado(EstadoUsuario.SUSPENDIDO);
+        // No es estrictamente necesario llamar a save() si estamos en una transacción,
+        // pero ayuda a la legibilidad para un desarrollador junior.
+        usuarioRepository.save(usuario);
     }
 
+
+    @Transactional(readOnly = true)
     public UsuarioDTO obtenerUsuarioActual() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

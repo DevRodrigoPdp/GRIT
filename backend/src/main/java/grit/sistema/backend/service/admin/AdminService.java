@@ -2,12 +2,17 @@ package grit.sistema.backend.service.admin;
 
 import grit.sistema.backend.dto.coaching.DocumentoDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
+import grit.sistema.backend.dto.usuario.UsuarioDTO;
+import grit.sistema.backend.entity.Usuario;
+import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.DocStatus;
 import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
+import grit.sistema.backend.mapper.usuario.UsuarioMapper;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
+import grit.sistema.backend.repository.usuario.UsuarioRepository;
 import grit.sistema.backend.service.common.StorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +35,19 @@ import java.util.UUID;
 
 public class AdminService {
     private final EntrenadorRepository entrenadorRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioMapper usuarioMapper;
     private final StorageService storageService;
+
+    @Transactional(readOnly = true)
+    public Page<UsuarioDTO> buscarUsuarios(String termino, Pageable pageable) {
+        if (termino == null || termino.isBlank()) {
+            return usuarioRepository.findAll(pageable).map(usuarioMapper::toDTO);
+        }
+
+        return usuarioRepository.findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                termino, termino, pageable).map(usuarioMapper::toDTO);
+    }
 
     @Transactional(readOnly = true)
     public Page<EntrenadorPendienteDTO> obtenerPendientes(int page, int size) {
@@ -58,30 +76,41 @@ public class AdminService {
         log.info("Entrenador {} procesado. Resultado: {}", id, aprobado ? "APROBADO" : "RECHAZADO");
     }
 
-    /**
-     * Elimina completamente a un entrenador del sistema y sus archivos asociados.
-     * ¡CUIDADO!: Esta operación es irreversible.
-     */
     @Transactional
-    public void eliminarEntrenadorDefinitivo(UUID id) {
-        Entrenador entrenador = entrenadorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No se puede eliminar: Entrenador no encontrado"));
+    public void eliminarUsuarioCompleto(UUID id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró el usuario con ID: " + id));
 
-        // 1. Recolectamos las keys de S3 antes de borrar de la DB
-        List<String> archivosABorrar = entrenador.getDocumentos().stream()
-                .map(DocumentoEntrenador::getUrlS3) // Asumiendo que urlS3 guarda la Key
-                .toList();
+        List<String> keysParaBorrar = new ArrayList<>();
 
-        // 2. Borramos de la base de datos
-        // Al tener CascadeType.ALL en la relación con documentos, se borran automáticamente de la DB
-        entrenadorRepository.delete(entrenador);
+        if (usuario instanceof Entrenador entrenador) {
+            log.info("Identificado como Entrenador. Recolectando documentos y fotos...");
 
-        // 3. Borramos de S3/MinIO
-        // Lo hacemos después del delete de la DB para asegurar que si la DB falla,
-        // los archivos sigan ahí para reintentar.
-        archivosABorrar.forEach(storageService::deleteFile);
+            if (entrenador.getFotoUrl() != null) keysParaBorrar.add(entrenador.getFotoUrl());
 
-        log.warn("Entrenador {} y sus {} archivos han sido eliminados permanentemente", id, archivosABorrar.size());
+            entrenador.getDocumentos().forEach(doc -> {
+                if (doc.getUrlS3() != null) keysParaBorrar.add(doc.getUrlS3());
+            });
+
+        } else if (usuario instanceof Atleta atleta) {
+            log.info("Identificado como Atleta. Recolectando fotos...");
+
+            if (atleta.getFotoUrl() != null) keysParaBorrar.add(atleta.getFotoUrl());
+
+        }
+
+        usuarioRepository.delete(usuario);
+
+        keysParaBorrar.forEach(key -> {
+            try {
+                storageService.deleteFile(key);
+                log.debug("Archivo eliminado de S3: {}", key);
+            } catch (Exception e) {
+                log.error("Fallo al eliminar archivo en S3: {}. Motivo: {}", key, e.getMessage());
+            }
+        });
+
+        log.info("Eliminación definitiva completada para el usuario: {}", id);
     }
 
     // --- MÉTODOS PRIVADOS DE APOYO (ENCAPSULAMIENTO) ---

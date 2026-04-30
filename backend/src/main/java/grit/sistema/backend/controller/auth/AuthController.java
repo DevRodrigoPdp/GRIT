@@ -12,10 +12,11 @@ import grit.sistema.backend.dto.auth.LoginResponseDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.exception.business.SesionActivaException;
 import grit.sistema.backend.entity.common.enums.Rol;
+import grit.sistema.backend.service.auth.AuthService;
 import grit.sistema.backend.service.coaching.AtletaService;
 import grit.sistema.backend.service.coaching.EntrenadorService;
 import grit.sistema.backend.security.jwt.JwtUtils;
-import grit.sistema.backend.service.auth.UsuarioService;
+import grit.sistema.backend.service.usuario.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,6 +42,7 @@ import java.util.List;
 @Slf4j
 public class AuthController {
     private final UsuarioService usuarioService;
+    private final AuthService authService;
     private final AtletaService atletaService;
     private final EntrenadorService entrenadorService;
     private final JwtUtils jwtUtils;
@@ -121,7 +123,7 @@ public class AuthController {
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDto) {
         log.info(">>> Solicitud de login recibida para el email: {}", loginDto.email());
 
-        LoginResponseDTO response = usuarioService.login(loginDto);
+        LoginResponseDTO response = authService.login(loginDto);
 
         // Para cumplir con el requerimiento de cookies en el login:
         // Suponiendo que 'response' tiene los tokens que generó el usuarioService
