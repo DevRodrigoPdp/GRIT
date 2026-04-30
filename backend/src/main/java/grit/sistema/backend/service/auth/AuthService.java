@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
-
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
 

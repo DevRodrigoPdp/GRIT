@@ -38,6 +38,7 @@ public class UsuarioService {
         return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     public LoginData obtenerDatosParaRefresh(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));

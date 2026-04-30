@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -135,6 +136,7 @@ public class StorageService {
      * Elimina un archivo del bucket de forma definitiva.
      * @param objectKey La clave (key) única del archivo en S3/MinIO.
      */
+    @Async("fileDeletionExecutor")
     public void deleteFile(String objectKey) {
         if (objectKey == null || objectKey.isBlank()) {
             log.warn("Se intentó eliminar un archivo con nombre nulo o vacío");

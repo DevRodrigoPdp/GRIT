@@ -2,6 +2,7 @@ package grit.sistema.backend.service.admin;
 
 import grit.sistema.backend.dto.coaching.DocumentoDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
+import grit.sistema.backend.dto.common.ArchivosAEliminarEventDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
@@ -17,6 +18,7 @@ import grit.sistema.backend.service.common.StorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +40,7 @@ public class AdminService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final StorageService storageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public Page<UsuarioDTO> buscarUsuarios(String termino, Pageable pageable) {
@@ -101,14 +104,7 @@ public class AdminService {
 
         usuarioRepository.delete(usuario);
 
-        keysParaBorrar.forEach(key -> {
-            try {
-                storageService.deleteFile(key);
-                log.debug("Archivo eliminado de S3: {}", key);
-            } catch (Exception e) {
-                log.error("Fallo al eliminar archivo en S3: {}. Motivo: {}", key, e.getMessage());
-            }
-        });
+        eventPublisher.publishEvent(new ArchivosAEliminarEventDTO(keysParaBorrar));
 
         log.info("Eliminación definitiva completada para el usuario: {}", id);
     }
@@ -145,7 +141,7 @@ public class AdminService {
                 .map(d -> new DocumentoDTO(
                         d.getId(),
                         d.getNombreArchivo(),
-                        storageService.getPresignedUrl(d.getUrlS3()), // URL de 15 min
+                        storageService.getPresignedUrl(d.getUrlS3()),
                         d.getUploadedAt(),
                         d.getStatus().name()))
                 .toList();
@@ -154,8 +150,8 @@ public class AdminService {
                 e.getId(),
                 e.getNombre(),
                 e.getEmail(),
-                e.getTitulacionEntrenamiento().name(),
-                e.getTitulacionNutricion().name(),
+                e.getTitulacionEntrenamiento() != null ? e.getTitulacionEntrenamiento().name() : "SIN_TITULO",
+                e.getTitulacionNutricion() != null ? e.getTitulacionNutricion().name() : "SIN_TITULO",
                 e.getCodigoProfesional(),
                 e.getCreatedAt(),
                 docs
