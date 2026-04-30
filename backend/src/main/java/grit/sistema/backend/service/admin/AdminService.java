@@ -4,6 +4,7 @@ import grit.sistema.backend.dto.coaching.DocumentoDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.dto.common.ArchivosAEliminarEventDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
+import grit.sistema.backend.dto.usuario.UsuarioResponseDTO;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
@@ -43,13 +44,13 @@ public class AdminService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
-    public Page<UsuarioDTO> buscarUsuarios(String termino, Pageable pageable) {
+    public Page<UsuarioResponseDTO> buscarUsuarios(String termino, Pageable pageable) {
         if (termino == null || termino.isBlank()) {
-            return usuarioRepository.findAll(pageable).map(usuarioMapper::toDTO);
+            return usuarioRepository.findAll(pageable).map(usuarioMapper::toResponseDTO);
         }
 
         return usuarioRepository.findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                termino, termino, pageable).map(usuarioMapper::toDTO);
+                termino, termino, pageable).map(usuarioMapper::toResponseDTO);
     }
 
     @Transactional(readOnly = true)

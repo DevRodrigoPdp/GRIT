@@ -5,6 +5,7 @@ import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.auth.LoginRequestDTO;
 import grit.sistema.backend.dto.auth.LoginResponseDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
+import grit.sistema.backend.dto.usuario.UsuarioResponseDTO;
 import grit.sistema.backend.exception.business.SesionActivaException;
 import grit.sistema.backend.mapper.usuario.UsuarioMapper;
 import grit.sistema.backend.entity.Usuario;
@@ -34,8 +35,8 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
 
     @Transactional(readOnly = true)
-    public List<UsuarioDTO> findAll() {
-        return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
+    public List<UsuarioResponseDTO> findAll() {
+        return usuarioRepository.findAll().stream().map(usuarioMapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)

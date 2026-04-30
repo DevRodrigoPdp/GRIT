@@ -2,6 +2,7 @@ package grit.sistema.backend.mapper.usuario;
 
 import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
+import grit.sistema.backend.dto.usuario.UsuarioResponseDTO;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Entrenador;
@@ -26,6 +27,10 @@ public interface UsuarioMapper {
     @Mapping(target = "idPublico", source = "id") // CORRECCIÓN: 'id' es el campo de la entidad
     @Mapping(target = "password", ignore = true)
     UsuarioDTO toDTO(Usuario usuario);
+
+    @Mapping(target = "idPublico", source = "id")
+    @Mapping(target = "registro", source = "createdAt")
+    UsuarioResponseDTO toResponseDTO(Usuario usuario);
 
     // 3. Mapeo hacia Entidad (Desde el Frontend)
     @Mapping(target = "id", ignore = true)        // El ID lo genera la DB

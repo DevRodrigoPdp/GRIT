@@ -2,6 +2,7 @@ package grit.sistema.backend.controller.admin;
 
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.dto.usuario.UsuarioDTO;
+import grit.sistema.backend.dto.usuario.UsuarioResponseDTO;
 import grit.sistema.backend.service.admin.AdminService;
 import grit.sistema.backend.service.usuario.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,13 +31,13 @@ public class AdminController {
     private final UsuarioService usuarioService;
 
     @GetMapping("/usuarios")
-    public ResponseEntity<List<UsuarioDTO>> getAllUsuarios() {
+    public ResponseEntity<List<UsuarioResponseDTO>> getAllUsuarios() {
         log.info("Iniciando getAllUsuarios");
         return ResponseEntity.ok(usuarioService.findAll());
     }
 
     @GetMapping("/usuarios/search")
-    public ResponseEntity<Page<UsuarioDTO>> listar(
+    public ResponseEntity<Page<UsuarioResponseDTO>> listar(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
