@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,16 @@ import java.util.UUID;
 @Slf4j
 public class EntrenamientoController {
     private final EntrenamientoService entrenamientoService;
+
+    @PatchMapping("/{rutinaId}/activar")
+    public ResponseEntity<Void> activarRutina(
+            @PathVariable UUID rutinaId,
+            @AuthenticationPrincipal UserPrincipal usuario
+    ) {
+        entrenamientoService.activarRutina(usuario.getId(), rutinaId);
+
+        return ResponseEntity.noContent().build();
+    }
 
     @Operation(summary = "Listar rutinas de entrenamiento")
     @GetMapping("/rutinas")

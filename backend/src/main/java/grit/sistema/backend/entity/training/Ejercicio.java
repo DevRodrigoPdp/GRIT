@@ -23,7 +23,7 @@ public class Ejercicio {
     private String nombre;
 
     @Column(name = "grupo_muscular", nullable = false)
-    private String grupoMuscular; // [cite: 16]
+    private String grupoMuscular;
 
     @Column(name = "equipo_necesario")
     private String equipoNecesario;

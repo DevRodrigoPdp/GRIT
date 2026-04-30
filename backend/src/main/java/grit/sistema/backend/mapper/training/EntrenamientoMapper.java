@@ -22,30 +22,32 @@ public interface EntrenamientoMapper {
     @Mapping(target = "atletaId", source = "atleta.id")
     RutinaDTO toDTO(Rutina entity);
 
-    // --- 2. MAPEADO DE SESIÓN (Debe coincidir con el tipo en RutinaRequestDTO) ---
+    // --- 2. MAPEADO DE SESIÓN ---
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "rutina", ignore = true)
-    @Mapping(target = "orden", ignore = true)
-    // MapStruct ahora encontrará 'orden' en SesionRutinaRequestDTO
+    // El 'orden' ya viene en SesionRutinaRequestDTO, MapStruct lo mapeará automáticamente si coinciden los nombres
     SesionRutina toEntity(SesionRutinaRequestDTO dto);
 
-    // --- 3. MAPEADO DE EJERCICIOS ---
+    // --- 3. MAPEADO DE EJERCICIOS (Cambios Críticos Aquí) ---
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "sesion", ignore = true)
-    @Mapping(target = "ejercicioId", source = "id")
+    // Cambiamos 'source = id' por 'source = ejercicioId' según tu nuevo Record
+    @Mapping(target = "ejercicioId", source = "ejercicioId")
+    // Los campos descriptivos (nombre, imagen, etc.) deben venir del DTO si es que los guardas en la tabla de cruce
     @Mapping(target = "ejercicioNombre", source = "nombre")
     @Mapping(target = "ejercicioCategoria", source = "categoria")
     @Mapping(target = "ejercicioMusculoPrincipal", source = "musculoPrincipal")
     @Mapping(target = "ejercicioImagenUrl", source = "imagenUrl")
-    @Mapping(target = "orden", ignore = true) // Ignorar si el frontend no envía orden de ejercicios
+    // Ya NO ignoramos el orden, lo recibimos del DTO
+    @Mapping(target = "orden", source = "orden")
     EjercicioEnSesion toEntity(EjercicioRequestDTO dto);
 
-    // --- 4. VINCULACIÓN JERÁRQUICA (Vital para JPA) ---
+    // --- 4. VINCULACIÓN JERÁRQUICA ---
     @AfterMapping
     default void vincularRelaciones(@MappingTarget Rutina rutina) {
         if (rutina.getSesiones() != null) {
             rutina.getSesiones().forEach(sesion -> {
-                sesion.setRutina(rutina); // Crucial para que JPA guarde el FK
+                sesion.setRutina(rutina);
                 if (sesion.getEjercicios() != null) {
                     sesion.getEjercicios().forEach(ej -> ej.setSesion(sesion));
                 }

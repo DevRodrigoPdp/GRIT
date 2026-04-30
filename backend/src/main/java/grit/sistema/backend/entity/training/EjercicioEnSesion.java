@@ -2,6 +2,7 @@ package grit.sistema.backend.entity.training;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Table(name = "ejercicios_en_sesion")
 @Getter
 @Setter
+@NoArgsConstructor
 public class EjercicioEnSesion {
 
     @Id
@@ -21,7 +23,7 @@ public class EjercicioEnSesion {
     private SesionRutina sesion;
 
     @Column(name = "ejercicio_id", nullable = false, length = 100)
-    private String ejercicioId;
+    private UUID ejercicioId;
 
     @Column(name = "ejercicio_nombre", nullable = false)
     private String ejercicioNombre;
