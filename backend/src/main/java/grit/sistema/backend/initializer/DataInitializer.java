@@ -9,6 +9,7 @@ import grit.sistema.backend.entity.common.enums.Rol;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.repository.usuario.UsuarioRepository;
+import grit.sistema.backend.util.CodeGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 @Profile({"dev", "docker"}) // Se activa en ambos entornos
@@ -29,6 +31,7 @@ public class DataInitializer implements CommandLineRunner {
     private final EntrenadorRepository entrenadorRepository;
     private final AtletaRepository atletaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CodeGenerator codeGenerator;
 
     @Value("${app.seed.admin-email:admin@test.com}")
     private String adminEmail;
@@ -42,11 +45,12 @@ public class DataInitializer implements CommandLineRunner {
     public DataInitializer(UsuarioRepository usuarioRepository,
                            EntrenadorRepository entrenadorRepository,
                            AtletaRepository atletaRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder, CodeGenerator codeGenerator) {
         this.usuarioRepository = usuarioRepository;
         this.entrenadorRepository = entrenadorRepository;
         this.atletaRepository = atletaRepository;
         this.passwordEncoder = passwordEncoder;
+        this.codeGenerator = codeGenerator;
     }
 
     @Override
@@ -96,7 +100,11 @@ public class DataInitializer implements CommandLineRunner {
             // Datos del Hijo (Entrenador)
             coach.setCodigoProfesional("COL-00000");
             coach.setTitulacionEntrenamiento(TitulacionEntrenamiento.GRADO_CAFYD);
+            coach.setTitulacionNutricion(TitulacionNutricion.GRADO_NUTRICION_DIETETICA);
             coach.setEstadoRevision(EstadoRevision.APROBADO);
+            String nuevoCodigo = codeGenerator.generateGritFormat();
+            coach.setCodigoInvitacion(nuevoCodigo);
+            coach.setMasters(List.of("Master en Ciencias del Deporte"));
 
             entrenadorRepository.save(coach);
             log.info("Coach creado: {}", email);
@@ -122,6 +130,8 @@ public class DataInitializer implements CommandLineRunner {
             atleta.setGenero(GeneroTipo.HOMBRE);
             atleta.setFechaNac(LocalDate.of(1990, 1, 1));
             atleta.setNivel(NivelAtleta.INTERMEDIO);
+            atleta.setIntolerancias(List.of("Leche"));
+            atleta.setAlergias(List.of("Frutos Secos"));
 
             atletaRepository.save(atleta);
             log.info("Atleta creado: {}", email);
