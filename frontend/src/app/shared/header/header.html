@@ -2,7 +2,7 @@
   <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-2 no-underline">
+    <a href="#" (click)="navegar($event, 'inicio')" class="flex items-center gap-2 no-underline">
       <span class="font-black tracking-tighter text-2xl text-black uppercase select-none">GRIT</span>
     </a>
 
@@ -10,9 +10,15 @@
     <div class="hidden md:flex items-center gap-8">
       @for (link of navLinks; track link.label) {
         <a
-          [href]="link.href"
-          (click)="scrollTo($event, link.href)"
-          class="text-xs font-semibold tracking-widest text-gray-500 uppercase hover:text-black transition-colors duration-200 no-underline"
+          href="#"
+          (click)="navegar($event, link.href)"
+          class="text-xs font-semibold tracking-widest uppercase transition-colors duration-200 no-underline"
+          [class.text-black]="vistaActual() === link.href"
+          [class.border-b-2]="vistaActual() === link.href"
+          [class.border-black]="vistaActual() === link.href"
+          [class.pb-0.5]="vistaActual() === link.href"
+          [class.text-gray-400]="vistaActual() !== link.href"
+          [class.hover:text-black]="vistaActual() !== link.href"
         >
           {{ link.label }}
         </a>
@@ -52,9 +58,11 @@
     <div class="md:hidden border-t border-[#E5E7EB] bg-white px-6 py-6 flex flex-col gap-5">
       @for (link of navLinks; track link.label) {
         <a
-          [href]="link.href"
-          class="text-xs font-semibold tracking-widest text-gray-500 uppercase hover:text-black transition-colors no-underline"
-          (click)="scrollTo($event, link.href); toggleMenu()"
+          href="#"
+          class="text-xs font-semibold tracking-widest uppercase transition-colors no-underline"
+          [class.text-black]="vistaActual() === link.href"
+          [class.text-gray-400]="vistaActual() !== link.href"
+          (click)="navegar($event, link.href)"
         >
           {{ link.label }}
         </a>
