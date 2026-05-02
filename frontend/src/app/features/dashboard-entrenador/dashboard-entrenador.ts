@@ -29,6 +29,7 @@ export class DashboardEntrenadorPage implements OnInit {
 
   busqueda       = signal('');
   filtroServicio = signal<Filtro>('TODOS');
+  codigoCopiado  = signal(false);
 
   // ── Ajustes ───────────────────────────────────────────────────────────────
   readonly passAbierto        = signal(false);
@@ -134,6 +135,15 @@ export class DashboardEntrenadorPage implements OnInit {
 
   incluyeNutricion(servicio: AtletaAsignado['servicio']): boolean {
     return servicio === 'NUTRICION' || servicio === 'AMBOS';
+  }
+
+  copiarCodigo(): void {
+    const codigo = this.perfil()?.codigoInvitacion;
+    if (!codigo) return;
+    navigator.clipboard.writeText(codigo).then(() => {
+      this.codigoCopiado.set(true);
+      setTimeout(() => this.codigoCopiado.set(false), 2000);
+    }).catch(() => {});
   }
 
   cambiarPassword(): void {

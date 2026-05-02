@@ -103,10 +103,41 @@
             </div>
 
             @if (atletas().length === 0) {
-              <div class="border border-dashed border-[#E5E7EB] p-16 text-center">
-                <div class="w-2 h-2 bg-gray-200 mx-auto mb-4"></div>
-                <p class="text-xs font-black tracking-[0.25em] uppercase text-gray-300 mb-1">SIN ATLETAS</p>
-                <p class="text-sm font-light text-gray-400">Todavía no tienes atletas asignados.</p>
+              <div class="flex flex-col gap-6">
+                <div>
+                  <p class="text-xs font-black tracking-[0.25em] uppercase text-gray-300 mb-1">SIN ATLETAS</p>
+                  <p class="text-sm font-light text-gray-400">Todavía no tienes atletas asignados. Comparte tu código para que se conecten.</p>
+                </div>
+
+                <div>
+                  <label class="text-xs font-bold tracking-[0.2em] uppercase text-black block mb-3">
+                    Tu código de invitación
+                  </label>
+                  @if (perfil()?.codigoInvitacion; as codigo) {
+                    <div class="flex gap-2">
+                      <input
+                        [value]="codigo"
+                        readonly
+                        class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-mono font-medium text-black outline-none bg-transparent tracking-widest cursor-default"
+                      />
+                      <button
+                        (click)="copiarCodigo()"
+                        class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 flex-shrink-0 transition-colors"
+                        [class.bg-black]="!codigoCopiado()"
+                        [class.text-white]="!codigoCopiado()"
+                        [class.bg-[#2ED38D]]="codigoCopiado()"
+                        [class.text-black]="codigoCopiado()"
+                      >
+                        @if (codigoCopiado()) { ¡COPIADO! } @else { COPIAR }
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="border-b border-[#E5E7EB] py-2">
+                      <span class="text-sm text-gray-300 font-mono tracking-widest">Cargando...</span>
+                    </div>
+                  }
+                  <p class="text-xs font-light text-gray-400 mt-2">El atleta lo introduce en su dashboard o al registrarse para conectarse contigo.</p>
+                </div>
               </div>
             }
             @if (atletas().length > 0 && atletasFiltrados().length === 0) {

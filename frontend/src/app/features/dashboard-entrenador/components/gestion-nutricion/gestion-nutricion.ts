@@ -119,10 +119,13 @@ export class GestionNutricionComponent implements OnInit {
     this.guardando.set(true);
     this.nutricion
       .crearPlan(id, this.nombrePlan(), this.descripcionPlan(), this.comidas())
-      .subscribe(plan => {
-        this.planes.update(p => [...p, plan]);
-        this.guardando.set(false);
-        this.vista.set('lista');
+      .subscribe({
+        next: plan => {
+          this.planes.update(p => [...p, plan]);
+          this.guardando.set(false);
+          this.vista.set('lista');
+        },
+        error: () => this.guardando.set(false),
       });
   }
 

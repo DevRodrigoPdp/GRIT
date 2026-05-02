@@ -6,8 +6,11 @@ import { throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, take, switchMap } from 'rxjs/operators';
 
 const API_REFRESH = '/api/v1/auth/refresh';
-let refreshing = false;
+let refreshing  = false;
+let loggingOut  = false;
 const refreshDone$ = new BehaviorSubject<boolean>(false);
+
+export function setLoggingOut(value: boolean) { loggingOut = value; }
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -16,7 +19,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(conCredenciales).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status !== 401) {
+      if (error.status !== 401 || loggingOut) {
         return throwError(() => error);
       }
 

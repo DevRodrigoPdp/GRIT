@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of, EMPTY } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { setLoggingOut } from '../interceptors/auth.interceptor';
 
 // ── Tipos compartidos ────────────────────────────────────────────────────────
 
@@ -261,10 +262,12 @@ export class AuthService {
   // ── Logout ───────────────────────────────────────────────────────────────
 
   logout() {
+    setLoggingOut(true);
     this.http
       .post(`${this.API}/logout`, {}, { withCredentials: true })
       .pipe(catchError(() => EMPTY))
       .subscribe(() => {
+        setLoggingOut(false);
         this.clearSession();
         this.router.navigate(['/']);
       });

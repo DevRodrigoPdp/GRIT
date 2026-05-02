@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 // ── Tipos de respuesta del backend ─────────────────────────────────────────
@@ -57,9 +57,9 @@ export class EntrenadorService {
 
   private readonly API = '/api/v1/entrenador';
 
-  getPerfil(): Observable<PerfilEntrenador> {
+  getPerfil(): Observable<PerfilEntrenador | null> {
     return this.http.get<ApiResponseDTO<PerfilEntrenador>>(`${this.API}/perfil`, { withCredentials: true })
-      .pipe(map(response => response.data));
+      .pipe(map(response => response.data), catchError(() => of(null)));
   }
 
   getMisAtletas(): Observable<AtletaAsignado[]> {

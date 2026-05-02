@@ -61,6 +61,7 @@ export interface EjercicioSugerencia {
 }
 
 interface ApiResponse<T> { ok: boolean; data: T; }
+interface PagedResponse<T> { content: T[]; page: { size: number; number: number; totalElements: number; totalPages: number; }; }
 
 @Injectable({ providedIn: 'root' })
 export class EntrenamientoService {
@@ -78,8 +79,8 @@ export class EntrenamientoService {
 
   buscarEjercicios(query: string): void {
     this.http
-      .get<ApiResponse<EjercicioSugerencia[]>>(`${this.API_EJ}/search`, { params: { q: query.trim() } })
-      .subscribe(r => this.sugerenciasCache.set(r.data ?? []));
+      .get<PagedResponse<EjercicioSugerencia>>(`${this.API_EJ}/search`, { params: { q: query.trim(), page: 0 }, withCredentials: true })
+      .subscribe(r => this.sugerenciasCache.set(r.content ?? []));
 
     // ── Fallback local (descomentar si la API no está disponible) ────────────
     // const q = query.trim().toLowerCase();
@@ -129,14 +130,16 @@ export class EntrenamientoService {
       atletaId,
       nombre,
       descripcion,
-      sesiones: sesiones.map(s => ({
-        id:     s.id,
+      sesiones: sesiones.map((s, si) => ({
         nombre: s.nombre,
-        ejercicios: s.ejercicios.map(e => ({
-          ejercicio: { id: e.id, nombre: e.nombre },
-          series: e.series,
-          reps:   e.reps,
-          notas:  e.notas,
+        orden:  si,
+        ejercicios: s.ejercicios.map((e, ei) => ({
+          ejercicioId: e.id,
+          nombre:      e.nombre,
+          orden:       ei,
+          series:      e.series,
+          reps:        e.reps,
+          notas:       e.notas,
         })),
       })),
     };

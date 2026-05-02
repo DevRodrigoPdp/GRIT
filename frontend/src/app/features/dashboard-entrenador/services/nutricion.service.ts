@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { AlimentoOFF } from './alimentos.service';
 
 // ── Tipos públicos ────────────────────────────────────────────────────────────
@@ -70,11 +70,30 @@ export class NutricionService {
   getPlanes(atletaId: string): Observable<PlanNutricion[]> {
     return this.http
       .get<ApiResponse<any[]>>(`${this.API}/planes`, { params: { atletaId }, withCredentials: true })
-      .pipe(map(r => (r.data ?? []).map((p: any) => ({
-        ...p,
-        creadoEn: new Date(p.creadoEn),
-        activo: p.activo ?? false,
-      }))));
+      .pipe(
+        map(r => (r.data ?? []).map((p: any) => ({
+          ...p,
+          creadoEn: new Date(p.creadoEn),
+          activo:   p.activo ?? false,
+          comidas:  (p.comidas ?? []).map((c: any) => ({
+            nombre:    c.nombre ?? '',
+            notas:     c.notas  ?? '',
+            alimentos: (c.alimentos ?? []).map((a: any) => ({
+              cantidadG: Number(a.cantidadG ?? 0),
+              alimento: {
+                codigo:           a.codigoAlimento ?? a.codigo ?? '',
+                nombre:           a.nombre         ?? '',
+                marca:            a.marca          ?? '',
+                kcalPor100g:      Number(a.kcalPor100g      ?? 0),
+                proteinasPor100g: Number(a.proteinasPor100g ?? 0),
+                carbsPor100g:     Number(a.carbsPor100g     ?? 0),
+                grasasPor100g:    Number(a.grasasPor100g    ?? 0),
+              },
+            })),
+          })),
+        }))),
+        catchError(() => of([])),
+      );
   }
 
   crearPlan(
@@ -83,10 +102,32 @@ export class NutricionService {
     descripcion: string,
     comidas: Comida[]
   ): Observable<PlanNutricion> {
+    const macros = this.calcularMacros(comidas);
+    const payload = {
+      atletaId,
+      nombre,
+      descripcion,
+      activo:      true,
+      kcalDiarias: Math.round(macros.kcal),
+      comidas: comidas.map((c, ci) => ({
+        nombre: c.nombre,
+        orden:  ci,
+        notas:  c.notas ?? '',
+        alimentos: c.alimentos.map((a, ai) => ({
+          codigoAlimento:   a.alimento.codigo,
+          nombre:           a.alimento.nombre,
+          marca:            a.alimento.marca ?? '',
+          kcalPor100g:      a.alimento.kcalPor100g,
+          proteinasPor100g: a.alimento.proteinasPor100g,
+          carbsPor100g:     a.alimento.carbsPor100g,
+          grasasPor100g:    a.alimento.grasasPor100g,
+          cantidadG:        a.cantidadG,
+          orden:            ai,
+        })),
+      })),
+    };
     return this.http
-      .post<ApiResponse<{ id: string; creadoEn: string }>>(`${this.API}/planes`, {
-        atletaId, nombre, descripcion, comidas,
-      }, { withCredentials: true })
+      .post<ApiResponse<{ id: string; creadoEn: string }>>(`${this.API}/planes`, payload, { withCredentials: true })
       .pipe(map(r => ({
         id:          r.data.id,
         atletaId,
@@ -94,7 +135,7 @@ export class NutricionService {
         descripcion,
         comidas,
         creadoEn:    new Date(r.data.creadoEn),
-        activo:      false,
+        activo:      true,
       })));
   }
 
@@ -112,13 +153,13 @@ export class NutricionService {
 
   calcularMacros(comidas: Comida[]): MacrosTotales {
     let kcal = 0, prot = 0, carbs = 0, grasa = 0;
-    for (const comida of comidas) {
-      for (const item of comida.alimentos) {
-        const f = item.cantidadG / 100;
-        kcal  += item.alimento.kcalPor100g        * f;
-        prot  += item.alimento.proteinasPor100g    * f;
-        carbs += item.alimento.carbsPor100g        * f;
-        grasa += item.alimento.grasasPor100g       * f;
+    for (const comida of (comidas ?? [])) {
+      for (const item of (comida.alimentos ?? [])) {
+        const f = (item.cantidadG ?? 0) / 100;
+        kcal  += (item.alimento?.kcalPor100g        ?? 0) * f;
+        prot  += (item.alimento?.proteinasPor100g    ?? 0) * f;
+        carbs += (item.alimento?.carbsPor100g        ?? 0) * f;
+        grasa += (item.alimento?.grasasPor100g       ?? 0) * f;
       }
     }
     return { kcal, prot, carbs, grasa };

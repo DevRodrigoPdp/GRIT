@@ -71,7 +71,10 @@
       <div class="border border-[#E5E7EB] mb-3 p-5 hover:border-black transition-colors group cursor-pointer" (click)="abrirDetalle(plan)">
         <div class="flex items-start justify-between">
           <div class="flex-1 min-w-0 mr-4">
-            <p class="text-sm font-black uppercase tracking-tight text-black">{{ plan.nombre }}</p>
+            <p class="text-sm font-black uppercase tracking-tight"
+              [class]="plan.nombre ? 'text-black' : 'text-gray-300 italic'">
+              {{ plan.nombre || '(sin nombre)' }}
+            </p>
             @if (plan.descripcion) {
               <p class="text-sm font-light text-gray-400 mt-0.5">{{ plan.descripcion }}</p>
             }
@@ -84,7 +87,9 @@
                 class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
             }
             <button (click)="$event.stopPropagation(); eliminarPlan(plan.id)"
-              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">ELIMINAR</button>
+              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors"
+              [class.opacity-0]="!!plan.nombre"
+              [class.group-hover:opacity-100]="!!plan.nombre">ELIMINAR</button>
           </div>
         </div>
 

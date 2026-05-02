@@ -72,7 +72,7 @@
           @if (mostrarSugerencias()) {
             @let sugs = entrenamiento.sugerenciasCache();
             @if (sugs.length > 0) {
-              <div class="flex flex-col border border-[#E5E7EB] mt-1">
+              <div class="flex flex-col border border-[#E5E7EB] mt-1 max-h-64 overflow-y-auto">
                 @if (!nuevoNombre().trim()) {
                   <p class="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-300 px-3 pt-2 pb-1">USADOS RECIENTEMENTE</p>
                 }
@@ -80,7 +80,7 @@
                   <button
                     type="button"
                     (mousedown)="nuevoNombre.set(sug.nombre); mostrarSugerencias.set(false)"
-                    class="text-left px-3 py-2 hover:bg-[#F9FAFB] border-t border-[#F3F4F6] first:border-t-0 transition-colors flex items-center justify-between gap-4"
+                    class="text-left px-3 py-2 hover:bg-[#F9FAFB] border-t border-[#F3F4F6] first:border-t-0 transition-colors flex items-center justify-between gap-4 flex-shrink-0"
                   >
                     <span class="text-sm font-bold uppercase tracking-tight text-black">{{ sug.nombre }}</span>
                     @if (sug.grupoMuscular) {
