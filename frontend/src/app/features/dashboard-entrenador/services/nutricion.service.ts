@@ -7,7 +7,8 @@ import { AlimentoOFF } from './alimentos.service';
 // ── Tipos públicos ────────────────────────────────────────────────────────────
 
 export interface AlimentoEnPlan {
-  alimento: AlimentoOFF;
+  _id?:      string;   // AlimentoEnComida entity ID, presente al cargar desde backend
+  alimento:  AlimentoOFF;
   cantidadG: number;
 }
 
@@ -79,6 +80,7 @@ export class NutricionService {
             nombre:    c.nombre ?? '',
             notas:     c.notas  ?? '',
             alimentos: (c.alimentos ?? []).map((a: any) => ({
+              _id:       a.id ?? undefined,
               cantidadG: Number(a.cantidadG ?? 0),
               alimento: {
                 codigo:           a.codigoAlimento ?? a.codigo ?? '',
@@ -100,15 +102,16 @@ export class NutricionService {
     atletaId: string,
     nombre: string,
     descripcion: string,
-    comidas: Comida[]
+    comidas: Comida[],
+    activo: boolean = false,
   ): Observable<PlanNutricion> {
     const macros = this.calcularMacros(comidas);
     const payload = {
       atletaId,
       nombre,
       descripcion,
-      activo:      true,
-      kcalDiarias: Math.round(macros.kcal),
+      activo,
+      kcalDiarias: Math.max(500, Math.round(macros.kcal)),
       comidas: comidas.map((c, ci) => ({
         nombre: c.nombre,
         orden:  ci,
@@ -135,8 +138,46 @@ export class NutricionService {
         descripcion,
         comidas,
         creadoEn:    new Date(r.data.creadoEn),
-        activo:      true,
+        activo,
       })));
+  }
+
+  actualizarPlan(
+    planId: string,
+    atletaId: string,
+    nombre: string,
+    descripcion: string,
+    comidas: Comida[],
+    activo: boolean,
+  ): Observable<void> {
+    const macros = this.calcularMacros(comidas);
+    const payload = {
+      atletaId,
+      nombre,
+      descripcion,
+      activo,
+      kcalDiarias: Math.max(500, Math.round(macros.kcal)),
+      comidas: comidas.map((c, ci) => ({
+        nombre:    c.nombre,
+        orden:     ci,
+        notas:     c.notas ?? '',
+        alimentos: c.alimentos.map((a, ai) => ({
+          orden: ai,
+          id:               a._id ?? null,
+          codigo:           a.alimento.codigo,
+          nombre:           a.alimento.nombre,
+          marca:            a.alimento.marca ?? '',
+          kcalPor100g:      a.alimento.kcalPor100g,
+          proteinasPor100g: a.alimento.proteinasPor100g,
+          carbsPor100g:     a.alimento.carbsPor100g,
+          grasasPor100g:    a.alimento.grasasPor100g,
+          cantidadG:        a.cantidadG,
+        })),
+      })),
+    };
+    return this.http
+      .put<ApiResponse<void>>(`${this.API}/planes/${planId}`, payload, { withCredentials: true })
+      .pipe(map(() => undefined));
   }
 
   eliminarPlan(_atletaId: string, planId: string): Observable<void> {

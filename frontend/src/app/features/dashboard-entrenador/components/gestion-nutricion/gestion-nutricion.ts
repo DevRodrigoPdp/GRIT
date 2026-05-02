@@ -26,12 +26,15 @@ export class GestionNutricionComponent implements OnInit {
   // ── Estado principal ──────────────────────────────────────────────────────
   vista        = signal<Vista>('lista');
   planes       = signal<PlanNutricion[]>([]);
-  guardando    = signal(false);
-  planDetalle  = signal<PlanNutricion | null>(null);
+  guardando      = signal(false);
+  errorGuardando = signal('');
+  planDetalle    = signal<PlanNutricion | null>(null);
 
   // ── Formulario plan ───────────────────────────────────────────────────────
   nombrePlan      = signal('');
   descripcionPlan = signal('');
+  planActivo      = signal(false);
+  planEditandoId  = signal<string | null>(null);
   comidas         = signal<Comida[]>([{ nombre: 'Comida 1', alimentos: [] }]);
 
   /** Índice de la comida con el buscador de alimentos abierto */
@@ -54,7 +57,18 @@ export class GestionNutricionComponent implements OnInit {
   iniciarCreacion() {
     this.nombrePlan.set('');
     this.descripcionPlan.set('');
+    this.planActivo.set(false);
+    this.planEditandoId.set(null);
     this.comidas.set([{ nombre: 'Comida 1', alimentos: [] }]);
+    this.vista.set('crear');
+  }
+
+  iniciarEdicion(plan: PlanNutricion) {
+    this.nombrePlan.set(plan.nombre);
+    this.descripcionPlan.set(plan.descripcion ?? '');
+    this.planActivo.set(plan.activo);
+    this.planEditandoId.set(plan.id);
+    this.comidas.set(plan.comidas.length > 0 ? plan.comidas : [{ nombre: 'Comida 1', alimentos: [] }]);
     this.vista.set('crear');
   }
 
@@ -114,19 +128,50 @@ export class GestionNutricionComponent implements OnInit {
   // ── Guardar / eliminar plan ───────────────────────────────────────────────
 
   guardarPlan() {
-    const id = this.atletaId();
-    if (!id || !this.nombrePlan().trim()) return;
+    const atletaId    = this.atletaId();
+    const editandoId  = this.planEditandoId();
+    if (!atletaId || !this.nombrePlan().trim()) return;
     this.guardando.set(true);
-    this.nutricion
-      .crearPlan(id, this.nombrePlan(), this.descripcionPlan(), this.comidas())
-      .subscribe({
-        next: plan => {
-          this.planes.update(p => [...p, plan]);
-          this.guardando.set(false);
-          this.vista.set('lista');
-        },
-        error: () => this.guardando.set(false),
-      });
+    this.errorGuardando.set('');
+
+    if (editandoId) {
+      this.nutricion
+        .actualizarPlan(editandoId, atletaId, this.nombrePlan(), this.descripcionPlan(), this.comidas(), this.planActivo())
+        .subscribe({
+          next: () => {
+            this.planes.update(p => p.map(x => x.id === editandoId
+              ? { ...x, nombre: this.nombrePlan(), descripcion: this.descripcionPlan(), comidas: this.comidas() }
+              : x
+            ));
+            this.guardando.set(false);
+            this.vista.set('lista');
+          },
+          error: (err) => {
+            this.guardando.set(false);
+            const msg = err?.error?.errors?.[0]?.defaultMessage
+              ?? err?.error?.message
+              ?? `Error ${err?.status ?? ''}`;
+            this.errorGuardando.set(msg);
+          },
+        });
+    } else {
+      this.nutricion
+        .crearPlan(atletaId, this.nombrePlan(), this.descripcionPlan(), this.comidas(), this.planActivo())
+        .subscribe({
+          next: plan => {
+            this.planes.update(p => [...p, plan]);
+            this.guardando.set(false);
+            this.vista.set('lista');
+          },
+          error: (err) => {
+            this.guardando.set(false);
+            const msg = err?.error?.errors?.[0]?.defaultMessage
+              ?? err?.error?.message
+              ?? `Error ${err?.status ?? ''}`;
+            this.errorGuardando.set(msg);
+          },
+        });
+    }
   }
 
   activarPlan(planId: string) {
