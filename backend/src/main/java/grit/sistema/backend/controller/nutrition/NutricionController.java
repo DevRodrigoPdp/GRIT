@@ -68,6 +68,19 @@ public class NutricionController {
         return ResponseEntity.ok(ApiResponseDTO.success(response, "Plan de nutrición actualizado correctamente"));
     }
 
+    @Operation(summary = "Activar un plan de nutrición específico para un atleta")
+    @PatchMapping("/planes/{planId}/activar")
+    public ResponseEntity<ApiResponseDTO<Void>> activarPlan(
+            @AuthenticationPrincipal UserPrincipal entrenador,
+            @PathVariable UUID planId) {
+
+        log.info("Entrenador {} activando plan de nutrición {}", entrenador.getId(), planId);
+
+        nutricionService.activarPlan(entrenador.getId(), planId);
+
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Plan activado correctamente", null));
+    }
+
     @Operation(summary = "Eliminar plan de nutrición")
     @DeleteMapping("/planes/{id}")
     public ResponseEntity<ApiResponseDTO<Void>> eliminarPlan(

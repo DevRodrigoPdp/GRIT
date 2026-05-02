@@ -74,19 +74,6 @@ public class AtletaController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Activar un plan de nutrición específico para un atleta")
-    @PatchMapping("/nutricion/planes/{planId}/activar")
-    public ResponseEntity<ApiResponseDTO<Void>> activarPlan(
-            @AuthenticationPrincipal UserPrincipal entrenador,
-            @PathVariable UUID planId) {
-
-        log.info("Entrenador {} activando plan de nutrición {}", entrenador.getId(), planId);
-
-        nutricionService.activarPlan(entrenador.getId(), planId);
-
-        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Plan activado correctamente", null));
-    }
-
     @Operation(summary = "Ver profesionales asignados a un atleta")
     @GetMapping("/profesionales")
     public ResponseEntity<ApiResponseDTO<List<ProfesionalAsignadoDTO>>> getProfesionalesAsignados(@AuthenticationPrincipal UserPrincipal usuario) {
