@@ -3,22 +3,17 @@ import { CanActivateFn, Router } from '@angular/router';
 import { map, of } from 'rxjs';
 import { AuthService, Rol } from '../services/auth.service';
 
-/** Redirige al dashboard correspondiente si el usuario ya tiene sesión activa. */
+
+/** Redirige al dashboard correspondiente si el usuario ya tiene sesión activa en memoria. */
 export const noAuthGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);
 
-  const redirigir = (rol: Rol | null) => {
-    if (!rol) return true;
-    if (rol === 'ATLETA')     return router.createUrlTree(['/dashboard/atleta']);
-    if (rol === 'ENTRENADOR') return router.createUrlTree(['/dashboard/entrenador']);
-    if (rol === 'ADMIN')      return router.createUrlTree(['/admin']);
-    return true;
-  };
-
-  if (auth.rol() !== null) return of(redirigir(auth.rol()));
-
-  return auth.me().pipe(map(() => redirigir(auth.rol())));
+  const rol = auth.rol();
+  if (rol === 'ATLETA')     return of(router.createUrlTree(['/dashboard/atleta']));
+  if (rol === 'ENTRENADOR') return of(router.createUrlTree(['/dashboard/entrenador']));
+  if (rol === 'ADMIN')      return of(router.createUrlTree(['/admin']));
+  return of(true);
 };
 
 /**
