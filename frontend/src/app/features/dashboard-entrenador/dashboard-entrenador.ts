@@ -91,7 +91,6 @@ export class DashboardEntrenadorPage implements OnInit {
   });
 
   ngOnInit() {
-    if (!this.auth.rol()) this.auth.me().subscribe();
     this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
     this.entrenador.getMisAtletas().subscribe(a => {
       this.atletas.set(a);

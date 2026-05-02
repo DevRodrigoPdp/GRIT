@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import {
@@ -22,7 +23,7 @@ interface ItemCompra { nombre: string; cantidad: string; }
 @Component({
   selector: 'app-dashboard-atleta',
   standalone: true,
-  imports: [ComunicacionAtletaComponent, FormsModule],
+  imports: [ComunicacionAtletaComponent, FormsModule, NgTemplateOutlet],
   templateUrl: './dashboard-atleta.html',
 })
 export class DashboardAtletaPage implements OnInit {
@@ -127,11 +128,7 @@ export class DashboardAtletaPage implements OnInit {
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    if (this.auth.rol()) {
-      this.cargarDatos();
-    } else {
-      this.auth.me().subscribe(() => this.cargarDatos());
-    }
+    this.cargarDatos();
   }
 
   private cargarDatos(): void {
@@ -147,10 +144,10 @@ export class DashboardAtletaPage implements OnInit {
     this.atleta.getPerfil().subscribe(p => this.perfilAtleta.set(p));
     this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
     this.atleta.getSolicitudCheckIn().subscribe(s => this.solicitudCheckIn.set(s));
+    this.atleta.getHistorialPesos().subscribe(h => this.historialPesos.set(h));
 
     if (incluyeEntrenamiento) {
       this.atleta.getPlanEntrenamiento().subscribe(p => this.planEntrenamiento.set(p));
-      this.atleta.getHistorialPesos().subscribe(h => this.historialPesos.set(h));
     }
 
     if (incluyeNutricion) {
