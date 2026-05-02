@@ -1,6 +1,6 @@
-import { Component, inject, input, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, input, output, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-// import { HttpClient } from '@angular/common/http';
+import { AtletaService, SolicitudCheckIn } from '../../services/atleta.service';
 
 export type CategoriaHilo = 'tecnica' | 'duda' | 'apunte';
 
@@ -38,12 +38,39 @@ type Vista = 'lista' | 'detalle' | 'nuevo';
   templateUrl: './comunicacion-atleta.html',
 })
 export class ComunicacionAtletaComponent implements OnInit {
-  // private http = inject(HttpClient);
-  // private readonly API = '/api/v1/comunicacion';
+  private atleta = inject(AtletaService);
 
   readonly atletaId          = input.required<string>();
   readonly contexto          = input<'ENTRENAMIENTO' | 'NUTRICION'>('ENTRENAMIENTO');
   readonly profesionalNombre = input<string>('Tu profesional');
+  readonly solicitudCheckIn  = input<SolicitudCheckIn | null>(null);
+  readonly checkInCompletado = output<void>();
+
+  // ── Check-in de peso ──────────────────────────────────────────────────────
+  readonly pesoInput      = signal('');
+  readonly enviandoPeso   = signal(false);
+  readonly checkInHecho   = signal(false);
+
+  readonly pesoValido = computed(() => {
+    const v = parseFloat(this.pesoInput().replace(',', '.'));
+    return !isNaN(v) && v >= 30 && v <= 300;
+  });
+
+  registrarPeso(): void {
+    const solicitud = this.solicitudCheckIn();
+    if (!solicitud || !this.pesoValido()) return;
+    const kg = parseFloat(this.pesoInput().replace(',', '.'));
+    this.enviandoPeso.set(true);
+    this.atleta.registrarPeso(solicitud.id, kg).subscribe({
+      next: () => {
+        this.checkInHecho.set(true);
+        this.pesoInput.set('');
+        this.enviandoPeso.set(false);
+        this.checkInCompletado.emit();
+      },
+      error: () => this.enviandoPeso.set(false),
+    });
+  }
 
   // ── Hilos ─────────────────────────────────────────────────────────────────
   readonly vista      = signal<Vista>('lista');

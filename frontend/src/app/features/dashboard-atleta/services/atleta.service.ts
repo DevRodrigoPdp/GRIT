@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 // ── Tipos de respuesta del backend ─────────────────────────────────────────
@@ -200,7 +200,10 @@ export class AtletaService {
 
   getSolicitudCheckIn(): Observable<SolicitudCheckIn | null> {
     return this.http.get<ApiResponseDTO<SolicitudCheckIn>>(`${this.API}/peso/solicitud-pendiente`, { withCredentials: true })
-      .pipe(map(response => response.data || null));
+      .pipe(
+        map(response => response.data || null),
+        catchError(() => of(null)),
+      );
   }
 
   getHistorialPesos(): Observable<CheckInPeso[]> {

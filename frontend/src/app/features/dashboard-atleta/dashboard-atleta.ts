@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import {
@@ -21,7 +22,7 @@ interface ItemCompra { nombre: string; cantidad: string; }
 @Component({
   selector: 'app-dashboard-atleta',
   standalone: true,
-  imports: [ComunicacionAtletaComponent],
+  imports: [ComunicacionAtletaComponent, FormsModule],
   templateUrl: './dashboard-atleta.html',
 })
 export class DashboardAtletaPage implements OnInit {
@@ -139,9 +140,10 @@ export class DashboardAtletaPage implements OnInit {
       this.atleta.getPerfil().subscribe(p => this.perfilAtleta.set(p));
       this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
 
+      this.atleta.getSolicitudCheckIn().subscribe(s => this.solicitudCheckIn.set(s));
+
       if (incluyeEntrenamiento) {
         this.atleta.getPlanEntrenamiento().subscribe(p => this.planEntrenamiento.set(p));
-        this.atleta.getSolicitudCheckIn().subscribe(s => this.solicitudCheckIn.set(s));
         this.atleta.getHistorialPesos().subscribe(h => this.historialPesos.set(h));
       }
 
@@ -170,7 +172,7 @@ export class DashboardAtletaPage implements OnInit {
 
   // ── Registro de peso ──────────────────────────────────────────────────────
   registrarPeso(): void {
-    const valor = parseFloat(this.pesoInputValor().replace(',', '.'));
+    const valor = Number(this.pesoInputValor());
     const solicitud = this.solicitudCheckIn();
     if (!solicitud || isNaN(valor) || valor < 30 || valor > 300) return;
     this.enviandoPeso.set(true);
@@ -289,7 +291,7 @@ export class DashboardAtletaPage implements OnInit {
   }
 
   pesoInputValido(): boolean {
-    const v = parseFloat(this.pesoInputValor().replace(',', '.'));
+    const v = Number(this.pesoInputValor());
     return !isNaN(v) && v >= 30 && v <= 300;
   }
 

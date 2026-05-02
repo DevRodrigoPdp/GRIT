@@ -3,6 +3,48 @@
   <!-- ── VISTA: LISTA ──────────────────────────────────────────────────────── -->
   @if (vista() === 'lista') {
     <section>
+
+      <!-- ── BANNER CHECK-IN DE PESO ─────────────────────────────────────── -->
+      @if (contexto() === 'ENTRENAMIENTO' && solicitudCheckIn() && !checkInHecho()) {
+        <div class="border border-black p-5 mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-4 h-px bg-black"></div>
+            <span class="text-[10px] font-black tracking-[0.3em] uppercase">CHECK-IN DE PESO</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-1">
+            Solicitado por <span class="font-black text-black">{{ solicitudCheckIn()!.solicitadoPor }}</span>
+          </p>
+          <p class="text-[11px] text-gray-400 mb-4">{{ solicitudCheckIn()!.fecha }}</p>
+          <div class="flex gap-3">
+            <input
+              [ngModel]="pesoInput()"
+              (ngModelChange)="pesoInput.set($event)"
+              type="number"
+              min="30"
+              max="300"
+              step="0.1"
+              placeholder="Peso en kg"
+              class="flex-1 border border-gray-200 focus:border-black px-4 py-2.5 text-sm font-medium outline-none transition-colors"
+            />
+            <button
+              (click)="registrarPeso()"
+              [disabled]="!pesoValido() || enviandoPeso()"
+              class="px-5 py-2.5 bg-black text-white text-[11px] font-black tracking-[0.2em] uppercase hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              @if (enviandoPeso()) { ENVIANDO... } @else { REGISTRAR }
+            </button>
+          </div>
+        </div>
+      }
+      @if (contexto() === 'ENTRENAMIENTO' && checkInHecho()) {
+        <div class="border border-[#2ED38D] bg-[rgba(46,211,141,0.06)] p-4 mb-6 flex items-center gap-3">
+          <svg class="w-4 h-4 text-[#2ED38D] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M5 13l4 4L19 7" stroke-linecap="square"/>
+          </svg>
+          <span class="text-xs font-black tracking-[0.15em] uppercase text-[#2ED38D]">PESO REGISTRADO</span>
+        </div>
+      }
+
       <div class="flex items-center justify-between mb-5">
         <div class="flex items-center gap-3">
           <div class="w-5 h-px bg-black"></div>
