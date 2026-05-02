@@ -10,10 +10,10 @@ import { RouterLink } from '@angular/router';
 export class DashboardComponent {
   readonly entrenadorFeatures = [
     'Panel centralizado para gestionar múltiples atletas',
-    'Diseño de planes de entrenamiento personalizados',
-    'Seguimiento nutricional con control de macros',
-    'Historial de progreso y métricas por atleta',
-    'Insignia de entrenador certificado visible en tu perfil',
+    'Entrenadores: diseña rutinas y haz seguimiento semanal',
+    'Nutricionistas: crea planes de alimentación con control de macros',
+    'Comunicación directa con cada atleta desde el dashboard',
+    'Insignia de profesional certificado visible en tu perfil',
   ];
 
   readonly atletaFeatures = [

@@ -4,14 +4,14 @@ import { HeroComponent } from './components/hero/hero';
 import { VerificationComponent } from './components/verification/verification';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { PreciosComponent } from './components/precios/precios';
-import { FooterComponent } from '../../shared/footer/footer';
+import { CtaFinalComponent } from './components/cta-final/cta-final';
 
 type Vista = 'inicio' | 'como-funciona' | 'para-quien' | 'precios';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [HeaderComponent, HeroComponent, VerificationComponent, DashboardComponent, PreciosComponent, FooterComponent],
+  imports: [HeaderComponent, HeroComponent, VerificationComponent, DashboardComponent, PreciosComponent, CtaFinalComponent],
   template: `
     <app-header [vistaActual]="vistaActual()" (navClick)="irA($any($event))" />
     <main class="pt-16">
@@ -20,16 +20,17 @@ type Vista = 'inicio' | 'como-funciona' | 'para-quien' | 'precios';
       }
       @if (vistaActual() === 'como-funciona') {
         <app-verification />
-        <app-dashboard />
+        <app-cta-final />
       }
       @if (vistaActual() === 'para-quien') {
         <app-dashboard />
+        <app-cta-final />
       }
       @if (vistaActual() === 'precios') {
         <app-precios />
+        <app-cta-final />
       }
     </main>
-    <app-footer />
   `,
 })
 export class LandingPage {

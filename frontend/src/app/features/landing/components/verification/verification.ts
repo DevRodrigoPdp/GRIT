@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { VerificationItem } from '../../../../shared/models/grit.models';
 
 @Component({
   selector: 'app-verification',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './verification.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

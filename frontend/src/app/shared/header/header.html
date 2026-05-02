@@ -12,15 +12,16 @@
         <a
           href="#"
           (click)="navegar($event, link.href)"
-          class="text-xs font-semibold tracking-widest uppercase transition-colors duration-200 no-underline"
+          class="relative pb-1 text-xs font-semibold tracking-widest uppercase transition-colors duration-200 no-underline"
           [class.text-black]="vistaActual() === link.href"
-          [class.border-b-2]="vistaActual() === link.href"
-          [class.border-black]="vistaActual() === link.href"
-          [class.pb-0.5]="vistaActual() === link.href"
           [class.text-gray-400]="vistaActual() !== link.href"
-          [class.hover:text-black]="vistaActual() !== link.href"
         >
           {{ link.label }}
+          <span
+            class="absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300 ease-out origin-left"
+            [class.w-full]="vistaActual() === link.href"
+            [class.w-0]="vistaActual() !== link.href"
+          ></span>
         </a>
       }
     </div>
