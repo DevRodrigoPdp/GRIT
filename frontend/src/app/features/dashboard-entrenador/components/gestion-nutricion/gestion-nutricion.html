@@ -79,17 +79,19 @@
               <p class="text-sm font-light text-gray-400 mt-0.5">{{ plan.descripcion }}</p>
             }
           </div>
-          <div class="flex items-center gap-3 flex-shrink-0">
+          <div class="flex items-center gap-2 flex-shrink-0">
             @if (plan.activo) {
-              <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D]">● ACTIVO</span>
+              <span class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 bg-[#2ED38D] text-black">● ACTIVO</span>
             } @else {
               <button (click)="$event.stopPropagation(); activarPlan(plan.id)"
-                class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
+                class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 border border-black text-black hover:bg-black hover:text-white transition-colors opacity-0 group-hover:opacity-100">
+                ACTIVAR
+              </button>
             }
             <button (click)="$event.stopPropagation(); eliminarPlan(plan.id)"
-              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors"
-              [class.opacity-0]="!!plan.nombre"
-              [class.group-hover:opacity-100]="!!plan.nombre">ELIMINAR</button>
+              class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 border border-transparent text-gray-300 hover:border-red-200 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+              ELIMINAR
+            </button>
           </div>
         </div>
 

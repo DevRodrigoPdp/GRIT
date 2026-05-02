@@ -78,20 +78,26 @@ export class NutricionService {
           activo:   p.activo ?? false,
           comidas:  (p.comidas ?? []).map((c: any) => ({
             nombre:    c.nombre ?? '',
-            notas:     c.notas  ?? '',
-            alimentos: (c.alimentos ?? []).map((a: any) => ({
-              _id:       a.id ?? undefined,
-              cantidadG: Number(a.cantidadG ?? 0),
-              alimento: {
-                codigo:           a.codigoAlimento ?? a.codigo ?? '',
-                nombre:           a.nombre         ?? '',
-                marca:            a.marca          ?? '',
-                kcalPor100g:      Number(a.kcalPor100g      ?? 0),
-                proteinasPor100g: Number(a.proteinasPor100g ?? 0),
-                carbsPor100g:     Number(a.carbsPor100g     ?? 0),
-                grasasPor100g:    Number(a.grasasPor100g    ?? 0),
-              },
-            })),
+            notas:     c.descripcion ?? c.notas ?? '',
+            alimentos: (c.alimentos ?? []).map((a: any) => {
+              const cantidadG = Number(a.cantidadG ?? 0);
+              // El backend devuelve macros ya calculados para la porción (kcal, proteinas…).
+              // calcularMacros espera valores por 100g, así que revertimos: x100g = valor * 100 / cantidadG
+              const f = cantidadG > 0 ? 100 / cantidadG : 0;
+              return {
+                _id:       a.id ?? undefined,
+                cantidadG,
+                alimento: {
+                  codigo:           a.codigoAlimento ?? a.codigo ?? '',
+                  nombre:           a.nombre  ?? '',
+                  marca:            a.marca   ?? '',
+                  kcalPor100g:      Number(a.kcalPor100g      ?? (a.kcal      ?? 0) * f),
+                  proteinasPor100g: Number(a.proteinasPor100g ?? (a.proteinas ?? 0) * f),
+                  carbsPor100g:     Number(a.carbsPor100g     ?? (a.carbos    ?? 0) * f),
+                  grasasPor100g:    Number(a.grasasPor100g    ?? (a.grasas    ?? 0) * f),
+                },
+              };
+            }),
           })),
         }))),
         catchError(() => of([])),

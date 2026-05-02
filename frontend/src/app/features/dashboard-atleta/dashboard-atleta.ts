@@ -123,7 +123,11 @@ export class DashboardAtletaPage implements OnInit {
     return Array.from(mapa.entries()).map(([nombre, cantidad]) => ({ nombre, cantidad }));
   });
 
-  readonly itemsCompraChecked = signal<string[]>([]);
+  private readonly COMPRA_KEY  = 'grit_compra_checked';
+  private readonly COMPRA_PLAN = 'grit_compra_plan_id';
+  readonly itemsCompraChecked  = signal<string[]>(
+    JSON.parse(sessionStorage.getItem(this.COMPRA_KEY) ?? '[]')
+  );
   readonly ejercicioActivo    = signal<{ sesion: string; nombre: string } | null>(null);
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -151,7 +155,14 @@ export class DashboardAtletaPage implements OnInit {
     }
 
     if (incluyeNutricion) {
-      this.atleta.getPlanNutricion().subscribe(p => this.planNutricion.set(p));
+      this.atleta.getPlanNutricion().subscribe(p => {
+        this.planNutricion.set(p);
+        if (p?.id && p.id !== sessionStorage.getItem(this.COMPRA_PLAN)) {
+          sessionStorage.setItem(this.COMPRA_PLAN, p.id);
+          sessionStorage.setItem(this.COMPRA_KEY, '[]');
+          this.itemsCompraChecked.set([]);
+        }
+      });
       this.atleta.getNotasNutricionista().subscribe(n => this.notasNutricionista.set(n));
     }
 
@@ -276,9 +287,11 @@ export class DashboardAtletaPage implements OnInit {
 
   // ── Lista de la compra ────────────────────────────────────────────────────
   toggleItemCompra(nombre: string): void {
-    this.itemsCompraChecked.update(items =>
-      items.includes(nombre) ? items.filter(i => i !== nombre) : [...items, nombre]
-    );
+    this.itemsCompraChecked.update(items => {
+      const next = items.includes(nombre) ? items.filter(i => i !== nombre) : [...items, nombre];
+      sessionStorage.setItem(this.COMPRA_KEY, JSON.stringify(next));
+      return next;
+    });
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
