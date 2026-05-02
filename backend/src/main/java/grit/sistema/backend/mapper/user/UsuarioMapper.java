@@ -30,6 +30,7 @@ public interface UsuarioMapper {
 
     @Mapping(target = "idPublico", source = "id")
     @Mapping(target = "registro", source = "createdAt")
+    @Mapping(target = "estado", expression = "java(usuario.getEstado().name())")
     UsuarioResponseDTO toResponseDTO(Usuario usuario);
 
     // 3. Mapeo hacia Entidad (Desde el Frontend)
