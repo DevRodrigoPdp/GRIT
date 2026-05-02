@@ -1,7 +1,6 @@
-import { Component, inject, signal, computed, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import {
   AtletaService,
@@ -14,16 +13,27 @@ import {
   ProfesionalAsignado,
 } from './services/atleta.service';
 import { ComunicacionAtletaComponent } from './components/comunicacion/comunicacion-atleta';
+import { VistaEntrenamientoComponent } from './components/vista-entrenamiento/vista-entrenamiento';
+import { VistaDietaComponent } from './components/vista-dieta/vista-dieta';
+import { VistaPerfilAtletaComponent } from './components/vista-perfil/vista-perfil-atleta';
+import { AjustesAtletaComponent } from './components/ajustes/ajustes-atleta';
 
 type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'perfil' | 'ajustes';
 
 interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
-interface ItemCompra { nombre: string; cantidad: string; }
 
 @Component({
   selector: 'app-dashboard-atleta',
   standalone: true,
-  imports: [ComunicacionAtletaComponent, FormsModule, NgTemplateOutlet],
+  imports: [
+    ComunicacionAtletaComponent,
+    VistaEntrenamientoComponent,
+    VistaDietaComponent,
+    VistaPerfilAtletaComponent,
+    AjustesAtletaComponent,
+    FormsModule,
+    NgTemplateOutlet,
+  ],
   templateUrl: './dashboard-atleta.html',
 })
 export class DashboardAtletaPage implements OnInit {
@@ -55,16 +65,9 @@ export class DashboardAtletaPage implements OnInit {
     return items;
   });
 
-  // ── Registro de peso ──────────────────────────────────────────────────────
+  // ── Peso (cuaderno check-in widget) ───────────────────────────────────────
   readonly pesoInputValor = signal('');
   readonly enviandoPeso   = signal(false);
-
-  // ── Comida expandida ──────────────────────────────────────────────────────
-  readonly comidaActiva = signal<string | null>(null);
-
-  // ── Foto de perfil ────────────────────────────────────────────────────────
-  @ViewChild('fileInputFoto') fileInputFoto?: ElementRef<HTMLInputElement>;
-  readonly subiendoFoto = signal(false);
 
   // ── Comunicación ─────────────────────────────────────────────────────────
   readonly contextoChat = signal<'ENTRENAMIENTO' | 'NUTRICION'>('ENTRENAMIENTO');
@@ -75,27 +78,6 @@ export class DashboardAtletaPage implements OnInit {
   readonly profesionalNutricionista = computed(() =>
     this.profesionales().find(p => p.rol === 'NUTRICIONISTA')
   );
-
-  // ── Alergias / lesiones ───────────────────────────────────────────────────
-  readonly nuevaAlergia     = signal('');
-  readonly nuevaLesion      = signal('');
-  readonly codigoEntrenador = signal('');
-  readonly enviandoCodigo   = signal(false);
-  readonly codigoError      = signal('');
-  readonly codigoExito      = signal(false);
-
-  // ── Ajustes ───────────────────────────────────────────────────────────────
-  readonly passAbierto       = signal(false);
-  readonly passActual        = signal('');
-  readonly passNueva         = signal('');
-  readonly passConfirm       = signal('');
-  readonly cambiandoPass     = signal(false);
-  readonly passCambiada      = signal(false);
-  readonly passError         = signal('');
-  readonly bajaAbierta       = signal(false);
-  readonly confirmarBaja     = signal(false);
-  readonly textoConfirmaBaja = signal('');
-  readonly eliminandoCuenta  = signal(false);
 
   // ── Computeds ─────────────────────────────────────────────────────────────
   readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
@@ -112,23 +94,6 @@ export class DashboardAtletaPage implements OnInit {
     }));
     return { points, polyline: points.map(p => `${p.x},${p.y}`).join(' ') };
   });
-
-  readonly listaCompra = computed<ItemCompra[]>(() => {
-    const plan = this.planNutricion();
-    if (!plan) return [];
-    const mapa = new Map<string, string>();
-    for (const comida of plan.comidas)
-      for (const alimento of comida.alimentos)
-        if (!mapa.has(alimento.nombre)) mapa.set(alimento.nombre, alimento.cantidad);
-    return Array.from(mapa.entries()).map(([nombre, cantidad]) => ({ nombre, cantidad }));
-  });
-
-  private readonly COMPRA_KEY  = 'grit_compra_checked';
-  private readonly COMPRA_PLAN = 'grit_compra_plan_id';
-  readonly itemsCompraChecked  = signal<string[]>(
-    JSON.parse(sessionStorage.getItem(this.COMPRA_KEY) ?? '[]')
-  );
-  readonly ejercicioActivo    = signal<{ sesion: string; nombre: string } | null>(null);
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -155,14 +120,7 @@ export class DashboardAtletaPage implements OnInit {
     }
 
     if (incluyeNutricion) {
-      this.atleta.getPlanNutricion().subscribe(p => {
-        this.planNutricion.set(p);
-        if (p?.id && p.id !== sessionStorage.getItem(this.COMPRA_PLAN)) {
-          sessionStorage.setItem(this.COMPRA_PLAN, p.id);
-          sessionStorage.setItem(this.COMPRA_KEY, '[]');
-          this.itemsCompraChecked.set([]);
-        }
-      });
+      this.atleta.getPlanNutricion().subscribe(p => this.planNutricion.set(p));
       this.atleta.getNotasNutricionista().subscribe(n => this.notasNutricionista.set(n));
     }
 
@@ -172,18 +130,12 @@ export class DashboardAtletaPage implements OnInit {
   // ── Navegación ────────────────────────────────────────────────────────────
   navegarA(vista: Vista): void { this.vistaActual.set(vista); }
 
-  // ── Ejercicio activo ──────────────────────────────────────────────────────
-  toggleEjercicio(sesion: string, nombre: string): void {
-    const actual = this.ejercicioActivo();
-    this.ejercicioActivo.set(actual?.sesion === sesion && actual?.nombre === nombre ? null : { sesion, nombre });
+  // ── Registro de peso (cuaderno check-in) ──────────────────────────────────
+  pesoInputValido(): boolean {
+    const v = Number(this.pesoInputValor());
+    return !isNaN(v) && v >= 30 && v <= 300;
   }
 
-  // ── Comida expandida ──────────────────────────────────────────────────────
-  abrirComida(nombre: string): void {
-    this.comidaActiva.set(this.comidaActiva() === nombre ? null : nombre);
-  }
-
-  // ── Registro de peso ──────────────────────────────────────────────────────
   registrarPeso(): void {
     const valor = Number(this.pesoInputValor());
     const solicitud = this.solicitudCheckIn();
@@ -197,136 +149,20 @@ export class DashboardAtletaPage implements OnInit {
     });
   }
 
-  // ── Conectar con profesional ──────────────────────────────────────────────
-  conectarConCodigo(): void {
-    const codigo = this.codigoEntrenador().trim().toUpperCase();
-    if (!codigo) return;
-    this.enviandoCodigo.set(true);
-    this.codigoError.set('');
-    this.codigoExito.set(false);
-    this.atleta.conectarConEntrenador(codigo).subscribe({
-      next: () => {
-        this.codigoExito.set(true);
-        this.codigoEntrenador.set('');
-        this.enviandoCodigo.set(false);
-        this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
-      },
-      error: (err: HttpErrorResponse) => {
-        this.codigoError.set(
-          err.status === 409
-            ? 'Ya tienes un profesional asignado para este servicio.'
-            : 'Código no válido. Comprueba que lo has introducido correctamente.'
-        );
-        this.enviandoCodigo.set(false);
-      },
-    });
+  // ── Handlers para outputs de componentes hijos ────────────────────────────
+  onPesoRegistrado(entrada: CheckInPeso): void {
+    this.historialPesos.update(h => [...h, entrada].sort((a, b) => a.fecha.localeCompare(b.fecha)));
+    this.solicitudCheckIn.set(null);
   }
 
-  // ── Alergias / lesiones ───────────────────────────────────────────────────
-  agregarAlergia(): void {
-    const texto = this.nuevaAlergia().trim();
-    const p = this.perfilAtleta();
-    if (!texto || !p) return;
-    this.perfilAtleta.set({ ...p, alergias: [...p.alergias, texto] });
-    this.nuevaAlergia.set('');
-  }
-  eliminarAlergia(idx: number): void {
-    const p = this.perfilAtleta();
-    if (!p) return;
-    this.perfilAtleta.set({ ...p, alergias: p.alergias.filter((_, i) => i !== idx) });
-  }
-  agregarLesion(): void {
-    const texto = this.nuevaLesion().trim();
-    const p = this.perfilAtleta();
-    if (!texto || !p) return;
-    this.perfilAtleta.set({ ...p, lesiones: [...p.lesiones, texto] });
-    this.nuevaLesion.set('');
-  }
-  eliminarLesion(idx: number): void {
-    const p = this.perfilAtleta();
-    if (!p) return;
-    this.perfilAtleta.set({ ...p, lesiones: p.lesiones.filter((_, i) => i !== idx) });
-  }
+  onPerfilActualizado(p: PerfilAtleta): void { this.perfilAtleta.set(p); }
 
-  // ── Foto de perfil ────────────────────────────────────────────────────────
-  seleccionarFotoPerfil(event: Event): void {
-    const archivo = (event.target as HTMLInputElement).files?.[0];
-    if (!archivo) return;
-    this.subiendoFoto.set(true);
-    this.atleta.subirFotoPerfil(archivo).subscribe(url => {
-      this.perfilAtleta.update(p => p ? { ...p, fotoUrl: url } : p);
-      this.subiendoFoto.set(false);
-      if (this.fileInputFoto) this.fileInputFoto.nativeElement.value = '';
-    });
-  }
+  onProfesionalesActualizados(p: ProfesionalAsignado[]): void { this.profesionales.set(p); }
 
-  // ── Ajustes ───────────────────────────────────────────────────────────────
-  cambiarPassword(): void {
-    this.passError.set('');
-    if (this.passNueva() !== this.passConfirm()) { this.passError.set('Las contraseñas nuevas no coinciden.'); return; }
-    if (this.passNueva().length < 8) { this.passError.set('La contraseña debe tener al menos 8 caracteres.'); return; }
-    this.cambiandoPass.set(true);
-    this.atleta.cambiarPassword(this.passActual(), this.passNueva()).subscribe({
-      next: () => {
-        this.passCambiada.set(true);
-        this.passActual.set(''); this.passNueva.set(''); this.passConfirm.set('');
-        this.cambiandoPass.set(false);
-      },
-      error: () => { this.passError.set('Contraseña actual incorrecta.'); this.cambiandoPass.set(false); },
-    });
-  }
-
-  eliminarCuenta(): void {
-    if (this.textoConfirmaBaja() !== 'ELIMINAR') return;
-    this.eliminandoCuenta.set(true);
-    this.atleta.eliminarCuenta().subscribe({
-      next: () => { this.eliminandoCuenta.set(false); this.auth.logout(); },
-      error: () => this.eliminandoCuenta.set(false),
-    });
-  }
-
-  // ── Lista de la compra ────────────────────────────────────────────────────
-  toggleItemCompra(nombre: string): void {
-    this.itemsCompraChecked.update(items => {
-      const next = items.includes(nombre) ? items.filter(i => i !== nombre) : [...items, nombre];
-      sessionStorage.setItem(this.COMPRA_KEY, JSON.stringify(next));
-      return next;
-    });
-  }
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-  totalKcalComida(alimentos: PlanNutricion['comidas'][0]['alimentos']): number {
-    return alimentos.reduce((sum, a) => sum + (a.kcal ?? 0), 0);
-  }
-
+  // ── Helper (cuaderno graficaPeso template) ────────────────────────────────
   formatFecha(fecha: string): string {
     const [year, month, day] = fecha.split('-');
     const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     return `${parseInt(day)} ${meses[parseInt(month) - 1]} ${year}`;
-  }
-
-  pesoInputValido(): boolean {
-    const v = Number(this.pesoInputValor());
-    return !isNaN(v) && v >= 30 && v <= 300;
-  }
-
-  labelNivel(nivel: PerfilAtleta['nivel']): string {
-    const map: Record<PerfilAtleta['nivel'], string> = {
-      PRINCIPIANTE: 'Principiante', INTERMEDIO: 'Intermedio', AVANZADO: 'Avanzado', ELITE: 'Élite',
-    };
-    return map[nivel];
-  }
-
-  labelObjetivo(obj: PerfilAtleta['objetivo']): string {
-    if (!obj) return '—';
-    const map: Record<NonNullable<PerfilAtleta['objetivo']>, string> = {
-      RENDIMIENTO: 'Rendimiento deportivo', MASA_MUSCULAR: 'Ganancia muscular',
-      PERDER_PESO: 'Pérdida de peso', SALUD: 'Salud general', RESISTENCIA: 'Resistencia',
-    };
-    return map[obj];
-  }
-
-  labelGenero(genero: PerfilAtleta['genero']): string {
-    return { HOMBRE: 'Hombre', MUJER: 'Mujer', OTRO: 'Otro' }[genero];
   }
 }

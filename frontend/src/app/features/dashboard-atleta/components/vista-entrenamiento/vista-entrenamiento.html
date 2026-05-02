@@ -1,0 +1,149 @@
+@if (solicitudCheckIn()) {
+  <div class="mb-8 border border-[#2ED38D] p-5">
+    <div class="flex items-start justify-between gap-4 mb-4">
+      <div>
+        <p class="text-[10px] font-black tracking-[0.25em] uppercase text-[#2ED38D] mb-1">● REGISTRO DE PESO SOLICITADO</p>
+        <p class="text-sm text-gray-600">
+          Tu entrenador <span class="font-bold text-black">{{ solicitudCheckIn()!.solicitadoPor }}</span> solicita que registres tu peso actual.
+        </p>
+      </div>
+      <span class="text-[10px] text-gray-400 flex-shrink-0">{{ formatFecha(solicitudCheckIn()!.fecha) }}</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <input
+        type="number" step="0.1" min="30" max="300" placeholder="79.5"
+        [value]="pesoInputValor()"
+        (input)="pesoInputValor.set($any($event.target).value)"
+        class="border border-[#E5E7EB] px-3 py-2 text-sm w-28 focus:outline-none focus:border-black font-mono"
+      />
+      <span class="text-sm text-gray-400">kg</span>
+      <button
+        (click)="registrarPeso()"
+        [disabled]="!pesoInputValido() || enviandoPeso()"
+        class="px-6 py-2 text-xs font-black tracking-[0.2em] uppercase transition-colors"
+        [class]="pesoInputValido() && !enviandoPeso() ? 'bg-black text-white hover:bg-[#2ED38D]' : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'"
+      >
+        REGISTRAR
+      </button>
+    </div>
+  </div>
+}
+
+@if (!plan()) {
+  <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-5 h-px bg-[#2ED38D]"></div>
+      <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">ENTRENAMIENTO</span>
+      <div class="w-5 h-px bg-[#2ED38D]"></div>
+    </div>
+    <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
+      TU PLAN DE<br>ENTRENAMIENTO
+    </h2>
+    <p class="text-sm font-light text-gray-400 max-w-sm">
+      Tu entrenador aún no ha creado tu plan. Aparecerá aquí en cuanto esté listo.
+    </p>
+  </div>
+} @else {
+
+  <div class="mb-10 pb-8 border-b border-[#E5E7EB]">
+    <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-2">PLAN ACTIVO</p>
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">{{ plan()!.nombre }}</h2>
+        <p class="text-sm text-gray-400 mt-1 max-w-lg">{{ plan()!.descripcion }}</p>
+      </div>
+      <div class="flex items-center gap-6 flex-shrink-0">
+        <div>
+          <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SEMANA</span>
+          <span class="text-lg font-black text-black leading-none">
+            {{ plan()!.semanaActual }}<span class="text-gray-300 text-sm font-bold">/{{ plan()!.semanas }}</span>
+          </span>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SESIONES</span>
+          <span class="text-lg font-black text-black leading-none">{{ plan()!.sesiones.length }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-12">
+    <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">SESIONES DE LA SEMANA</p>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      @for (sesion of plan()!.sesiones; track sesion.nombre) {
+        <div class="border border-[#E5E7EB] p-5">
+          <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.nombre }}</p>
+          <div class="flex flex-col gap-1">
+            @for (ej of sesion.ejercicios; track ej.nombre) {
+              @let activo = ejercicioActivo()?.sesion === sesion.nombre && ejercicioActivo()?.nombre === ej.nombre;
+              <button
+                type="button"
+                (click)="toggleEjercicio(sesion.nombre, ej.nombre)"
+                class="w-full flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors"
+                [class]="activo ? 'bg-black' : (ej.notas ? 'hover:bg-[#F9FAFB] cursor-pointer' : 'cursor-default')"
+              >
+                <div class="min-w-0">
+                  <span class="text-sm leading-tight block" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                  @if (ej.notas && !activo) {
+                    <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● nota</span>
+                  }
+                </div>
+                <div class="flex-shrink-0 text-right">
+                  <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
+                  @if (ej.descanso) { <span class="text-[10px] text-gray-400">{{ ej.descanso }}</span> }
+                </div>
+              </button>
+              @if (activo && ej.notas) {
+                <div class="px-3 py-3 -mx-3 bg-black border-t border-[#1a1a1a]">
+                  <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1.5">NOTA DEL ENTRENADOR</p>
+                  <p class="text-sm text-gray-300 leading-relaxed">{{ ej.notas }}</p>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (historialPesos().length > 0) {
+    <div class="max-w-2xl">
+      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">EVOLUCIÓN DEL PESO</p>
+      <div class="border border-[#E5E7EB] p-5">
+        <div class="flex items-center gap-8 mb-6">
+          <div>
+            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">INICIAL</span>
+            <span class="text-xl font-black text-black">{{ historialPesos()[0].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">ACTUAL</span>
+            <span class="text-xl font-black text-black">{{ historialPesos()[historialPesos().length - 1].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">DIFERENCIA</span>
+            @let diff = historialPesos()[historialPesos().length - 1].pesoKg - historialPesos()[0].pesoKg;
+            <span class="text-xl font-black" [class]="diff <= 0 ? 'text-[#2ED38D]' : 'text-red-500'">
+              {{ diff > 0 ? '+' : '' }}{{ diff.toFixed(1) }}<span class="text-xs ml-0.5">kg</span>
+            </span>
+          </div>
+        </div>
+        @if (chartData()) {
+          <svg viewBox="0 0 500 76" class="w-full mb-4" preserveAspectRatio="none">
+            <polyline [attr.points]="chartData()!.polyline" stroke="#2ED38D" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+            @for (pt of chartData()!.points; track pt.fecha; let last = $last) {
+              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="last ? 5 : 3" [attr.fill]="last ? '#000' : '#2ED38D'"/>
+            }
+          </svg>
+        }
+        <div class="flex flex-col divide-y divide-[#F3F4F6]">
+          @for (entrada of historialPesos(); track entrada.id; let last = $last) {
+            <div class="flex items-center justify-between py-2.5">
+              <span class="text-xs text-gray-400">{{ formatFecha(entrada.fecha) }}</span>
+              <span class="text-sm font-black" [class]="last ? 'text-black' : 'text-gray-400'">{{ entrada.pesoKg }} kg</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+}
