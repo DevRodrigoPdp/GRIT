@@ -5,9 +5,10 @@ import { map } from 'rxjs/operators';
 
 export interface DocumentoDTO {
   id: string;
-  nombre_archivo: string;
-  url_firmada: string;
-  uploaded_at: string;
+  nombreArchivo: string;
+  urlFirmada: string;
+  uploadedAt: string;
+  status: string;
 }
 
 export interface EntrenadorPendienteDTO {
@@ -65,7 +66,7 @@ export interface AdminResponse<T> {
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:8080/api/v1/admin';
+  private readonly API = '/api/v1/admin';
 
   /**
    * Obtiene la lista de todos los usuarios registrados (Atletas y Entrenadores).

@@ -172,12 +172,12 @@
                   </h4>
                   <div class="space-y-3">
                     @for (doc of e.documentos; track doc.id) {
-                      <a [href]="doc.url_firmada" target="_blank" class="flex items-center justify-between p-4 border border-gray-100 hover:border-black transition-all group no-underline">
+                      <a [href]="doc.urlFirmada" target="_blank" class="flex items-center justify-between p-4 border border-gray-100 hover:border-black transition-all group no-underline">
                         <div class="flex items-center gap-4">
                           <svg class="w-5 h-5 text-gray-300 group-hover:text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="square"/>
                           </svg>
-                          <span class="text-[11px] font-black tracking-widest uppercase text-black truncate max-w-[200px]">{{ doc.nombre_archivo }}</span>
+                          <span class="text-[11px] font-black tracking-widest uppercase text-black truncate max-w-[200px]">{{ doc.nombreArchivo }}</span>
                         </div>
                         <span class="text-[10px] font-black text-[#2ED38D] opacity-0 group-hover:opacity-100 transition-opacity">VER →</span>
                       </a>
