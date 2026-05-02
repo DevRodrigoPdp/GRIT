@@ -16,6 +16,7 @@ public interface NutricionMapper {
     @Mapping(target = "creadoEn", ignore = true)
     PlanNutricion toEntity(PlanNutricionRequestDTO request);
 
+    @Mapping(target = "atletaId", source = "atleta.id")
     PlanNutricionResponseDTO toResponseDTO(PlanNutricion plan);
 
     // Este es para el dashboard del atleta
