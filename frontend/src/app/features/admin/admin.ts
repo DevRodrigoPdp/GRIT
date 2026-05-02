@@ -69,7 +69,7 @@ export class AdminPage implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.auth.me().subscribe();
+    if (!this.auth.rol()) this.auth.me().subscribe();
     this.cargarSolicitudes();
     this.cargarUsuarios();
   }

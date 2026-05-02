@@ -127,33 +127,38 @@ export class DashboardAtletaPage implements OnInit {
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    this.auth.me().subscribe(() => {
-      const s = this.auth.servicio();
-      const incluyeEntrenamiento = s === 'ENTRENAMIENTO' || s === 'AMBOS';
-      const incluyeNutricion     = s === 'NUTRICION'     || s === 'AMBOS';
+    if (this.auth.rol()) {
+      this.cargarDatos();
+    } else {
+      this.auth.me().subscribe(() => this.cargarDatos());
+    }
+  }
 
-      if (!incluyeEntrenamiento) {
-        this.vistaActual.set('dieta');
-        this.contextoChat.set('NUTRICION');
-      }
+  private cargarDatos(): void {
+    const s = this.auth.servicio();
+    const incluyeEntrenamiento = s === 'ENTRENAMIENTO' || s === 'AMBOS';
+    const incluyeNutricion     = s === 'NUTRICION'     || s === 'AMBOS';
 
-      this.atleta.getPerfil().subscribe(p => this.perfilAtleta.set(p));
-      this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
+    if (!incluyeEntrenamiento) {
+      this.vistaActual.set('dieta');
+      this.contextoChat.set('NUTRICION');
+    }
 
-      this.atleta.getSolicitudCheckIn().subscribe(s => this.solicitudCheckIn.set(s));
+    this.atleta.getPerfil().subscribe(p => this.perfilAtleta.set(p));
+    this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
+    this.atleta.getSolicitudCheckIn().subscribe(s => this.solicitudCheckIn.set(s));
 
-      if (incluyeEntrenamiento) {
-        this.atleta.getPlanEntrenamiento().subscribe(p => this.planEntrenamiento.set(p));
-        this.atleta.getHistorialPesos().subscribe(h => this.historialPesos.set(h));
-      }
+    if (incluyeEntrenamiento) {
+      this.atleta.getPlanEntrenamiento().subscribe(p => this.planEntrenamiento.set(p));
+      this.atleta.getHistorialPesos().subscribe(h => this.historialPesos.set(h));
+    }
 
-      if (incluyeNutricion) {
-        this.atleta.getPlanNutricion().subscribe(p => this.planNutricion.set(p));
-        this.atleta.getNotasNutricionista().subscribe(n => this.notasNutricionista.set(n));
-      }
+    if (incluyeNutricion) {
+      this.atleta.getPlanNutricion().subscribe(p => this.planNutricion.set(p));
+      this.atleta.getNotasNutricionista().subscribe(n => this.notasNutricionista.set(n));
+    }
 
-      this.cargando.set(false);
-    });
+    this.cargando.set(false);
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────
