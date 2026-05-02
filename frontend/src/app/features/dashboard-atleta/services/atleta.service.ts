@@ -297,8 +297,8 @@ export class AtletaService {
       .pipe(map(response => response.data));
   }
 
-  conectarConEntrenador(codigo: string): Observable<void> {
-    return this.http.post<ApiResponseDTO<void>>(`${this.API}/conectar`, { codigo }, { withCredentials: true })
+  conectarConEntrenador(codigo: string, rolSolicitado: 'ENTRENAMIENTO' | 'NUTRICION'): Observable<void> {
+    return this.http.post<ApiResponseDTO<void>>(`${this.API}/conectar`, { codigo, rolSolicitado }, { withCredentials: true })
       .pipe(map(() => undefined));
   }
 }

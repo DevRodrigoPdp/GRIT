@@ -167,12 +167,30 @@
     <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">CONECTAR CON PROFESIONAL</p>
     <div class="border border-[#E5E7EB] p-5">
       <p class="text-sm font-light text-gray-400 mb-4">Si tu entrenador o nutricionista te ha dado un código, introdúcelo aquí para conectar.</p>
+
+      @if (auth.servicio() === 'AMBOS') {
+        <div class="flex border border-[#E5E7EB] mb-4 w-fit">
+          <button type="button"
+            (click)="rolConectar.set('ENTRENAMIENTO')"
+            class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors"
+            [class]="rolConectar() === 'ENTRENAMIENTO' ? 'bg-black text-white' : 'text-gray-400 hover:text-black'">
+            ENTRENADOR
+          </button>
+          <button type="button"
+            (click)="rolConectar.set('NUTRICION')"
+            class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors border-l border-[#E5E7EB]"
+            [class]="rolConectar() === 'NUTRICION' ? 'bg-black text-white' : 'text-gray-400 hover:text-black'">
+            NUTRICIONISTA
+          </button>
+        </div>
+      }
+
       <div class="flex gap-2">
         <input
           [value]="codigoEntrenador()"
           (input)="codigoEntrenador.set($any($event.target).value.toUpperCase()); codigoError.set(''); codigoExito.set(false)"
           (keydown.enter)="conectarConCodigo()"
-          placeholder="Ej. GRIT-A1B2C3"
+          [placeholder]="auth.servicio() === 'AMBOS' ? (rolConectar() === 'ENTRENAMIENTO' ? 'Código de tu entrenador' : 'Código de tu nutricionista') : 'Ej. GRIT-A1B2C3'"
           class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-mono font-medium placeholder:text-gray-300 placeholder:font-light outline-none focus:border-black transition-colors bg-transparent uppercase"
         />
         <button (click)="conectarConCodigo()"

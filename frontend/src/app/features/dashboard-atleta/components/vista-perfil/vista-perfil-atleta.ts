@@ -24,6 +24,7 @@ export class VistaPerfilAtletaComponent {
   readonly nuevaAlergia     = signal('');
   readonly nuevaLesion      = signal('');
   readonly codigoEntrenador = signal('');
+  readonly rolConectar      = signal<'ENTRENAMIENTO' | 'NUTRICION'>('ENTRENAMIENTO');
   readonly enviandoCodigo   = signal(false);
   readonly codigoError      = signal('');
   readonly codigoExito      = signal(false);
@@ -72,10 +73,14 @@ export class VistaPerfilAtletaComponent {
   conectarConCodigo(): void {
     const codigo = this.codigoEntrenador().trim().toUpperCase();
     if (!codigo) return;
+    const servicio = this.auth.servicio();
+    const rol: 'ENTRENAMIENTO' | 'NUTRICION' =
+      servicio === 'AMBOS' ? this.rolConectar() :
+      servicio === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
     this.enviandoCodigo.set(true);
     this.codigoError.set('');
     this.codigoExito.set(false);
-    this.atleta.conectarConEntrenador(codigo).subscribe({
+    this.atleta.conectarConEntrenador(codigo, rol).subscribe({
       next: () => {
         this.codigoExito.set(true);
         this.codigoEntrenador.set('');
