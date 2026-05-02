@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 export interface DocumentoDTO {
   id: string;
@@ -24,20 +24,11 @@ export interface EntrenadorPendienteDTO {
 
 export interface UsuarioDTO {
   id: string;
-  uuid?: string;
   nombre: string;
   correo: string;
-  rol: 'ATLETA' | 'ENTRENADOR';
+  rol: 'ATLETA' | 'ENTRENADOR' | 'ADMIN';
   estado: string;
   fechaRegistro: string;
-  detallesAtleta?: {
-    servicio: string;
-    entrenadorAsignado?: string;
-  };
-  detallesEntrenador?: {
-    numAtletas: number;
-    titulacion: string;
-  };
 }
 
 export interface PageResponse<T> {
@@ -68,38 +59,28 @@ export class AdminService {
   private http = inject(HttpClient);
   private readonly API = '/api/v1/admin';
 
-  /**
-   * Obtiene la lista de todos los usuarios registrados (Atletas y Entrenadores).
-   */
-  getUsuarios(): Observable<UsuarioDTO[]> {
-    return this.http.get<UsuarioDTO[]>(
-      `${this.API}/usuarios`,
-      { withCredentials: true }
-    ).pipe(
-      map(usuarios => usuarios.map(u => this.normalizarUsuario(u)))
-    );
-  }
+  buscarUsuarios(q: string = '', page: number = 0, size: number = 10): Observable<{ usuarios: UsuarioDTO[]; totalPages: number }> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    if (q.trim()) params = params.set('search', q.trim());
 
-  /**
-   * Obtiene un usuario por ID.
-   */
-  getUsuario(id: string): Observable<UsuarioDTO> {
-    return this.http.get<UsuarioDTO>(
-      `${this.API}/usuarios/${id}`,
-      { withCredentials: true }
-    ).pipe(
-      map(u => this.normalizarUsuario(u))
-    );
-  }
-
-  /**
-   * Normaliza el usuario asegurando que siempre tiene un id válido
-   */
-  private normalizarUsuario(usuario: any): UsuarioDTO {
-    return {
-      ...usuario,
-      id: usuario.id || usuario.uuid || usuario.userId || ''
-    };
+    return this.http
+      .get<{ content: any[]; page: { totalPages: number } }>(`${this.API}/usuarios/search`, { params, withCredentials: true })
+      .pipe(
+        map(r => ({
+          usuarios: (r.content ?? []).map((u: any) => ({
+            id: u.idPublico,
+            nombre: u.nombre,
+            correo: u.email,
+            rol: u.rol,
+            estado: u.estado,
+            fechaRegistro: u.registro,
+          })),
+          totalPages: r.page?.totalPages ?? 1,
+        })),
+        catchError(() => of({ usuarios: [], totalPages: 0 })),
+      );
   }
 
   /**
@@ -130,7 +111,7 @@ export class AdminService {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     return this.http.get<PageResponse<EntrenadorPendienteDTO>>(
       `${this.API}/entrenadores/pendientes`,
       { params, withCredentials: true }
@@ -147,7 +128,7 @@ export class AdminService {
     const params = new HttpParams()
       .set('aprobado', aprobado.toString())
       .set('motivo', motivo || '');
-    
+
     return this.http.post<void>(
       `${this.API}/entrenadores/${id}/revision`,
       {},

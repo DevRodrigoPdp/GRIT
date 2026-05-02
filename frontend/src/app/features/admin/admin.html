@@ -223,8 +223,8 @@
                 <!-- Role Filter -->
                 <div class="flex bg-gray-100 p-1">
                   @for (opt of ['TODOS','ATLETA','ENTRENADOR']; track opt) {
-                    <button 
-                      (click)="filtroRol.set($any(opt))"
+                    <button
+                      (click)="cambiarFiltroRol($any(opt))"
                       [class]="filtroRol() === opt ? 'bg-black text-white' : 'text-gray-400 hover:text-black'"
                       class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-all"
                     >
@@ -234,9 +234,10 @@
                 </div>
                 <!-- Search -->
                 <div class="relative w-full sm:w-64">
-                   <input 
+                   <input
                      [ngModel]="busqueda()"
-                     (ngModelChange)="busqueda.set($event)"
+                     (ngModelChange)="onBusquedaUsuariosChange($event)"
+                     (keydown.enter)="buscarAhora()"
                      placeholder="BUSCAR USUARIO..."
                      class="w-full bg-white border border-gray-200 px-4 py-3 text-[11px] font-bold tracking-widest outline-none focus:border-black"
                    />

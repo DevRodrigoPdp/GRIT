@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, EntrenadorPendienteDTO, UsuarioDTO } from './services/admin.service';
@@ -10,7 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './admin.html',
 })
-export class AdminPage implements OnInit {
+export class AdminPage implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   readonly auth = inject(AuthService);
 
@@ -25,9 +25,12 @@ export class AdminPage implements OnInit {
   readonly pageSize = 10;
   
   // Estados Usuarios
-  readonly usuarios = signal<UsuarioDTO[]>([]);
-  readonly loadingUsuarios = signal(false);
-  readonly filtroRol = signal<'TODOS' | 'ATLETA' | 'ENTRENADOR'>('TODOS');
+  readonly usuarios          = signal<UsuarioDTO[]>([]);
+  readonly loadingUsuarios   = signal(false);
+  readonly filtroRol         = signal<'TODOS' | 'ATLETA' | 'ENTRENADOR'>('TODOS');
+  readonly paginaUsuarios    = signal(0);
+  readonly totalPaginasUsuarios = signal(0);
+  private _searchTimer: any;
 
   // Comunes
   readonly busqueda = signal('');
@@ -47,6 +50,13 @@ export class AdminPage implements OnInit {
   readonly mostrarModalEdicion = signal(false);
   readonly usuarioEnEdicion = signal<Partial<UsuarioDTO> | null>(null);
 
+  // Usuarios filtrados por rol (client-side sobre los resultados del search)
+  readonly usuariosFiltrados = computed(() => {
+    const rol = this.filtroRol();
+    if (rol === 'TODOS') return this.usuarios();
+    return this.usuarios().filter(u => u.rol === rol);
+  });
+
   // Solicitudes filtradas
   readonly solicitudesFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
@@ -57,52 +67,46 @@ export class AdminPage implements OnInit {
     );
   });
 
-  // Usuarios filtrados
-  readonly usuariosFiltrados = computed(() => {
-    let result = this.usuarios();
-    
-    // Filtrar por rol
-    if (this.filtroRol() !== 'TODOS') {
-      result = result.filter(u => u.rol === this.filtroRol());
-    }
-
-    // Filtrar por búsqueda
-    const query = this.busqueda().toLowerCase().trim();
-    if (query) {
-      result = result.filter(u => 
-        u.nombre.toLowerCase().includes(query) || 
-        u.correo.toLowerCase().includes(query)
-      );
-    }
-
-    return result;
-  });
 
   ngOnInit() {
+    this.auth.me().subscribe();
     this.cargarSolicitudes();
     this.cargarUsuarios();
   }
 
-  cambiarSeccion(seccion: 'SOLICITUDES' | 'USUARIOS') {
-    this.seccionActual.set(seccion);
-    this.busqueda.set(''); // Limpiar búsqueda al cambiar
+  ngOnDestroy() {
+    clearTimeout(this._searchTimer);
   }
 
-  cargarUsuarios() {
+  cambiarSeccion(seccion: 'SOLICITUDES' | 'USUARIOS') {
+    this.seccionActual.set(seccion);
+    this.busqueda.set('');
+    if (seccion === 'USUARIOS') this.cargarUsuarios();
+  }
+
+  cargarUsuarios(pagina: number = 0) {
     this.loadingUsuarios.set(true);
-    this.error.set(null);
-    
-    this.adminService.getUsuarios().subscribe({
-      next: (usuarios) => {
-        this.usuarios.set(usuarios);
-        this.loadingUsuarios.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        this.error.set('Error al cargar usuarios. Inténtalo de nuevo más tarde.');
-        this.loadingUsuarios.set(false);
-      }
+    this.paginaUsuarios.set(pagina);
+    this.adminService.buscarUsuarios(this.busqueda(), pagina).subscribe(res => {
+      this.usuarios.set(res.usuarios);
+      this.totalPaginasUsuarios.set(res.totalPages);
+      this.loadingUsuarios.set(false);
     });
+  }
+
+  onBusquedaUsuariosChange(q: string) {
+    this.busqueda.set(q);
+    clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => this.cargarUsuarios(), 350);
+  }
+
+  buscarAhora() {
+    clearTimeout(this._searchTimer);
+    this.cargarUsuarios();
+  }
+
+  cambiarFiltroRol(rol: 'TODOS' | 'ATLETA' | 'ENTRENADOR') {
+    this.filtroRol.set(rol);
   }
 
   cargarSolicitudes(pagina: number = 0) {

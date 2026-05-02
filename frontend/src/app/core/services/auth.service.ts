@@ -253,7 +253,7 @@ export class AuthService {
             res.data.servicio, res.data.nombre);
         }),
         catchError((err) => {
-          if (err.status === 401) { this.clearSession(); this.router.navigate(['/login']); }
+          if (err.status === 401 || err.status === 409) { this.clearSession(); this.router.navigate(['/login']); }
           return of(null);
         })
       );
