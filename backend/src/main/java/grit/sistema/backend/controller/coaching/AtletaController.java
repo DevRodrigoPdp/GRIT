@@ -5,6 +5,8 @@ import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
 import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
 import grit.sistema.backend.dto.coaching.AsignacionRequestDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
+import grit.sistema.backend.dto.nutrition.NotaNutricionistaRequestDTO;
+import grit.sistema.backend.dto.nutrition.NotaResponseDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
 import grit.sistema.backend.dto.training.*;
 import grit.sistema.backend.security.user.UserPrincipal;
@@ -84,18 +86,28 @@ public class AtletaController {
 
     @Operation(summary = "Conexión con el entrenador por código de invitación en el perfil")
     @PostMapping("/conectar")
-    public ResponseEntity<ApiResponseDTO> conectarConEntrenador(
+    public ResponseEntity<Map<String, Object>> conectarConEntrenador(
             @Valid @RequestBody AsignacionRequestDTO request,
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
         asignacionService.conectarConEntrenador(usuario.getId(), request.codigo());
 
-        return ResponseEntity.ok(new ApiResponseDTO(
-                true,
-                "Vinculado correctamente con el entrenador.",
-                null
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "ok", true,
+                "mensaje", "EL atleta ha conectado con el entrenador correctamente"
         ));
     }
+
+    @GetMapping("/nutricion/notas")
+    public ResponseEntity<Map<String, Object>> verMisNotas(@AuthenticationPrincipal UserPrincipal usuario) {
+        List<NotaResponseDTO> notas = nutricionService.obtenerNotasAtleta(usuario.getId());
+
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "data", notas
+        ));
+    }
+
 
     @GetMapping("/peso/solicitud-pendiente")
     public ResponseEntity<ApiResponseDTO<SolicitudPendienteDTO>> getPendiente(@AuthenticationPrincipal UserPrincipal usuario) {

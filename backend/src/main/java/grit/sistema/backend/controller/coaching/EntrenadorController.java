@@ -4,9 +4,12 @@ import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.coaching.AtletaResumenDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPerfilDTO;
+import grit.sistema.backend.dto.nutrition.NotaNutricionistaRequestDTO;
+import grit.sistema.backend.dto.nutrition.NotaResponseDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
 import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.coaching.EntrenadorService;
+import grit.sistema.backend.service.nutrition.NutricionService;
 import grit.sistema.backend.service.training.PesoService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +39,7 @@ import java.util.UUID;
 @Slf4j
 public class EntrenadorController {
     private final EntrenadorService entrenadorService;
+    private final NutricionService nutricionService;
     private final PesoService pesoService;
     private final UsuarioService usuarioService;
 
@@ -54,6 +58,21 @@ public class EntrenadorController {
         List<AtletaResumenDTO> listaAtletas = entrenadorService.listarMisAtletas(userDetails.getUsername());
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Atletas del entrenador", listaAtletas));
+    }
+
+    @Operation(summary = "Crear nota al atleta")
+    @PostMapping("/atletas/{atletaId}/notas")
+    public ResponseEntity<Map<String, Object>> dejarNota(
+            @PathVariable UUID atletaId,
+            @Valid @RequestBody NotaNutricionistaRequestDTO request,
+            @AuthenticationPrincipal UserPrincipal usuario) {
+
+        NotaResponseDTO data = nutricionService.crearNota(usuario.getId(), atletaId, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "ok", true,
+                "data", data
+        ));
     }
 
     @PostMapping("/atletas/{atletaId}/peso/solicitar")

@@ -2,12 +2,14 @@ package grit.sistema.backend.service.nutrition;
 
 import grit.sistema.backend.dto.nutrition.*;
 import grit.sistema.backend.dto.training.RutinaDTO;
+import grit.sistema.backend.entity.nutrition.NotaNutricionista;
 import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.entity.nutrition.AlimentoReciente;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
 import grit.sistema.backend.repository.nutrition.AlimentoRecienteRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
+import grit.sistema.backend.repository.nutrition.NotaNutricionistaRepository;
 import grit.sistema.backend.repository.nutrition.PlanNutricionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class NutricionService {
     private final AlimentoRecienteRepository recienteRepository;
     private final AtletaRepository atletaRepository;
     private final EntrenadorRepository entrenadorRepository;
+    private final NotaNutricionistaRepository notaNutricionistaRepository;
     private final NutricionMapper mapper;
 
     @Transactional(readOnly = true)
@@ -151,5 +154,33 @@ public class NutricionService {
                 .findTop8ByUsuarioIdAndNombreComidaOrderByUsadoEnDesc(usuarioId, nombreComida)
                 .stream()
                 .map(mapper::toAlimentoRecienteDTO).toList();
+    }
+
+    @Transactional
+    public NotaResponseDTO crearNota(UUID entrenadorId, UUID atletaId, NotaNutricionistaRequestDTO request) {
+        // 1. Validaciones de existencia (Criterio Profesional)
+        var entrenador = entrenadorRepository.findById(entrenadorId)
+                .orElseThrow(() -> new RuntimeException("Entrenador no encontrado"));
+
+        var atleta = atletaRepository.findById(atletaId)
+                .orElseThrow(() -> new RuntimeException("Atleta no encontrado"));
+
+        // 2. Mapeo manual de DTO a Entity (Evita exponer la entidad al exterior)
+        NotaNutricionista nuevaNota = new NotaNutricionista();
+        nuevaNota.setTexto(request.texto());
+        nuevaNota.setEntrenador(entrenador);
+        nuevaNota.setAtleta(atleta);
+
+        // 3. Persistencia
+        NotaNutricionista guardada = notaNutricionistaRepository.save(nuevaNota);
+        return new NotaResponseDTO(guardada.getId(), guardada.getTexto(), guardada.getFecha());
+    }
+
+    @Transactional(readOnly = true)
+    public List<NotaResponseDTO> obtenerNotasAtleta(UUID atletaId) {
+        return notaNutricionistaRepository.findByAtletaIdOrderByCreadaEnDesc(atletaId)
+                .stream()
+                .map(n -> new NotaResponseDTO(n.getId(), n.getTexto(), n.getFecha()))
+                .toList();
     }
 }
