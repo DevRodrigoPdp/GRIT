@@ -158,14 +158,15 @@ public class EntrenadorService {
         return Optional.ofNullable(foto)
                 .filter(f -> !f.isEmpty())
                 .map(storageService::uploadEntrenadorFoto)
-                .orElse("default-avatar.png");
+                .orElse(null);
     }
 
     private void compensarArchivos(List<String> urls, String fotoKey) {
+        // Borrado de certificaciones
         urls.forEach(storageService::deleteFile);
-        if (!"default-avatar.png".equals(fotoKey)) {
-            storageService.deleteFile(fotoKey);
-        }
+
+        // Borrado de foto solo si llegó a subirse algo
+        Optional.ofNullable(fotoKey).ifPresent(storageService::deleteFile);
     }
 
     private void validarRequisitosProfesionales(EntrenadorRequestDTO request) {
