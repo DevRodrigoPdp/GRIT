@@ -1,6 +1,7 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, Subject, debounceTime, switchMap, distinctUntilChanged, catchError, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface EjercicioManual {
   id:     string;
@@ -70,26 +71,34 @@ export class EntrenamientoService {
   private readonly API    = '/api/v1/entrenamiento';
   private readonly API_EJ = '/api/v1/ejercicios';
 
-  readonly historial        = signal<string[]>([]);
-  readonly sugerenciasCache = signal<EjercicioSugerencia[]>([]);
+  readonly historial           = signal<string[]>([]);
+  readonly sugerenciasCache    = signal<EjercicioSugerencia[]>([]);
+  readonly cargandoSugerencias = signal(false);
+
+  private readonly busqueda$ = new Subject<string>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.cargarHistorial();
+    this.busqueda$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(q => {
+        if (q.length < 2) { this.sugerenciasCache.set([]); return of(null); }
+        this.cargandoSugerencias.set(true);
+        return this.http
+          .get<PagedResponse<EjercicioSugerencia>>(`${this.API_EJ}/search`, { params: { q, page: 0 }, withCredentials: true })
+          .pipe(catchError(() => of(null)));
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(r => {
+      this.cargandoSugerencias.set(false);
+      if (r) this.sugerenciasCache.set(r.content ?? []);
+    });
   }
 
   buscarEjercicios(query: string): void {
-    this.http
-      .get<PagedResponse<EjercicioSugerencia>>(`${this.API_EJ}/search`, { params: { q: query.trim(), page: 0 }, withCredentials: true })
-      .subscribe(r => this.sugerenciasCache.set(r.content ?? []));
-
-    // ── Fallback local (descomentar si la API no está disponible) ────────────
-    // const q = query.trim().toLowerCase();
-    // const historial = this.historial();
-    // if (!q) { this.sugerenciasCache.set(historial.slice(0, 8).map(nombre => ({ id: '', nombre, dificultad: '', grupoMuscular: '', equipoNecesario: '' }))); return; }
-    // const coincide = (n: string) => n.toLowerCase().includes(q);
-    // const deHistorial = historial.filter(coincide);
-    // const deBiblioteca = BIBLIOTECA.filter(n => coincide(n) && !deHistorial.includes(n));
-    // this.sugerenciasCache.set([...deHistorial, ...deBiblioteca].slice(0, 8).map(nombre => ({ id: '', nombre, dificultad: '', grupoMuscular: '', equipoNecesario: '' })));
+    this.busqueda$.next(query.trim());
   }
 
   registrarUsoEjercicio(nombre: string): void {
