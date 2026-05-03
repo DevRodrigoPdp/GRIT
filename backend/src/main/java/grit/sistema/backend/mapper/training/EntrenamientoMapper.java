@@ -1,6 +1,7 @@
 package grit.sistema.backend.mapper.training;
 
 import grit.sistema.backend.dto.training.*;
+import grit.sistema.backend.entity.training.Ejercicio;
 import grit.sistema.backend.entity.training.EjercicioEnSesion;
 import grit.sistema.backend.entity.training.Rutina;
 import grit.sistema.backend.entity.training.SesionRutina;
@@ -8,7 +9,7 @@ import org.mapstruct.*;
 
 @Mapper(
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.ERROR
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface EntrenamientoMapper {
 
@@ -42,7 +43,21 @@ public interface EntrenamientoMapper {
     @Mapping(target = "orden", source = "orden")
     EjercicioEnSesion toEntity(EjercicioRequestDTO dto);
 
-    // --- 4. VINCULACIÓN JERÁRQUICA ---
+    // Convierte la entidad guardada al DTO de respuesta para el Front
+    @Mapping(target = "atletaId", source = "atleta.id")
+    RutinaResponseDTO toResponseDTO(Rutina rutina);
+
+    // LA CLAVE: Une los datos que vienen del usuario (DTO) con los del catálogo (Maestro)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "sesion", ignore = true)
+    @Mapping(target = "ejercicioId", source = "dto.ejercicioId")
+    @Mapping(target = "ejercicioNombre", source = "maestro.nombre")
+    @Mapping(target = "ejercicioCategoria", source = "maestro.equipoNecesario")
+    @Mapping(target = "ejercicioMusculoPrincipal", source = "maestro.grupoMuscular")
+    @Mapping(target = "ejercicioImagenUrl", source = "maestro.descripcion")
+    // MapStruct hará .shortValue() automáticamente si 'series' es Integer en DTO y Short en Entity
+    EjercicioEnSesion toEjercicioEnSesion(EjercicioRequestDTO dto, Ejercicio maestro);
+
     @AfterMapping
     default void vincularRelaciones(@MappingTarget Rutina rutina) {
         if (rutina.getSesiones() != null) {
@@ -54,6 +69,4 @@ public interface EntrenamientoMapper {
             });
         }
     }
-
-    RutinaResponseDTO toResponseDTO(Rutina rutina);
 }

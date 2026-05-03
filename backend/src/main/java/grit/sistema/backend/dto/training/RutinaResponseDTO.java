@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record RutinaResponseDTO(
         UUID id,
-        OffsetDateTime creadoEn
+        OffsetDateTime creadoEn,
+        UUID atletaId
 ) {
 }
