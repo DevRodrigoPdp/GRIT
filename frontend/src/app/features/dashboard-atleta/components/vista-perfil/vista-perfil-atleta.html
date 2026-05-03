@@ -1,7 +1,7 @@
 <div>
   <div class="mb-8">
     <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">MI PERFIL</h2>
-    <p class="text-sm text-gray-400 mt-1">Tus datos registrados en GRIT.</p>
+    <p class="text-sm font-light text-gray-400 mt-1">Tus datos registrados en GRIT.</p>
   </div>
 
   <!-- Foto de perfil -->
@@ -11,7 +11,7 @@
         <img [src]="perfilAtleta()!.fotoUrl!" alt="Foto de perfil"
           class="w-20 h-20 object-cover border border-[#E5E7EB]" />
       } @else {
-        <div class="w-20 h-20 bg-black flex items-center justify-center border border-black">
+        <div class="w-20 h-20 bg-black flex items-center justify-center">
           <span class="text-2xl font-black text-[#2ED38D] uppercase select-none">
             {{ (auth.nombre() ?? 'A').split(' ').slice(0,2).map(n => n[0]).join('') }}
           </span>
@@ -19,6 +19,7 @@
       }
       <button type="button" (click)="fileInputFoto.click()"
         [disabled]="subiendoFoto()"
+        aria-label="Cambiar foto de perfil"
         class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
         <span class="text-[10px] font-black tracking-widest text-white uppercase">
           {{ subiendoFoto() ? '...' : 'CAMBIAR' }}
@@ -27,7 +28,7 @@
     </div>
     <div>
       <p class="text-sm font-black text-black uppercase tracking-tight">{{ auth.nombre() }}</p>
-      <p class="text-xs text-gray-400 mt-0.5">Haz clic en la foto para cambiarla</p>
+      <p class="text-xs text-gray-400 font-light mt-0.5">Haz clic en la foto para cambiarla</p>
     </div>
     <input #fileInputFoto type="file" accept="image/*" class="hidden"
       (change)="seleccionarFotoPerfil($event)" />
@@ -40,21 +41,21 @@
     <div class="mb-8">
       <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS PERSONALES</p>
       <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Nombre</span>
-          <span class="text-sm text-black">{{ p.nombre }}</span>
+          <span class="text-sm text-black font-light">{{ p.nombre }}</span>
         </div>
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Correo</span>
-          <span class="text-sm text-black">{{ p.email }}</span>
+          <span class="text-sm text-black font-light">{{ p.email }}</span>
         </div>
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Fecha de nacimiento</span>
-          <span class="text-sm text-black">{{ formatFecha(p.fechaNac) }}</span>
+          <span class="text-sm text-black font-light">{{ formatFecha(p.fechaNac) }}</span>
         </div>
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Género</span>
-          <span class="text-sm text-black">{{ labelGenero(p.genero) }}</span>
+          <span class="text-sm text-black font-light">{{ labelGenero(p.genero) }}</span>
         </div>
       </div>
     </div>
@@ -63,17 +64,17 @@
     <div class="mb-8">
       <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS DEPORTIVOS</p>
       <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Deporte</span>
-          <span class="text-sm text-black">{{ p.deporte }}</span>
+          <span class="text-sm text-black font-light">{{ p.deporte }}</span>
         </div>
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Nivel</span>
-          <span class="text-sm text-black">{{ labelNivel(p.nivel) }}</span>
+          <span class="text-sm text-black font-light">{{ labelNivel(p.nivel) }}</span>
         </div>
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Objetivo</span>
-          <span class="text-sm text-black">{{ labelObjetivo(p.objetivo) }}</span>
+          <span class="text-sm text-black font-light">{{ labelObjetivo(p.objetivo) }}</span>
         </div>
       </div>
     </div>
@@ -82,13 +83,13 @@
     <div class="mb-8">
       <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS FÍSICOS</p>
       <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Peso inicial</span>
-          <span class="text-sm text-black">{{ p.peso }} kg</span>
+          <span class="text-sm text-black font-light">{{ p.peso }} kg</span>
         </div>
-        <div class="px-5 py-3 flex items-center justify-between">
+        <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Altura</span>
-          <span class="text-sm text-black">{{ p.altura }} cm</span>
+          <span class="text-sm text-black font-light">{{ p.altura }} cm</span>
         </div>
       </div>
     </div>
@@ -104,6 +105,7 @@
             <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
               <span class="text-xs font-medium text-black">{{ alergia }}</span>
               <button (click)="eliminarAlergia(i)"
+                [attr.aria-label]="'Eliminar ' + alergia"
                 class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
             </div>
           }
@@ -117,10 +119,11 @@
             (input)="nuevaAlergia.set($any($event.target).value)"
             (keydown.enter)="agregarAlergia()"
             placeholder="Añadir alergia o intolerancia..."
-            class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
+            class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
           />
           <button (click)="agregarAlergia()" [disabled]="!nuevaAlergia().trim()"
-            class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            [class]="nuevaAlergia().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
             AÑADIR
           </button>
         </div>
@@ -138,6 +141,7 @@
             <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
               <span class="text-xs font-medium text-black">{{ lesion }}</span>
               <button (click)="eliminarLesion(i)"
+                [attr.aria-label]="'Eliminar ' + lesion"
                 class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
             </div>
           }
@@ -151,10 +155,11 @@
             (input)="nuevaLesion.set($any($event.target).value)"
             (keydown.enter)="agregarLesion()"
             placeholder="Añadir lesión previa..."
-            class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
+            class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
           />
           <button (click)="agregarLesion()" [disabled]="!nuevaLesion().trim()"
-            class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            [class]="nuevaLesion().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
             AÑADIR
           </button>
         </div>
@@ -191,19 +196,21 @@
           (input)="codigoEntrenador.set($any($event.target).value.toUpperCase()); codigoError.set(''); codigoExito.set(false)"
           (keydown.enter)="conectarConCodigo()"
           [placeholder]="auth.servicio() === 'AMBOS' ? (rolConectar() === 'ENTRENAMIENTO' ? 'Código de tu entrenador' : 'Código de tu nutricionista') : 'Ej. GRIT-A1B2C3'"
-          class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-mono font-medium placeholder:text-gray-300 placeholder:font-light outline-none focus:border-black transition-colors bg-transparent uppercase"
+          aria-label="Código del profesional"
+          class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-mono font-medium text-black placeholder:text-gray-300 placeholder:font-light outline-none focus:border-black transition-colors bg-transparent uppercase"
         />
         <button (click)="conectarConCodigo()"
           [disabled]="!codigoEntrenador().trim() || enviandoCodigo()"
-          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
+          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+          [class]="codigoEntrenador().trim() && !enviandoCodigo() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
           @if (enviandoCodigo()) { CONECTANDO... } @else { CONECTAR }
         </button>
       </div>
       @if (codigoError()) {
-        <p class="text-xs font-bold text-red-400 mt-2">{{ codigoError() }}</p>
+        <p class="text-xs font-bold text-red-400 mt-2" role="alert">{{ codigoError() }}</p>
       }
       @if (codigoExito()) {
-        <p class="text-xs font-bold text-[#2ED38D] mt-2">● Conectado correctamente</p>
+        <p class="text-xs font-bold text-[#2ED38D] mt-2" role="status">● Conectado correctamente</p>
       }
     </div>
   </div>
@@ -228,13 +235,13 @@
                   </span>
                 </div>
                 <div class="flex items-center gap-3 flex-wrap mb-2">
-                  <p class="text-[10px] text-gray-400">{{ prof.titulacion }}</p>
+                  <p class="text-[10px] text-gray-400 font-light">{{ prof.titulacion }}</p>
                   @if (prof.anosExperiencia) {
                     <span class="text-[10px] font-bold text-gray-400">· {{ prof.anosExperiencia }} años de experiencia</span>
                   }
                 </div>
                 @if (prof.sobreMi) {
-                  <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ prof.sobreMi }}</p>
+                  <p class="text-sm text-gray-500 font-light leading-relaxed mb-3">{{ prof.sobreMi }}</p>
                 }
                 @if (prof.masters && prof.masters.length > 0) {
                   <div class="flex flex-wrap gap-1.5 mt-2">

@@ -6,6 +6,7 @@
   <!-- Cambiar contraseña -->
   <div class="mb-6 border border-[#E5E7EB]">
     <button type="button" (click)="passAbierto.set(!passAbierto())"
+      [attr.aria-expanded]="passAbierto()"
       class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
       <p class="text-xs font-black tracking-[0.2em] uppercase text-black">CAMBIAR CONTRASEÑA</p>
       <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ passAbierto() ? '▲' : '▼' }}</span>
@@ -13,13 +14,13 @@
     @if (passAbierto()) {
       <div class="px-5 pb-5 border-t border-[#E5E7EB]">
         @if (passCambiada()) {
-          <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2">
+          <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2" role="status">
             <p class="text-sm font-bold text-[#2ED38D]">Contraseña actualizada correctamente.</p>
           </div>
         }
         @if (passError()) {
-          <div class="border border-red-300 px-5 py-4 mt-4 mb-2">
-            <p class="text-sm text-red-500">{{ passError() }}</p>
+          <div class="border border-red-300 px-5 py-4 mt-4 mb-2" role="alert">
+            <p class="text-sm text-red-500 font-light">{{ passError() }}</p>
           </div>
         }
         <div class="flex flex-col gap-4 mt-4">
@@ -27,26 +28,29 @@
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONTRASEÑA ACTUAL</label>
             <input type="password" [value]="passActual()"
               (input)="passActual.set($any($event.target).value)"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+              autocomplete="current-password"
+              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
           </div>
           <div>
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NUEVA CONTRASEÑA</label>
             <input type="password" [value]="passNueva()"
               (input)="passNueva.set($any($event.target).value)"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+              autocomplete="new-password"
+              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
           </div>
           <div>
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONFIRMAR NUEVA CONTRASEÑA</label>
             <input type="password" [value]="passConfirm()"
               (input)="passConfirm.set($any($event.target).value)"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+              autocomplete="new-password"
+              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
           </div>
           <button type="button" (click)="cambiarPassword()"
             [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
-            class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors"
+            class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             [class]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
-              ? 'bg-black text-white hover:bg-[#2ED38D]'
-              : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'">
+              ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black'
+              : 'bg-[#F3F4F6] text-gray-400'">
             {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
           </button>
         </div>
@@ -68,6 +72,7 @@
   <!-- Eliminar cuenta -->
   <div class="border border-[#E5E7EB]">
     <button type="button" (click)="bajaAbierta.set(!bajaAbierta())"
+      [attr.aria-expanded]="bajaAbierta()"
       class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
       <p class="text-xs font-black tracking-[0.2em] uppercase text-red-400">ELIMINAR CUENTA</p>
       <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ bajaAbierta() ? '▲' : '▼' }}</span>
@@ -76,7 +81,7 @@
       <div class="px-5 pb-5 border-t border-[#E5E7EB]">
         @if (!confirmarBaja()) {
           <div class="mt-4">
-            <p class="text-sm text-gray-600 mb-4">Al eliminar tu cuenta se borrarán todos tus datos de forma permanente. Esta acción no se puede deshacer.</p>
+            <p class="text-sm font-light text-gray-500 mb-4">Al eliminar tu cuenta se borrarán todos tus datos de forma permanente. Esta acción no se puede deshacer.</p>
             <button type="button" (click)="confirmarBaja.set(true)"
               class="px-6 py-3 text-xs font-black tracking-[0.2em] uppercase border border-red-300 text-red-400 hover:bg-red-50 transition-colors">
               QUIERO DARME DE BAJA
@@ -85,11 +90,12 @@
         } @else {
           <div class="mt-4">
             <p class="text-sm font-bold text-black mb-1">¿Estás seguro?</p>
-            <p class="text-sm text-gray-400 mb-4">Escribe <span class="font-mono font-bold text-black">ELIMINAR</span> para confirmar.</p>
+            <p class="text-sm font-light text-gray-400 mb-4">Escribe <span class="font-mono font-bold text-black">ELIMINAR</span> para confirmar.</p>
             <input type="text" [value]="textoConfirmaBaja()"
               (input)="textoConfirmaBaja.set($any($event.target).value)"
               placeholder="ELIMINAR"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-mono focus:outline-none focus:border-red-400 mb-4" />
+              aria-label="Escribe ELIMINAR para confirmar la baja"
+              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-mono text-black placeholder:text-gray-300 focus:outline-none focus:border-red-400 mb-4 bg-white transition-colors" />
             <div class="flex gap-3">
               <button type="button" (click)="confirmarBaja.set(false); textoConfirmaBaja.set('')"
                 class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase border border-[#E5E7EB] text-gray-400 hover:border-black hover:text-black transition-colors">
@@ -100,7 +106,7 @@
                 class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors"
                 [class]="textoConfirmaBaja() === 'ELIMINAR' && !eliminandoCuenta()
                   ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'">
+                  : 'bg-[#F3F4F6] text-gray-400 opacity-40 cursor-not-allowed'">
                 {{ eliminandoCuenta() ? 'ELIMINANDO...' : 'CONFIRMAR BAJA' }}
               </button>
             </div>

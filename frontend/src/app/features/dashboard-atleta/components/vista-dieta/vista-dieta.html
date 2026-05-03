@@ -19,7 +19,7 @@
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div>
         <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">{{ plan()!.nombre }}</h2>
-        <p class="text-sm text-gray-400 mt-1 max-w-lg">{{ plan()!.descripcion }}</p>
+        <p class="text-sm font-light text-gray-400 mt-1 max-w-lg">{{ plan()!.descripcion }}</p>
       </div>
       <div class="flex items-center gap-6 flex-shrink-0">
         <div>
@@ -54,7 +54,7 @@
       <div class="flex flex-col gap-3">
         @for (nota of notas(); track nota.id) {
           <div class="border-l-2 border-[#2ED38D] pl-4 py-1">
-            <p class="text-sm text-black leading-relaxed">{{ nota.texto }}</p>
+            <p class="text-sm text-black font-light leading-relaxed">{{ nota.texto }}</p>
             <p class="text-[10px] text-gray-400 mt-1.5">{{ formatFecha(nota.fecha) }}</p>
           </div>
         }
@@ -70,8 +70,9 @@
         <div class="border" [class]="abierta ? 'border-black' : 'border-[#E5E7EB]'">
 
           <button type="button" (click)="abrirComida(comida.nombre)"
+            [attr.aria-expanded]="abierta"
             class="w-full px-5 py-4 flex items-center justify-between transition-colors"
-            [class]="abierta ? 'bg-black' : 'border-b border-[#E5E7EB] hover:bg-[#F9FAFB]'">
+            [class]="abierta ? 'bg-black' : 'hover:bg-[#F9FAFB]'">
             <p class="text-xs font-black tracking-[0.2em] uppercase" [class]="abierta ? 'text-white' : 'text-black'">{{ comida.nombre }}</p>
             <div class="flex items-center gap-4">
               <span class="text-[10px] font-bold" [class]="abierta ? 'text-[#2ED38D]' : 'text-gray-400'">{{ totalKcalComida(comida.alimentos) }} kcal</span>
@@ -83,7 +84,7 @@
             <div class="px-5 py-3 flex flex-col divide-y divide-[#F3F4F6]">
               @for (alimento of comida.alimentos; track alimento.nombre) {
                 <div class="flex items-center justify-between py-2.5 gap-4">
-                  <span class="text-sm text-black">{{ alimento.nombre }}</span>
+                  <span class="text-sm text-black font-light">{{ alimento.nombre }}</span>
                   <div class="flex items-center gap-4 flex-shrink-0">
                     <span class="text-xs text-gray-400">{{ alimento.cantidad }}</span>
                     @if (alimento.kcal) {
@@ -99,7 +100,7 @@
             <div class="px-5 py-3 border-b border-[#1a1a1a] flex flex-col divide-y divide-[#1a1a1a]">
               @for (alimento of comida.alimentos; track alimento.nombre) {
                 <div class="flex items-center justify-between py-2 gap-4">
-                  <span class="text-sm text-gray-300">{{ alimento.nombre }}</span>
+                  <span class="text-sm text-gray-300 font-light">{{ alimento.nombre }}</span>
                   <div class="flex items-center gap-4 flex-shrink-0">
                     <span class="text-xs text-gray-500">{{ alimento.cantidad }}</span>
                     @if (alimento.kcal) {
@@ -112,7 +113,7 @@
             @if (comida.notas) {
               <div class="px-5 py-4 border-b border-[#1a1a1a] bg-[#111]">
                 <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-2">NOTA DE TU NUTRICIONISTA</p>
-                <p class="text-sm text-gray-300 leading-relaxed">{{ comida.notas }}</p>
+                <p class="text-sm text-gray-300 font-light leading-relaxed">{{ comida.notas }}</p>
               </div>
             }
           }
@@ -132,12 +133,13 @@
         @for (item of listaCompra(); track item.nombre) {
           @let checked = itemsCompraChecked().includes(item.nombre);
           <button type="button" (click)="toggleItemCompra(item.nombre)"
+            [attr.aria-label]="(checked ? 'Desmarcar' : 'Marcar') + ' ' + item.nombre"
             class="w-full flex items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-[#F9FAFB]">
             <div class="w-4 h-4 border flex-shrink-0 flex items-center justify-center transition-colors"
               [class]="checked ? 'bg-black border-black' : 'border-[#D1D5DB]'">
               @if (checked) { <span class="text-white text-[9px] font-black leading-none">✓</span> }
             </div>
-            <span class="flex-1 text-sm transition-colors" [class]="checked ? 'line-through text-gray-300' : 'text-black'">{{ item.nombre }}</span>
+            <span class="flex-1 text-sm font-light transition-colors" [class]="checked ? 'line-through text-gray-300' : 'text-black'">{{ item.nombre }}</span>
             <span class="text-xs text-gray-400 flex-shrink-0">{{ item.cantidad }}</span>
           </button>
         }
