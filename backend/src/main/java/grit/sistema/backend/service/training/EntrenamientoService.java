@@ -45,6 +45,16 @@ public class EntrenamientoService {
         Map<UUID, Ejercicio> catalogo = ejercicioRepository.findAllById(idsEjercicios).stream()
                 .collect(Collectors.toMap(Ejercicio::getId, e -> e));
 
+        log.info("IDs enviados desde el front: {}", idsEjercicios);
+        log.info("IDs encontrados en la base de datos: {}", catalogo.keySet());
+
+        if (catalogo.size() != idsEjercicios.size()) {
+            List<UUID> faltantes = idsEjercicios.stream()
+                    .filter(id -> !catalogo.containsKey(id))
+                    .toList();
+            throw new EntityNotFoundException("Error de integridad: Los siguientes IDs de ejercicios no existen en el catálogo: " + faltantes);
+        }
+
         // 3. Construcción Jerárquica usando el Mapper
         Rutina rutina = new Rutina();
         rutina.setNombre(request.nombre());

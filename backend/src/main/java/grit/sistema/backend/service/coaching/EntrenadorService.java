@@ -45,31 +45,24 @@ public class EntrenadorService {
     private final StorageService storageService;
     private final EntrenadorMapper entrenadorMapper;
     private final UsuarioService usuarioService;
-    private final PasswordEncoder passwordEncoder;
     private final PwnedPasswordClient pwnedClient;
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request, MultipartFile fotoPerfil, List<MultipartFile> certificaciones) {
+        validarRequisitosProfesionales(request);
+        validarTamanoArchivos(certificaciones);
+
         if (pwnedClient.isPasswordPwned(request.getPassword())) {
             throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
         }
-
-        validarRequisitosProfesionales(request);
-        validarTamanoArchivos(certificaciones);
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new UsuarioExistenteException("EMAIL_DUPLICADO");
         }
 
-        // 1. IO Externa (MinIO) - Fuera de transacción
-        List<String> urls = Optional.ofNullable(certificaciones)
-                .orElse(List.of())
-                .stream()
-                .map(storageService::uploadFile)
-                .toList();
-
-        String fotoKey = storageService.uploadEntrenadorFoto(fotoPerfil);
+        List<String> urls = subirCertificaciones(certificaciones);
+        String fotoKey = subirFotoPerfil(fotoPerfil);
 
         // 2. Persistencia - Dentro de transacción
         try {
@@ -77,9 +70,7 @@ public class EntrenadorService {
             return entrenadorMapper.toResponse(entrenador);
         } catch (Exception e) {
             log.error("Error en persistencia. Iniciando compensación de archivos en MinIO...");
-            // SI LA DB FALLA, BORRAMOS LO SUBIDO
-            urls.forEach(storageService::deleteFile);
-            storageService.deleteFile(fotoKey);
+            compensarArchivos(urls, fotoKey);
             throw e;
         }
     }
@@ -151,6 +142,29 @@ public class EntrenadorService {
 
         if (totalSize > MAX_FILE_SIZE) {
             throw new IllegalArgumentException("El tamaño total de los archivos excede el límite de 10MB");
+        }
+    }
+
+    private List<String> subirCertificaciones(List<MultipartFile> certificaciones) {
+        return Optional.ofNullable(certificaciones)
+                .orElse(List.of())
+                .stream()
+                .filter(f -> !f.isEmpty())
+                .map(storageService::uploadFile)
+                .toList();
+    }
+
+    private String subirFotoPerfil(MultipartFile foto) {
+        return Optional.ofNullable(foto)
+                .filter(f -> !f.isEmpty())
+                .map(storageService::uploadEntrenadorFoto)
+                .orElse("default-avatar.png");
+    }
+
+    private void compensarArchivos(List<String> urls, String fotoKey) {
+        urls.forEach(storageService::deleteFile);
+        if (!"default-avatar.png".equals(fotoKey)) {
+            storageService.deleteFile(fotoKey);
         }
     }
 
