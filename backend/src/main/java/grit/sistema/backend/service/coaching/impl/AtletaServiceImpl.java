@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -45,7 +46,7 @@ public class AtletaServiceImpl implements AtletaService {
             throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
         }
 
-        String fotoKey = storageService.uploadAtletaFoto(foto);
+        String fotoKey = subirFotoPerfil(foto);
 
         return persistenceService.guardarAtleta(dto, fotoKey);
     }
@@ -99,5 +100,13 @@ public class AtletaServiceImpl implements AtletaService {
 
         usuarioService.suspenderUsuario(atletaId);
     }
+
+    private String subirFotoPerfil(MultipartFile foto) {
+        return Optional.ofNullable(foto)
+                .filter(f -> !f.isEmpty())
+                .map(storageService::uploadEntrenadorFoto)
+                .orElse(null);
+    }
+
 
 }
