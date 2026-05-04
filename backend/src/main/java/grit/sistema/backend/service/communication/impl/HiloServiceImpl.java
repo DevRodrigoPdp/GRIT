@@ -1,4 +1,4 @@
-package grit.sistema.backend.service.communication;
+package grit.sistema.backend.service.communication.impl;
 
 import grit.sistema.backend.dto.communication.CrearHiloDTO;
 import grit.sistema.backend.dto.communication.HiloResumenDTO;
@@ -16,6 +16,7 @@ import grit.sistema.backend.repository.communication.LecturaHiloRepository;
 import grit.sistema.backend.repository.communication.MensajeRepository;
 import grit.sistema.backend.repository.user.UsuarioRepository;
 import grit.sistema.backend.service.common.StorageService;
+import grit.sistema.backend.service.communication.HiloService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

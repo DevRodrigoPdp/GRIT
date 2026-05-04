@@ -22,9 +22,8 @@ import java.io.IOException;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitService rateLimitService;
-    private final HandlerExceptionResolver resolver; // Añade esto
+    private final HandlerExceptionResolver resolver;
 
-    // Inyectamos el resolver de Spring MVC
     public RateLimitFilter(RateLimitService rateLimitService,
                            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.rateLimitService = rateLimitService;
@@ -36,28 +35,27 @@ public class RateLimitFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         try {
+            // 1. Identificar la clave (Usuario o IP)
             var auth = SecurityContextHolder.getContext().getAuthentication();
             String key = (auth != null && auth.isAuthenticated()) ? auth.getName() : request.getRemoteAddr();
 
+            // 2. Determinar el plan basado en Roles
             RateLimitPlan plan = RateLimitPlan.FREE;
             if (auth != null && !auth.getAuthorities().isEmpty()) {
-                plan = RateLimitPlan.resolvePlanFromRole(auth.getAuthorities().iterator().next().getAuthority());
+                String role = auth.getAuthorities().iterator().next().getAuthority();
+                plan = RateLimitPlan.resolvePlanFromRole(role);
             }
 
-            Bucket bucket = rateLimitService.resolveBucket(key, plan);
-            ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-            if (probe.isConsumed()) {
-                // Headers informativos (Importante para CORS más abajo)
-                response.addHeader("X-RateLimit-Limit", String.valueOf(plan.getLimit().getCapacity()));
-                response.addHeader("X-RateLimit-Remaining", String.valueOf(probe.getRemainingTokens()));
+            // 3. LA CLAVE: Delegar totalmente en la interfaz
+            // Ya no hay Buckets ni Probes aquí
+            if (rateLimitService.tryConsume(key, plan)) {
                 filterChain.doFilter(request, response);
             } else {
-                // Lanzamos la excepción personalizada
-                throw new RateLimitException("Demasiadas peticiones. Límite: " + plan.name());
+                throw new RateLimitException("Has superado el límite de peticiones para tu plan: " + plan.name());
             }
+
         } catch (RateLimitException e) {
-            // ESTA ES LA MAGIA: Enviamos el error al HandlerExceptionResolver
+            // Enviamos el error al manejador global de excepciones
             resolver.resolveException(request, response, null, e);
         }
     }
@@ -65,7 +63,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        // Excluimos explícitamente Swagger y recursos estáticos
         return path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
                 path.equals("/favicon.ico");
