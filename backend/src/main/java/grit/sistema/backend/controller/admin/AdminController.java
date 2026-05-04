@@ -1,11 +1,15 @@
 package grit.sistema.backend.controller.admin;
 
+import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
+import grit.sistema.backend.dto.user.UsuarioBusquedaDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import grit.sistema.backend.service.admin.AdminService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,22 +39,38 @@ public class AdminController {
         return ResponseEntity.ok(usuarioService.findAll());
     }
 
+    @Operation(summary = "Listar usuarios con búsqueda flexible por nombre o correo")
     @GetMapping("/usuarios/search")
-    public ResponseEntity<Page<UsuarioResponseDTO>> listar(
+    public ResponseEntity<Page<UsuarioBusquedaDTO>> listar(
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
+            @RequestParam(defaultValue = "15") @Min(1) @Max(50) int size
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
-        return ResponseEntity.ok(adminService.buscarUsuarios(search, pageable));
+        Pageable pageable = PageRequest.of(page, size);
+        String query = (search != null) ? search.trim() : "";
+        log.info("Admin buscando usuarios: '{}' [Página: {}]", query, page);
+        return ResponseEntity.ok(adminService.buscarUsuarios(query, pageable));
     }
 
     @Operation(summary = "Listar entrenadores pendientes de revisión")
     @GetMapping("/entrenadores/pendientes")
     public ResponseEntity<Page<EntrenadorPendienteDTO>> getPendientes(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
+            @RequestParam(defaultValue = "15") @Min(1) @Max(50) int size) {
         return ResponseEntity.ok(adminService.obtenerPendientes(page, size));
+    }
+
+    @Operation(summary = "Listar entrenadores pendientes con búsqueda flexible por nombre o correo")
+    @GetMapping("/entrenadores/pendientes/search")
+    public ResponseEntity<Page<EntrenadorBusquedaDTO>> getPendientes(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
+            @RequestParam(defaultValue = "15") @Min(1) @Max(50) int size) {
+        log.info("Admin solicitando lista de entrenadores pendientes. Filtro: '{}'", search);
+
+        Page<EntrenadorBusquedaDTO> resultado = adminService.obtenerPendientesBuscador(search, page, size);
+
+        return ResponseEntity.ok(resultado);
     }
 
     @Operation(summary = "Aprobar o rechazar un entrenador")

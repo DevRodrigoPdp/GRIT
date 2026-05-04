@@ -18,24 +18,25 @@ import java.util.UUID;
 @Repository
 public interface AlimentoRepository extends JpaRepository<Alimento, UUID> {
 
-    // Búsqueda Global (la que ya tenías, mejorada para incluir categoría en el count)
     @Query(value = """
-            SELECT * FROM alimentos
-            WHERE nombre    ILIKE %:q%
-               OR marca     ILIKE %:q%
-               OR categoria ILIKE %:q%
-            ORDER BY 
-                CASE 
-                    WHEN LOWER(nombre) = LOWER(:q) THEN 0 
-                    WHEN LOWER(nombre) LIKE LOWER(CONCAT(:q, '%')) THEN 1
-                    ELSE 2 
-                END,
-                nombre ASC
-            """,
+        SELECT * FROM alimentos
+        WHERE public.immutable_unaccent(LOWER(nombre))    ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :q, '%')))
+           OR public.immutable_unaccent(LOWER(marca))     ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :q, '%')))
+           OR public.immutable_unaccent(LOWER(categoria)) ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :q, '%')))
+        ORDER BY
+            CASE
+                WHEN public.immutable_unaccent(LOWER(nombre)) = public.immutable_unaccent(LOWER(:q)) THEN 0
+                WHEN public.immutable_unaccent(LOWER(nombre)) LIKE public.immutable_unaccent(LOWER(CONCAT(:q, '%'))) THEN 1
+                ELSE 2
+            END,
+            nombre ASC
+        """,
             countQuery = """
-                SELECT count(*) FROM alimentos 
-                WHERE nombre ILIKE %:q% OR marca ILIKE %:q% OR categoria ILIKE %:q%
-            """,
+            SELECT count(*) FROM alimentos
+            WHERE public.immutable_unaccent(LOWER(nombre))    ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :q, '%')))
+               OR public.immutable_unaccent(LOWER(marca))     ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :q, '%')))
+               OR public.immutable_unaccent(LOWER(categoria)) ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :q, '%')))
+        """,
             nativeQuery = true)
     Page<Alimento> buscadorGlobal(@Param("q") String q, Pageable pageable);
 

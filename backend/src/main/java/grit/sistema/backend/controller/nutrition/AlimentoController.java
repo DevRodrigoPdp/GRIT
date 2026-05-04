@@ -8,9 +8,12 @@ import grit.sistema.backend.security.user.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -46,12 +49,15 @@ public class AlimentoController {
     @GetMapping("/search")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponseDTO<Page<AlimentoResponseDTO>>> buscadorGlobal(
-            @RequestParam(name = "q", required = false, defaultValue = "") String q,
-            @PageableDefault(size = 15, sort = "nombre") Pageable pageable
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
+            @RequestParam(defaultValue = "15") @Min(1) @Max(50) int size
     ) {
-        log.debug("Buscador Global Alimentos - q: '{}'", q);
-        Page<AlimentoResponseDTO> resultados = alimentoService.buscadorGlobal(q, pageable);
-        return ResponseEntity.ok(ApiResponseDTO.success(resultados, "Resultados globales encontrados"));
+        Pageable pageable = PageRequest.of(page, size);
+        String query = (q != null) ? q.trim() : "";
+        log.info("Buscador Global de Alimentos- Ejecutando búsqueda para: '{}' [Página: {}]", query, pageable.getPageNumber());
+        Page<AlimentoResponseDTO> resultados = alimentoService.buscadorGlobal(query, pageable);
+        return ResponseEntity.ok(ApiResponseDTO.success(resultados, "Resultados globales de alimentos encontrados"));
     }
 
     /**

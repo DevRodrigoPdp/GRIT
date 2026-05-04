@@ -4,8 +4,12 @@ import grit.sistema.backend.dto.training.EjercicioDTO;
 import grit.sistema.backend.service.training.EjercicioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Tag(name = "Ejercicios", description = "API para la consulta de la biblioteca de ejercicios")
 @PreAuthorize("isAuthenticated()")
+@Slf4j
 public class EjercicioController {
     private final EjercicioService ejercicioService;
 
@@ -31,11 +36,14 @@ public class EjercicioController {
     @Operation(summary = "Buscador global de ejercicios por término único")
     @GetMapping("/search")
     public ResponseEntity<Page<EjercicioDTO>> buscadorGlobal(
-            @RequestParam(name = "q", required = false, defaultValue = "") String q,
-            @PageableDefault(size = 15, sort = "nombre") Pageable pageable
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
+            @RequestParam(defaultValue = "15") @Min(1) @Max(50) int size
     ) {
-        // Delegamos al nuevo método del service
-        Page<EjercicioDTO> resultados = ejercicioService.buscadorGlobal(q, pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        String query = (q != null) ? q.trim() : "";
+        log.info("Buscando ejercicios: '{}' [Pág: {}]", query, page);
+        Page<EjercicioDTO> resultados = ejercicioService.buscadorGlobal(query, pageable);
         return ResponseEntity.ok(resultados);
     }
 

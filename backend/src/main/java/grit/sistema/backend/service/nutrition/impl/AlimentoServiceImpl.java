@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,11 +59,14 @@ public class AlimentoServiceImpl implements AlimentoService {
     @Override
     @Transactional(readOnly = true)
     public Page<AlimentoResponseDTO> buscadorGlobal(String query, Pageable pageable) {
-        if (query == null || query.isBlank()) {
+        if (query.isBlank()) {
             return alimentoRepository.findAll(pageable).map(this::mapToResponseDTO);
         }
-        // Llama a la Query Nativa con el CASE WHEN de relevancia
-        return alimentoRepository.buscadorGlobal(query.trim(), pageable).map(this::mapToResponseDTO);
+        String cleanQuery = query.trim().replace("%", "\\%").replace("_", "\\_");
+
+        Pageable queryPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        return alimentoRepository.buscadorGlobal(cleanQuery, queryPageable)
+                .map(this::mapToResponseDTO);
     }
 
     @Override

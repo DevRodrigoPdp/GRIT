@@ -1,8 +1,10 @@
 package grit.sistema.backend.service.admin.impl;
 
 import grit.sistema.backend.dto.coaching.DocumentoDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.dto.common.ArchivosAEliminarEventDTO;
+import grit.sistema.backend.dto.user.UsuarioBusquedaDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
@@ -42,13 +44,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UsuarioResponseDTO> buscarUsuarios(String termino, Pageable pageable) {
-        if (termino == null || termino.isBlank()) {
-            return usuarioRepository.findAll(pageable).map(usuarioMapper::toResponseDTO);
-        }
+    public Page<UsuarioBusquedaDTO> buscarUsuarios(String termino, Pageable pageable) {
+        String cleanTermino = (termino == null || termino.isBlank()) ? "" : termino.trim()
+                .replace("%", "\\%")
+                .replace("_", "\\_");
 
-        return usuarioRepository.findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                termino, termino, pageable).map(usuarioMapper::toResponseDTO);
+        return usuarioRepository.buscarPorNombreOEmail(cleanTermino, pageable);
     }
 
     @Override
@@ -59,6 +60,24 @@ public class AdminServiceImpl implements AdminService {
         return entrenadorRepository
                 .findByEstadoRevision(EstadoRevision.PENDIENTE_REVISION, pageable)
                 .map(this::mapToDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<EntrenadorBusquedaDTO> obtenerPendientesBuscador(String search, int page, int size) {
+        String cleanSearch = (search == null) ? "" : search.trim()
+                .replace("%", "\\%")
+                .replace("_", "\\_");
+
+        // 2. Creación de Pageable seguro (sin Sort externo)
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 3. Ejecución con el estado PENDIENTE fijo
+        return entrenadorRepository.findPendientesConFiltro(
+                EstadoRevision.PENDIENTE_REVISION.name(),
+                cleanSearch,
+                pageable
+        );
     }
 
     /**

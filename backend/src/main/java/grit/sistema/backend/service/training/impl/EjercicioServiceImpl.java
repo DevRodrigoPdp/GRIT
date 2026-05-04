@@ -6,6 +6,7 @@ import grit.sistema.backend.repository.training.EjercicioRepository;
 import grit.sistema.backend.service.training.EjercicioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,9 +54,18 @@ public class EjercicioServiceImpl implements EjercicioService {
     @Override
     @Transactional(readOnly = true)
     public Page<EjercicioDTO> buscadorGlobal(String query, Pageable pageable) {
-        if (estaVacio(query)) return repository.findAll(pageable).map(this::convertirADTO);
+        if (query == null || query.isBlank()) {
+            return repository.findAll(pageable).map(this::convertirADTO);
+        }
 
-        return repository.buscarFlexible(query.trim(), pageable)
+        String cleanQuery = query.trim()
+                .replace("%", "\\%")
+                .replace("_", "\\_");
+
+        // Ignoramos el sort del controlador para aplicar nuestro ranking
+        Pageable queryPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+        return repository.buscarFlexible(cleanQuery, queryPageable)
                 .map(this::convertirADTO);
     }
 

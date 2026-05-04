@@ -33,15 +33,25 @@ public interface EjercicioRepository extends JpaRepository<Ejercicio, UUID> {
     Page<Ejercicio> findByGrupoMuscularIn(List<String> grupos, Pageable pageable);
 
     @Query(value = """
-    SELECT * FROM ejercicios 
-    WHERE grupo_muscular ILIKE %:query% 
-    OR nombre ILIKE %:query%
-    ORDER BY nombre ASC
+    SELECT * FROM ejercicios
+    WHERE public.immutable_unaccent(LOWER(nombre))         ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :query, '%')))
+       OR public.immutable_unaccent(LOWER(grupo_muscular)) ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :query, '%')))
+    ORDER BY
+        CASE
+            -- Prioridad 0: Coincidencia exacta (sin tildes)
+            WHEN public.immutable_unaccent(LOWER(nombre)) = public.immutable_unaccent(LOWER(:query)) THEN 0
+            -- Prioridad 1: Empieza por... (sin tildes)
+            WHEN public.immutable_unaccent(LOWER(nombre)) LIKE public.immutable_unaccent(LOWER(CONCAT(:query, '%'))) THEN 1
+            -- Prioridad 2: Contiene... (sin tildes)
+            WHEN public.immutable_unaccent(LOWER(nombre)) LIKE public.immutable_unaccent(LOWER(CONCAT('%', :query, '%'))) THEN 2
+            ELSE 3
+        END,
+        nombre ASC
     """,
             countQuery = """
-    SELECT count(*) FROM ejercicios 
-    WHERE grupo_muscular ILIKE %:query% 
-    OR nombre ILIKE %:query%
+    SELECT count(*) FROM ejercicios
+    WHERE public.immutable_unaccent(LOWER(nombre))         ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :query, '%')))
+       OR public.immutable_unaccent(LOWER(grupo_muscular)) ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :query, '%')))
     """,
             nativeQuery = true)
     Page<Ejercicio> buscarFlexible(@Param("query") String query, Pageable pageable);
