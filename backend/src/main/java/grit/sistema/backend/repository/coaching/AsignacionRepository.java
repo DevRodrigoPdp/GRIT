@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -23,6 +24,8 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
             "WHERE a.atleta.id = :atletaId " +
             "AND a.activa = true")
     List<Asignacion> findAsignacionesActivas(@Param("atletaId") UUID atletaId);
+
+    Optional<Asignacion> findByAtletaIdAndActivaTrue(UUID atletaId);
 
     boolean existsByAtletaIdAndTipoServicioAndActivaTrue(UUID atletaId, TipoServicio tipoServicio);
 

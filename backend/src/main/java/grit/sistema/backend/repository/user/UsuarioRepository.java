@@ -10,13 +10,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     Page<Usuario> findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(
             String nombre, String email, Pageable pageable);
 
     Optional<Usuario> findByEmail(String email);
-
-    Optional<Usuario> findById(UUID id);
 
     boolean existsByEmail(String email);
 }
