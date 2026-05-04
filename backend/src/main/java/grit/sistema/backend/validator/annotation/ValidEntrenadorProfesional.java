@@ -1,4 +1,4 @@
-package grit.sistema.backend.validator;
+package grit.sistema.backend.validator.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

@@ -1,4 +1,4 @@
-package grit.sistema.backend.validator;
+package grit.sistema.backend.validator.annotation;
 
 import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
 import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;

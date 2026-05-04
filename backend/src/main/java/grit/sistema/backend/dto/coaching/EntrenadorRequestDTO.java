@@ -2,7 +2,7 @@ package grit.sistema.backend.dto.coaching;
 
 import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
-import grit.sistema.backend.validator.ValidEntrenadorProfesional;
+import grit.sistema.backend.validator.annotation.ValidEntrenadorProfesional;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;

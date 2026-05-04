@@ -10,11 +10,13 @@ import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.service.coaching.AsignacionService;
+import grit.sistema.backend.validator.strategy.ValidacionServicioStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,6 +26,7 @@ public class AsignacionServiceImpl implements AsignacionService {
     private final EntrenadorRepository entrenadorRepo;
     private final AsignacionRepository asignacionRepo;
     private final AtletaRepository atletaRepository;
+    private final List<ValidacionServicioStrategy> estrategias;
 
     @Override
     @Transactional
@@ -42,7 +45,12 @@ public class AsignacionServiceImpl implements AsignacionService {
             throw new BusinessException("ENTRENADOR_NO_VERIFICADO", "El profesional no está habilitado.");
         }
 
-        validarCompetenciaProfesional(entrenador, atleta.getServicio());
+        estrategias.stream()
+                .filter(s -> s.aplicaA(atleta.getServicio()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("ESTRATEGIA_NO_ENCONTRADA",
+                        "No se encontró lógica de validación para: " + atleta.getServicio()))
+                .validar(entrenador);
 
         // 3. Validaciones de negocio (Estado actual)
         if (asignacionRepo.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, entrenador.getId())) {
@@ -67,19 +75,6 @@ public class AsignacionServiceImpl implements AsignacionService {
             log.error("Error de integridad al conectar atleta {}: {}", atletaId, e.getMessage());
             throw new BusinessException("CONFLICTO_ASIGNACION",
                     "No se pudo procesar la asignación. Es posible que ya tengas un servicio activo.");
-        }
-    }
-
-    private void validarCompetenciaProfesional(Entrenador entrenador, TipoServicio servicio) {
-        boolean esApto = switch (servicio) {
-            case AMBOS -> entrenador.isTieneAccesoEntrenamiento() && entrenador.isTieneAccesoNutricion();
-            case ENTRENAMIENTO -> entrenador.isTieneAccesoEntrenamiento();
-            case NUTRICION -> entrenador.isTieneAccesoNutricion();
-        };
-
-        if (!esApto) {
-            throw new BusinessException("COMPETENCIA_INSUFICIENTE",
-                    "El entrenador no está facultado para el servicio: " + servicio);
         }
     }
 }
