@@ -11,7 +11,7 @@ public record HiloResumenDTO(
         String titulo,
         CategoriaHilo categoria,
         ContextoHilo contexto,
-        String creadoPor, // "ENTRENADOR" | "ATLETA"
+        String de, // "ENTRENADOR" | "ATLETA"
         LocalDateTime fechaAbierto,
         Long totalMensajes,
         UltimoMensajeDTO ultimoMensaje,

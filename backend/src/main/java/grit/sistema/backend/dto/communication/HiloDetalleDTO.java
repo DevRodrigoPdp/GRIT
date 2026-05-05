@@ -12,7 +12,7 @@ public record HiloDetalleDTO(
         String titulo,
         CategoriaHilo categoria,
         ContextoHilo contexto,
-        String creadoPor,
+        String de,
         LocalDateTime fechaAbierto,
         boolean leidoPorMi,
         List<MensajeDTO> mensajes

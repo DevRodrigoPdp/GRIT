@@ -4,8 +4,6 @@ import grit.sistema.backend.dto.communication.CrearHiloDTO;
 import grit.sistema.backend.dto.communication.HiloDetalleDTO;
 import grit.sistema.backend.dto.communication.HiloResumenDTO;
 import grit.sistema.backend.dto.communication.MensajeDTO;
-import grit.sistema.backend.entity.communication.Hilo;
-import grit.sistema.backend.entity.communication.Mensaje;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
 import org.springframework.web.multipart.MultipartFile;
 
