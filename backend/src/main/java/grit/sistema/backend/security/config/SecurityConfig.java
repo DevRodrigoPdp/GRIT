@@ -87,7 +87,7 @@ public class SecurityConfig {
         ));
 
         // Métodos permitidos
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         // Cabeceras permitidas (JWT)
         config.setAllowedHeaders(List.of(

@@ -8,6 +8,7 @@ import grit.sistema.backend.entity.training.Ejercicio;
 import grit.sistema.backend.entity.training.EjercicioEnSesion;
 import grit.sistema.backend.entity.training.Rutina;
 import grit.sistema.backend.entity.training.SesionRutina;
+import grit.sistema.backend.exception.security.AccesoDenegadoException;
 import grit.sistema.backend.mapper.training.EntrenamientoMapper;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
@@ -128,30 +129,21 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Transactional
     public void activarRutina(UUID entrenadorId, UUID rutinaId) {
         Rutina rutina = rutinaRepository.findById(rutinaId)
-                .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Rutina con ID " + rutinaId + " no encontrada"));
 
-        // Validación de propiedad
         validarPropiedad(entrenadorId, rutina);
 
-        // Desactivar cualquier otra y activar esta
-        desactivarRutinaActual(rutina.getAtleta().getId());
+        rutinaRepository.desactivarRutinasActivas(rutina.getAtleta().getId());
+
         rutina.setActivo(true);
-        rutinaRepository.save(rutina);
-    }
+        rutinaRepository.saveAndFlush(rutina);
 
-    private void desactivarRutinaActual(UUID atletaId) {
-        rutinaRepository.findByAtletaIdAndActivoTrue(atletaId)
-                .ifPresent(r -> {
-                    r.setActivo(false);
-                    rutinaRepository.save(r);
-                    log.info("Rutina anterior {} desactivada", r.getId());
-                });
+        log.info("Rutina {} activada para el atleta {}", rutinaId, rutina.getAtleta().getId());
     }
-
 
     private void validarPropiedad(UUID entrenadorId, Rutina rutina) {
         if (!rutina.getEntrenador().getId().equals(entrenadorId)) {
-            throw new AccessDeniedException("No tienes permiso sobre esta rutina");
+            throw new AccesoDenegadoException("No tienes permiso sobre esta rutina");
         }
     }
 }

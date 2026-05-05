@@ -2,6 +2,9 @@ package grit.sistema.backend.repository.training;
 
 import grit.sistema.backend.entity.training.Rutina;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,5 +15,10 @@ import java.util.UUID;
 public interface RutinaRepository extends JpaRepository<Rutina, UUID> {
     List<Rutina> findAllByEntrenadorId(UUID entrenadorId);
     List<Rutina> findAllByEntrenadorIdAndAtletaId(UUID entrenadorId, UUID atletaId);
+
+    @Modifying
+    @Query("UPDATE Rutina r SET r.activo = false WHERE r.atleta.id = :atletaId AND r.activo = true")
+    void desactivarRutinasActivas(@Param("atletaId") UUID atletaId);
+
     Optional<Rutina> findByAtletaIdAndActivoTrue(UUID atletaId);
 }
