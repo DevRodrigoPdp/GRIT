@@ -6,6 +6,7 @@ import grit.sistema.backend.exception.business.TituloFaltanteException;
 import grit.sistema.backend.exception.business.UsuarioExistenteException;
 import grit.sistema.backend.exception.infrastructure.FileStorageException;
 import grit.sistema.backend.exception.infrastructure.RateLimitException;
+import grit.sistema.backend.exception.infrastructure.ResourceNotFoundException;
 import grit.sistema.backend.exception.security.AccesoDenegadoException;
 import grit.sistema.backend.exception.security.AccountNotActiveException;
 import grit.sistema.backend.exception.security.PwnedPasswordException;
@@ -25,6 +26,7 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -80,6 +82,11 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.AuthenticationCredentialsNotFoundException.class)
+    public ProblemDetail handleAuthCredentialsNotFound(Exception ex, HttpServletRequest request) {
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "No Autenticado", "No se encontraron credenciales de autenticación.", request);
+    }
+
     @ExceptionHandler({AccessDeniedException.class, AccesoDenegadoException.class, AuthorizationDeniedException.class})
     public ProblemDetail handleAccessDenied(Exception ex, HttpServletRequest request) {
         log.warn("Acceso denegado en {}: {}", request.getRequestURI(), ex.getMessage());
@@ -103,6 +110,19 @@ public class GlobalExceptionHandler {
         return pb;
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        String detail = String.format("El parámetro '%s' con valor '%s' no pudo ser convertido al tipo '%s'",
+                ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
+
+        return createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Tipo de Parámetro Incorrecto",
+                detail,
+                "parameter-type-mismatch",
+                request);
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ProblemDetail handleMissingParams(MissingServletRequestParameterException ex, HttpServletRequest request) {
         ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Parámetro Faltante",
@@ -111,10 +131,27 @@ public class GlobalExceptionHandler {
         return pb;
     }
 
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ProblemDetail handleMissingPathVariable(MissingPathVariableException ex, HttpServletRequest request) {
+        return createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Variable de ruta faltante",
+                "Falta la variable: " + ex.getVariableName(),
+                "missing-path-variable",
+                request);
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ProblemDetail handleReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
         return createProblemDetail(HttpStatus.BAD_REQUEST, "JSON Mal Formado",
                 "No se pudo leer el cuerpo de la petición. Verifique la sintaxis JSON.", request);
+    }
+
+    @ExceptionHandler(com.fasterxml.jackson.databind.exc.InvalidFormatException.class)
+    public ProblemDetail handleInvalidFormat(com.fasterxml.jackson.databind.exc.InvalidFormatException ex, HttpServletRequest request) {
+        String detail = String.format("El valor '%s' no es válido para el campo '%s'.",
+                ex.getValue(), ex.getPath().get(0).getFieldName());
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Formato JSON Inválido", detail, "invalid-format", request);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -125,14 +162,69 @@ public class GlobalExceptionHandler {
 
     // --- 3. RECURSOS Y CONFLICTOS (404, 409) ---
 
-    @ExceptionHandler({EntityNotFoundException.class, MethodArgumentTypeMismatchException.class})
-    public ProblemDetail handleNotFound(Exception ex, HttpServletRequest request) {
-        return createProblemDetail(HttpStatus.NOT_FOUND, "Recurso No Encontrado", ex.getMessage(), request);
+    @ExceptionHandler({
+            EntityNotFoundException.class,
+            ResourceNotFoundException.class
+    })
+    public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+        return createProblemDetail(
+                HttpStatus.NOT_FOUND,
+                "Recurso no encontrado",
+                ex.getMessage(),
+                "resource-not-found",
+                request);
     }
 
-    @ExceptionHandler({DataIntegrityViolationException.class, UsuarioExistenteException.class, SesionActivaException.class})
+    // 1. CONCURRENCIA: Cuando dos usuarios editan lo mismo
+    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLocking(Exception ex, HttpServletRequest request) {
+        return createProblemDetail(
+                HttpStatus.CONFLICT,
+                "Conflicto de actualización",
+                "El registro fue modificado por otro usuario. Por favor, recargue los datos e intente de nuevo.",
+                "concurrency-conflict",
+                request);
+    }
+
+    // 2. ERROR DE ENLACE: Fallos en Query Params o Model Attributes
+    @ExceptionHandler(org.springframework.validation.BindException.class)
+    public ProblemDetail handleBindException(org.springframework.validation.BindException ex, HttpServletRequest request) {
+        ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Error de vinculación",
+                "Los parámetros de la petición no son válidos.", "bind-error", request);
+
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(err -> err.getField(), err -> err.getDefaultMessage(), (a, b) -> a));
+
+        pb.setProperty("invalid_params", errors);
+        return pb;
+    }
+
+    // 3. RECURSO ESTATICO O RUTA INEXISTENTE (Spring Boot 3.2+)
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ProblemDetail handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex, HttpServletRequest request) {
+        return createProblemDetail(
+                HttpStatus.NOT_FOUND,
+                "Endpoint no encontrado",
+                "La ruta solicitada no existe en el servidor.",
+                "endpoint-not-found",
+                request);
+    }
+
+    @ExceptionHandler({UsuarioExistenteException.class, SesionActivaException.class})
     public ProblemDetail handleConflicts(Exception ex, HttpServletRequest request) {
         return createProblemDetail(HttpStatus.CONFLICT, "Conflicto de Negocio", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException ex, HttpServletRequest request) {
+        String detail = "No se puede realizar la operación debido a que el registro está relacionado con otros datos.";
+        log.warn("Conflicto de integridad: {}", ex.getMostSpecificCause().getMessage());
+        return createProblemDetail(HttpStatus.CONFLICT, "Conflicto de Integridad", detail, "database-conflict", request);
+    }
+
+    @ExceptionHandler(org.springframework.beans.InvalidPropertyException.class)
+    public ProblemDetail handleInvalidProperty(org.springframework.beans.InvalidPropertyException ex, HttpServletRequest request) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Propiedad de Objeto Inválida", ex.getMessage(), request);
     }
 
     // --- 4. ERRORES DE SISTEMA E INFRAESTRUCTURA (500) ---
