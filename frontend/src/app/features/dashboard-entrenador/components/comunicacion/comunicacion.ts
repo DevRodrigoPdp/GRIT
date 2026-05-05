@@ -78,7 +78,19 @@ export class ComunicacionComponent implements OnInit {
   filtroCategoria = signal<CategoriaHilo | 'TODOS'>('TODOS');
 
   readonly hilosNoLeidos = computed(() => this.hilos().filter(h => !h.leido).length);
-  readonly ultimoMensaje = (hilo: Hilo): MensajeHilo => hilo.mensajes[hilo.mensajes.length - 1];
+  readonly ultimoMensaje = (hilo: Hilo): MensajeHilo => {
+    // Si no hay mensajes, devolvemos un objeto vacío con la estructura de MensajeHilo
+    // para evitar que el HTML intente leer propiedades de 'undefined'
+    if (!hilo?.mensajes || hilo.mensajes.length === 0) {
+      return {
+        id: '',
+        texto: '',
+        de: 'atleta', // Valor por defecto del DTO
+        fecha: new Date()
+      } as MensajeHilo;
+    }
+    return hilo.mensajes[hilo.mensajes.length - 1];
+  };
 
   readonly hilosFiltrados = computed(() => {
     const q = this.busqueda.trim().toLowerCase();
@@ -130,7 +142,7 @@ export class ComunicacionComponent implements OnInit {
             id: h.id,
             titulo: h.titulo,
             categoria: h.categoria.toLowerCase() as CategoriaHilo,
-            de: (h.creadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
+            de: (h.de === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
             fechaAbierto: new Date(h.fechaAbierto),
             leido: h.leidoPorMi,
             mensajes: [], // La lista de resumen no trae mensajes, es correcto
@@ -190,14 +202,18 @@ export class ComunicacionComponent implements OnInit {
 
     //── Descomentar para cargar mensajes completos desde la API ────────────
     //El GET /hilos/:hiloId ya marca el hilo como leído en el backend (no hace falta PUT /leer aparte)
-    this.http.get<{ ok: boolean; data: any }>(`${this.API}/hilos/${hilo.id}`)
+    this.http.get<any>(`${this.API}/hilos/${hilo.id}`)
       .subscribe(r => {
-        const h = r.data;
+        if (!r) {
+          console.error('No se recibió respuesta del servidor');
+          return;
+        }
+        const h = r;
         const hiloCompleto: Hilo = {
           id: h.id,
           titulo: h.titulo,
           categoria: h.categoria.toLowerCase() as CategoriaHilo,
-          de: h.creadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta',
+          de: h.de === 'ENTRENADOR' ? 'entrenador' : 'atleta',
           fechaAbierto: new Date(h.fechaAbierto),
           leido: true,
           mensajes: h.mensajes.map((m: any) => ({
