@@ -2,6 +2,15 @@ import { Component, inject, signal, computed, input, OnInit } from '@angular/cor
 import { DatePipe } from '@angular/common';
 import { EntrenamientoService, Rutina, Sesion, EjercicioManual } from '../../services/entrenamiento.service';
 
+
+export interface EjercicioSugerencia {
+  id: string;
+  nombre: string;
+  dificultad: string;
+  grupoMuscular: string;
+  equipoNecesario: string;
+}
+
 type Vista = 'lista' | 'crear' | 'detalle';
 
 @Component({
@@ -12,27 +21,27 @@ type Vista = 'lista' | 'crear' | 'detalle';
 })
 export class GestionEntrenamientoComponent implements OnInit {
   readonly entrenamiento = inject(EntrenamientoService);
-  readonly atletaId      = input<string | null>(null);
+  readonly atletaId = input<string | null>(null);
 
   // ── Estado principal ──────────────────────────────────────────────────────
-  readonly vista          = signal<Vista>('lista');
-  readonly rutinas        = signal<Rutina[]>([]);
-  readonly guardando      = signal(false);
-  readonly rutinaDetalle  = signal<Rutina | null>(null);
+  readonly vista = signal<Vista>('lista');
+  readonly rutinas = signal<Rutina[]>([]);
+  readonly guardando = signal(false);
+  readonly rutinaDetalle = signal<Rutina | null>(null);
   readonly sesionDetalleIdx = signal(0);
   readonly sesionDetalleActiva = computed(() =>
     this.rutinaDetalle()?.sesiones[this.sesionDetalleIdx()] ?? null
   );
 
   // ── Formulario rutina ─────────────────────────────────────────────────────
-  readonly nombreRutina      = signal('');
+  readonly nombreRutina = signal('');
   readonly descripcionRutina = signal('');
 
   readonly sesiones = signal<Sesion[]>([
     { id: crypto.randomUUID(), nombre: 'Sesión 1', tipo: 'entrenamiento', ejercicios: [] },
   ]);
-  readonly sesionActivaIdx       = signal(0);
-  readonly editandoNombreSesion  = signal(false);
+  readonly sesionActivaIdx = signal(0);
+  readonly editandoNombreSesion = signal(false);
 
   readonly sesionActiva = computed(() => this.sesiones()[this.sesionActivaIdx()] ?? null);
 
@@ -41,12 +50,14 @@ export class GestionEntrenamientoComponent implements OnInit {
   );
 
   // ── Modal ejercicio ───────────────────────────────────────────────────────
-  readonly modalAbierto       = signal(false);
+  readonly modalAbierto = signal(false);
   readonly mostrarSugerencias = signal(false);
-  readonly nuevoNombre  = signal('');
-  readonly nuevoSeries  = signal(3);
-  readonly nuevoReps    = signal('10');
-  readonly nuevoNotas   = signal('');
+  readonly nuevoNombre = signal('');
+  readonly nuevoSeries = signal(3);
+  readonly nuevoReps = signal('10');
+  readonly nuevoNotas = signal('');
+  readonly ejercicioSeleccionado = signal<EjercicioSugerencia | null>(null);
+
 
   abrirModal(nombreInicial = ''): void {
     this.limpiarForm();
@@ -106,24 +117,57 @@ export class GestionEntrenamientoComponent implements OnInit {
 
   // ── Ejercicios ────────────────────────────────────────────────────────────
 
+  seleccionarSugerencia(sugerencia: EjercicioSugerencia): void {
+  // 1. Guardamos el objeto completo (incluyendo el ID real de la DB)
+  this.ejercicioSeleccionado.set(sugerencia); 
+  
+  // 2. Sincronizamos el nombre para la UI
+  this.nuevoNombre.set(sugerencia.nombre); 
+  
+  // 3. Cerramos la lista de sugerencias
+  this.mostrarSugerencias.set(false); 
+}
+
   agregarEjercicio(): void {
-    const nombre = this.nuevoNombre().trim();
-    if (!nombre) return;
-    this.entrenamiento.registrarUsoEjercicio(nombre);
+    const maestro = this.ejercicioSeleccionado();
+    const nombreEnInput = this.nuevoNombre().trim();
+
+    // 1. Validamos que exista un ejercicio seleccionado
+    if (!maestro) {
+      alert('Debes seleccionar un ejercicio de la lista de sugerencias.');
+      return;
+    }
+
+    // 2. Validamos coincidencia ignorando mayúsculas/minúsculas
+    // Esto evita que falle por una letra minúscula
+    if (maestro.nombre.toLowerCase() !== nombreEnInput.toLowerCase()) {
+      alert('El nombre no coincide con el ejercicio seleccionado. Por favor, selecciona uno de la lista.');
+      return;
+    }
+
+    // 3. Si todo está bien, creamos el objeto para la sesión
     const ej: EjercicioManual = {
-      id: crypto.randomUUID(),
-      nombre,
+      id: maestro.id, // ID real de la DB
+      nombre: maestro.nombre, // Nombre oficial del catálogo
       series: this.nuevoSeries(),
-      reps:   this.nuevoReps().trim() || '10',
-      notas:  this.nuevoNotas().trim(),
+      reps: this.nuevoReps().toString().trim() || '10',
+      notas: this.nuevoNotas().trim(),
     };
+
     const idx = this.sesionActivaIdx();
-    this.sesiones.update(l => {
-      const n = [...l];
-      n[idx] = { ...n[idx], ejercicios: [...n[idx].ejercicios, ej] };
-      return n;
+    this.sesiones.update(lista => {
+      const nuevasSesiones = [...lista];
+      const sesion = nuevasSesiones[idx];
+      if (sesion) {
+        nuevasSesiones[idx] = {
+          ...sesion,
+          ejercicios: [...sesion.ejercicios, ej]
+        };
+      }
+      return nuevasSesiones;
     });
-    this.limpiarForm();
+
+    this.cerrarModal(); // Esto debería limpiar el form y el ejercicioSeleccionado
   }
 
   quitarEjercicio(sesionIdx: number, ejId: string): void {
@@ -147,6 +191,7 @@ export class GestionEntrenamientoComponent implements OnInit {
     this.nuevoSeries.set(3);
     this.nuevoReps.set('10');
     this.nuevoNotas.set('');
+    this.ejercicioSeleccionado.set(null);
   }
 
   // ── Guardar / eliminar ────────────────────────────────────────────────────

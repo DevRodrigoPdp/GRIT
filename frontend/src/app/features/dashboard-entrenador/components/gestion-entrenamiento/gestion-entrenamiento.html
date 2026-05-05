@@ -79,7 +79,7 @@
                 @for (sug of sugs; track sug.id) {
                   <button
                     type="button"
-                    (mousedown)="nuevoNombre.set(sug.nombre); mostrarSugerencias.set(false)"
+                    (mousedown)="seleccionarSugerencia(sug)"
                     class="text-left px-3 py-2 hover:bg-[#F9FAFB] border-t border-[#F3F4F6] first:border-t-0 transition-colors flex items-center justify-between gap-4 flex-shrink-0"
                   >
                     <span class="text-sm font-bold uppercase tracking-tight text-black">{{ sug.nombre }}</span>

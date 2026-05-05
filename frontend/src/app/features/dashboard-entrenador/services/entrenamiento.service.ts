@@ -87,7 +87,7 @@ export class EntrenamientoService {
         if (q.length < 2) { this.sugerenciasCache.set([]); return of(null); }
         this.cargandoSugerencias.set(true);
         return this.http
-          .get<PagedResponse<EjercicioSugerencia>>(`${this.API_EJ}/search`, { params: { q, page: 0 }, withCredentials: true })
+          .get<PagedResponse<EjercicioSugerencia>>(`${this.API_EJ}/search`, { params: { q, page: 0, size: 15}, withCredentials: true })
           .pipe(catchError(() => of(null)));
       }),
       takeUntilDestroyed(this.destroyRef),
@@ -124,7 +124,7 @@ export class EntrenamientoService {
         sesiones: (x.sesiones ?? []).map((s: any) => ({
           ...s,
           ejercicios: (s.ejercicios ?? []).map((e: any) => ({
-            id:     e.ejercicio?.id     ?? crypto.randomUUID(),
+            id:     e.ejercicio?.id,
             nombre: e.ejercicio?.nombre ?? '',
             series: e.series,
             reps:   e.reps,
