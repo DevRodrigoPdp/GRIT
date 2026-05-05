@@ -194,7 +194,7 @@ export class NutricionService {
 
   activarPlan(_atletaId: string, planId: string): Observable<void> {
     return this.http
-      .put<ApiResponse<void>>(`${this.API}/planes/${planId}/activar`, {}, { withCredentials: true })
+      .patch<ApiResponse<void>>(`${this.API}/planes/${planId}/activar`, {}, { withCredentials: true })
       .pipe(map(() => undefined));
   }
 

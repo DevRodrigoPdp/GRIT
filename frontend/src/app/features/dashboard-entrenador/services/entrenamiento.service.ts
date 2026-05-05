@@ -173,7 +173,7 @@ export class EntrenamientoService {
 
   activarRutina(_atletaId: string, rutinaId: string): Observable<void> {
     return this.http
-      .put<ApiResponse<void>>(`${this.API}/rutinas/${rutinaId}/activar`, {})
+      .patch<ApiResponse<void>>(`${this.API}/rutinas/${rutinaId}/activar`, {})
       .pipe(map(() => undefined));
   }
 
