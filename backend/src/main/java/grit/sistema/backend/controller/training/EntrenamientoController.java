@@ -30,7 +30,7 @@ import java.util.UUID;
 public class EntrenamientoController {
     private final EntrenamientoService entrenamientoService;
 
-    @PatchMapping("/{rutinaId}/activar")
+    @PatchMapping("/rutinas/{rutinaId}/activar")
     public ResponseEntity<Void> activarRutina(
             @PathVariable UUID rutinaId,
             @AuthenticationPrincipal UserPrincipal usuario
