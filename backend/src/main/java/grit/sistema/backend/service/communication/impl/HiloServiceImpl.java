@@ -1,7 +1,6 @@
 package grit.sistema.backend.service.communication.impl;
 
-import grit.sistema.backend.dto.communication.CrearHiloDTO;
-import grit.sistema.backend.dto.communication.HiloResumenDTO;
+import grit.sistema.backend.dto.communication.*;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
@@ -27,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,7 +42,7 @@ public class HiloServiceImpl implements HiloService {
 
     @Override
     @Transactional
-    public Hilo crearHilo(CrearHiloDTO dto, List<MultipartFile> archivos, UUID emisorId) {
+    public HiloDetalleDTO crearHilo(CrearHiloDTO dto, List<MultipartFile> archivos, UUID emisorId) {
         log.info("Creando hilo: '{}' para Atleta ID: {}", dto.titulo(), dto.atletaId());
 // 1. Validar que el atleta existe
         Atleta atleta = atletaRepository.findById(dto.atletaId())
@@ -88,7 +88,7 @@ public class HiloServiceImpl implements HiloService {
         // 6. Actualizar registro de lectura
         actualizarEstadoLectura(guardado, emisor);
 
-        return guardado;
+        return mapToDetalleDTO(guardado, emisorId);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class HiloServiceImpl implements HiloService {
 
     @Override
     @Transactional
-    public Hilo obtenerDetalleHilo(UUID hiloId, UUID usuarioId) {
+    public HiloDetalleDTO obtenerDetalleHilo(UUID hiloId, UUID usuarioId) {
         Hilo hilo = hiloRepository.findById(hiloId)
                 .orElseThrow(() -> new EntityNotFoundException("Hilo no encontrado"));
 
@@ -111,12 +111,12 @@ public class HiloServiceImpl implements HiloService {
         Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
         actualizarEstadoLectura(hilo, usuario);
 
-        return hilo;
+        return mapToDetalleDTO(hilo, usuarioId);
     }
 
     @Override
     @Transactional
-    public Mensaje responderHilo(UUID hiloId, String texto, List<MultipartFile> archivos, UUID emisorId) {
+    public MensajeDTO responderHilo(UUID hiloId, String texto, List<MultipartFile> archivos, UUID emisorId) {
         log.info("Usuario {} respondiendo al hilo {}", emisorId, hiloId);
 
         // 1. Recuperar el hilo y validar existencia
@@ -146,7 +146,7 @@ public class HiloServiceImpl implements HiloService {
         // 6. Sincronizar lectura: El emisor está al día
         actualizarEstadoLectura(hilo, emisor);
 
-        return guardado;
+        return mapToMensajeDTO(guardado);
     }
 
     @Override
@@ -213,5 +213,41 @@ public class HiloServiceImpl implements HiloService {
             // 5. Vincular al mensaje (Relación bidireccional)
             mensaje.getAdjuntos().add(adjunto);
         }
+    }
+
+    private HiloDetalleDTO mapToDetalleDTO(Hilo hilo, UUID usuarioId) {
+        List<MensajeDTO> mensajesDTO = hilo.getMensajes().stream()
+                .map(this::mapToMensajeDTO)
+                .toList();
+
+        return new HiloDetalleDTO(
+                hilo.getId(),
+                hilo.getTitulo(),
+                hilo.getCategoria(),
+                hilo.getContexto(),
+                hilo.getCreadoPor(),
+                hilo.getCreadoEn(),
+                true, // Si lo acaba de abrir/crear, está leído para él
+                mensajesDTO
+        );
+    }
+
+    private MensajeDTO mapToMensajeDTO(Mensaje m) {
+        List<AdjuntoDTO> adjuntosDTO = m.getAdjuntos().stream()
+                .map(a -> new AdjuntoDTO(
+                        a.getId(),
+                        storageService.getPresignedUrl(a.getS3Key()), // Generar URL temporal
+                        a.getTipo(),
+                        a.getNombreOriginal()
+                ))
+                .toList();
+
+        return new MensajeDTO(
+                m.getId(),
+                m.getTexto(),
+                m.getEnviadoPor(),
+                m.getEnviadoEn(),
+                adjuntosDTO
+        );
     }
 }

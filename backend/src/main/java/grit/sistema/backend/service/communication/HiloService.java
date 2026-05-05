@@ -1,7 +1,9 @@
 package grit.sistema.backend.service.communication;
 
 import grit.sistema.backend.dto.communication.CrearHiloDTO;
+import grit.sistema.backend.dto.communication.HiloDetalleDTO;
 import grit.sistema.backend.dto.communication.HiloResumenDTO;
+import grit.sistema.backend.dto.communication.MensajeDTO;
 import grit.sistema.backend.entity.communication.Hilo;
 import grit.sistema.backend.entity.communication.Mensaje;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
@@ -15,7 +17,7 @@ public interface HiloService {
     /**
      * Crea un nuevo hilo con su primer mensaje y adjuntos opcionales.
      */
-    Hilo crearHilo(CrearHiloDTO dto, List<MultipartFile> archivos, UUID emisorId);
+    HiloDetalleDTO crearHilo(CrearHiloDTO dto, List<MultipartFile> archivos, UUID emisorId);
 
     /**
      * Obtiene los hilos de un atleta filtrados por contexto (ENTRENAMIENTO/NUTRICION).
@@ -26,12 +28,12 @@ public interface HiloService {
     /**
      * Obtiene un hilo completo por su ID, marcándolo como leído para el usuario.
      */
-    Hilo obtenerDetalleHilo(UUID hiloId, UUID usuarioAutenticadoId);
+    HiloDetalleDTO obtenerDetalleHilo(UUID hiloId, UUID usuarioAutenticadoId);
 
     /**
      * Añade un nuevo mensaje a un hilo existente.
      */
-    Mensaje responderHilo(UUID hiloId, String texto, List<MultipartFile> archivos, UUID emisorId);
+    MensajeDTO responderHilo(UUID hiloId, String texto, List<MultipartFile> archivos, UUID emisorId);
 
     /**
      * Marca un hilo como leído manualmente.

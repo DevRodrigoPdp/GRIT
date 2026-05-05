@@ -1,7 +1,9 @@
 package grit.sistema.backend.controller.communication;
 
 import grit.sistema.backend.dto.communication.CrearHiloDTO;
+import grit.sistema.backend.dto.communication.HiloDetalleDTO;
 import grit.sistema.backend.dto.communication.HiloResumenDTO;
+import grit.sistema.backend.dto.communication.MensajeDTO;
 import grit.sistema.backend.entity.communication.Hilo;
 import grit.sistema.backend.entity.communication.Mensaje;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
@@ -26,7 +28,7 @@ public class ComunicacionController {
     private final HiloService hiloService;
 
     @PostMapping(value = "/hilos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Hilo> crearHilo(
+    public ResponseEntity<HiloDetalleDTO> crearHilo(
             @RequestPart("datos") @Valid CrearHiloDTO dto,
             @RequestPart(value = "archivos", required = false) List<MultipartFile> archivos,
             @AuthenticationPrincipal UserPrincipal emisor
@@ -45,7 +47,7 @@ public class ComunicacionController {
     }
 
     @GetMapping("/hilos/{id}")
-    public ResponseEntity<Hilo> verDetalle(
+    public ResponseEntity<HiloDetalleDTO> verDetalle(
             @PathVariable UUID id,
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
@@ -53,7 +55,7 @@ public class ComunicacionController {
     }
 
     @PostMapping(value = "/hilos/{id}/mensajes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Mensaje> responder(
+    public ResponseEntity<MensajeDTO> responder(
             @PathVariable UUID id,
             @RequestPart("texto") String texto,
             @RequestPart(value = "archivos", required = false) List<MultipartFile> archivos,
