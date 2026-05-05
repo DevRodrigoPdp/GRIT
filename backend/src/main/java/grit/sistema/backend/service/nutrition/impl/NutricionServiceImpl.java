@@ -13,6 +13,7 @@ import grit.sistema.backend.repository.nutrition.PlanNutricionRepository;
 import grit.sistema.backend.service.nutrition.NutricionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NutricionServiceImpl implements NutricionService {
     private final PlanNutricionRepository planRepository;
     private final AlimentoRecienteRepository recienteRepository;
@@ -41,16 +43,19 @@ public class NutricionServiceImpl implements NutricionService {
     @Override
     @Transactional
     public void activarPlan(UUID entrenadorId, UUID planId) {
+        // 1. Obtener el plan validando que pertenezca al entrenador (Seguridad)
         PlanNutricion plan = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
-                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Plan nutricional no encontrado"));
 
-        // 1. Desactivar plan actual del atleta (si existe)
-        planRepository.findByAtletaIdAndActivoTrue(plan.getAtleta().getId())
-                .ifPresent(p -> p.setActivo(false));
+        // 2. Desactivación atómica directa en DB
+        // Esto garantiza que el índice UNIQUE no salte al activar el siguiente
+        planRepository.desactivarPlanesActivos(plan.getAtleta().getId());
 
-        // 2. Activar el nuevo
+        // 3. Activar el nuevo y sincronizar
         plan.setActivo(true);
-        planRepository.save(plan);
+        planRepository.saveAndFlush(plan); // saveAndFlush es clave aquí
+
+        log.info("Plan de nutrición {} activado para atleta {}", planId, plan.getAtleta().getId());
     }
 
     @Override
