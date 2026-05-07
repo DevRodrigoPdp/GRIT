@@ -1,4 +1,4 @@
-package grit.sistema.backend.security.errorHandler;
+package grit.sistema.backend.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -16,23 +16,23 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void handle(HttpServletRequest request,
-                       HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) throws IOException {
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
 
         response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         ProblemDetail pb = ProblemDetail.forStatusAndDetail(
-                HttpStatus.FORBIDDEN,
-                "No tiene los privilegios necesarios para acceder a este recurso."
+                HttpStatus.UNAUTHORIZED,
+                "Token inválido, expirado o inexistente. Debe autenticarse para acceder."
         );
-        pb.setType(URI.create("https://api.GRIT.com/errors/forbidden"));
-        pb.setTitle("Acceso Denegado");
+        pb.setType(URI.create("https://api.GRIT.com/errors/unauthorized"));
+        pb.setTitle("No Autenticado");
         pb.setInstance(URI.create(request.getRequestURI()));
         pb.setProperty("timestamp", LocalDateTime.now());
 

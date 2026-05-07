@@ -2,8 +2,8 @@ package grit.sistema.backend.security.config;
 
 import grit.sistema.backend.security.filter.MDCFilter;
 import grit.sistema.backend.security.filter.RateLimitFilter;
-import grit.sistema.backend.security.errorHandler.CustomAccessDeniedHandler;
-import grit.sistema.backend.security.errorHandler.JwtAuthenticationEntryPoint;
+import grit.sistema.backend.security.handler.CustomAccessDeniedHandler;
+import grit.sistema.backend.security.handler.JwtAuthenticationEntryPoint;
 import grit.sistema.backend.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -72,9 +72,9 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(mdcFilter, JwtAuthenticationFilter.class)
-                .addFilterAfter(rateLimitFilter, MDCFilter.class);
+                .addFilterBefore(mdcFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthFilter, MDCFilter.class)
+                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

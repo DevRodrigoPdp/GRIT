@@ -3,7 +3,7 @@ package grit.sistema.backend.security;
 
 import grit.sistema.backend.exception.security.AccesoDenegadoException;
 import grit.sistema.backend.exception.business.TituloFaltanteException;
-import grit.sistema.backend.security.user.UserPrincipal;
+import grit.sistema.backend.security.model.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

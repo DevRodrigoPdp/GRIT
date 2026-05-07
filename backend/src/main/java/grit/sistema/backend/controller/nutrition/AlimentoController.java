@@ -4,7 +4,7 @@ import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoCrearRequestDTO;
 import grit.sistema.backend.dto.nutrition.AlimentoResponseDTO;
 import grit.sistema.backend.service.nutrition.AlimentoService;
-import grit.sistema.backend.security.user.UserPrincipal;
+import grit.sistema.backend.security.model.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

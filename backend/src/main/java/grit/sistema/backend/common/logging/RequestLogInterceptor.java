@@ -1,4 +1,4 @@
-package grit.sistema.backend.security.logging;
+package grit.sistema.backend.common.logging;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

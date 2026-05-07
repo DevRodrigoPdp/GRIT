@@ -1,4 +1,4 @@
-package grit.sistema.backend.security.user;
+package grit.sistema.backend.security.model;
 
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;

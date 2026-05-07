@@ -4,7 +4,7 @@ import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
 import grit.sistema.backend.dto.training.RutinaResponseDTO;
-import grit.sistema.backend.security.user.UserPrincipal;
+import grit.sistema.backend.security.model.UserPrincipal;
 import grit.sistema.backend.service.training.EntrenamientoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -3,7 +3,7 @@ package grit.sistema.backend.service.auth.impl;
 import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.auth.LoginRequestDTO;
 import grit.sistema.backend.dto.auth.LoginResponseDTO;
-import grit.sistema.backend.security.user.UserPrincipal;
+import grit.sistema.backend.security.model.UserPrincipal;
 import grit.sistema.backend.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package grit.sistema.backend.config.web;
 
-import grit.sistema.backend.security.logging.RequestLogInterceptor;
+import grit.sistema.backend.common.logging.RequestLogInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

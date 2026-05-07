@@ -4,7 +4,7 @@ import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.exception.security.AccountNotActiveException;
 import grit.sistema.backend.repository.user.UsuarioRepository;
-import grit.sistema.backend.security.user.UserPrincipal;
+import grit.sistema.backend.security.model.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

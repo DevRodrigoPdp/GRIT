@@ -1,4 +1,4 @@
-package grit.sistema.backend.event;
+package grit.sistema.backend.common.event;
 
 import grit.sistema.backend.dto.common.ArchivosAEliminarEventDTO;
 import grit.sistema.backend.service.common.StorageService;
@@ -11,7 +11,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UsuarioEntityListener {
+public class UsuarioCleanupListener {
 
     private final StorageService storageService;
 
