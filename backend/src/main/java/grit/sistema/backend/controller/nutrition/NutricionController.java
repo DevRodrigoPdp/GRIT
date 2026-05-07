@@ -37,7 +37,6 @@ public class NutricionController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(required = false) UUID atletaId
     ) {
-        log.info("Listando planes de nutrición para entrenador {} y atleta {}", principal.getEmail(), atletaId);
         List<PlanNutricionResponseDTO> planes = nutricionService.listarPlanes(principal.getId(), atletaId);
         return ResponseEntity.ok(ApiResponseDTO.success(planes, "Planes de nutrición encontrados"));
     }
@@ -48,7 +47,6 @@ public class NutricionController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody PlanNutricionRequestDTO request
     ) {
-        log.info("Creando plan de nutrición para entrenador {} y atleta {}", principal.getEmail(), request.atletaId());
         PlanNutricionResponseDTO response = nutricionService.crearPlan(principal.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.success(response, "Plan de nutrición creado correctamente"));
     }
@@ -60,7 +58,6 @@ public class NutricionController {
             @PathVariable UUID id,
             @Valid @RequestBody PlanNutricionRequestDTO request
     ) {
-        log.info("Actualizando plan de nutrición {} por entrenador {}", id, principal.getEmail());
 
         // Delegamos al servicio pasando el ID de la URL y el ID del token
         PlanNutricionResponseDTO response = nutricionService.actualizarPlan(principal.getId(), id, request);
@@ -74,8 +71,6 @@ public class NutricionController {
             @AuthenticationPrincipal UserPrincipal entrenador,
             @PathVariable UUID planId) {
 
-        log.info("Entrenador {} activando plan de nutrición {}", entrenador.getId(), planId);
-
         nutricionService.activarPlan(entrenador.getId(), planId);
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Plan activado correctamente", null));
@@ -87,7 +82,6 @@ public class NutricionController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID id
     ) {
-        log.info("Eliminando plan de nutrición {} por entrenador {}", id, principal.getEmail());
         nutricionService.eliminarPlan(principal.getId(), id);
         return ResponseEntity.ok(ApiResponseDTO.success(null, "Plan de nutrición eliminado correctamente"));
     }
@@ -98,7 +92,6 @@ public class NutricionController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam String comida
     ) {
-        log.info("Listando alimentos recientes para entrenador {} y comida {}", principal.getEmail(), comida);
         List<AlimentoRecienteDTO> recientes = nutricionService.listarAlimentosRecientes(principal.getId(), comida);
         return ResponseEntity.ok(ApiResponseDTO.success(recientes, "Alimentos recientes encontrados"));
     }
@@ -109,7 +102,6 @@ public class NutricionController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody AlimentoRecienteRequestDTO request
     ) {
-        log.info("Registrando alimento reciente para entrenador {} y comida {}", principal.getEmail(), request.nombreComida());
         nutricionService.registrarAlimentoReciente(principal.getId(), request);
         return ResponseEntity.ok(ApiResponseDTO.success(null, "Alimento reciente registrado correctamente"));
     }

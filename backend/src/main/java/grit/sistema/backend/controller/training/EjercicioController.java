@@ -42,7 +42,6 @@ public class EjercicioController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         String query = (q != null) ? q.trim() : "";
-        log.info("Buscando ejercicios: '{}' [Pág: {}]", query, page);
         Page<EjercicioDTO> resultados = ejercicioService.buscadorGlobal(query, pageable);
         return ResponseEntity.ok(resultados);
     }

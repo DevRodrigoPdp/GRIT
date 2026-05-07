@@ -14,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
@@ -50,6 +51,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+        log.warn("Credenciales inválidas {}: {}", request.getRequestURI(), ex.getMessage());
+
         return createProblemDetail(HttpStatus.UNAUTHORIZED,
                 "authentication-failure",
                 "Credenciales inválidas",
@@ -84,6 +87,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.security.authentication.AuthenticationCredentialsNotFoundException.class)
     public ProblemDetail handleAuthCredentialsNotFound(Exception ex, HttpServletRequest request) {
+        log.warn("No Autenticado {}: {}", request.getRequestURI(), ex.getMessage());
         return createProblemDetail(HttpStatus.UNAUTHORIZED, "No Autenticado", "No se encontraron credenciales de autenticación.", request);
     }
 
@@ -99,7 +103,9 @@ public class GlobalExceptionHandler {
     // --- En Validaciones ---
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        // Usamos el slug "validation-error"
+        log.warn("Error de Validación {}: {}",
+                request.getRequestURI(), ex.getMessage());
+
         ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Error de Validación",
                 "Uno o más campos no cumplen con los requisitos.", "validation-error", request);
 
@@ -112,6 +118,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        log.warn("Tipo de Parámetro Incorrecto {}: {}",
+                request.getRequestURI(), ex.getMessage());
         String detail = String.format("El parámetro '%s' con valor '%s' no pudo ser convertido al tipo '%s'",
                 ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
 
@@ -125,6 +133,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ProblemDetail handleMissingParams(MissingServletRequestParameterException ex, HttpServletRequest request) {
+        log.warn("Parámetro Faltante {}: {}",
+                request.getRequestURI(), ex.getMessage());
         ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Parámetro Faltante",
                 "Falta un parámetro requerido en la URL.", request);
         pb.setProperty("parameter_name", ex.getParameterName());
@@ -133,6 +143,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingPathVariableException.class)
     public ProblemDetail handleMissingPathVariable(MissingPathVariableException ex, HttpServletRequest request) {
+        log.warn("Variable de ruta faltante {}: {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(
                 HttpStatus.BAD_REQUEST,
                 "Variable de ruta faltante",
@@ -143,12 +155,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ProblemDetail handleReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        log.warn("JSON Mal Formado {}: {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(HttpStatus.BAD_REQUEST, "JSON Mal Formado",
                 "No se pudo leer el cuerpo de la petición. Verifique la sintaxis JSON.", request);
     }
 
     @ExceptionHandler(com.fasterxml.jackson.databind.exc.InvalidFormatException.class)
     public ProblemDetail handleInvalidFormat(com.fasterxml.jackson.databind.exc.InvalidFormatException ex, HttpServletRequest request) {
+        log.warn("Formato JSON Inválido {}: {}",
+                request.getRequestURI(), ex.getMessage());
         String detail = String.format("El valor '%s' no es válido para el campo '%s'.",
                 ex.getValue(), ex.getPath().get(0).getFieldName());
         return createProblemDetail(HttpStatus.BAD_REQUEST, "Formato JSON Inválido", detail, "invalid-format", request);
@@ -156,6 +172,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ProblemDetail handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        log.warn("Método No Permitido {}: {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(HttpStatus.METHOD_NOT_ALLOWED, "Método No Permitido",
                 "El método " + ex.getMethod() + " no está soportado en este endpoint.", request);
     }
@@ -167,6 +185,8 @@ public class GlobalExceptionHandler {
             ResourceNotFoundException.class
     })
     public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+        log.warn("Recurso no encontrado {}: {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(
                 HttpStatus.NOT_FOUND,
                 "Recurso no encontrado",
@@ -178,6 +198,8 @@ public class GlobalExceptionHandler {
     // 1. CONCURRENCIA: Cuando dos usuarios editan lo mismo
     @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
     public ProblemDetail handleOptimisticLocking(Exception ex, HttpServletRequest request) {
+        log.warn("Conflicto de actualización {}: {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(
                 HttpStatus.CONFLICT,
                 "Conflicto de actualización",
@@ -189,6 +211,8 @@ public class GlobalExceptionHandler {
     // 2. ERROR DE ENLACE: Fallos en Query Params o Model Attributes
     @ExceptionHandler(org.springframework.validation.BindException.class)
     public ProblemDetail handleBindException(org.springframework.validation.BindException ex, HttpServletRequest request) {
+        log.warn("Error de vinculación {}: {}",
+                request.getRequestURI(), ex.getMessage());
         ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Error de vinculación",
                 "Los parámetros de la petición no son válidos.", "bind-error", request);
 
@@ -202,6 +226,8 @@ public class GlobalExceptionHandler {
     // 3. RECURSO ESTATICO O RUTA INEXISTENTE (Spring Boot 3.2+)
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ProblemDetail handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex, HttpServletRequest request) {
+        log.warn("Endpoint no encontrado {}: {} - {}",
+                request.getRequestURI(),ex.getStatusCode(), ex.getMessage());
         return createProblemDetail(
                 HttpStatus.NOT_FOUND,
                 "Endpoint no encontrado",
@@ -212,6 +238,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({UsuarioExistenteException.class, SesionActivaException.class})
     public ProblemDetail handleConflicts(Exception ex, HttpServletRequest request) {
+        log.warn("Conflicto de Negocio {}:  {}",
+                request.getRequestURI() , ex.getMessage());
         return createProblemDetail(HttpStatus.CONFLICT, "Conflicto de Negocio", ex.getMessage(), request);
     }
 
@@ -224,6 +252,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.beans.InvalidPropertyException.class)
     public ProblemDetail handleInvalidProperty(org.springframework.beans.InvalidPropertyException ex, HttpServletRequest request) {
+        log.warn("Propiedad de Objeto Inválida: {}", ex.getMostSpecificCause().getMessage());
         return createProblemDetail(HttpStatus.BAD_REQUEST, "Propiedad de Objeto Inválida", ex.getMessage(), request);
     }
 
@@ -243,6 +272,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+        log.warn("Violación de Restricción {}:  {}",
+                request.getRequestURI() , ex.getMessage());
         ProblemDetail pb = createProblemDetail(
                 HttpStatus.BAD_REQUEST,
                 "Violación de Restricción",
@@ -265,6 +296,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ProblemDetail handleMaxSizeException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        log.warn("Archivo demasiado grande {}:  {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(
                 HttpStatus.PAYLOAD_TOO_LARGE,
                 "Archivo demasiado grande",
@@ -276,6 +309,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RateLimitException.class)
     public ProblemDetail handleRateLimit(RateLimitException ex, HttpServletRequest request) {
+        log.warn("Se ha excedido el límite de peticiones {}:  {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(
                 HttpStatus.TOO_MANY_REQUESTS,
                 "Demasidas peticiones",
@@ -286,6 +321,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PwnedPasswordException.class)
     public ProblemDetail handlePwnedPassword(PwnedPasswordException ex, HttpServletRequest request) {
+        log.warn("Contraseña insegura o comprometida {}: {}",
+                request.getRequestURI(), ex.getMessage());
         return createProblemDetail(
                 HttpStatus.BAD_REQUEST,
                 "Contraseña comprometida",
@@ -298,7 +335,9 @@ public class GlobalExceptionHandler {
      * Captura específicamente el error de Content-Type incorrecto (415).
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ProblemDetail handleTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+    public ProblemDetail handleTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
+        log.warn("Content-Type incorrecto {}: {} - {}",
+                request.getRequestURI(),ex.getStatusCode(), ex.getMessage());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNSUPPORTED_MEDIA_TYPE,
                 "El formato de la petición no es válido."
@@ -318,7 +357,9 @@ public class GlobalExceptionHandler {
      * Captura errores de lógica de negocio personalizados (Ejemplo: Archivo muy grande o error en MinIO).
      */
     @ExceptionHandler(FileStorageException.class)
-    public ProblemDetail handleFileStorageException(FileStorageException ex) {
+    public ProblemDetail handleFileStorageException(FileStorageException ex, HttpServletRequest request) {
+        log.warn("Archivo demasiado pesado o error en almacenamiento {}:  {}",
+                request.getRequestURI(), ex.getMessage());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 ex.getMessage()
@@ -363,12 +404,18 @@ public class GlobalExceptionHandler {
     /**
      * Método utilitario para construir ProblemDetail bajo estándar RFC 7807
      */
-    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, String errorSlug,HttpServletRequest request) {
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, String errorSlug, HttpServletRequest request) {
         ProblemDetail pb = ProblemDetail.forStatusAndDetail(status, detail);
+
+        String traceId = MDC.get("traceId");
+
         pb.setType(URI.create(ERR_DOC_URL + errorSlug));
         pb.setTitle(title);
         pb.setInstance(URI.create(request.getRequestURI()));
-        pb.setProperty("timestamp", LocalDateTime.now()); // Información extra útil
+
+        pb.setProperty("traceId", traceId != null ? traceId : "N/A");
+        pb.setProperty("timestamp", LocalDateTime.now());
+
         return pb;
     }
 

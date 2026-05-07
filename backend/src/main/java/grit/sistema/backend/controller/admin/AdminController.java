@@ -35,7 +35,6 @@ public class AdminController {
 
     @GetMapping("/usuarios")
     public ResponseEntity<List<UsuarioResponseDTO>> getAllUsuarios() {
-        log.info("Iniciando getAllUsuarios");
         return ResponseEntity.ok(usuarioService.findAll());
     }
 
@@ -48,7 +47,6 @@ public class AdminController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         String query = (search != null) ? search.trim() : "";
-        log.info("Admin buscando usuarios: '{}' [Página: {}]", query, page);
         return ResponseEntity.ok(adminService.buscarUsuarios(query, pageable));
     }
 
@@ -66,8 +64,6 @@ public class AdminController {
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
             @RequestParam(defaultValue = "15") @Min(1) @Max(50) int size) {
-        log.info("Admin solicitando lista de entrenadores pendientes. Filtro: '{}'", search);
-
         Page<EntrenadorBusquedaDTO> resultado = adminService.obtenerPendientesBuscador(search, page, size);
 
         return ResponseEntity.ok(resultado);

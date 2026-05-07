@@ -1,5 +1,6 @@
 package grit.sistema.backend.security.config;
 
+import grit.sistema.backend.security.filter.MDCFilter;
 import grit.sistema.backend.security.filter.RateLimitFilter;
 import grit.sistema.backend.security.errorHandler.CustomAccessDeniedHandler;
 import grit.sistema.backend.security.errorHandler.JwtAuthenticationEntryPoint;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final AuthenticationProvider authenticationProvider;
     private final RateLimitFilter rateLimitFilter;
+    private final MDCFilter mdcFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -71,7 +73,8 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class);
+                .addFilterAfter(mdcFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(rateLimitFilter, MDCFilter.class);
 
         return http.build();
     }
@@ -98,11 +101,12 @@ public class SecurityConfig {
                 "X-RateLimit-Limit",
                 "X-RateLimit-Remaining",
                 "X-RateLimit-Retry-After",
+                "X-Trace-Id",
                 "Accept"
         ));
 
         // Permitir que el cliente acceda a ciertas cabeceras si fuera necesario
-        config.setExposedHeaders(List.of("Authorization"));
+        config.setExposedHeaders(List.of("Authorization", "X-Trace-Id"));
 
         // Permitir envío de cookies/credenciales si fuera necesario
         config.setAllowCredentials(true);

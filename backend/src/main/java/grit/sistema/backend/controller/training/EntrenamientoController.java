@@ -46,7 +46,6 @@ public class EntrenamientoController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(required = false) UUID atletaId
     ) {
-        log.info("Listando rutinas de entrenamiento para entrenador {} y atleta {}", principal.getEmail(), atletaId);
         List<RutinaDTO> rutinas = entrenamientoService.listarRutinas(principal.getId(), atletaId);
         return ResponseEntity.ok(ApiResponseDTO.success(rutinas, "Rutinas encontradas"));
     }
@@ -57,7 +56,6 @@ public class EntrenamientoController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody RutinaRequestDTO request
     ) {
-        log.info("Creando rutina de entrenamiento para entrenador {} y atleta {}", principal.getEmail(), request.atletaId());
         RutinaResponseDTO response = entrenamientoService.crearRutina(principal.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.success(response, "Rutina creada correctamente"));
     }
@@ -68,7 +66,6 @@ public class EntrenamientoController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID id
     ) {
-        log.info("Eliminando rutina {} por entrenador {}", id, principal.getEmail());
         entrenamientoService.eliminarRutina(principal.getId(), id);
         return ResponseEntity.ok(ApiResponseDTO.success(null, "Rutina eliminada correctamente"));
     }

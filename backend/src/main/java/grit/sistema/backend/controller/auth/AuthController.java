@@ -71,16 +71,12 @@ public class AuthController {
             @RequestPart("datos") @Valid EntrenadorRequestDTO dto,
             @RequestPart(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
             @RequestPart("certificaciones") List<MultipartFile> certificaciones) {
-        log.info(">>> Solicitud de registro de ENTRENADOR recibida: {}", dto.getEmail());
-
         EntrenadorResponseDTO data = entrenadorService.registrarEntrenador(dto, fotoPerfil, certificaciones);
 
         ApiResponseDTO<EntrenadorResponseDTO> respuesta = ApiResponseDTO.success(
                 data,
                 "Solicitud recibida. Revisaremos tus credenciales en un plazo máximo de 48h y te notificaremos por correo."
         );
-
-        log.info("<<< Entrenador registrado exitosamente en estado PENDIENTE: {}", dto.getEmail());
 
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
@@ -97,7 +93,6 @@ public class AuthController {
     public ResponseEntity<AtletaResponseDTO> registrarAtleta(
             @RequestPart("datos") @Valid AtletaRequestDTO dto,
             @RequestPart(value = "fotoPerfil", required = false) MultipartFile foto) {
-        log.info(">>> Solicitud de registro de atleta recibida: {}", dto.email());
 
         AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto, foto);
 
@@ -105,8 +100,6 @@ public class AuthController {
         String refreshToken = jwtUtils.generarRefreshToken(dto.email());
 
         HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
-
-        log.info("<<< Atleta registrado y tokens emitidos en cookies para: {}", dto.email());
 
         return new ResponseEntity<>(respuesta, headers, HttpStatus.CREATED);
     }
@@ -121,7 +114,6 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDto) {
-        log.info(">>> Solicitud de login recibida para el email: {}", loginDto.email());
 
         LoginResponseDTO response = authService.login(loginDto);
 
@@ -132,8 +124,6 @@ public class AuthController {
 
         HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
 
-        // Log de éxito
-        log.info("<<< Login exitoso para el usuario con email: {}", loginDto.email());
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
@@ -144,7 +134,6 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Sesión cerrada exitosamente")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-        log.info(">>> Solicitud de cierre de sesión");
 
         // Para cerrar sesión, enviamos cookies vacías con tiempo de vida 0
         ResponseCookie accessCookie = construirCookie("access_token", "", 0, "/");
@@ -171,8 +160,6 @@ public class AuthController {
             @Parameter(hidden = true)
             @CookieValue(name = "refresh_token", required = false) String refreshToken) {
 
-        log.info(">>> Solicitud de refresco de token recibida");
-
         if (refreshToken == null || !jwtUtils.esTokenValido(refreshToken, jwtUtils.extraerEmail(refreshToken))) {
             log.warn("Refresh token ausente o inválido");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -198,7 +185,6 @@ public class AuthController {
         LoginData data = usuarioService.obtenerDatosParaRefresh(email);
         LoginResponseDTO response = new LoginResponseDTO(true, data);
 
-        log.info("<<< Token refrescado exitosamente para: {}", email);
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
@@ -209,11 +195,8 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<MeResponseDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
-            log.warn("Intento de acceso a /me sin autenticación válida");
             throw new SesionActivaException("Intento de acceso a /me inválido");
         }
-
-        log.info(">>> Restaurando sesión para: {}", userDetails.getUsername());
 
         MeResponseDTO response = usuarioService.obtenerMiInformacion(userDetails.getUsername());
 

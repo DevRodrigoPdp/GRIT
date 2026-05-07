@@ -25,6 +25,10 @@ spring:
 server:
   port: ${PORT:8080}
 
+logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss}){faint} %clr(%-5level) %clr([%X{traceId}]){magenta} %clr([%X{user}]){cyan} %clr(%logger{36}){blue} %clr(-){faint} %msg%n"
+
 application:
   security:
     jwt:

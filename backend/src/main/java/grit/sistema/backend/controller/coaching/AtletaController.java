@@ -52,7 +52,6 @@ public class AtletaController {
     @Operation(summary = "Ver perfil del atleta")
     @GetMapping("/perfil")
     public ResponseEntity<ApiResponseDTO<AtletaPerfilDTO>> getPerfil(@AuthenticationPrincipal UserDetails userDetails) {
-        log.info("Consultando perfil para el atleta: {}", userDetails.getUsername());
         AtletaPerfilDTO perfilDTO = atletaService.obtenerPerfil(userDetails.getUsername());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta", perfilDTO));
     }
@@ -60,7 +59,6 @@ public class AtletaController {
     @Operation(summary = "Ver plan activo entrenamiento del atleta")
     @GetMapping("/entrenamiento/plan-activo")
     public ResponseEntity<ApiResponseDTO<RutinaDTO>> getPlanEntrenamientoActivo(@AuthenticationPrincipal UserPrincipal usuario) {
-        log.info("Consultando plan entrenamiento activo para el atleta: {}", usuario.getUsername());
         return entrenamientoService.getPlanEntrenamientoActivoAtleta(usuario.getId())
                 .map(plan -> ResponseEntity.ok(new ApiResponseDTO<>(true, "Plan entrenamiento activo", plan)))
                 .orElseGet(() -> ResponseEntity.ok(new ApiResponseDTO<>(true, "No hay plan entrenamiento activo", null)));
@@ -69,7 +67,6 @@ public class AtletaController {
     @Operation(summary = "Ver plan activo nutrición del atleta")
     @GetMapping("/nutricion/plan-activo")
     public ResponseEntity<PlanNutricionActivoResponseDTO> getPlanNutricionActivo(@AuthenticationPrincipal UserPrincipal usuario) {
-        log.info("Consultando plan activo nutrición para el atleta: {}", usuario.getUsername());
 
         PlanNutricionActivoResponseDTO response = nutricionService.getPlanNutricionActivoAtleta(usuario.getId());
 
@@ -79,7 +76,6 @@ public class AtletaController {
     @Operation(summary = "Ver profesionales asignados a un atleta")
     @GetMapping("/profesionales")
     public ResponseEntity<ApiResponseDTO<List<ProfesionalAsignadoDTO>>> getProfesionalesAsignados(@AuthenticationPrincipal UserPrincipal usuario) {
-        log.info("Consultando profesionales del atleta: {}", usuario.getUsername());
         List<ProfesionalAsignadoDTO> profesionales = atletaService.getProfesionalesAsignados(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Profesionales del atleta", profesionales));
     }

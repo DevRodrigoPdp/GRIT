@@ -55,7 +55,6 @@ public class AlimentoController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         String query = (q != null) ? q.trim() : "";
-        log.info("Buscador Global de Alimentos- Ejecutando búsqueda para: '{}' [Página: {}]", query, pageable.getPageNumber());
         Page<AlimentoResponseDTO> resultados = alimentoService.buscadorGlobal(query, pageable);
         return ResponseEntity.ok(ApiResponseDTO.success(resultados, "Resultados globales de alimentos encontrados"));
     }
@@ -72,7 +71,6 @@ public class AlimentoController {
             @RequestParam(required = false) String categoria,
             @PageableDefault(size = 15, sort = "nombre") Pageable pageable
     ) {
-        log.debug("Filtro Alimentos - q: '{}', cat: '{}'", q, categoria);
         Page<AlimentoResponseDTO> resultados = alimentoService.buscarAlimentos(q, categoria, pageable);
         return ResponseEntity.ok(ApiResponseDTO.success(resultados, "Listado filtrado obtenido"));
     }
@@ -92,7 +90,6 @@ public class AlimentoController {
             @Valid @RequestBody AlimentoCrearRequestDTO request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        log.info("Creando alimento: {} (usuario: {})", request.getNombre(), principal.getEmail());
         AlimentoResponseDTO alimento = alimentoService.crearAlimento(request, principal.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponseDTO.success(alimento, "Alimento creado correctamente"));

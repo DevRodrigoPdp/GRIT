@@ -18,7 +18,6 @@ public class UsuarioController {
 
     @GetMapping("/perfil")
     public ResponseEntity<UsuarioDTO> obtenerPerfil() {
-        log.info("Iniciando obtenerPerfil");
         return ResponseEntity.ok(usuarioService.obtenerUsuarioActual());
     }
 }
