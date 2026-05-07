@@ -60,8 +60,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public MeResponseDTO obtenerMiInformacion(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+    public MeResponseDTO obtenerMiInformacion(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         MeResponseDTO.MeData meData;

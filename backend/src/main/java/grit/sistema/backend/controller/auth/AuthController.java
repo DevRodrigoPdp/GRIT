@@ -187,10 +187,10 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<MeResponseDTO> getCurrentUser(@AuthenticationPrincipal UserPrincipal usuario) {
         if (usuario == null) {
-            throw new SesionActivaException("Intento de acceso a /me inválido");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        MeResponseDTO response = usuarioService.obtenerMiInformacion(usuario.getEmail());
+        MeResponseDTO response = usuarioService.obtenerMiInformacion(usuario.getId());
 
         return ResponseEntity.ok(response);
     }

@@ -17,7 +17,7 @@ public interface UsuarioService {
 
     UsuarioDTO findByEmail(String email);
 
-    MeResponseDTO obtenerMiInformacion(String email);
+    MeResponseDTO obtenerMiInformacion(UUID usuarioId);
 
     UsuarioDTO obtenerUsuarioActual();
 

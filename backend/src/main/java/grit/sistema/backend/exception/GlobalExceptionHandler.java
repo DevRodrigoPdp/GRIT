@@ -53,7 +53,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         log.warn("Credenciales inválidas {}: {}", request.getRequestURI(), ex.getMessage());
 
-        return createProblemDetail(HttpStatus.UNAUTHORIZED,
+        return createProblemDetail(
+                HttpStatus.UNAUTHORIZED,
                 "authentication-failure",
                 "Credenciales inválidas",
                 "authentication-failure",
