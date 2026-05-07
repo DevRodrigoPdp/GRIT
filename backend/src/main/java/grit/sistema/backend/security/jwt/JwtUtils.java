@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -26,6 +27,37 @@ public class JwtUtils {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration; // 604800000 (7 días)
 
+    @Value("${application.security.cookie.secure}")
+    private boolean isSecure;
+
+    public ResponseCookie generateAccessCookie(String email, String rol) {
+        String token = generarAccessToken(email, rol);
+        return buildCookie("access_token", token, jwtExpiration / 1000, "/");
+    }
+
+    public ResponseCookie generateRefreshCookie(String email) {
+        String token = generarRefreshToken(email);
+        return buildCookie("refresh_token", token, refreshExpiration / 1000, "/api/v1/auth/refresh");
+    }
+
+    private ResponseCookie buildCookie(String name, String value, long maxAge, String path) {
+        return ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(isSecure)
+                .sameSite("Strict")
+                .path(path)
+                .maxAge(maxAge)
+                .build();
+    }
+
+    public ResponseCookie getCleanAccessCookie() {
+        return buildCookie("access_token", "", 0, "/");
+    }
+
+    public ResponseCookie getCleanRefreshCookie() {
+        return buildCookie("refresh_token", "", 0, "/api/v1/auth/refresh");
+    }
+
     public String generarAccessToken(String email, String rol) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("rol", rol.startsWith("ROLE_") ? rol : "ROLE_" + rol);
@@ -33,7 +65,6 @@ public class JwtUtils {
     }
 
     public String generarRefreshToken(String email) {
-        // El refresh token suele llevar menos info por seguridad
         return construirToken(new HashMap<>(), email, refreshExpiration);
     }
 

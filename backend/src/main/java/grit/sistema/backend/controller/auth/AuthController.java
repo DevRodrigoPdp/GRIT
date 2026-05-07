@@ -47,16 +47,6 @@ public class AuthController {
     private final EntrenadorService entrenadorService;
     private final JwtUtils jwtUtils;
 
-    // Inyectamos las mismas variables que en JwtService
-    @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
-
-    @Value("${application.security.cookie.secure}")
-    private boolean isSecure;
-
-    @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
-
     @Operation(
             summary = "Registro de Entrenador",
             description = "Registra un nuevo entrenador. Requiere datos personales y archivos de titulación (Multipart). El estado inicial será PENDIENTE_REVISION."
@@ -96,12 +86,13 @@ public class AuthController {
 
         AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto, foto);
 
-        String accessToken = jwtUtils.generarAccessToken(dto.email(), Rol.ATLETA.name());
-        String refreshToken = jwtUtils.generarRefreshToken(dto.email());
+        ResponseCookie accessCookie = jwtUtils.generateAccessCookie(dto.email(), Rol.ATLETA.name());
+        ResponseCookie refreshCookie = jwtUtils.generateRefreshCookie(dto.email());
 
-        HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
-
-        return new ResponseEntity<>(respuesta, headers, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(respuesta);
     }
 
     @Operation(
@@ -117,14 +108,13 @@ public class AuthController {
 
         LoginResponseDTO response = authService.login(loginDto);
 
-        // Para cumplir con el requerimiento de cookies en el login:
-        // Suponiendo que 'response' tiene los tokens que generó el usuarioService
-        String refreshToken = jwtUtils.generarRefreshToken(loginDto.email());
-        String accessToken = jwtUtils.generarAccessToken(loginDto.email(), response.data().rol());
+        ResponseCookie accessCookie = jwtUtils.generateAccessCookie(loginDto.email(), response.data().rol());
+        ResponseCookie refreshCookie = jwtUtils.generateRefreshCookie(loginDto.email());
 
-        HttpHeaders headers = generarCookiesHeaders(accessToken, refreshToken);
-
-        return ResponseEntity.ok().headers(headers).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(response);
     }
 
     @Operation(
@@ -135,9 +125,8 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
 
-        // Para cerrar sesión, enviamos cookies vacías con tiempo de vida 0
-        ResponseCookie accessCookie = construirCookie("access_token", "", 0, "/");
-        ResponseCookie refreshCookie = construirCookie("refresh_token", "", 0, "/api/v1/auth/refresh");
+        ResponseCookie accessCookie = jwtUtils.getCleanAccessCookie();
+        ResponseCookie refreshCookie = jwtUtils.getCleanRefreshCookie();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
@@ -161,31 +150,19 @@ public class AuthController {
             @CookieValue(name = "refresh_token", required = false) String refreshToken) {
 
         if (refreshToken == null || !jwtUtils.esTokenValido(refreshToken, jwtUtils.extraerEmail(refreshToken))) {
-            log.warn("Refresh token ausente o inválido");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // 1. Extraer datos del token actual
         String email = jwtUtils.extraerEmail(refreshToken);
-
-        // 2. Obtener los datos del usuario para el nuevo Access Token y el Body
-        // Usamos el servicio para asegurar que el usuario sigue activo y con el mismo rol
-        UsuarioDTO usuarioDto = usuarioService.findByEmail(email);
-        // Nota: Asegúrate de tener findByEmail en tu Service que devuelva los datos necesarios
-
-        // 3. Generar nuevo Access Token
-        String newAccessToken = jwtUtils.generarAccessToken(email, usuarioDto.rol());
-
-        // 4. Generar las headers (el Refresh Token se mantiene o se puede rotar)
-        // En este caso, reutilizamos el mismo Refresh para no cerrar sesión al usuario
-        HttpHeaders headers = generarCookiesHeaders(newAccessToken, refreshToken);
-
-        // 5. Construir respuesta (Reutilizamos LoginData para que el frontend actualice su estado)
-        // Necesitarás un pequeño ajuste en tu mapper para esto
         LoginData data = usuarioService.obtenerDatosParaRefresh(email);
-        LoginResponseDTO response = new LoginResponseDTO(true, data);
 
-        return ResponseEntity.ok().headers(headers).body(response);
+        ResponseCookie newAccessCookie = jwtUtils.generateAccessCookie(email, data.rol());
+        ResponseCookie newRefreshCookie = jwtUtils.generateRefreshCookie(email);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, newAccessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, newRefreshCookie.toString())
+                .body(new LoginResponseDTO(true, data));
     }
 
     @Operation(
@@ -201,30 +178,5 @@ public class AuthController {
         MeResponseDTO response = usuarioService.obtenerMiInformacion(usuario.getEmail());
 
         return ResponseEntity.ok(response);
-    }
-
-    // --- MÉTODOS DE APOYO PRIVADOS ---
-    private HttpHeaders generarCookiesHeaders(String access, String refresh) {
-        // Convertimos milisegundos a segundos para la cookie
-        long accessSeconds = jwtExpiration / 1000;
-        long refreshSeconds = refreshExpiration / 1000;
-
-        ResponseCookie accessCookie = construirCookie("access_token", access, accessSeconds, "/");
-        ResponseCookie refreshCookie = construirCookie("refresh_token", refresh, refreshSeconds, "/api/v1/auth/refresh");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        return headers;
-    }
-
-    private ResponseCookie construirCookie(String nombre, String valor, long maxAge, String path) {
-        return ResponseCookie.from(nombre, valor)
-                .httpOnly(true)
-                .secure(isSecure) // Importante: Solo viaja por HTTPS para desarrollo dejarlo en false
-                .sameSite("Strict")
-                .path(path)
-                .maxAge(maxAge)
-                .build();
     }
 }
