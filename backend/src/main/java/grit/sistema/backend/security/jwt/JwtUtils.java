@@ -13,6 +13,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -30,13 +31,13 @@ public class JwtUtils {
     @Value("${application.security.cookie.secure}")
     private boolean isSecure;
 
-    public ResponseCookie generateAccessCookie(String email, String rol) {
-        String token = generarAccessToken(email, rol);
+    public ResponseCookie generateAccessCookie(String email, String rol, String parentJti) {
+        String token = generarAccessToken(email, rol, parentJti);
         return buildCookie("access_token", token, jwtExpiration / 1000, "/");
     }
 
-    public ResponseCookie generateRefreshCookie(String email) {
-        String token = generarRefreshToken(email);
+    public ResponseCookie generateRefreshCookie(String email, String jti) {
+        String token = generarRefreshToken(email, jti);
         return buildCookie("refresh_token", token, refreshExpiration / 1000, "/api/v1/auth/refresh");
     }
 
@@ -58,14 +59,29 @@ public class JwtUtils {
         return buildCookie("refresh_token", "", 0, "/api/v1/auth/refresh");
     }
 
-    public String generarAccessToken(String email, String rol) {
+    public String generarAccessToken(String email, String rol, String parentJti) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("rol", rol.startsWith("ROLE_") ? rol : "ROLE_" + rol);
-        return construirToken(extraClaims, email, jwtExpiration);
+        extraClaims.put("ati", parentJti);
+
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(email)
+                .setId(UUID.randomUUID().toString())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    public String generarRefreshToken(String email) {
-        return construirToken(new HashMap<>(), email, refreshExpiration);
+    public String generarRefreshToken(String email, String jti) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setId(jti)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String construirToken(Map<String, Object> extraClaims, String subject, long expiration) {
@@ -76,6 +92,14 @@ public class JwtUtils {
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String extraerJti(String token) {
+        return extraerClaim(token, Claims::getId);
+    }
+
+    public String extraerAti(String token) {
+        return extraerClaim(token, claims -> claims.get("ati", String.class));
     }
 
     public String extraerRol(String token){

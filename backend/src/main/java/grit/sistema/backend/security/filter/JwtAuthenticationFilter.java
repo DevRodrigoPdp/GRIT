@@ -1,6 +1,7 @@
 package grit.sistema.backend.security.filter;
 
 import grit.sistema.backend.security.jwt.JwtUtils;
+import grit.sistema.backend.security.jwt.TokenStoreService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
+    private final TokenStoreService tokenStoreService;
     private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @Override
@@ -34,6 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException{
 
         if (request.getServletPath().contains("/management")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (request.getServletPath().contains("/api/v1/auth")) { // Optimizamos: Auth tiene sus propias reglas
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,6 +62,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
+            String ati = jwtUtils.extraerAti(jwt);
+
+            if (ati != null && tokenStoreService.isReuseDetected(ati)) {
+                log.warn("BLOQUEO: Intento de acceso con Access Token cuyo padre (ATI: {}) fue rotado/comprometido.", ati);
+                SecurityContextHolder.clearContext();
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String userEmail = jwtUtils.extraerEmail(jwt);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -9,9 +9,9 @@ import grit.sistema.backend.dto.coaching.EntrenadorResponseDTO;
 import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.auth.LoginRequestDTO;
 import grit.sistema.backend.dto.auth.LoginResponseDTO;
-import grit.sistema.backend.dto.user.UsuarioDTO;
 import grit.sistema.backend.exception.business.SesionActivaException;
 import grit.sistema.backend.entity.common.enums.Rol;
+import grit.sistema.backend.security.jwt.TokenStoreService;
 import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.auth.AuthService;
 import grit.sistema.backend.service.coaching.AtletaService;
@@ -27,13 +27,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "Autenticación")
 @RestController
@@ -46,6 +46,7 @@ public class AuthController {
     private final AtletaService atletaService;
     private final EntrenadorService entrenadorService;
     private final JwtUtils jwtUtils;
+    private final TokenStoreService tokenStoreService;
 
     @Operation(
             summary = "Registro de Entrenador",
@@ -86,8 +87,10 @@ public class AuthController {
 
         AtletaResponseDTO respuesta = atletaService.registrarAtleta(dto, foto);
 
-        ResponseCookie accessCookie = jwtUtils.generateAccessCookie(dto.email(), Rol.ATLETA.name());
-        ResponseCookie refreshCookie = jwtUtils.generateRefreshCookie(dto.email());
+        String refreshJti = UUID.randomUUID().toString();
+
+        ResponseCookie accessCookie = jwtUtils.generateAccessCookie(dto.email(), Rol.ATLETA.name(), refreshJti);
+        ResponseCookie refreshCookie = jwtUtils.generateRefreshCookie(dto.email(), refreshJti);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
@@ -108,8 +111,10 @@ public class AuthController {
 
         LoginResponseDTO response = authService.login(loginDto);
 
-        ResponseCookie accessCookie = jwtUtils.generateAccessCookie(loginDto.email(), response.data().rol());
-        ResponseCookie refreshCookie = jwtUtils.generateRefreshCookie(loginDto.email());
+        String refreshJti = UUID.randomUUID().toString();
+
+        ResponseCookie accessCookie = jwtUtils.generateAccessCookie(loginDto.email(), response.data().rol(), refreshJti);
+        ResponseCookie refreshCookie = jwtUtils.generateRefreshCookie(loginDto.email(), refreshJti);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
@@ -153,11 +158,21 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        String jti = jwtUtils.extraerJti(refreshToken);
         String email = jwtUtils.extraerEmail(refreshToken);
-        LoginData data = usuarioService.obtenerDatosParaRefresh(email);
 
-        ResponseCookie newAccessCookie = jwtUtils.generateAccessCookie(email, data.rol());
-        ResponseCookie newRefreshCookie = jwtUtils.generateRefreshCookie(email);
+        if (tokenStoreService.isReuseDetected(jti)) {
+            log.error("¡ALERTA! Reúso de JTI detectado: {} para el usuario {}", jti, email);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        LoginData data = usuarioService.obtenerDatosParaRefresh(email);
+        tokenStoreService.burnJti(jti);
+
+        String refreshJti = UUID.randomUUID().toString();
+
+        ResponseCookie newAccessCookie = jwtUtils.generateAccessCookie(email, data.rol(), refreshJti);
+        ResponseCookie newRefreshCookie = jwtUtils.generateRefreshCookie(email,  refreshJti);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, newAccessCookie.toString())
