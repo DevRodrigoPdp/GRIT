@@ -61,11 +61,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public MeResponseDTO obtenerMiInformacion(String email) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SesionActivaException("No hay sesión activa");
-        }
-
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 

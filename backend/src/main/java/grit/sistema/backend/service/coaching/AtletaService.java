@@ -13,7 +13,7 @@ public interface AtletaService {
 
     AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto, MultipartFile foto);
 
-    AtletaPerfilDTO obtenerPerfil(String email);
+    AtletaPerfilDTO obtenerPerfil(UUID atletaId);
 
     List<ProfesionalAsignadoDTO> getProfesionalesAsignados(UUID atletaId);
 

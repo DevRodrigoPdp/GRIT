@@ -15,7 +15,7 @@ public interface EntrenadorService {
                                               MultipartFile fotoPerfil,
                                               List<MultipartFile> certificaciones);
 
-    EntrenadorPerfilDTO obtenerPerfil(String email);
+    EntrenadorPerfilDTO obtenerPerfil(UUID entrenadorId);
 
     List<AtletaResumenDTO> listarMisAtletas(String email);
 

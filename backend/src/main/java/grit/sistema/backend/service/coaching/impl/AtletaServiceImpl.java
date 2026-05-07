@@ -53,8 +53,8 @@ public class AtletaServiceImpl implements AtletaService {
 
     @Override
     @Transactional(readOnly = true)
-    public AtletaPerfilDTO obtenerPerfil(String email) {
-        return atletaRepository.findByEmail(email)
+    public AtletaPerfilDTO obtenerPerfil(UUID atletaId) {
+        return atletaRepository.findById(atletaId)
                 .map(atletaMapper::toPerfilDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
     }

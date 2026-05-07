@@ -24,7 +24,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,15 +44,15 @@ public class EntrenadorController {
 
     @Operation(summary = "Ver perfil de entrenador")
     @GetMapping("/perfil")
-    public ResponseEntity<ApiResponseDTO<EntrenadorPerfilDTO>> getPerfil(@AuthenticationPrincipal UserDetails userDetails) {
-        EntrenadorPerfilDTO perfilDTO = entrenadorService.obtenerPerfil(userDetails.getUsername());
+    public ResponseEntity<ApiResponseDTO<EntrenadorPerfilDTO>> getPerfil(@AuthenticationPrincipal UserPrincipal usuario) {
+        EntrenadorPerfilDTO perfilDTO = entrenadorService.obtenerPerfil(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del entrenador", perfilDTO));
     }
 
     @Operation(summary = "Listar atletas asociados a un entrenador")
     @GetMapping("/atletas")
-    public ResponseEntity<ApiResponseDTO<List<AtletaResumenDTO>>> getAtletas(@AuthenticationPrincipal UserDetails userDetails) {
-        List<AtletaResumenDTO> listaAtletas = entrenadorService.listarMisAtletas(userDetails.getUsername());
+    public ResponseEntity<ApiResponseDTO<List<AtletaResumenDTO>>> getAtletas(@AuthenticationPrincipal UserPrincipal usuario) {
+        List<AtletaResumenDTO> listaAtletas = entrenadorService.listarMisAtletas(usuario.getEmail());
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Atletas del entrenador", listaAtletas));
     }

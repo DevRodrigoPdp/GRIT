@@ -12,6 +12,7 @@ import grit.sistema.backend.dto.auth.LoginResponseDTO;
 import grit.sistema.backend.dto.user.UsuarioDTO;
 import grit.sistema.backend.exception.business.SesionActivaException;
 import grit.sistema.backend.entity.common.enums.Rol;
+import grit.sistema.backend.security.user.UserPrincipal;
 import grit.sistema.backend.service.auth.AuthService;
 import grit.sistema.backend.service.coaching.AtletaService;
 import grit.sistema.backend.service.coaching.EntrenadorService;
@@ -29,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -193,12 +193,12 @@ public class AuthController {
             description = "Obtiene los datos del usuario autenticado a partir del access_token en la cookie."
     )
     @GetMapping("/me")
-    public ResponseEntity<MeResponseDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
+    public ResponseEntity<MeResponseDTO> getCurrentUser(@AuthenticationPrincipal UserPrincipal usuario) {
+        if (usuario == null) {
             throw new SesionActivaException("Intento de acceso a /me inválido");
         }
 
-        MeResponseDTO response = usuarioService.obtenerMiInformacion(userDetails.getUsername());
+        MeResponseDTO response = usuarioService.obtenerMiInformacion(usuario.getEmail());
 
         return ResponseEntity.ok(response);
     }

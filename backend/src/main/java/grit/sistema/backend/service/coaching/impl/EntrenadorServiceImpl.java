@@ -77,8 +77,8 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     @Override
     @Transactional(readOnly = true)
-    public EntrenadorPerfilDTO obtenerPerfil(String email) {
-        return entrenadorRepository.findByEmail(email)
+    public EntrenadorPerfilDTO obtenerPerfil(UUID entrenadorId) {
+        return entrenadorRepository.findById(entrenadorId)
                 .map(entrenadorMapper::toPerfilDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
     }

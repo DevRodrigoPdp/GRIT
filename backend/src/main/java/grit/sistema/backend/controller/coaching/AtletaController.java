@@ -28,12 +28,10 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/atleta")
@@ -51,8 +49,8 @@ public class AtletaController {
 
     @Operation(summary = "Ver perfil del atleta")
     @GetMapping("/perfil")
-    public ResponseEntity<ApiResponseDTO<AtletaPerfilDTO>> getPerfil(@AuthenticationPrincipal UserDetails userDetails) {
-        AtletaPerfilDTO perfilDTO = atletaService.obtenerPerfil(userDetails.getUsername());
+    public ResponseEntity<ApiResponseDTO<AtletaPerfilDTO>> getPerfil(@AuthenticationPrincipal UserPrincipal usuario) {
+        AtletaPerfilDTO perfilDTO = atletaService.obtenerPerfil(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta", perfilDTO));
     }
 
