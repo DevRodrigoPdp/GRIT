@@ -192,8 +192,24 @@ export class AtletaService {
   }
 
   getPlanEntrenamiento(): Observable<PlanEntrenamiento | null> {
-    return this.http.get<ApiResponseDTO<PlanEntrenamiento>>(`${this.API}/entrenamiento/plan-activo`, { withCredentials: true })
-      .pipe(map(response => response.data || null));
+    return this.http.get<ApiResponseDTO<any>>(`${this.API}/entrenamiento/plan-activo`, { withCredentials: true })
+      .pipe(map(response => {
+        const d = response.data;
+        if (!d) return null;
+        return {
+          ...d,
+          sesiones: (d.sesiones ?? []).map((s: any) => ({
+            ...s,
+            ejercicios: (s.ejercicios ?? []).map((e: any) => ({
+              nombre:   e.ejercicioNombre ?? e.nombre ?? '',
+              series:   e.series  ?? 0,
+              reps:     String(e.reps ?? ''),
+              notas:    e.notas   ?? '',
+              descanso: e.descanso,
+            }))
+          }))
+        } as PlanEntrenamiento;
+      }));
   }
 
   getPlanNutricion(): Observable<PlanNutricion | null> {
