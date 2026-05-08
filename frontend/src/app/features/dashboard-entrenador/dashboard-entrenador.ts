@@ -183,3 +183,4 @@ export class DashboardEntrenadorPage implements OnInit {
       error: () => this.eliminandoCuenta.set(false),
     });
   }
+}
