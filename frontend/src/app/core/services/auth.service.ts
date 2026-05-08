@@ -91,7 +91,7 @@ export class AuthService {
   private http   = inject(HttpClient);
   private router = inject(Router);
 
-  private readonly API = 'http://localhost:8080/api/v1/auth';
+  private readonly API = '/api/v1/auth';
 
   // Signals de sesión (única fuente de verdad en el frontend)
   readonly rol                 = signal<Rol | null>(null);

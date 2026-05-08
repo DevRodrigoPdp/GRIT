@@ -11,11 +11,12 @@
     </div>
     <div class="flex items-center gap-4">
       @if (auth.nombre()) {
-        <span class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400">
-          {{ auth.nombre() }}
-        </span>
+      <span class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400">
+        {{ auth.nombre() }}
+      </span>
       }
-      <button (click)="cerrarSesion()" class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 hover:text-black transition-colors">
+      <button (click)="cerrarSesion()"
+        class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 hover:text-black transition-colors">
         SALIR
       </button>
     </div>
@@ -26,23 +27,23 @@
     <!-- Sidebar -->
     <aside class="w-14 lg:w-64 border-r border-gray-100 flex flex-col py-6 flex-shrink-0">
       <nav class="flex flex-col gap-1 px-2">
-        <button 
-          (click)="cambiarSeccion('SOLICITUDES')"
+        <button (click)="cambiarSeccion('SOLICITUDES')"
           [class]="seccionActual() === 'SOLICITUDES' ? 'bg-black text-white' : 'text-gray-400 hover:text-black hover:bg-gray-50'"
-          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
-        >
+          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="square"/>
+            <path
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              stroke-linecap="square" />
           </svg>
           <span class="hidden lg:block text-[11px] font-black tracking-[0.2em] uppercase">SOLICITUDES</span>
         </button>
-        <button 
-          (click)="cambiarSeccion('USUARIOS')"
+        <button (click)="cambiarSeccion('USUARIOS')"
           [class]="seccionActual() === 'USUARIOS' ? 'bg-black text-white' : 'text-gray-400 hover:text-black hover:bg-gray-50'"
-          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
-        >
+          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="square"/>
+            <path
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              stroke-linecap="square" />
           </svg>
           <span class="hidden lg:block text-[11px] font-black tracking-[0.2em] uppercase">USUARIOS</span>
         </button>
@@ -53,274 +54,290 @@
     <main class="flex-1 min-w-0 min-h-0 flex flex-col md:flex-row overflow-hidden">
 
       @if (seccionActual() === 'SOLICITUDES') {
-        <!-- ── SOLICITUDES ────────────────────────────────────────────────── -->
-        <section class="flex-1 flex flex-col border-r border-gray-100 overflow-hidden bg-gray-50/30">
-          
-          <div class="p-8 lg:p-12 pb-6">
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-6 h-px bg-[#2ED38D]"></div>
-              <span class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D]">REVISIÓN DE CREDENCIALES</span>
-            </div>
-            <h1 class="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-black leading-none mb-10">
-              SOLICITUDES<br>PENDIENTES
-            </h1>
+      <!-- ── SOLICITUDES ────────────────────────────────────────────────── -->
+      <section class="flex-1 flex flex-col border-r border-gray-100 overflow-hidden bg-gray-50/30">
 
-            <!-- Search -->
-            <div class="relative max-w-md">
-              <input
-                [ngModel]="busquedaSolicitudes()"
-                (ngModelChange)="onBusquedaSolicitudesChange($event)"
-                (keydown.enter)="cargarSolicitudes()"
-                placeholder="BUSCAR POR NOMBRE O EMAIL..."
-                class="w-full bg-white border border-gray-200 px-5 py-4 text-xs font-bold tracking-widest placeholder:text-gray-300 outline-none focus:border-black transition-all"
-              />
-              @if (busquedaSolicitudes()) {
-                <button (click)="onBusquedaSolicitudesChange('')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black text-xs">✕</button>
-              }
-            </div>
+        <div class="p-8 lg:p-12 pb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-6 h-px bg-[#2ED38D]"></div>
+            <span class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D]">REVISIÓN DE
+              CREDENCIALES</span>
           </div>
+          <h1 class="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-black leading-none mb-10">
+            SOLICITUDES<br>PENDIENTES
+          </h1>
 
-          <!-- Scrollable List -->
-          <div class="flex-1 overflow-y-auto px-8 lg:px-12 pb-12">
-            @if (loadingSolicitudes() && solicitudes().length === 0) {
-              <div class="py-20 text-center">
-                <div class="w-10 h-10 border-2 border-black border-t-transparent animate-spin mx-auto mb-4"></div>
-                <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400">CARGANDO...</p>
-              </div>
-            } @else if (solicitudesFiltradas().length === 0) {
-              <div class="py-20 border-2 border-dashed border-gray-200 text-center bg-white/50">
-                <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300">SIN SOLICITUDES</p>
-              </div>
-            } @else {
-              <div class="grid grid-cols-1 gap-4">
-                @for (s of solicitudesFiltradas(); track s.id ?? $index) {
-                  <button 
-                    (click)="seleccionarSolicitud(s)"
-                    [class]="entrenadorSeleccionado()?.id === s.id ? 'border-2 border-black bg-white shadow-xl translate-x-2' : 'border border-gray-200 bg-white hover:border-black'"
-                    class="text-left p-6 transition-all duration-300 group relative overflow-hidden"
-                  >
-                    <div class="absolute top-0 left-0 w-1 h-full" [class]="s.titulacionEntrenamiento && s.titulacionNutricion ? 'bg-gradient-to-b from-black to-[#2ED38D]' : (s.titulacionNutricion ? 'bg-[#2ED38D]' : 'bg-black')"></div>
-                    
-                    <div class="flex items-center justify-between mb-4">
-                      <span class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300">
-                        RECIBIDA EL {{ s.createdAt | date:'dd/MM/yyyy' }}
-                      </span>
-                    </div>
-
-                    <h3 class="text-xl font-black uppercase tracking-tight text-black mb-1 group-hover:text-[#2ED38D] transition-colors">
-                      {{ s.nombre }}
-                    </h3>
-                    <p class="text-xs font-bold text-gray-400 tracking-tight lowercase mb-4">{{ s.correo }}</p>
-
-                    <div class="flex items-center gap-2">
-                      @if (s.titulacionEntrenamiento) {
-                        <span class="text-[9px] font-black tracking-widest uppercase bg-black text-white px-2 py-1">ENTRENAMIENTO</span>
-                      }
-                      @if (s.titulacionNutricion) {
-                        <span class="text-[9px] font-black tracking-widest uppercase bg-[#2ED38D] text-black px-2 py-1">NUTRICIÓN</span>
-                      }
-                    </div>
-                  </button>
-                }
-              </div>
+          <!-- Search -->
+          <div class="relative max-w-md">
+            <input [ngModel]="busquedaSolicitudes()" (ngModelChange)="onBusquedaSolicitudesChange($event)"
+              (keydown.enter)="cargarSolicitudes()" placeholder="BUSCAR POR NOMBRE O EMAIL..."
+              class="w-full bg-white border border-gray-200 px-5 py-4 text-xs font-bold tracking-widest placeholder:text-gray-300 outline-none focus:border-black transition-all" />
+            @if (busquedaSolicitudes()) {
+            <button (click)="onBusquedaSolicitudesChange('')"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black text-xs">✕</button>
             }
           </div>
-        </section>
+        </div>
 
-        <!-- Detail Pane -->
-        <section class="hidden md:flex w-[450px] lg:w-[600px] flex-col bg-white overflow-hidden shadow-2xl relative">
-          @if (entrenadorSeleccionado(); as e) {
-            <div class="flex-1 overflow-y-auto p-10 lg:p-16">
-              
-              <div class="mb-12">
-                <div class="w-20 h-20 bg-black text-white flex items-center justify-center text-2xl font-black mb-8">
-                  {{ iniciales(e.nombre) }}
-                </div>
-                <h2 class="text-4xl lg:text-6xl font-black uppercase tracking-tighter text-black leading-[0.8] mb-4">
-                  {{ e.nombre }}
-                </h2>
-                <p class="text-sm font-bold text-gray-400 tracking-tight lowercase">{{ e.correo }}</p>
+        <!-- Scrollable List -->
+        <div class="flex-1 overflow-y-auto px-8 lg:px-12 pb-12">
+          @if (loadingSolicitudes() && solicitudes().length === 0) {
+          <div class="py-20 text-center">
+            <div class="w-10 h-10 border-2 border-black border-t-transparent animate-spin mx-auto mb-4"></div>
+            <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400">CARGANDO...</p>
+          </div>
+          } @else if (solicitudesFiltradas().length === 0) {
+          <div class="py-20 border-2 border-dashed border-gray-200 text-center bg-white/50">
+            <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300">SIN SOLICITUDES</p>
+          </div>
+          } @else {
+          <div class="grid grid-cols-1 gap-4">
+            @for (s of solicitudesFiltradas(); track s.id ?? $index) {
+            <button (click)="seleccionarSolicitud(s)"
+              [class]="entrenadorSeleccionado()?.id === s.id ? 'border-2 border-black bg-white shadow-xl translate-x-2' : 'border border-gray-200 bg-white hover:border-black'"
+              class="text-left p-6 transition-all duration-300 group relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full"
+                [class]="s.titulacionEntrenamiento && s.titulacionNutricion ? 'bg-gradient-to-b from-black to-[#2ED38D]' : (s.titulacionNutricion ? 'bg-[#2ED38D]' : 'bg-black')">
               </div>
 
-              <div class="space-y-12">
-                
-                <div>
-                  <h4 class="text-[10px] font-black tracking-[0.3em] uppercase text-gray-300 mb-6 flex items-center gap-4">
-                    DATOS PROFESIONALES <div class="flex-1 h-px bg-gray-100"></div>
-                  </h4>
-                  <div class="grid grid-cols-1 gap-6">
-                    <div>
-                      <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-2">CÓDIGO PROFESIONAL</p>
-                      <p class="text-lg font-black tracking-tight text-black">{{ e.codigoProfesional || 'NO PROPORCIONADO' }}</p>
-                    </div>
-                    <div>
-                      <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-2">TITULACIÓN RECLAMADA</p>
-                      <div class="flex flex-col gap-2">
-                         @if (e.titulacionEntrenamiento) {
-                           <p class="text-sm font-black uppercase text-black">● {{ e.titulacionEntrenamiento.replace('_',' ') }}</p>
-                         }
-                         @if (e.titulacionNutricion) {
-                           <p class="text-sm font-black uppercase text-black">● {{ e.titulacionNutricion.replace('_',' ') }}</p>
-                         }
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300">
+                  RECIBIDA EL {{ s.createdAt | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
 
+              <h3
+                class="text-xl font-black uppercase tracking-tight text-black mb-1 group-hover:text-[#2ED38D] transition-colors">
+                {{ s.nombre }}
+              </h3>
+              <p class="text-xs font-bold text-gray-400 tracking-tight lowercase mb-4">{{ s.correo }}</p>
+
+              <div class="flex items-center gap-2">
+                @if (s.titulacionEntrenamiento) {
+                <span
+                  class="text-[9px] font-black tracking-widest uppercase bg-black text-white px-2 py-1">ENTRENAMIENTO</span>
+                }
+                @if (s.titulacionNutricion) {
+                <span
+                  class="text-[9px] font-black tracking-widest uppercase bg-[#2ED38D] text-black px-2 py-1">NUTRICIÓN</span>
+                }
+              </div>
+            </button>
+            }
+          </div>
+          }
+        </div>
+      </section>
+
+      <!-- Detail Pane -->
+      <section class="hidden md:flex w-[450px] lg:w-[600px] flex-col bg-white overflow-hidden shadow-2xl relative">
+        @if (entrenadorSeleccionado(); as e) {
+        <div class="flex-1 overflow-y-auto p-10 lg:p-16">
+
+          <div class="mb-12">
+            <div class="w-20 h-20 bg-black text-white flex items-center justify-center text-2xl font-black mb-8">
+              {{ iniciales(e.nombre) }}
+            </div>
+            <h2 class="text-4xl lg:text-6xl font-black uppercase tracking-tighter text-black leading-[0.8] mb-4">
+              {{ e.nombre }}
+            </h2>
+            <p class="text-sm font-bold text-gray-400 tracking-tight lowercase">{{ e.correo }}</p>
+          </div>
+
+          <div class="space-y-12">
+
+            <div>
+              <h4 class="text-[10px] font-black tracking-[0.3em] uppercase text-gray-300 mb-6 flex items-center gap-4">
+                DATOS PROFESIONALES <div class="flex-1 h-px bg-gray-100"></div>
+              </h4>
+              <div class="grid grid-cols-1 gap-6">
                 <div>
-                  <h4 class="text-[10px] font-black tracking-[0.3em] uppercase text-gray-300 mb-6 flex items-center gap-4">
-                    DOCUMENTACIÓN ADJUNTA <div class="flex-1 h-px bg-gray-100"></div>
-                  </h4>
-                  <div class="space-y-3">
-                    @for (doc of e.documentos; track doc.id) {
-                      <a [href]="doc.urlFirmada" target="_blank" class="flex items-center justify-between p-4 border border-gray-100 hover:border-black transition-all group no-underline">
-                        <div class="flex items-center gap-4">
-                          <svg class="w-5 h-5 text-gray-300 group-hover:text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="square"/>
-                          </svg>
-                          <span class="text-[11px] font-black tracking-widest uppercase text-black truncate max-w-[200px]">{{ doc.nombreArchivo }}</span>
-                        </div>
-                        <span class="text-[10px] font-black text-[#2ED38D] opacity-0 group-hover:opacity-100 transition-opacity">VER →</span>
-                      </a>
+                  <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-2">CÓDIGO PROFESIONAL</p>
+                  <p class="text-lg font-black tracking-tight text-black">{{ e.codigoProfesional || 'NO PROPORCIONADO'
+                    }}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-2">TITULACIÓN RECLAMADA
+                  </p>
+                  <div class="flex flex-col gap-2">
+                    @if (e.titulacionEntrenamiento) {
+                    <p class="text-sm font-black uppercase text-black">● {{ e.titulacionEntrenamiento.replace('_',' ')
+                      }}</p>
+                    }
+                    @if (e.titulacionNutricion) {
+                    <p class="text-sm font-black uppercase text-black">● {{ e.titulacionNutricion.replace('_',' ') }}
+                    </p>
                     }
                   </div>
                 </div>
-
-              </div>
-
-              <div class="h-40"></div>
-            </div>
-
-            <div class="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-white via-white to-transparent flex gap-4">
-              <button (click)="pedirConfirmacionAprobacion()" [disabled]="loadingSolicitudes()" class="flex-1 bg-black text-white py-5 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300 disabled:opacity-50 shadow-2xl">
-                APROBAR CUENTA
-              </button>
-              <button (click)="abrirModalRechazo()" [disabled]="loadingSolicitudes()" class="px-8 border border-black text-black py-5 text-xs font-black tracking-[0.3em] uppercase hover:bg-red-500 hover:border-red-500 hover:text-white transition-all duration-300 disabled:opacity-50">
-                RECHAZAR
-              </button>
-            </div>
-
-          } @else {
-            <div class="flex-1 flex flex-col items-center justify-center p-20 text-center text-gray-200">
-               <p class="text-[10px] font-black tracking-[0.3em] uppercase">SELECCIONA UNA SOLICITUD<br>PARA VER LOS DETALLES</p>
-            </div>
-          }
-        </section>
-      } @else {
-        <!-- ── USUARIOS ───────────────────────────────────────────────────── -->
-        <section class="flex-1 flex flex-col overflow-hidden bg-white">
-          
-          <div class="p-8 lg:p-12 border-b border-gray-100 bg-gray-50/20">
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-6 h-px bg-black"></div>
-              <span class="text-[10px] font-black tracking-[0.4em] uppercase text-black">GESTIÓN COMUNIDAD</span>
-            </div>
-            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-              <h1 class="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-black leading-none">
-                TODOS LOS<br>USUARIOS
-              </h1>
-              
-              <div class="flex flex-col sm:flex-row gap-4">
-                <!-- Role Filter -->
-                <div class="flex bg-gray-100 p-1">
-                  @for (opt of ['TODOS','ATLETA','ENTRENADOR']; track opt) {
-                    <button
-                      (click)="cambiarFiltroRol($any(opt))"
-                      [class]="filtroRol() === opt ? 'bg-black text-white' : 'text-gray-400 hover:text-black'"
-                      class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-all"
-                    >
-                      {{ opt }}
-                    </button>
-                  }
-                </div>
-                <!-- Search -->
-                <div class="relative w-full sm:w-64">
-                   <input
-                     [ngModel]="busqueda()"
-                     (ngModelChange)="onBusquedaUsuariosChange($event)"
-                     (keydown.enter)="buscarAhora()"
-                     placeholder="BUSCAR USUARIO..."
-                     class="w-full bg-white border border-gray-200 px-4 py-3 text-[11px] font-bold tracking-widest outline-none focus:border-black"
-                   />
-                </div>
               </div>
             </div>
-          </div>
 
-          <div class="flex-1 overflow-y-auto pb-20">
-            <div class="min-w-[800px]">
-              <!-- Header Tabla -->
-              <div class="grid grid-cols-6 px-12 py-6 border-b border-gray-100 text-[10px] font-black tracking-[0.3em] uppercase text-gray-300">
-                <div class="col-span-2">USUARIO</div>
-                <div>ROL</div>
-                <div>ESTADO</div>
-                <div>REGISTRO</div>
-                <div class="text-center">ACCIONES</div>
-              </div>
-
-              <!-- Filas -->
-              <div class="divide-y divide-gray-50">
-                @for (u of usuariosFiltrados(); track u.id || $index) {
-                  <div class="grid grid-cols-6 px-12 py-5 items-center hover:bg-gray-50/50 transition-colors group">
-                    <div class="col-span-2 flex items-center gap-4">
-                      <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center font-black text-xs"
-                        [class]="u.rol === 'ATLETA' ? 'bg-black text-[#2ED38D]' : 'bg-[#2ED38D] text-black'">
-                        {{ iniciales(u.nombre) }}
-                      </div>
-                      <div>
-                        <p class="text-sm font-black uppercase tracking-tight text-black mb-0.5">{{ u.nombre }}</p>
-                        <p class="text-[11px] font-medium text-gray-400 lowercase">{{ u.correo }}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <span [class]="u.rol === 'ATLETA' ? 'bg-black text-white' : 'bg-[#2ED38D] text-black'"
-                        class="text-[9px] font-black tracking-[0.15em] uppercase px-2 py-0.5">
-                        {{ u.rol }}
-                      </span>
-                    </div>
-                    <div>
-                      <span class="flex items-center gap-2 text-[10px] font-black tracking-[0.1em] uppercase"
-                        [class]="u.estado === 'ACTIVO' ? 'text-[#2ED38D]' : 'text-gray-300'">
-                        <span class="w-1.5 h-1.5 rounded-full" [class]="u.estado === 'ACTIVO' ? 'bg-[#2ED38D]' : 'bg-gray-300'"></span>
-                        {{ u.estado }}
-                      </span>
-                    </div>
-                    <div class="text-[11px] font-bold text-gray-400">
-                      {{ u.fechaRegistro ? (u.fechaRegistro | date:'dd/MM/yyyy') : '—' }}
-                    </div>
-                    <div class="flex justify-center gap-4 text-gray-200 group-hover:text-gray-400">
-                      <!-- Bloquear / Desbloquear -->
-                      <button
-                        (click)="toggleBloqueo(u)"
-                        [title]="u.estado === 'BLOQUEADO' ? 'Desbloquear usuario' : 'Bloquear usuario'"
-                        [class]="u.estado === 'BLOQUEADO' ? 'text-amber-400 hover:text-amber-600' : 'hover:text-amber-500'"
-                        class="transition-colors"
-                      >
-                        @if (u.estado === 'BLOQUEADO') {
-                          <!-- Candado abierto = desbloquear -->
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" stroke-linecap="square"/>
-                          </svg>
-                        } @else {
-                          <!-- Candado cerrado = bloquear -->
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4" stroke-linecap="square"/>
-                          </svg>
-                        }
-                      </button>
-                      <!-- Delete -->
-                      <button (click)="pedirConfirmacionEliminacion(u)" class="hover:text-red-500 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="square"/>
-                        </svg>
-                      </button>
-                    </div>
+            <div>
+              <h4 class="text-[10px] font-black tracking-[0.3em] uppercase text-gray-300 mb-6 flex items-center gap-4">
+                DOCUMENTACIÓN ADJUNTA <div class="flex-1 h-px bg-gray-100"></div>
+              </h4>
+              <div class="space-y-3">
+                @for (doc of e.documentos; track doc.id) {
+                <a [href]="doc.urlFirmada" target="_blank"
+                  class="flex items-center justify-between p-4 border border-gray-100 hover:border-black transition-all group no-underline">
+                  <div class="flex items-center gap-4">
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-[#2ED38D]" fill="none" stroke="currentColor"
+                      stroke-width="2" viewBox="0 0 24 24">
+                      <path
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                        stroke-linecap="square" />
+                    </svg>
+                    <span class="text-[11px] font-black tracking-widest uppercase text-black truncate max-w-[200px]">{{
+                      doc.nombreArchivo }}</span>
                   </div>
+                  <span
+                    class="text-[10px] font-black text-[#2ED38D] opacity-0 group-hover:opacity-100 transition-opacity">VER
+                    →</span>
+                </a>
                 }
               </div>
             </div>
+
           </div>
-        </section>
+
+          <div class="h-40"></div>
+        </div>
+
+        <div
+          class="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-white via-white to-transparent flex gap-4">
+          <button (click)="pedirConfirmacionAprobacion()" [disabled]="loadingSolicitudes()"
+            class="flex-1 bg-black text-white py-5 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300 disabled:opacity-50 shadow-2xl">
+            APROBAR CUENTA
+          </button>
+          <button (click)="abrirModalRechazo()" [disabled]="loadingSolicitudes()"
+            class="px-8 border border-black text-black py-5 text-xs font-black tracking-[0.3em] uppercase hover:bg-red-500 hover:border-red-500 hover:text-white transition-all duration-300 disabled:opacity-50">
+            RECHAZAR
+          </button>
+        </div>
+
+        } @else {
+        <div class="flex-1 flex flex-col items-center justify-center p-20 text-center text-gray-200">
+          <p class="text-[10px] font-black tracking-[0.3em] uppercase">SELECCIONA UNA SOLICITUD<br>PARA VER LOS DETALLES
+          </p>
+        </div>
+        }
+      </section>
+      } @else {
+      <!-- ── USUARIOS ───────────────────────────────────────────────────── -->
+      <section class="flex-1 flex flex-col overflow-hidden bg-white">
+
+        <div class="p-8 lg:p-12 border-b border-gray-100 bg-gray-50/20">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-6 h-px bg-black"></div>
+            <span class="text-[10px] font-black tracking-[0.4em] uppercase text-black">GESTIÓN COMUNIDAD</span>
+          </div>
+          <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <h1 class="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-black leading-none">
+              TODOS LOS<br>USUARIOS
+            </h1>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+              <!-- Role Filter -->
+              <div class="flex bg-gray-100 p-1">
+                @for (opt of ['TODOS','ATLETA','ENTRENADOR']; track opt) {
+                <button (click)="cambiarFiltroRol($any(opt))"
+                  [class]="filtroRol() === opt ? 'bg-black text-white' : 'text-gray-400 hover:text-black'"
+                  class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-all">
+                  {{ opt }}
+                </button>
+                }
+              </div>
+              <!-- Search -->
+              <div class="relative w-full sm:w-64">
+                <input [ngModel]="busqueda()" (ngModelChange)="onBusquedaUsuariosChange($event)"
+                  (keydown.enter)="buscarAhora()" placeholder="BUSCAR USUARIO..."
+                  class="w-full bg-white border border-gray-200 px-4 py-3 text-[11px] font-bold tracking-widest outline-none focus:border-black" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pb-20">
+          <div class="min-w-[800px]">
+            <!-- Header Tabla -->
+            <div
+              class="grid grid-cols-6 px-12 py-6 border-b border-gray-100 text-[10px] font-black tracking-[0.3em] uppercase text-gray-300">
+              <div class="col-span-2">USUARIO</div>
+              <div>ROL</div>
+              <div>ESTADO</div>
+              <div>REGISTRO</div>
+              <div class="text-center">ACCIONES</div>
+            </div>
+
+            <!-- Filas -->
+            <div class="divide-y divide-gray-50">
+              @for (u of usuariosFiltrados(); track u.id || $index) {
+              <div class="grid grid-cols-6 px-12 py-5 items-center hover:bg-gray-50/50 transition-colors group">
+                <div class="col-span-2 flex items-center gap-4">
+                  <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center font-black text-xs"
+                    [class]="u.rol === 'ATLETA' ? 'bg-black text-[#2ED38D]' : 'bg-[#2ED38D] text-black'">
+                    {{ iniciales(u.nombre) }}
+                  </div>
+                  <div>
+                    <p class="text-sm font-black uppercase tracking-tight text-black mb-0.5">{{ u.nombre }}</p>
+                    <p class="text-[11px] font-medium text-gray-400 lowercase">{{ u.correo }}</p>
+                  </div>
+                </div>
+                <div>
+                  <span [class]="u.rol === 'ATLETA' ? 'bg-black text-white' : 'bg-[#2ED38D] text-black'"
+                    class="text-[9px] font-black tracking-[0.15em] uppercase px-2 py-0.5">
+                    {{ u.rol }}
+                  </span>
+                </div>
+                <div>
+                  <span class="flex items-center gap-2 text-[10px] font-black tracking-[0.1em] uppercase"
+                    [class]="u.estado === 'ACTIVO' ? 'text-[#2ED38D]' : 'text-gray-300'">
+                    <span class="w-1.5 h-1.5 rounded-full"
+                      [class]="u.estado === 'ACTIVO' ? 'bg-[#2ED38D]' : 'bg-gray-300'"></span>
+                    {{ u.estado }}
+                  </span>
+                </div>
+                <div class="text-xs font-bold text-gray-700">
+                  {{ u.fechaRegistro ? (u.fechaRegistro | date:'dd/MM/yyyy') : 'Sin fecha' }}
+                </div>
+                <div class="flex justify-center gap-4 text-gray-200 group-hover:text-gray-400">
+                  <!-- Bloquear / Desbloquear -->
+                  <button (click)="toggleBloqueo(u)"
+                    [title]="u.estado === 'BLOQUEADO' ? 'Desbloquear usuario' : 'Bloquear usuario'"
+                    [class]="u.estado === 'BLOQUEADO' ? 'text-amber-400 hover:text-amber-600' : 'hover:text-amber-500'"
+                    class="transition-colors">
+                    @if (u.estado === 'BLOQUEADO') {
+                    <!-- Candado abierto = desbloquear -->
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path
+                        d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                        stroke-linecap="square" />
+                    </svg>
+                    } @else {
+                    <!-- Candado cerrado = bloquear -->
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4"
+                        stroke-linecap="square" />
+                    </svg>
+                    }
+                  </button>
+                  <!-- Delete -->
+                  <button (click)="pedirConfirmacionEliminacion(u)" class="hover:text-red-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        stroke-linecap="square" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
       }
 
     </main>
@@ -328,217 +345,223 @@
 
   <!-- Modal: Confirmar Aprobación -->
   @if (mostrarModalConfirmacion()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6" (click)="mostrarModalConfirmacion.set(false)">
-      <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
-        <div class="absolute top-0 left-0 w-full h-1 bg-[#2ED38D]"></div>
-        <div class="w-12 h-12 bg-[#2ED38D] flex items-center justify-center mb-8">
-          <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="square"/>
-          </svg>
-        </div>
-        <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">¿APROBAR CUENTA?</h3>
-        @if (entrenadorSeleccionado(); as e) {
-          <p class="text-sm text-gray-400 font-bold tracking-tight mb-2">
-            Vas a activar la cuenta de:
-          </p>
-          <p class="text-lg font-black uppercase tracking-tight text-black mb-8">{{ e.nombre }}</p>
-        }
-        <p class="text-xs text-gray-400 uppercase tracking-[0.15em] font-bold mb-10">
-          El entrenador recibirá acceso completo a la plataforma.<br>Esta acción se puede revertir.
-        </p>
-        <div class="flex gap-4">
-          <button (click)="confirmarAprobacion()" [disabled]="loadingSolicitudes()" class="flex-1 bg-black text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300 disabled:opacity-30">
-            SÍ, APROBAR
-          </button>
-          <button (click)="mostrarModalConfirmacion.set(false)" class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
-            CANCELAR
-          </button>
-        </div>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6"
+    (click)="mostrarModalConfirmacion.set(false)">
+    <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 w-full h-1 bg-[#2ED38D]"></div>
+      <div class="w-12 h-12 bg-[#2ED38D] flex items-center justify-center mb-8">
+        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="square" />
+        </svg>
+      </div>
+      <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">¿APROBAR CUENTA?</h3>
+      @if (entrenadorSeleccionado(); as e) {
+      <p class="text-sm text-gray-400 font-bold tracking-tight mb-2">
+        Vas a activar la cuenta de:
+      </p>
+      <p class="text-lg font-black uppercase tracking-tight text-black mb-8">{{ e.nombre }}</p>
+      }
+      <p class="text-xs text-gray-400 uppercase tracking-[0.15em] font-bold mb-10">
+        El entrenador recibirá acceso completo a la plataforma.<br>Esta acción se puede revertir.
+      </p>
+      <div class="flex gap-4">
+        <button (click)="confirmarAprobacion()" [disabled]="loadingSolicitudes()"
+          class="flex-1 bg-black text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300 disabled:opacity-30">
+          SÍ, APROBAR
+        </button>
+        <button (click)="mostrarModalConfirmacion.set(false)"
+          class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
+          CANCELAR
+        </button>
       </div>
     </div>
+  </div>
   }
 
   <!-- Modal: Éxito Aprobación -->
   @if (mostrarModalExito()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
-      <div class="bg-black text-white w-full max-w-sm p-12 relative overflow-hidden text-center">
-        <div class="absolute top-0 left-0 w-full h-1 bg-[#2ED38D]"></div>
-        <!-- Icono animado -->
-        <div class="w-20 h-20 border-2 border-[#2ED38D] flex items-center justify-center mx-auto mb-8 relative">
-          <svg class="w-10 h-10 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M5 13l4 4L19 7" stroke-linecap="square" stroke-linejoin="miter"/>
-          </svg>
-        </div>
-        <p class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D] mb-4">CUENTA ACTIVADA</p>
-        <h3 class="text-3xl font-black uppercase tracking-tighter leading-none mb-4">{{ nombreAprobado() }}</h3>
-        <p class="text-xs text-gray-500 font-bold tracking-[0.1em] uppercase mb-12">
-          Ya puede acceder a la plataforma GRIT como entrenador.
-        </p>
-        <button (click)="mostrarModalExito.set(false)" class="w-full border border-[#2ED38D] text-[#2ED38D] py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300">
-          CERRAR
-        </button>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
+    <div class="bg-black text-white w-full max-w-sm p-12 relative overflow-hidden text-center">
+      <div class="absolute top-0 left-0 w-full h-1 bg-[#2ED38D]"></div>
+      <!-- Icono animado -->
+      <div class="w-20 h-20 border-2 border-[#2ED38D] flex items-center justify-center mx-auto mb-8 relative">
+        <svg class="w-10 h-10 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7" stroke-linecap="square" stroke-linejoin="miter" />
+        </svg>
       </div>
+      <p class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D] mb-4">CUENTA ACTIVADA</p>
+      <h3 class="text-3xl font-black uppercase tracking-tighter leading-none mb-4">{{ nombreAprobado() }}</h3>
+      <p class="text-xs text-gray-500 font-bold tracking-[0.1em] uppercase mb-12">
+        Ya puede acceder a la plataforma GRIT como entrenador.
+      </p>
+      <button (click)="mostrarModalExito.set(false)"
+        class="w-full border border-[#2ED38D] text-[#2ED38D] py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300">
+        CERRAR
+      </button>
     </div>
+  </div>
   }
 
   <!-- Modal: Confirmar Eliminación Permanente -->
   @if (mostrarModalEliminacion()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6" (click)="mostrarModalEliminacion.set(false)">
-      <div class="bg-white w-full max-w-md p-10 relative overflow-hidden shadow-[0_0_100px_rgba(220,38,38,0.2)]" (click)="$event.stopPropagation()">
-        <div class="absolute top-0 left-0 w-full h-2 bg-red-600"></div>
-        
-        <div class="w-16 h-16 bg-red-50 flex items-center justify-center mb-8 mx-auto">
-          <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="square"/>
-          </svg>
-        </div>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6"
+    (click)="mostrarModalEliminacion.set(false)">
+    <div class="bg-white w-full max-w-md p-10 relative overflow-hidden shadow-[0_0_100px_rgba(220,38,38,0.2)]"
+      (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 w-full h-2 bg-red-600"></div>
 
-        <h3 class="text-3xl font-black uppercase tracking-tighter text-center text-black mb-4 leading-none italic">AVISO CRÍTICO</h3>
-        
-        @if (usuarioSeleccionado(); as u) {
-          <div class="bg-gray-50 p-4 border-l-2 border-red-600 mb-8">
-            <p class="text-[9px] font-black tracking-widest text-gray-400 uppercase mb-1">CUENTA A ELIMINAR</p>
-            <p class="text-base font-black uppercase text-black italic">{{ u.nombre }}</p>
-            <p class="text-[11px] font-bold text-gray-400 lowercase">{{ u.correo }}</p>
-          </div>
-        }
+      <div class="w-16 h-16 bg-red-50 flex items-center justify-center mb-8 mx-auto">
+        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            stroke-linecap="square" />
+        </svg>
+      </div>
 
-        <p class="text-[11px] text-gray-500 font-bold uppercase tracking-widest text-center mb-10 leading-relaxed">
-          ESTA OPERACIÓN ES IRREVERSIBLE.<br>SE ELIMINARÁ TODO EL HISTORIAL DE ENTRENAMIENTOS, DIETAS Y CHATS.
-        </p>
+      <h3 class="text-3xl font-black uppercase tracking-tighter text-center text-black mb-4 leading-none italic">AVISO
+        CRÍTICO</h3>
 
-        <div class="flex flex-col gap-3">
-          <button (click)="confirmarEliminacion()" [disabled]="loadingUsuarios()" class="w-full bg-red-600 text-white py-5 text-xs font-black tracking-[0.3em] uppercase hover:bg-black transition-all duration-300 disabled:opacity-30">
-            ELIMINAR DEFINITIVAMENTE
-          </button>
-          <button (click)="mostrarModalEliminacion.set(false)" class="w-full text-gray-300 py-3 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black transition-all">
-            CANCELAR OPERACIÓN
-          </button>
-        </div>
+      @if (usuarioSeleccionado(); as u) {
+      <div class="bg-gray-50 p-4 border-l-2 border-red-600 mb-8">
+        <p class="text-[9px] font-black tracking-widest text-gray-400 uppercase mb-1">CUENTA A ELIMINAR</p>
+        <p class="text-base font-black uppercase text-black italic">{{ u.nombre }}</p>
+        <p class="text-[11px] font-bold text-gray-400 lowercase">{{ u.correo }}</p>
+      </div>
+      }
+
+      <p class="text-[11px] text-gray-500 font-bold uppercase tracking-widest text-center mb-10 leading-relaxed">
+        ESTA OPERACIÓN ES IRREVERSIBLE.<br>SE ELIMINARÁ TODO EL HISTORIAL DE ENTRENAMIENTOS, DIETAS Y CHATS.
+      </p>
+
+      <div class="flex flex-col gap-3">
+        <button (click)="confirmarEliminacion()" [disabled]="loadingUsuarios()"
+          class="w-full bg-red-600 text-white py-5 text-xs font-black tracking-[0.3em] uppercase hover:bg-black transition-all duration-300 disabled:opacity-30">
+          ELIMINAR DEFINITIVAMENTE
+        </button>
+        <button (click)="mostrarModalEliminacion.set(false)"
+          class="w-full text-gray-300 py-3 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black transition-all">
+          CANCELAR OPERACIÓN
+        </button>
       </div>
     </div>
+  </div>
   }
 
   <!-- Modal: Rechazar Solicitud -->
   @if (mostrarModalRechazo()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6" (click)="mostrarModalRechazo.set(false)">
-      <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
-        <div class="absolute top-0 left-0 w-full h-1 bg-red-600"></div>
-        <div class="w-12 h-12 bg-red-50 flex items-center justify-center mb-8">
-          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="square"/>
-          </svg>
-        </div>
-        <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">¿RECHAZAR SOLICITUD?</h3>
-        @if (entrenadorSeleccionado(); as e) {
-          <p class="text-sm text-gray-400 font-bold tracking-tight mb-2">
-            Vas a rechazar y eliminar la cuenta de:
-          </p>
-          <p class="text-lg font-black uppercase tracking-tight text-black mb-8">{{ e.nombre }}</p>
-        }
-        
-        <div class="mb-6">
-          <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-3">
-            MOTIVO DEL RECHAZO (REQUERIDO)
-          </label>
-          <textarea 
-            [ngModel]="motivoRechazo()"
-            (ngModelChange)="motivoRechazo.set($event)"
-            (keydown.escape)="mostrarModalRechazo.set(false)"
-            placeholder="Explica por qué rechazas esta solicitud..."
-            class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black resize-none h-24"
-          ></textarea>
-        </div>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6"
+    (click)="mostrarModalRechazo.set(false)">
+    <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 w-full h-1 bg-red-600"></div>
+      <div class="w-12 h-12 bg-red-50 flex items-center justify-center mb-8">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="square" />
+        </svg>
+      </div>
+      <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">¿RECHAZAR SOLICITUD?</h3>
+      @if (entrenadorSeleccionado(); as e) {
+      <p class="text-sm text-gray-400 font-bold tracking-tight mb-2">
+        Vas a rechazar y eliminar la cuenta de:
+      </p>
+      <p class="text-lg font-black uppercase tracking-tight text-black mb-8">{{ e.nombre }}</p>
+      }
 
-        <p class="text-xs text-gray-400 uppercase tracking-[0.15em] font-bold mb-10">
-          Se eliminará la cuenta y se enviará un email con el motivo del rechazo.
-        </p>
+      <div class="mb-6">
+        <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-3">
+          MOTIVO DEL RECHAZO (REQUERIDO)
+        </label>
+        <textarea [ngModel]="motivoRechazo()" (ngModelChange)="motivoRechazo.set($event)"
+          (keydown.escape)="mostrarModalRechazo.set(false)" placeholder="Explica por qué rechazas esta solicitud..."
+          class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black resize-none h-24"></textarea>
+      </div>
 
-        <div class="flex gap-4">
-          <button (click)="confirmarRechazo()" [disabled]="loadingSolicitudes() || !motivoRechazo().trim()" class="flex-1 bg-red-600 text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-red-700 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
-            RECHAZAR Y ELIMINAR
-          </button>
-          <button (click)="mostrarModalRechazo.set(false)" class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
-            CANCELAR
-          </button>
-        </div>
+      <p class="text-xs text-gray-400 uppercase tracking-[0.15em] font-bold mb-10">
+        Se eliminará la cuenta y se enviará un email con el motivo del rechazo.
+      </p>
+
+      <div class="flex gap-4">
+        <button (click)="confirmarRechazo()" [disabled]="loadingSolicitudes() || !motivoRechazo().trim()"
+          class="flex-1 bg-red-600 text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-red-700 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+          RECHAZAR Y ELIMINAR
+        </button>
+        <button (click)="mostrarModalRechazo.set(false)"
+          class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
+          CANCELAR
+        </button>
       </div>
     </div>
+  </div>
   }
 
   <!-- Modal: Editar Usuario -->
   @if (mostrarModalEdicion()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6" (click)="mostrarModalEdicion.set(false)">
-      <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
-        <div class="absolute top-0 left-0 w-full h-1 bg-[#2ED38D]"></div>
-        <div class="w-12 h-12 bg-[#2ED38D] flex items-center justify-center mb-8">
-          <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="square"/>
-          </svg>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6"
+    (click)="mostrarModalEdicion.set(false)">
+    <div class="bg-white w-full max-w-md p-10 relative overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 w-full h-1 bg-[#2ED38D]"></div>
+      <div class="w-12 h-12 bg-[#2ED38D] flex items-center justify-center mb-8">
+        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            stroke-linecap="square" />
+        </svg>
+      </div>
+      <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">EDITAR USUARIO</h3>
+      @if (usuarioSeleccionado(); as u) {
+      <p class="text-sm text-gray-400 font-bold tracking-tight mb-6">
+        {{ u.nombre }} ({{ u.rol }})
+      </p>
+      }
+
+      @if (usuarioEnEdicion(); as edicion) {
+      <div class="space-y-4 mb-8">
+        <!-- Nombre -->
+        <div>
+          <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
+            NOMBRE
+          </label>
+          <input [ngModel]="edicion.nombre" (ngModelChange)="usuarioEnEdicion.set({...edicion, nombre: $event})"
+            type="text"
+            class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black" />
         </div>
-        <h3 class="text-3xl font-black uppercase tracking-tighter text-black mb-3">EDITAR USUARIO</h3>
-        @if (usuarioSeleccionado(); as u) {
-          <p class="text-sm text-gray-400 font-bold tracking-tight mb-6">
-            {{ u.nombre }} ({{ u.rol }})
-          </p>
-        }
-        
-        @if (usuarioEnEdicion(); as edicion) {
-          <div class="space-y-4 mb-8">
-            <!-- Nombre -->
-            <div>
-              <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
-                NOMBRE
-              </label>
-              <input 
-                [ngModel]="edicion.nombre"
-                (ngModelChange)="usuarioEnEdicion.set({...edicion, nombre: $event})"
-                type="text"
-                class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black"
-              />
-            </div>
 
-            <!-- Correo -->
-            <div>
-              <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
-                CORREO
-              </label>
-              <input 
-                [ngModel]="edicion.correo"
-                (ngModelChange)="usuarioEnEdicion.set({...edicion, correo: $event})"
-                type="email"
-                class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black"
-              />
-            </div>
+        <!-- Correo -->
+        <div>
+          <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
+            CORREO
+          </label>
+          <input [ngModel]="edicion.correo" (ngModelChange)="usuarioEnEdicion.set({...edicion, correo: $event})"
+            type="email"
+            class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black" />
+        </div>
 
-            <!-- Estado -->
-            <div>
-              <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
-                ESTADO
-              </label>
-              <select 
-                [ngModel]="edicion.estado"
-                (ngModelChange)="usuarioEnEdicion.set({...edicion, estado: $event})"
-                class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black"
-              >
-                <option value="ACTIVO">ACTIVO</option>
-                <option value="INACTIVO">INACTIVO</option>
-                <option value="BLOQUEADO">BLOQUEADO</option>
-              </select>
-            </div>
-          </div>
-        }
-
-        <div class="flex gap-4">
-          <button (click)="confirmarEdicion()" [disabled]="loadingUsuarios()" class="flex-1 bg-black text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300 disabled:opacity-30">
-            GUARDAR CAMBIOS
-          </button>
-          <button (click)="mostrarModalEdicion.set(false)" class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
-            CANCELAR
-          </button>
+        <!-- Estado -->
+        <div>
+          <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-300 block mb-2">
+            ESTADO
+          </label>
+          <select [ngModel]="edicion.estado" (ngModelChange)="usuarioEnEdicion.set({...edicion, estado: $event})"
+            class="w-full bg-white border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-black">
+            <option value="ACTIVO">ACTIVO</option>
+            <option value="INACTIVO">INACTIVO</option>
+            <option value="BLOQUEADO">BLOQUEADO</option>
+          </select>
         </div>
       </div>
+      }
+
+      <div class="flex gap-4">
+        <button (click)="confirmarEdicion()" [disabled]="loadingUsuarios()"
+          class="flex-1 bg-black text-white py-4 text-xs font-black tracking-[0.3em] uppercase hover:bg-[#2ED38D] hover:text-black transition-all duration-300 disabled:opacity-30">
+          GUARDAR CAMBIOS
+        </button>
+        <button (click)="mostrarModalEdicion.set(false)"
+          class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
+          CANCELAR
+        </button>
+      </div>
     </div>
+  </div>
   }
 
 </div>

@@ -8,7 +8,7 @@ import { catchError, filter, take, switchMap } from 'rxjs/operators';
 const API_REFRESH = '/api/v1/auth/refresh';
 let refreshing  = false;
 let loggingOut  = false;
-const refreshDone$ = new BehaviorSubject<boolean>(false);
+const refreshDone$ = new BehaviorSubject<boolean | null>(null);
 
 export function setLoggingOut(value: boolean) { loggingOut = value; }
 
@@ -34,15 +34,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // Otra petición ya está refrescando → encolar y reintentar cuando termine
       if (refreshing) {
         return refreshDone$.pipe(
-          filter(done => done),
+          filter(done => done !== null),
           take(1),
-          switchMap(() => next(conCredenciales))
+          switchMap((done) => done ? next(conCredenciales) : throwError(() => error))
         );
       }
 
       // Primera petición que recibe 401 → intentar refresh
       refreshing = true;
-      refreshDone$.next(false);
+      refreshDone$.next(null);
 
       return http.post(API_REFRESH, {}, { withCredentials: true }).pipe(
         switchMap(() => {

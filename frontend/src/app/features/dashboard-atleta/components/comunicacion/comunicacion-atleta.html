@@ -75,12 +75,12 @@
               <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
             </svg>
             <input
-              [(ngModel)]="busqueda"
+              [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
               placeholder="Buscar en hilos..."
               class="w-full border border-[#E5E7EB] focus:border-black pl-9 pr-4 py-2.5 text-sm font-light text-black placeholder:text-gray-300 outline-none transition-colors"
             />
-            @if (busqueda) {
-              <button (click)="busqueda = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors">
+            @if (busqueda()) {
+              <button (click)="busqueda.set('')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
                   <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
                 </svg>
@@ -135,14 +135,14 @@
                     <p class="text-sm font-black text-black group-hover:text-black transition-colors truncate">{{ hilo.titulo }}</p>
                     <p class="text-xs font-light text-gray-400 mt-1 truncate">
                       <span class="font-bold text-gray-500">
-                        {{ ultimoMensaje(hilo).de === 'atleta' ? 'Tú' : profesionalNombre() }}:
+                        {{ ultimoMensaje(hilo)?.de === 'atleta' ? 'Tú' : profesionalNombre() }}:
                       </span>
-                      {{ ultimoMensaje(hilo).texto || '— adjunto' }}
+                      {{ ultimoMensaje(hilo)?.texto || '— adjunto' }}
                     </p>
                   </div>
                   <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
                     <p class="text-[10px] font-light text-gray-300 whitespace-nowrap">
-                      {{ formatearFecha(ultimoMensaje(hilo).fecha) }}
+                      {{ ultimoMensaje(hilo)?.fecha ? formatearFecha(ultimoMensaje(hilo)!.fecha) : '' }}
                     </p>
                     <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-gray-300">
                       {{ hilo.mensajes.length }} msg{{ hilo.mensajes.length !== 1 ? 's' : '' }}
@@ -212,7 +212,7 @@
         <div class="flex flex-col gap-2">
           <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400">ASUNTO</label>
           <input
-            [(ngModel)]="nuevoTitulo"
+            [ngModel]="nuevoTitulo()" (ngModelChange)="nuevoTitulo.set($event)"
             placeholder="Ej. Tengo dudas sobre mi técnica en sentadilla"
             class="border-b border-[#E5E7EB] focus:border-black py-2.5 text-sm font-medium text-black placeholder:text-gray-300 outline-none transition-colors bg-transparent"
           />
@@ -222,7 +222,7 @@
         <div class="flex flex-col gap-2">
           <label class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400">MENSAJE</label>
           <textarea
-            [(ngModel)]="nuevoTexto"
+            [ngModel]="nuevoTexto()" (ngModelChange)="nuevoTexto.set($event)"
             placeholder="Escribe el primer mensaje del hilo..."
             rows="4"
             class="border border-[#E5E7EB] focus:border-black p-4 text-sm font-light text-black placeholder:text-gray-300 outline-none resize-none leading-relaxed transition-colors"
@@ -264,7 +264,7 @@
           <div class="flex justify-end pt-1">
             <button
               (click)="crearHilo()"
-              [disabled]="!nuevoTitulo.trim() || !nuevoTexto.trim()"
+              [disabled]="!nuevoTitulo().trim() || !nuevoTexto().trim()"
               class="text-[11px] font-black tracking-[0.2em] uppercase px-6 py-2.5 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >ABRIR HILO</button>
           </div>
@@ -346,7 +346,7 @@
       <div class="border-t border-[#E5E7EB] pt-5">
         <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-3">RESPUESTA</p>
         <textarea
-          [(ngModel)]="textoRespuesta"
+          [ngModel]="textoRespuesta()" (ngModelChange)="textoRespuesta.set($event)"
           placeholder="Escribe tu respuesta..."
           rows="3"
           class="w-full border border-[#E5E7EB] focus:border-black p-4 text-sm font-light text-black placeholder:text-gray-300 outline-none resize-none leading-relaxed transition-colors mb-3"
@@ -388,7 +388,7 @@
         <div class="flex justify-end">
           <button
             (click)="responder()"
-            [disabled]="!textoRespuesta.trim() && !respuestaAdjuntos().length"
+            [disabled]="!textoRespuesta().trim() && !respuestaAdjuntos().length"
             class="text-[11px] font-black tracking-[0.2em] uppercase px-5 py-2.5 bg-black text-white hover:bg-[#2ED38D] hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >RESPONDER</button>
         </div>

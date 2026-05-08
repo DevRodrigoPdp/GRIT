@@ -23,12 +23,12 @@ export class AdminPage implements OnInit, OnDestroy {
   readonly paginaSolicitudes = signal(0);
   readonly totalPaginasSolicitudes = signal(0);
   readonly pageSize = 10;
-  
+
   // Estados Usuarios
-  readonly usuarios          = signal<UsuarioDTO[]>([]);
-  readonly loadingUsuarios   = signal(false);
-  readonly filtroRol         = signal<'TODOS' | 'ATLETA' | 'ENTRENADOR'>('TODOS');
-  readonly paginaUsuarios    = signal(0);
+  readonly usuarios = signal<UsuarioDTO[]>([]);
+  readonly loadingUsuarios = signal(false);
+  readonly filtroRol = signal<'TODOS' | 'ATLETA' | 'ENTRENADOR'>('TODOS');
+  readonly paginaUsuarios = signal(0);
   readonly totalPaginasUsuarios = signal(0);
   private _searchTimer: any;
   private _searchSolicitudesTimer: any;
@@ -47,7 +47,7 @@ export class AdminPage implements OnInit, OnDestroy {
   readonly mostrarModalExito = signal(false);
   readonly mostrarModalEliminacion = signal(false);
   readonly nombreAprobado = signal('');
-  
+
   // Edición de usuario
   readonly mostrarModalEdicion = signal(false);
   readonly usuarioEnEdicion = signal<Partial<UsuarioDTO> | null>(null);
@@ -63,8 +63,8 @@ export class AdminPage implements OnInit, OnDestroy {
   readonly solicitudesFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
     if (!query) return this.solicitudes();
-    return this.solicitudes().filter(s => 
-      s.nombre.toLowerCase().includes(query) || 
+    return this.solicitudes().filter(s =>
+      s.nombre.toLowerCase().includes(query) ||
       s.correo.toLowerCase().includes(query)
     );
   });
@@ -222,7 +222,7 @@ export class AdminPage implements OnInit, OnDestroy {
     if (!e || !motivo) return;
 
     this.loadingSolicitudes.set(true);
-    
+
     // Primero rechazar la solicitud, luego eliminar el usuario
     this.adminService.processReview(e.id, false, motivo).subscribe({
       next: () => {
@@ -315,7 +315,7 @@ export class AdminPage implements OnInit, OnDestroy {
     this.adminService.actualizarUsuario(u.id, edicion).subscribe({
       next: (usuarioActualizado) => {
         // Actualizar la lista de usuarios
-        this.usuarios.update(list => 
+        this.usuarios.update(list =>
           list.map(item => item.id === u.id ? usuarioActualizado : item)
         );
         this.mostrarModalEdicion.set(false);
