@@ -31,9 +31,11 @@ export class AdminPage implements OnInit, OnDestroy {
   readonly paginaUsuarios    = signal(0);
   readonly totalPaginasUsuarios = signal(0);
   private _searchTimer: any;
+  private _searchSolicitudesTimer: any;
 
   // Comunes
   readonly busqueda = signal('');
+  readonly busquedaSolicitudes = signal('');
   readonly error = signal<string | null>(null);
 
   // Selección y Modales
@@ -75,11 +77,13 @@ export class AdminPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearTimeout(this._searchTimer);
+    clearTimeout(this._searchSolicitudesTimer);
   }
 
   cambiarSeccion(seccion: 'SOLICITUDES' | 'USUARIOS') {
     this.seccionActual.set(seccion);
     this.busqueda.set('');
+    this.busquedaSolicitudes.set('');
     if (seccion === 'USUARIOS') this.cargarUsuarios();
   }
 
@@ -113,7 +117,12 @@ export class AdminPage implements OnInit, OnDestroy {
     this.error.set(null);
     this.paginaSolicitudes.set(pagina);
 
-    this.adminService.getPendingTrainers(pagina, this.pageSize).subscribe({
+    const q = this.busquedaSolicitudes();
+    const obs = q.trim()
+      ? this.adminService.buscarEntrenadores(q, pagina, this.pageSize)
+      : this.adminService.getPendingTrainers(pagina, this.pageSize);
+
+    obs.subscribe({
       next: (res) => {
         this.solicitudes.set(res.content);
         this.totalPaginasSolicitudes.set(res.totalPages);
@@ -125,6 +134,12 @@ export class AdminPage implements OnInit, OnDestroy {
         this.loadingSolicitudes.set(false);
       }
     });
+  }
+
+  onBusquedaSolicitudesChange(q: string) {
+    this.busquedaSolicitudes.set(q);
+    clearTimeout(this._searchSolicitudesTimer);
+    this._searchSolicitudesTimer = setTimeout(() => this.cargarSolicitudes(), 350);
   }
 
   seleccionarSolicitud(entrenador: EntrenadorPendienteDTO) {
@@ -231,6 +246,19 @@ export class AdminPage implements OnInit, OnDestroy {
         console.error(err);
         this.error.set('No se pudo rechazar la solicitud.');
         this.loadingSolicitudes.set(false);
+      }
+    });
+  }
+
+  toggleBloqueo(usuario: UsuarioDTO) {
+    const nuevoEstado = usuario.estado === 'BLOQUEADO' ? 'ACTIVO' : 'BLOQUEADO';
+    this.adminService.actualizarUsuario(usuario.id, { estado: nuevoEstado }).subscribe({
+      next: (actualizado) => {
+        this.usuarios.update(list => list.map(u => u.id === actualizado.id ? actualizado : u));
+      },
+      error: (err) => {
+        console.error(err);
+        this.error.set('No se pudo cambiar el estado del usuario.');
       }
     });
   }

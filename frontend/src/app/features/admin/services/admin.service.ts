@@ -60,25 +60,32 @@ export class AdminService {
   private readonly API = '/api/v1/admin';
 
   buscarUsuarios(q: string = '', page: number = 0, size: number = 10): Observable<{ usuarios: UsuarioDTO[]; totalPages: number }> {
+    const url = q.trim()
+      ? `${this.API}/usuarios/search`
+      : `${this.API}/usuarios`;
+
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
     if (q.trim()) params = params.set('search', q.trim());
 
     return this.http
-      .get<{ content: any[]; page: { totalPages: number } }>(`${this.API}/usuarios/search`, { params, withCredentials: true })
+      .get<any>(`${url}`, { params, withCredentials: true })
       .pipe(
-        map(r => ({
-          usuarios: (r.content ?? []).map((u: any) => ({
-            id: u.idPublico,
-            nombre: u.nombre,
-            correo: u.email,
-            rol: u.rol,
-            estado: u.estado,
-            fechaRegistro: u.registro,
-          })),
-          totalPages: r.page?.totalPages ?? 1,
-        })),
+        map(r => {
+          const lista: any[] = Array.isArray(r) ? r : (r?.content ?? r?.data ?? []);
+          return {
+            usuarios: lista.map((u: any) => ({
+              id: u.idPublico,
+              nombre: u.nombre,
+              correo: u.email,
+              rol: u.rol,
+              estado: u.estado,
+              fechaRegistro: u.registro ?? u.fechaRegistro ?? u.createdAt ?? null,
+            })),
+            totalPages: r?.page?.totalPages ?? r?.totalPages ?? 1,
+          };
+        }),
         catchError(() => of({ usuarios: [], totalPages: 0 })),
       );
   }
@@ -101,6 +108,21 @@ export class AdminService {
     return this.http.delete<void>(
       `${this.API}/usuarios/${id}`,
       { withCredentials: true }
+    );
+  }
+
+  /**
+   * Busca entrenadores pendientes por nombre o email.
+   */
+  buscarEntrenadores(q: string = '', page: number = 0, size: number = 10): Observable<PageResponse<EntrenadorPendienteDTO>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    if (q.trim()) params = params.set('q', q.trim());
+
+    return this.http.get<PageResponse<EntrenadorPendienteDTO>>(
+      `${this.API}/entrenadores/pendientes/search`,
+      { params, withCredentials: true }
     );
   }
 
