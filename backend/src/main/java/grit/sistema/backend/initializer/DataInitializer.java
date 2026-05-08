@@ -33,13 +33,13 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final CodeGenerator codeGenerator;
 
-    @Value("${app.seed.admin-email:admin@test.com}")
+    @Value("${application.seed.admin-email:admin@test.com}")
     private String adminEmail;
 
-    @Value("${app.seed.coach-email:coach@test.com}")
+    @Value("${application.seed.coach-email:coach@test.com}")
     private String coachEmail;
 
-    @Value("${app.seed.athlete-email:atleta@test.com}")
+    @Value("${application.seed.atleta-email:atleta@test.com}")
     private String athleteEmail;
 
     public DataInitializer(UsuarioRepository usuarioRepository,

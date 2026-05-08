@@ -4,7 +4,6 @@ import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
-import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.exception.business.BusinessException;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;

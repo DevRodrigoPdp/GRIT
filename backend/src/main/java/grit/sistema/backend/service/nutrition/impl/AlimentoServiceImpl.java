@@ -116,10 +116,7 @@ public class AlimentoServiceImpl implements AlimentoService {
     public Alimento obtenerAlimentoPorId(UUID id) {
         log.info("Obteniendo alimento con ID: {}", id);
         return alimentoRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Alimento no encontrado con ID: {}", id);
-                    return new EntityNotFoundException("Alimento no encontrado");
-                });
+                .orElseThrow(() -> new EntityNotFoundException("Alimento no encontrado"));
     }
 
     /**

@@ -16,14 +16,13 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.web.ErrorResponse;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -104,14 +103,23 @@ public class GlobalExceptionHandler {
     // --- En Validaciones ---
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        log.warn("Error de Validación {}: {}",
-                request.getRequestURI(), ex.getMessage());
-
-        ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST, "Error de Validación",
-                "Uno o más campos no cumplen con los requisitos.", "validation-error", request);
-
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .collect(Collectors.toMap(err -> err.getField(), err -> err.getDefaultMessage(), (a, b) -> a));
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        err -> err.getDefaultMessage() != null ? err.getDefaultMessage() : "Valor inválido",
+                        (existing, replacement) -> existing
+                ));
+
+        log.warn("Validación fallida en {}: Campos afectados: {}",
+                request.getRequestURI(), errors.keySet());
+
+        ProblemDetail pb = createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Error de Validación",
+                "La petición contiene datos inválidos. Revise el campo 'invalid_params'.",
+                "validation-error",
+                request
+        );
 
         pb.setProperty("invalid_params", errors);
         return pb;
@@ -310,8 +318,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RateLimitException.class)
     public ProblemDetail handleRateLimit(RateLimitException ex, HttpServletRequest request) {
-        log.warn("Se ha excedido el límite de peticiones {}:  {}",
-                request.getRequestURI(), ex.getMessage());
+        log.warn("RATE LIMIT: URI={} | Message={}", request.getRequestURI(), ex.getMessage());
+
         return createProblemDetail(
                 HttpStatus.TOO_MANY_REQUESTS,
                 "Demasidas peticiones",

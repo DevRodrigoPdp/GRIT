@@ -24,6 +24,8 @@ public class PwnedPasswordClient {
             String prefix = sha1Hex.substring(0, 5);
             String suffix = sha1Hex.substring(5);
 
+            log.info("Verificando integridad de credenciales (HIBP Prefix: {})", prefix);
+
             String response = pwnedRestTemplate.getForObject(HIBP_API_URL + prefix, String.class);
 
             return response != null && response.contains(suffix);

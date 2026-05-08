@@ -5,7 +5,6 @@ import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.dto.common.ArchivosAEliminarEventDTO;
 import grit.sistema.backend.dto.user.UsuarioBusquedaDTO;
-import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;

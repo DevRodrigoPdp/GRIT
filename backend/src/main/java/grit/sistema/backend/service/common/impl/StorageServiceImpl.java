@@ -46,6 +46,9 @@ public class StorageServiceImpl implements StorageService {
 
         String fileName = null;
         try {
+            log.info("Iniciando subida de archivo: {} (Tipo: {}, Tamaño: {} bytes)",
+                    file.getOriginalFilename(), file.getContentType(), file.getSize());
+
             byte[] finalBytes;
             String contentType = file.getContentType();
             String originalName = file.getOriginalFilename() != null ?
@@ -70,9 +73,11 @@ public class StorageServiceImpl implements StorageService {
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(finalBytes));
+
+            log.info("Archivo almacenado exitosamente en S3 con clave: {}", fileName);
             return fileName;
+
         } catch (IOException | S3Exception e) {
-            log.error("Error al subir archivo {}: {}", fileName, e.getMessage());
             throw new FileStorageException("Error en el almacenamiento persistente", e);
         }
     }
@@ -125,7 +130,6 @@ public class StorageServiceImpl implements StorageService {
             return fileName;
 
         } catch (IOException | S3Exception e) {
-            log.error("Error crítico al procesar foto de perfil: {}", e.getMessage());
             throw new FileStorageException("No se pudo procesar la foto de perfil", e);
         }
     }
@@ -198,16 +202,42 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private byte[] optimizarImagen(MultipartFile file) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        long startTime = System.currentTimeMillis();
+        long originalSize = file.getSize();
 
-        // Configuramos Thumbnailator
-        Thumbnails.of(file.getInputStream())
-                .size(1280, 720)       // Redimensionamos a un máximo de HD
-                .outputQuality(0.75)   // Reducimos calidad al 75% (ahorro masivo de espacio)
-                .outputFormat("jpg")   // Normalizamos todo a JPG
-                .toOutputStream(outputStream);
+        if (originalSize < 50 * 1024) {
+            log.info("Archivo pequeño detectado ({} KB), saltando optimización.", originalSize / 1024);
+            return file.getBytes();
+        }
 
-        return outputStream.toByteArray();
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            // Intento de optimización
+            Thumbnails.of(file.getInputStream())
+                    .size(1280, 720)
+                    .outputQuality(0.75)
+                    .outputFormat("jpg")
+                    .toOutputStream(outputStream);
+
+            byte[] optimizedBytes = outputStream.toByteArray();
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.info("Optimización exitosa: {} KB -> {} KB en {} ms",
+                    originalSize / 1024, optimizedBytes.length / 1024, duration);
+
+            return optimizedBytes;
+
+        } catch (Exception e) {
+            log.warn("Fallo en optimización para {}: {}. Usando archivo original como fallback.",
+                    file.getOriginalFilename(), e.getMessage());
+
+            try {
+                return file.getBytes();
+            } catch (IOException ioe) {
+                throw new FileStorageException("No se puede procesar el archivo", ioe);
+            }
+        }
     }
 
     private void validarMimeType(String contentType) {
