@@ -32,10 +32,15 @@ export class DashboardEntrenadorPage implements OnInit {
   codigoCopiado  = signal(false);
 
   // ── Ajustes ───────────────────────────────────────────────────────────────
+  private readonly PASS_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/;
+
   readonly passAbierto        = signal(false);
   readonly passActual         = signal('');
   readonly passNueva          = signal('');
   readonly passConfirm        = signal('');
+  readonly showPassActual     = signal(false);
+  readonly showPassNueva      = signal(false);
+  readonly showPassConfirm    = signal(false);
   readonly cambiandoPass      = signal(false);
   readonly passCambiada       = signal(false);
   readonly passError          = signal('');
@@ -155,8 +160,8 @@ export class DashboardEntrenadorPage implements OnInit {
       this.passError.set('Las contraseñas nuevas no coinciden.');
       return;
     }
-    if (this.passNueva().length < 8) {
-      this.passError.set('La contraseña debe tener al menos 8 caracteres.');
+    if (!this.PASS_REGEX.test(this.passNueva())) {
+      this.passError.set('La contraseña debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo.');
       return;
     }
     this.cambiandoPass.set(true);

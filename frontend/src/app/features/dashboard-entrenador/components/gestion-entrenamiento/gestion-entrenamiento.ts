@@ -27,6 +27,7 @@ export class GestionEntrenamientoComponent implements OnInit {
   readonly vista = signal<Vista>('lista');
   readonly rutinas = signal<Rutina[]>([]);
   readonly guardando = signal(false);
+  readonly errorGuardando = signal('');
   readonly rutinaDetalle = signal<Rutina | null>(null);
   readonly sesionDetalleIdx = signal(0);
   readonly sesionDetalleActiva = computed(() =>
@@ -200,11 +201,18 @@ export class GestionEntrenamientoComponent implements OnInit {
     const id = this.atletaId();
     if (!id || !this.nombreRutina().trim()) return;
     this.guardando.set(true);
+    this.errorGuardando.set('');
     this.entrenamiento.crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
-      .subscribe(rutina => {
-        this.rutinas.update(r => [...r, rutina]);
-        this.guardando.set(false);
-        this.vista.set('lista');
+      .subscribe({
+        next: rutina => {
+          this.rutinas.update(r => [...r, rutina]);
+          this.guardando.set(false);
+          this.vista.set('lista');
+        },
+        error: () => {
+          this.errorGuardando.set('No se pudo guardar la rutina. Inténtalo de nuevo.');
+          this.guardando.set(false);
+        },
       });
   }
 

@@ -124,8 +124,8 @@ export class EntrenamientoService {
         sesiones: (x.sesiones ?? []).map((s: any) => ({
           ...s,
           ejercicios: (s.ejercicios ?? []).map((e: any) => ({
-            id:     e.ejercicio?.id,
-            nombre: e.ejercicio?.nombre ?? '',
+            id:     e.ejercicio?.id ?? e.ejercicioId,
+            nombre: e.ejercicio?.nombre ?? e.ejercicioNombre ?? e.nombre ?? '',
             series: e.series,
             reps:   e.reps,
             notas:  e.notas ?? '',
