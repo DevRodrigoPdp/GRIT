@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { map, of } from 'rxjs';
+import { of } from 'rxjs';
 import { AuthService, Rol } from '../services/auth.service';
 
 
@@ -18,53 +18,54 @@ export const noAuthGuard: CanActivateFn = () => {
 
 /**
  * Guard de autenticación y autorización por rol.
- *
- * Si la sesión ya está cargada en signals → comprueba el rol directamente.
- * Si los signals están vacíos (recarga de página) → llama a GET /me para
- * restaurar la sesión desde la cookie HttpOnly antes de decidir.
- *
- * Uso en rutas:
- *   canActivate: [rolGuard('ATLETA')]
- *   canActivate: [rolGuard('ENTRENADOR')]
- *   canActivate: [rolGuard('ADMIN')]
+ * Espera a que la sesión sea inicializada por APP_INITIALIZER.
  */
 export function rolGuard(rolRequerido: Rol): CanActivateFn {
-  return (_route, state) => {
+  return async (_route, state) => {
     const auth   = inject(AuthService);
     const router = inject(Router);
 
-    const verificar = (rol: Rol | null) => {
-      console.log('Verificando rol:', rol, 'requerido:', rolRequerido);
-      if (!rol) return router.createUrlTree(['/login']);
-      if (rol !== rolRequerido) return router.createUrlTree(['/']);
-      const estado = auth.estado();
-      if (estado === 'PENDIENTE_REVISION') {
-        if (rol === 'ENTRENADOR' && !state.url.startsWith('/pendiente')) {
-          return router.createUrlTree(['/pendiente']);
-        }
-        if (rol !== 'ENTRENADOR') {
-          return router.createUrlTree(['/login']);
-        }
-      }
-      if (estado === 'RECHAZADO') {
-        return router.createUrlTree(['/login']);
-      }
-      return true;
-    };
-
-    // Sesión ya cargada → respuesta inmediata
-    if (auth.rol() !== null) {
-      console.log('Sesión ya cargada en signals');
-      return of(verificar(auth.rol()));
+    // Esperar a que la sesión esté inicializada (APP_INITIALIZER la marca)
+    let intentos = 0;
+    while (!auth.sessionInitialized() && intentos < 100) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      intentos++;
     }
 
-    console.log('Sesión no cargada, intentando restaurar con cookie');
-    // Sesión no cargada → intentar restaurar con cookie
-    return auth.me().pipe(
-      map(() => {
-        console.log('Sesión restaurada, verificando rol');
-        return verificar(auth.rol());
-      })
-    );
+    const rol = auth.rol();
+    console.log('Guard: rol=', rol, 'requerido=', rolRequerido);
+
+    // No hay autenticación
+    if (!rol) {
+      console.log('Guard: sin rol, redirigiendo a login');
+      return router.createUrlTree(['/login']);
+    }
+
+    // Rol incorrecto
+    if (rol !== rolRequerido) {
+      console.log('Guard: rol incorrecto, redirigiendo a home');
+      return router.createUrlTree(['/']);
+    }
+
+    // Verificar estado de la cuenta
+    const estado = auth.estado();
+    if (estado === 'PENDIENTE_REVISION') {
+      if (rol === 'ENTRENADOR' && !state.url.startsWith('/pendiente')) {
+        console.log('Guard: entrenador pendiente, redirigiendo a /pendiente');
+        return router.createUrlTree(['/pendiente']);
+      }
+      if (rol !== 'ENTRENADOR') {
+        console.log('Guard: cuenta pendiente (no entrenador), redirigiendo a login');
+        return router.createUrlTree(['/login']);
+      }
+    }
+
+    if (estado === 'RECHAZADO') {
+      console.log('Guard: cuenta rechazada, redirigiendo a login');
+      return router.createUrlTree(['/login']);
+    }
+
+    console.log('Guard: acceso permitido');
+    return true;
   };
 }
