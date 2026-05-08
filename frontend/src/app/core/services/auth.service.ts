@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of, EMPTY } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { setLoggingOut } from '../interceptors/auth.interceptor';
 
 // ── Tipos compartidos ────────────────────────────────────────────────────────
@@ -102,6 +102,23 @@ export class AuthService {
   readonly nombre              = signal<string | null>(null);
   readonly loginError          = signal<string | null>(null);
   readonly loading             = signal(false);
+  
+  // Indica si la sesión ya ha sido inicializada (importante para el guard)
+  readonly sessionInitialized  = signal(false);
+
+  constructor() {
+    // Restaurar sesión desde localStorage si existe (fallback para cookies que no persisten)
+    const saved = localStorage.getItem('grit_session');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        console.log('✓ Sesión restaurada desde localStorage:', data.rol);
+        this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
+      } catch (e) {
+        console.log('✗ Error al restaurar sesión desde localStorage');
+      }
+    }
+  }
 
   // ── Registro atleta ──────────────────────────────────────────────────────
 
@@ -236,12 +253,68 @@ export class AuthService {
       );
   }
 
+  // ── Inicialización de sesión ────────────────────────────────────────────
+
+  /**
+   * Restaura la sesión desde:
+   * 1. Cookie HttpOnly (preferido)
+   * 2. localStorage (fallback)
+   * Se ejecuta automáticamente vía APP_INITIALIZER.
+   */
+  initSession(): Observable<void> {
+    return this.http
+      .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
+      .pipe(
+        tap((res) => {
+          console.log('✓ Sesión restaurada desde cookie:', res.data.rol);
+          this.setSession(res.data.rol, res.data.estado,
+            res.data.tituloEntrenamiento, res.data.tituloNutricion,
+            res.data.servicio, res.data.nombre);
+          // Guardar en localStorage como backup
+          this.guardarSesionLocal();
+          this.sessionInitialized.set(true);
+        }),
+        map(() => void 0),
+        catchError((err) => {
+          // Cookie falló, intentar localStorage
+          console.log('✗ Cookie no disponible, intentando localStorage');
+          const saved = localStorage.getItem('grit_session');
+          if (saved) {
+            try {
+              const data = JSON.parse(saved);
+              console.log('✓ Sesión restaurada desde localStorage:', data.rol);
+              this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
+            } catch (e) {
+              console.log('✗ Error al restaurar sesión desde localStorage');
+              this.clearSession();
+            }
+          } else {
+            console.log('✗ No hay sesión en localStorage');
+            this.clearSession();
+          }
+          this.sessionInitialized.set(true);
+          return of(void 0);
+        })
+      );
+  }
+
+  private guardarSesionLocal() {
+    const data = {
+      rol: this.rol(),
+      estado: this.estado(),
+      tituloEntrenamiento: this.tituloEntrenamiento(),
+      tituloNutricion: this.tituloNutricion(),
+      servicio: this.servicio(),
+      nombre: this.nombre(),
+    };
+    localStorage.setItem('grit_session', JSON.stringify(data));
+  }
+
   // ── Me (restaurar sesión tras recarga) ───────────────────────────────────
 
   /**
    * Llama a GET /api/v1/auth/me usando la cookie HttpOnly existente.
-   * Usar en ngOnInit del dashboard para restaurar la sesión tras F5.
-   * TODO: descomentar llamada real y eliminar bloque mock cuando haya backend.
+   * Solo se usa desde componentes (no redirige, deja que el guard decida).
    */
   me(): Observable<MeResponse | null> {
     return this.http
@@ -253,7 +326,8 @@ export class AuthService {
             res.data.servicio, res.data.nombre);
         }),
         catchError((err) => {
-          if (err.status === 401 || err.status === 409) { this.clearSession(); this.router.navigate(['/login']); }
+          // No navegar aquí - deja que el guard lo haga
+          this.clearSession();
           return of(null);
         })
       );
@@ -289,6 +363,8 @@ export class AuthService {
     this.tituloNutricion.set(tituloNutricion);
     this.servicio.set(servicio);
     this.nombre.set(nombre);
+    // Guardar automáticamente en localStorage
+    this.guardarSesionLocal();
   }
 
   private clearSession() {
@@ -298,6 +374,8 @@ export class AuthService {
     this.tituloNutricion.set(null);
     this.servicio.set(null);
     this.nombre.set(null);
+    // Limpiar también localStorage
+    localStorage.removeItem('grit_session');
   }
 
   private redirigir(
