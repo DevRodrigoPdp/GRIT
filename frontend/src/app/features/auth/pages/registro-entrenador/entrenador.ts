@@ -97,6 +97,7 @@ export class EntrenadorPage implements OnInit {
   readonly submitted           = signal(false);
   readonly showPassword        = signal(false);
   readonly showConfirmPassword = signal(false);
+  readonly registroError       = signal<string | null>(null);
   private readonly _passwordValue = signal('');
 
   // Signals que reflejan las titulaciones seleccionadas para poder usar computed()
@@ -283,6 +284,7 @@ export class EntrenadorPage implements OnInit {
   onSubmit(): void {
     this.submitted.set(true);
     this.form.markAllAsTouched();
+    this.registroError.set(null);
 
     if (this.form.invalid || this.archivos().length === 0 || this.sinTitulacion()) {
       setTimeout(() => {
@@ -307,10 +309,21 @@ export class EntrenadorPage implements OnInit {
       certificaciones: this.archivos().map(a => a.file),
     })
     .subscribe({
-      next: () => {
-        // Ya se envía la foto junto con los certificados en el registro
+      next: () => {},
+      error: (err) => {
+        if (err.status === 409) {
+          this.registroError.set('El correo electrónico ya está registrado.');
+        } else if (err.status === 400) {
+          const msg = err.error?.message ?? err.error?.error;
+          this.registroError.set(msg ?? 'Datos inválidos. Revisa los campos.');
+        } else {
+          this.registroError.set('Error al enviar la solicitud. Inténtalo de nuevo.');
+        }
+        setTimeout(() => {
+          const banner = this.el.nativeElement.querySelector('.registro-error-banner');
+          banner?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 50);
       },
-      error: () => {},
     });
   }
 

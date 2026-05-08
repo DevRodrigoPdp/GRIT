@@ -37,7 +37,7 @@ export class LoginPage {
 
   form = this.fb.group({
     correo:   ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   get errorActual(): { titulo: string; desc: string } | null {
