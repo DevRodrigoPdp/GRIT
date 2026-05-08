@@ -201,7 +201,7 @@ export class AtletaService {
           sesiones: (d.sesiones ?? []).map((s: any) => ({
             ...s,
             ejercicios: (s.ejercicios ?? []).map((e: any) => ({
-              nombre:   e.ejercicioNombre ?? e.nombre ?? '',
+              nombre:   e.ejercicioNombre ?? e.ejercicio?.nombre ?? e.nombre ?? '',
               series:   e.series  ?? 0,
               reps:     String(e.reps ?? ''),
               notas:    e.notas   ?? '',
