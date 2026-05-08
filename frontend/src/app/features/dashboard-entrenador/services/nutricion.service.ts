@@ -198,6 +198,12 @@ export class NutricionService {
       .pipe(map(() => undefined));
   }
 
+  desactivarPlan(_atletaId: string, planId: string): Observable<void> {
+    return this.http
+      .patch<ApiResponse<void>>(`${this.API}/planes/${planId}/desactivar`, {}, { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
+
   calcularMacros(comidas: Comida[]): MacrosTotales {
     let kcal = 0, prot = 0, carbs = 0, grasa = 0;
     for (const comida of (comidas ?? [])) {

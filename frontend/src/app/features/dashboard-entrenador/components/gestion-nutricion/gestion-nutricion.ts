@@ -131,6 +131,17 @@ export class GestionNutricionComponent implements OnInit {
     const atletaId    = this.atletaId();
     const editandoId  = this.planEditandoId();
     if (!atletaId || !this.nombrePlan().trim()) return;
+
+    if (this.comidas().length === 0) {
+      this.errorGuardando.set('El plan debe tener al menos una comida.');
+      return;
+    }
+    const comidaSinAlimentos = this.comidas().find(c => c.alimentos.length === 0);
+    if (comidaSinAlimentos) {
+      this.errorGuardando.set(`"${comidaSinAlimentos.nombre}" no tiene alimentos. Añade al menos uno o elimina la comida.`);
+      return;
+    }
+
     this.guardando.set(true);
     this.errorGuardando.set('');
 
@@ -179,6 +190,16 @@ export class GestionNutricionComponent implements OnInit {
     if (!id) return;
     this.nutricion.activarPlan(id, planId).subscribe(() => {
       this.planes.update(p => p.map(x => ({ ...x, activo: x.id === planId })));
+      if (this.planDetalle()?.id === planId) this.planDetalle.update(p => p ? { ...p, activo: true } : p);
+    });
+  }
+
+  desactivarPlan(planId: string) {
+    const id = this.atletaId();
+    if (!id) return;
+    this.nutricion.desactivarPlan(id, planId).subscribe(() => {
+      this.planes.update(p => p.map(x => x.id === planId ? { ...x, activo: false } : x));
+      if (this.planDetalle()?.id === planId) this.planDetalle.update(p => p ? { ...p, activo: false } : p);
     });
   }
 

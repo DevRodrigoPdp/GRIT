@@ -209,6 +209,8 @@
         <div class="flex items-center gap-3 flex-shrink-0">
           @if (rutina.activa) {
             <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D]">● ACTIVA</span>
+            <button (click)="$event.stopPropagation(); desactivarRutina(rutina.id)"
+              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-orange-400 transition-colors opacity-0 group-hover:opacity-100">DESACTIVAR</button>
           } @else {
             <button (click)="$event.stopPropagation(); activarRutina(rutina.id)"
               class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
@@ -258,7 +260,12 @@
       }
     </div>
     <div class="flex items-center gap-3 flex-shrink-0 mt-1">
-      @if (!rutina.activa) {
+      @if (rutina.activa) {
+        <button (click)="desactivarRutina(rutina.id); rutinaDetalle.set(rutinas().find(r => r.id === rutina.id) ?? rutina)"
+          class="text-xs font-bold tracking-[0.2em] uppercase text-orange-400 hover:text-orange-600 transition-colors">
+          DESACTIVAR
+        </button>
+      } @else {
         <button (click)="activarRutina(rutina.id); rutinaDetalle.set(rutinas().find(r => r.id === rutina.id) ?? rutina)"
           class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors">
           ACTIVAR
@@ -543,6 +550,9 @@
         <p class="text-xs font-light text-gray-300 border-l border-[#E5E7EB] pl-6">Escribe un nombre para poder guardar</p>
       }
     </div>
+    @if (errorGuardando()) {
+      <p class="text-xs font-bold text-red-500 mr-4">{{ errorGuardando() }}</p>
+    }
     <button (click)="guardarRutina()" [disabled]="!nombreRutina().trim() || guardando()"
       class="text-sm font-black tracking-[0.15em] uppercase px-8 py-3 transition-colors"
       [class]="nombreRutina().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-300 cursor-not-allowed'">

@@ -124,10 +124,10 @@ export class EntrenamientoService {
         sesiones: (x.sesiones ?? []).map((s: any) => ({
           ...s,
           ejercicios: (s.ejercicios ?? []).map((e: any) => ({
-            id:     e.ejercicio?.id,
-            nombre: e.ejercicio?.nombre ?? '',
-            series: e.series,
-            reps:   e.reps,
+            id:     e.ejercicio?.id ?? e.id,
+            nombre: e.ejercicio?.nombre ?? e.nombre ?? '',
+            series: e.series ?? 0,
+            reps:   String(e.reps ?? ''),
             notas:  e.notas ?? '',
           })),
         })),
@@ -174,6 +174,12 @@ export class EntrenamientoService {
   activarRutina(_atletaId: string, rutinaId: string): Observable<void> {
     return this.http
       .patch<ApiResponse<void>>(`${this.API}/rutinas/${rutinaId}/activar`, {})
+      .pipe(map(() => undefined));
+  }
+
+  desactivarRutina(_atletaId: string, rutinaId: string): Observable<void> {
+    return this.http
+      .patch<ApiResponse<void>>(`${this.API}/rutinas/${rutinaId}/desactivar`, {})
       .pipe(map(() => undefined));
   }
 

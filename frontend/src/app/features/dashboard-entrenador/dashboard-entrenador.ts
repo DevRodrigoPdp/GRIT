@@ -31,6 +31,10 @@ export class DashboardEntrenadorPage implements OnInit {
   filtroServicio = signal<Filtro>('TODOS');
   codigoCopiado  = signal(false);
 
+  // ── Desconectar atleta ────────────────────────────────────────────────────
+  readonly confirmandoDesconectar = signal<string | null>(null);
+  readonly desconectando          = signal(false);
+
   // ── Ajustes ───────────────────────────────────────────────────────────────
   readonly passAbierto        = signal(false);
   readonly passActual         = signal('');
@@ -44,6 +48,17 @@ export class DashboardEntrenadorPage implements OnInit {
   readonly confirmarBaja      = signal(false);
   readonly textoConfirmaBaja  = signal('');
   readonly eliminandoCuenta   = signal(false);
+
+  // ── Editar perfil ─────────────────────────────────────────────────────────
+  readonly editarPerfilAbierto  = signal(false);
+  readonly editNombre           = signal('');
+  readonly editDescripcion      = signal('');
+  readonly editExperiencia      = signal(0);
+  readonly editMasters          = signal<string[]>([]);
+  readonly nuevoMaster          = signal('');
+  readonly guardandoPerfil      = signal(false);
+  readonly perfilGuardado       = signal(false);
+  readonly perfilError          = signal('');
 
 
   readonly navItems: { id: Vista; label: string }[] = [
@@ -180,6 +195,76 @@ export class DashboardEntrenadorPage implements OnInit {
         this.auth.logout();
       },
       error: () => this.eliminandoCuenta.set(false),
+    });
+  }
+
+  desconectarAtleta(atletaId: string): void {
+    if (this.confirmandoDesconectar() !== atletaId) {
+      this.confirmandoDesconectar.set(atletaId);
+      return;
+    }
+    this.desconectando.set(true);
+    this.entrenador.desconectarAtleta(atletaId).subscribe({
+      next: () => {
+        this.atletas.update(a => a.filter(x => x.id !== atletaId));
+        this.atletaActivo.set(null);
+        this.confirmandoDesconectar.set(null);
+        this.desconectando.set(false);
+      },
+      error: () => {
+        this.confirmandoDesconectar.set(null);
+        this.desconectando.set(false);
+      },
+    });
+  }
+
+  abrirEditarPerfil(): void {
+    const p = this.perfil();
+    this.editNombre.set(p?.nombre ?? '');
+    this.editDescripcion.set(p?.descripcion ?? '');
+    this.editExperiencia.set(p?.experienciaAnos ?? 0);
+    this.editMasters.set([...(p?.masters ?? [])]);
+    this.perfilGuardado.set(false);
+    this.perfilError.set('');
+    this.editarPerfilAbierto.set(true);
+  }
+
+  agregarMaster(): void {
+    const m = this.nuevoMaster().trim();
+    if (!m || this.editMasters().includes(m)) return;
+    this.editMasters.update(l => [...l, m]);
+    this.nuevoMaster.set('');
+  }
+
+  eliminarMaster(idx: number): void {
+    this.editMasters.update(l => l.filter((_, i) => i !== idx));
+  }
+
+  guardarPerfil(): void {
+    this.guardandoPerfil.set(true);
+    this.perfilError.set('');
+    this.entrenador.actualizarPerfil({
+      nombre:         this.editNombre(),
+      descripcion:    this.editDescripcion(),
+      experienciaAnos: this.editExperiencia(),
+      masters:        this.editMasters(),
+    }).subscribe({
+      next: () => {
+        this.perfil.update(p => p ? {
+          ...p,
+          nombre:          this.editNombre(),
+          descripcion:     this.editDescripcion(),
+          experienciaAnos: this.editExperiencia(),
+          masters:         this.editMasters(),
+        } : p);
+        this.perfilGuardado.set(true);
+        this.guardandoPerfil.set(false);
+        this.editarPerfilAbierto.set(false);
+      },
+      error: () => {
+        this.perfilError.set('Error al guardar. Inténtalo de nuevo.');
+        this.guardandoPerfil.set(false);
+      },
     });
   }
 

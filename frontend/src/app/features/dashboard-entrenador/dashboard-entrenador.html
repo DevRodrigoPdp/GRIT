@@ -197,6 +197,26 @@
                   <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2 py-1 bg-[#2ED38D] text-black">NUTR</span>
                 }
               </div>
+
+              <!-- Dar de baja -->
+              <div class="flex items-center gap-2 flex-shrink-0 border-l border-[#E5E7EB] pl-4">
+                @if (confirmandoDesconectar() === atleta.id) {
+                  <span class="text-[10px] font-light text-gray-400">¿Confirmar baja?</span>
+                  <button (click)="desconectarAtleta(atleta.id)" [disabled]="desconectando()"
+                    class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-40">
+                    {{ desconectando() ? '...' : 'CONFIRMAR' }}
+                  </button>
+                  <button (click)="confirmandoDesconectar.set(null)"
+                    class="text-[10px] font-bold tracking-[0.1em] uppercase text-gray-400 hover:text-black transition-colors">
+                    CANCELAR
+                  </button>
+                } @else {
+                  <button (click)="desconectarAtleta(atleta.id)"
+                    class="text-[10px] font-bold tracking-[0.1em] uppercase text-gray-300 hover:text-red-400 transition-colors">
+                    DAR DE BAJA
+                  </button>
+                }
+              </div>
             </div>
 
             <!-- Tabs de sección -->
@@ -274,6 +294,85 @@
           <div class="mb-10">
 
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-black leading-none">AJUSTES</h1>
+          </div>
+
+          <!-- Editar perfil (desplegable) -->
+          <div class="mb-6 border border-[#E5E7EB]">
+            <button type="button" (click)="editarPerfilAbierto() ? editarPerfilAbierto.set(false) : abrirEditarPerfil()"
+              class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-black">EDITAR PERFIL</p>
+              <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ editarPerfilAbierto() ? '▲' : '▼' }}</span>
+            </button>
+
+            @if (editarPerfilAbierto()) {
+              <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+                @if (perfilGuardado()) {
+                  <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2">
+                    <p class="text-sm font-bold text-[#2ED38D]">Perfil actualizado correctamente.</p>
+                  </div>
+                }
+                @if (perfilError()) {
+                  <div class="border border-red-300 px-5 py-4 mt-4 mb-2">
+                    <p class="text-sm text-red-500">{{ perfilError() }}</p>
+                  </div>
+                }
+                <div class="flex flex-col gap-4 mt-4">
+                  <div>
+                    <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NOMBRE</label>
+                    <input type="text" [value]="editNombre()"
+                      (input)="editNombre.set($any($event.target).value)"
+                      class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">SOBRE MÍ</label>
+                    <textarea [value]="editDescripcion()"
+                      (input)="editDescripcion.set($any($event.target).value)"
+                      rows="3" placeholder="Describe tu experiencia, metodología..."
+                      class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-light focus:outline-none focus:border-black resize-none"></textarea>
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">AÑOS DE EXPERIENCIA</label>
+                    <input type="number" min="0" max="60" [value]="editExperiencia()"
+                      (input)="editExperiencia.set(+$any($event.target).value)"
+                      class="w-32 border border-[#E5E7EB] px-4 py-2.5 text-sm focus:outline-none focus:border-black" />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-2">FORMACIÓN ADICIONAL (MÁSTERES)</label>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      @for (master of editMasters(); track $index; let i = $index) {
+                        <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
+                          <span class="text-xs font-medium text-black">{{ master }}</span>
+                          <button (click)="eliminarMaster(i)" class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                        </div>
+                      }
+                      @if (editMasters().length === 0) {
+                        <p class="text-sm font-light text-gray-300">Ninguno añadido.</p>
+                      }
+                    </div>
+                    <div class="flex gap-2">
+                      <input [value]="nuevoMaster()"
+                        (input)="nuevoMaster.set($any($event.target).value)"
+                        (keydown.enter)="agregarMaster()"
+                        placeholder="Ej. Máster en Alto Rendimiento..."
+                        class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent" />
+                      <button (click)="agregarMaster()" [disabled]="!nuevoMaster().trim()"
+                        class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        [class]="nuevoMaster().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
+                        AÑADIR
+                      </button>
+                    </div>
+                  </div>
+                  <button type="button" (click)="guardarPerfil()"
+                    [disabled]="!editNombre().trim() || guardandoPerfil()"
+                    class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors"
+                    [class]="editNombre().trim() && !guardandoPerfil()
+                      ? 'bg-black text-white hover:bg-[#2ED38D]'
+                      : 'bg-[#F3F4F6] text-gray-400 cursor-not-allowed'">
+                    {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR PERFIL' }}
+                  </button>
+                </div>
+              </div>
+            }
           </div>
 
           <!-- Cambiar contraseña (desplegable) -->

@@ -117,4 +117,14 @@ export class EntrenadorService {
     return this.http.post<ApiResponseDTO<void>>(`${this.API}/ampliar-formacion`, fd, { withCredentials: true })
       .pipe(map(() => undefined));
   }
+
+  desconectarAtleta(atletaId: string): Observable<void> {
+    return this.http.delete<ApiResponseDTO<void>>(`${this.API}/atletas/${atletaId}/desconectar`, { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
+
+  actualizarPerfil(data: { nombre: string; descripcion: string; experienciaAnos: number; masters: string[] }): Observable<void> {
+    return this.http.put<ApiResponseDTO<void>>(`${this.API}/perfil`, data, { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
 }

@@ -27,6 +27,7 @@ export class GestionEntrenamientoComponent implements OnInit {
   readonly vista = signal<Vista>('lista');
   readonly rutinas = signal<Rutina[]>([]);
   readonly guardando = signal(false);
+  readonly errorGuardando = signal('');
   readonly rutinaDetalle = signal<Rutina | null>(null);
   readonly sesionDetalleIdx = signal(0);
   readonly sesionDetalleActiva = computed(() =>
@@ -199,7 +200,15 @@ export class GestionEntrenamientoComponent implements OnInit {
   guardarRutina(): void {
     const id = this.atletaId();
     if (!id || !this.nombreRutina().trim()) return;
+
+    const totalEj = this.sesiones().reduce((s, ses) => s + ses.ejercicios.length, 0);
+    if (totalEj === 0) {
+      this.errorGuardando.set('La rutina debe tener al menos un ejercicio en alguna sesión.');
+      return;
+    }
+
     this.guardando.set(true);
+    this.errorGuardando.set('');
     this.entrenamiento.crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
       .subscribe(rutina => {
         this.rutinas.update(r => [...r, rutina]);
@@ -213,6 +222,14 @@ export class GestionEntrenamientoComponent implements OnInit {
     if (!id) return;
     this.entrenamiento.activarRutina(id, rutinaId).subscribe(() =>
       this.rutinas.update(r => r.map(x => ({ ...x, activa: x.id === rutinaId })))
+    );
+  }
+
+  desactivarRutina(rutinaId: string): void {
+    const id = this.atletaId();
+    if (!id) return;
+    this.entrenamiento.desactivarRutina(id, rutinaId).subscribe(() =>
+      this.rutinas.update(r => r.map(x => x.id === rutinaId ? { ...x, activa: false } : x))
     );
   }
 

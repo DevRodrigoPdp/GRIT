@@ -82,6 +82,10 @@
           <div class="flex items-center gap-2 flex-shrink-0">
             @if (plan.activo) {
               <span class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 bg-[#2ED38D] text-black">● ACTIVO</span>
+              <button (click)="$event.stopPropagation(); desactivarPlan(plan.id)"
+                class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 border border-transparent text-gray-300 hover:border-orange-200 hover:text-orange-400 transition-colors opacity-0 group-hover:opacity-100">
+                DESACTIVAR
+              </button>
             } @else {
               <button (click)="$event.stopPropagation(); activarPlan(plan.id)"
                 class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 border border-black text-black hover:bg-black hover:text-white transition-colors opacity-0 group-hover:opacity-100">
@@ -143,7 +147,12 @@
       }
     </div>
     <div class="flex items-center gap-3 flex-shrink-0 mt-1">
-      @if (!plan.activo) {
+      @if (plan.activo) {
+        <button (click)="desactivarPlan(plan.id)"
+          class="text-xs font-bold tracking-[0.2em] uppercase text-orange-400 hover:text-orange-600 transition-colors">
+          DESACTIVAR
+        </button>
+      } @else {
         <button (click)="activarPlan(plan.id)"
           class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors">
           ACTIVAR

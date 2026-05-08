@@ -131,26 +131,21 @@ export class ComunicacionComponent implements OnInit {
 
     const ctx = this.servicio() === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
 
-    // CAMBIO: El tipo esperado es directamente HiloResumenDTO[] o any[]
-    this.http.get<any[]>(
+    this.http.get<any>(
       `${this.API}/hilos?atletaId=${id}&contexto=${ctx}`
     ).subscribe({
-      next: (res) => {
-        // Validamos que 'res' sea un array antes de mapear
-        if (Array.isArray(res)) {
-          const hilosMapeados = res.map((h: any) => ({
-            id: h.id,
-            titulo: h.titulo,
-            categoria: h.categoria.toLowerCase() as CategoriaHilo,
-            de: (h.de === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
-            fechaAbierto: new Date(h.fechaAbierto),
-            leido: h.leidoPorMi,
-            mensajes: [], // La lista de resumen no trae mensajes, es correcto
-          }));
-          this.hilos.set(hilosMapeados);
-        } else {
-          console.error("La respuesta del servidor no es un array:", res);
-        }
+      next: (res: any) => {
+        const arr: any[] = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
+        const hilosMapeados = arr.map((h: any) => ({
+          id: h.id,
+          titulo: h.titulo,
+          categoria: h.categoria.toLowerCase() as CategoriaHilo,
+          de: (h.de === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
+          fechaAbierto: new Date(h.fechaAbierto),
+          leido: h.leidoPorMi,
+          mensajes: [],
+        }));
+        this.hilos.set(hilosMapeados);
       },
       error: (err) => console.error("Error cargando hilos:", err)
     });
@@ -208,7 +203,7 @@ export class ComunicacionComponent implements OnInit {
           console.error('No se recibió respuesta del servidor');
           return;
         }
-        const h = r;
+        const h = r?.data ?? r;
         const hiloCompleto: Hilo = {
           id: h.id,
           titulo: h.titulo,
