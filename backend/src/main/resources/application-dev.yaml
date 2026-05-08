@@ -43,6 +43,8 @@ logging:
     org.springdoc: ERROR
 
 application:
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
     security:
       pepper: ${SECURITY_PEPPER_PROD:pepper_dev_local_secret_2026}
       jwt:

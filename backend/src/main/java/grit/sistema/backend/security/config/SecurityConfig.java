@@ -6,6 +6,7 @@ import grit.sistema.backend.security.handler.CustomAccessDeniedHandler;
 import grit.sistema.backend.security.handler.JwtAuthenticationEntryPoint;
 import grit.sistema.backend.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,6 +35,9 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final RateLimitFilter rateLimitFilter;
     private final MDCFilter mdcFilter;
+
+    @Value("${application.cors.allowed-origins}")
+    private String allowedOrigins;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -83,11 +87,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:4200",
-                "https://wicked-renetta-palatalized.ngrok-free.app",
-                "https://*.ngrok-free.app"
-        ));
+        config.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
 
         // Métodos permitidos
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
@@ -110,6 +110,7 @@ public class SecurityConfig {
 
         // Permitir envío de cookies/credenciales si fuera necesario
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

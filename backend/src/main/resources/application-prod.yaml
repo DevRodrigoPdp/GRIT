@@ -34,6 +34,8 @@ logging:
     org.springframework.security: WARN
 
 application:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   security:
     pepper: ${SECURITY_PEPPER_PROD}
     jwt:
