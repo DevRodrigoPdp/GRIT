@@ -31,6 +31,10 @@ export class DashboardEntrenadorPage implements OnInit {
   filtroServicio = signal<Filtro>('TODOS');
   codigoCopiado  = signal(false);
 
+  // ── Desconectar atleta ────────────────────────────────────────────────────
+  readonly confirmandoDesconectar = signal<string | null>(null);
+  readonly desconectando          = signal(false);
+
   // ── Ajustes ───────────────────────────────────────────────────────────────
   readonly passAbierto        = signal(false);
   readonly passActual         = signal('');
@@ -39,12 +43,38 @@ export class DashboardEntrenadorPage implements OnInit {
   readonly cambiandoPass      = signal(false);
   readonly passCambiada       = signal(false);
   readonly passError          = signal('');
+  readonly showPassActual     = signal(false);
+  readonly showPassNueva      = signal(false);
+  readonly showPassConfirm    = signal(false);
 
   readonly bajaAbierta        = signal(false);
   readonly confirmarBaja      = signal(false);
   readonly textoConfirmaBaja  = signal('');
   readonly eliminandoCuenta   = signal(false);
 
+  private readonly PASS_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/;
+
+  readonly passReglas = computed(() => {
+    const v = this.passNueva();
+    return [
+      { label: 'Mínimo 8 caracteres',  ok: v.length >= 8 },
+      { label: 'Una mayúscula',         ok: /[A-Z]/.test(v) },
+      { label: 'Una minúscula',         ok: /[a-z]/.test(v) },
+      { label: 'Un número',             ok: /\d/.test(v) },
+      { label: 'Un carácter especial',  ok: /[^a-zA-Z\d]/.test(v) },
+    ];
+  });
+
+  // ── Editar perfil ─────────────────────────────────────────────────────────
+  readonly editarPerfilAbierto  = signal(false);
+  readonly editNombre           = signal('');
+  readonly editDescripcion      = signal('');
+  readonly editExperiencia      = signal(0);
+  readonly editMasters          = signal<string[]>([]);
+  readonly nuevoMaster          = signal('');
+  readonly guardandoPerfil      = signal(false);
+  readonly perfilGuardado       = signal(false);
+  readonly perfilError          = signal('');
 
   readonly navItems: { id: Vista; label: string }[] = [
     { id: 'atletas', label: 'ATLETAS' },
@@ -63,7 +93,6 @@ export class DashboardEntrenadorPage implements OnInit {
         filtro === 'TODOS' ||
         a.servicio === filtro ||
         a.servicio === 'AMBOS';
-      // Ocultar atletas cuyo servicio no cubre ninguna titulación del profesional
       const esRelevante =
         (tieneEntr && (a.servicio === 'ENTRENAMIENTO' || a.servicio === 'AMBOS')) ||
         (tieneNutr && (a.servicio === 'NUTRICION'     || a.servicio === 'AMBOS'));
@@ -91,15 +120,8 @@ export class DashboardEntrenadorPage implements OnInit {
   });
 
   ngOnInit() {
-    // Restaurar sesión si es necesario (por si el guard no lo hizo)
-    this.auth.me().subscribe(() => {
-      this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
-      this.entrenador.getMisAtletas().subscribe(a => {
-        this.atletas.set(a);
-        const primero = a.find(x => x.servicio === 'AMBOS') ?? a[0];
-        if (primero) this.seleccionarAtleta(primero);
-      });
-    });
+    this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
+    this.entrenador.getMisAtletas().subscribe(a => this.atletas.set(a));
   }
 
   navegarA(vista: Vista): void {
@@ -154,8 +176,8 @@ export class DashboardEntrenadorPage implements OnInit {
       this.passError.set('Las contraseñas nuevas no coinciden.');
       return;
     }
-    if (this.passNueva().length < 8) {
-      this.passError.set('La contraseña debe tener al menos 8 caracteres.');
+    if (!this.PASS_REGEX.test(this.passNueva())) {
+      this.passError.set('La contraseña no cumple los requisitos de seguridad.');
       return;
     }
     this.cambiandoPass.set(true);
@@ -186,4 +208,73 @@ export class DashboardEntrenadorPage implements OnInit {
     });
   }
 
+  desconectarAtleta(atletaId: string): void {
+    if (this.confirmandoDesconectar() !== atletaId) {
+      this.confirmandoDesconectar.set(atletaId);
+      return;
+    }
+    this.desconectando.set(true);
+    this.entrenador.desconectarAtleta(atletaId).subscribe({
+      next: () => {
+        this.atletas.update(a => a.filter(x => x.id !== atletaId));
+        this.atletaActivo.set(null);
+        this.confirmandoDesconectar.set(null);
+        this.desconectando.set(false);
+      },
+      error: () => {
+        this.confirmandoDesconectar.set(null);
+        this.desconectando.set(false);
+      },
+    });
+  }
+
+  abrirEditarPerfil(): void {
+    const p = this.perfil();
+    this.editNombre.set(p?.nombre ?? '');
+    this.editDescripcion.set(p?.descripcion ?? '');
+    this.editExperiencia.set(p?.experienciaAnos ?? 0);
+    this.editMasters.set([...(p?.masters ?? [])]);
+    this.perfilGuardado.set(false);
+    this.perfilError.set('');
+    this.editarPerfilAbierto.set(true);
+  }
+
+  agregarMaster(): void {
+    const m = this.nuevoMaster().trim();
+    if (!m || this.editMasters().includes(m)) return;
+    this.editMasters.update(l => [...l, m]);
+    this.nuevoMaster.set('');
+  }
+
+  eliminarMaster(idx: number): void {
+    this.editMasters.update(l => l.filter((_, i) => i !== idx));
+  }
+
+  guardarPerfil(): void {
+    this.guardandoPerfil.set(true);
+    this.perfilError.set('');
+    this.entrenador.actualizarPerfil({
+      nombre:          this.editNombre(),
+      descripcion:     this.editDescripcion(),
+      experienciaAnos: this.editExperiencia(),
+      masters:         this.editMasters(),
+    }).subscribe({
+      next: () => {
+        this.perfil.update(p => p ? {
+          ...p,
+          nombre:          this.editNombre(),
+          descripcion:     this.editDescripcion(),
+          experienciaAnos: this.editExperiencia(),
+          masters:         this.editMasters(),
+        } : p);
+        this.perfilGuardado.set(true);
+        this.guardandoPerfil.set(false);
+        this.editarPerfilAbierto.set(false);
+      },
+      error: () => {
+        this.perfilError.set('Error al guardar. Inténtalo de nuevo.');
+        this.guardandoPerfil.set(false);
+      },
+    });
+  }
 }
