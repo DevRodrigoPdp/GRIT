@@ -97,7 +97,10 @@ export class DashboardAtletaPage implements OnInit {
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    this.cargarDatos();
+    // Restaurar sesión si es necesario (por si el guard no lo hizo)
+    this.auth.me().subscribe(() => {
+      this.cargarDatos();
+    });
   }
 
   private cargarDatos(): void {

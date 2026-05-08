@@ -34,6 +34,7 @@ export function rolGuard(rolRequerido: Rol): CanActivateFn {
     const router = inject(Router);
 
     const verificar = (rol: Rol | null) => {
+      console.log('Verificando rol:', rol, 'requerido:', rolRequerido);
       if (!rol) return router.createUrlTree(['/login']);
       if (rol !== rolRequerido) return router.createUrlTree(['/']);
       return true;
@@ -41,12 +42,17 @@ export function rolGuard(rolRequerido: Rol): CanActivateFn {
 
     // Sesión ya cargada → respuesta inmediata
     if (auth.rol() !== null) {
+      console.log('Sesión ya cargada en signals');
       return of(verificar(auth.rol()));
     }
 
+    console.log('Sesión no cargada, intentando restaurar con cookie');
     // Sesión no cargada → intentar restaurar con cookie
     return auth.me().pipe(
-      map(() => verificar(auth.rol()))
+      map(() => {
+        console.log('Sesión restaurada, verificando rol');
+        return verificar(auth.rol());
+      })
     );
   };
 }

@@ -91,11 +91,14 @@ export class DashboardEntrenadorPage implements OnInit {
   });
 
   ngOnInit() {
-    this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
-    this.entrenador.getMisAtletas().subscribe(a => {
-      this.atletas.set(a);
-      const primero = a.find(x => x.servicio === 'AMBOS') ?? a[0];
-      if (primero) this.seleccionarAtleta(primero);
+    // Restaurar sesión si es necesario (por si el guard no lo hizo)
+    this.auth.me().subscribe(() => {
+      this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
+      this.entrenador.getMisAtletas().subscribe(a => {
+        this.atletas.set(a);
+        const primero = a.find(x => x.servicio === 'AMBOS') ?? a[0];
+        if (primero) this.seleccionarAtleta(primero);
+      });
     });
   }
 
