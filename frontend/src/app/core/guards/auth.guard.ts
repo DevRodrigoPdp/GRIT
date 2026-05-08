@@ -10,9 +10,12 @@ export const noAuthGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   const rol = auth.rol();
-  if (rol === 'ATLETA')     return of(router.createUrlTree(['/dashboard/atleta']));
-  if (rol === 'ENTRENADOR') return of(router.createUrlTree(['/dashboard/entrenador']));
-  if (rol === 'ADMIN')      return of(router.createUrlTree(['/admin']));
+  if (rol === 'ATLETA') return of(router.createUrlTree(['/dashboard/atleta']));
+  if (rol === 'ENTRENADOR') {
+    if (auth.estado() === 'PENDIENTE_REVISION') return of(router.createUrlTree(['/pendiente']));
+    return of(router.createUrlTree(['/dashboard/entrenador']));
+  }
+  if (rol === 'ADMIN') return of(router.createUrlTree(['/admin']));
   return of(true);
 };
 
@@ -36,6 +39,9 @@ export function rolGuard(rolRequerido: Rol): CanActivateFn {
     const verificar = (rol: Rol | null) => {
       if (!rol) return router.createUrlTree(['/login']);
       if (rol !== rolRequerido) return router.createUrlTree(['/']);
+      if (rol === 'ENTRENADOR' && auth.estado() === 'PENDIENTE_REVISION') {
+        return router.createUrlTree(['/pendiente']);
+      }
       return true;
     };
 

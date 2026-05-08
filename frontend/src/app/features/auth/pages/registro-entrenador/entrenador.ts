@@ -307,9 +307,7 @@ export class EntrenadorPage implements OnInit {
       certificaciones: this.archivos().map(a => a.file),
     })
     .subscribe({
-      next: () => {
-        // Ya se envía la foto junto con los certificados en el registro
-      },
+      next: () => {},
       error: () => {},
     });
   }
