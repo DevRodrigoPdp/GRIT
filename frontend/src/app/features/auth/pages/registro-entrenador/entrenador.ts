@@ -23,9 +23,9 @@ interface ArchivoSubido {
 }
 
 interface InfoCampoNumero {
-  label:       string;
+  label: string;
   placeholder: string;
-  hint:        string;
+  hint: string;
   obligatorio: boolean;
 }
 
@@ -52,18 +52,18 @@ export class EntrenadorPage implements OnInit {
   }
 
   readonly titulacionesEntrenamiento: { value: TipoTitulacionEntrenamiento; label: string }[] = [
-    { value: 'GRADO_CAFYD',   label: 'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte' },
-    { value: 'TSAF_TSEAS',    label: 'TSAF / TSEAS — Técnico Superior en Animación de Actividades Físicas' },
+    { value: 'GRADO_CAFYD', label: 'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte' },
+    { value: 'TSAF_TSEAS', label: 'TSAF / TSEAS — Técnico Superior en Animación de Actividades Físicas' },
     { value: 'CERT_AFDA0210', label: 'Certificado de Profesionalidad AFDA0210' },
   ];
 
   readonly titulacionesNutricion: { value: TipoTitulacionNutricion; label: string }[] = [
     { value: 'GRADO_NUTRICION_DIETETICA', label: 'Grado en Nutrición Humana y Dietética' },
-    { value: 'TSD',                       label: 'TSD — Técnico Superior en Dietética' },
+    { value: 'TSD', label: 'TSD — Técnico Superior en Dietética' },
   ];
 
   readonly mastersSeleccionados = signal<Set<string>>(new Set());
-  readonly masterPersonalizado  = signal('');
+  readonly masterPersonalizado = signal('');
 
   agregarMasterPersonalizado(): void {
     const texto = this.masterPersonalizado().trim();
@@ -81,7 +81,7 @@ export class EntrenadorPage implements OnInit {
   }
 
   @ViewChild('inputFoto') inputFoto?: ElementRef<HTMLInputElement>;
-  readonly fotoFile    = signal<File | null>(null);
+  readonly fotoFile = signal<File | null>(null);
   readonly fotoPreview = signal<string | null>(null);
 
   seleccionarFoto(event: Event): void {
@@ -92,15 +92,16 @@ export class EntrenadorPage implements OnInit {
     (event.target as HTMLInputElement).value = '';
   }
 
-  readonly archivos            = signal<ArchivoSubido[]>([]);
-  readonly dragOver            = signal(false);
-  readonly submitted           = signal(false);
-  readonly showPassword        = signal(false);
+  readonly archivos = signal<ArchivoSubido[]>([]);
+  readonly dragOver = signal(false);
+  readonly submitted = signal(false);
+  readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
+  readonly registroError = signal<string | null>(null);
   private readonly _passwordValue = signal('');
 
   // Signals que reflejan las titulaciones seleccionadas para poder usar computed()
-  private readonly _titEnt  = signal<string | null>(null);
+  private readonly _titEnt = signal<string | null>(null);
   private readonly _titNutr = signal<string | null>(null);
 
   // true si tiene al menos una titulación universitaria (da acceso a colegio profesional)
@@ -110,38 +111,38 @@ export class EntrenadorPage implements OnInit {
 
   // Información dinámica del campo de número profesional según las titulaciones elegidas
   readonly infoCampoNumero = computed((): InfoCampoNumero => {
-    const ent  = this._titEnt();
+    const ent = this._titEnt();
     const nutr = this._titNutr();
 
     if (ent === 'GRADO_CAFYD' && nutr === 'GRADO_NUTRICION_DIETETICA') {
       return {
-        label:       'Número de colegiado',
+        label: 'Número de colegiado',
         placeholder: 'Ej. MAD-12345',
-        hint:        'Colegiado en el COLEF y en el Colegio de Dietistas-Nutricionistas de tu comunidad.',
+        hint: 'Colegiado en el COLEF y en el Colegio de Dietistas-Nutricionistas de tu comunidad.',
         obligatorio: true,
       };
     }
     if (ent === 'GRADO_CAFYD') {
       return {
-        label:       'Número de colegiado',
+        label: 'Número de colegiado',
         placeholder: 'Ej. MAD-12345',
-        hint:        'Número de colegiado en el COLEF (Colegio Oficial de Licenciados en Educación Física) de tu comunidad.',
+        hint: 'Número de colegiado en el COLEF (Colegio Oficial de Licenciados en Educación Física) de tu comunidad.',
         obligatorio: true,
       };
     }
     if (nutr === 'GRADO_NUTRICION_DIETETICA') {
       return {
-        label:       'Número de colegiado',
+        label: 'Número de colegiado',
         placeholder: 'Ej. AND-00123',
-        hint:        'Número de colegiado en el Colegio de Dietistas-Nutricionistas de tu comunidad.',
+        hint: 'Número de colegiado en el Colegio de Dietistas-Nutricionistas de tu comunidad.',
         obligatorio: true,
       };
     }
     // FP / Certificado: no hay colegio profesional, solo registro en algunas CCAA
     return {
-      label:       'Número de registro',
+      label: 'Número de registro',
       placeholder: 'Ej. CAT-00456',
-      hint:        'Número del Registro Oficial de Profesionales del Deporte de tu comunidad, si tu CCAA dispone de él (opcional).',
+      hint: 'Número del Registro Oficial de Profesionales del Deporte de tu comunidad, si tu CCAA dispone de él (opcional).',
       obligatorio: false,
     };
   });
@@ -149,11 +150,11 @@ export class EntrenadorPage implements OnInit {
   readonly passwordReglas = computed(() => {
     const v = this._passwordValue();
     return [
-      { label: 'Mínimo 8 caracteres',     ok: v.length >= 8 },
-      { label: 'Una mayúscula',            ok: /[A-Z]/.test(v) },
-      { label: 'Una minúscula',            ok: /[a-z]/.test(v) },
-      { label: 'Un número',               ok: /\d/.test(v) },
-      { label: 'Un carácter especial',    ok: /[^a-zA-Z\d]/.test(v) },
+      { label: 'Mínimo 8 caracteres', ok: v.length >= 8 },
+      { label: 'Una mayúscula', ok: /[A-Z]/.test(v) },
+      { label: 'Una minúscula', ok: /[a-z]/.test(v) },
+      { label: 'Un número', ok: /\d/.test(v) },
+      { label: 'Un carácter especial', ok: /[^a-zA-Z\d]/.test(v) },
     ];
   });
 
@@ -167,8 +168,8 @@ export class EntrenadorPage implements OnInit {
   readonly camposConError = computed(() => {
     if (!this.submitted()) return 0;
     const campos = ['nombre', 'correo', 'codigoColegiado'];
-    const formErrors    = campos.filter(k => this.form.get(k)?.invalid).length;
-    const archivoErr    = this.archivos().length === 0 ? 1 : 0;
+    const formErrors = campos.filter(k => this.form.get(k)?.invalid).length;
+    const archivoErr = this.archivos().length === 0 ? 1 : 0;
     const titulacionErr = this.sinTitulacion() ? 1 : 0;
     return formErrors + archivoErr + titulacionErr;
   });
@@ -180,15 +181,15 @@ export class EntrenadorPage implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      nombre:                  ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
-      correo:                  ['', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
-      password:                ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/)]],
-      confirmPassword:         ['', Validators.required],
-      codigoColegiado:         ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
+      nombre: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
+      correo: ['', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/)]],
+      confirmPassword: ['', Validators.required],
+      codigoColegiado: ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
       titulacionEntrenamiento: [null],
-      titulacionNutricion:     [null],
-      anosExperiencia:         ['', [Validators.min(0), Validators.max(50), Validators.pattern(/^\d+$/)]],
-      sobreMi:                 ['', [Validators.maxLength(500)]],
+      titulacionNutricion: [null],
+      anosExperiencia: ['', [Validators.min(0), Validators.max(50), Validators.pattern(/^\d+$/)]],
+      sobreMi: ['', [Validators.maxLength(500)]],
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -209,7 +210,7 @@ export class EntrenadorPage implements OnInit {
   }
 
   passwordMatchValidator(group: FormGroup): ValidationErrors | null {
-    const password        = group.get('password');
+    const password = group.get('password');
     const confirmPassword = group.get('confirmPassword');
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ mismatch: true });
@@ -224,7 +225,7 @@ export class EntrenadorPage implements OnInit {
    * Llamar desde (change) en ambos selects de titulación.
    */
   onTitulacionChange(): void {
-    const ent  = this.form.get('titulacionEntrenamiento')?.value ?? null;
+    const ent = this.form.get('titulacionEntrenamiento')?.value ?? null;
     const nutr = this.form.get('titulacionNutricion')?.value ?? null;
     this._titEnt.set(ent);
     this._titNutr.set(nutr);
@@ -264,7 +265,7 @@ export class EntrenadorPage implements OnInit {
     Array.from(files).forEach(file => {
       if (!permitidos.includes(file.type)) return;
       if (file.size > 10 * 1024 * 1024) return;
-      const kb     = file.size / 1024;
+      const kb = file.size / 1024;
       const tamaño = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
       this.archivos.update(list => [...list, { file, nombre: file.name, size: tamaño, tipo: file.type }]);
     });
@@ -283,6 +284,7 @@ export class EntrenadorPage implements OnInit {
   onSubmit(): void {
     this.submitted.set(true);
     this.form.markAllAsTouched();
+    this.registroError.set(null);
 
     if (this.form.invalid || this.archivos().length === 0 || this.sinTitulacion()) {
       setTimeout(() => {
@@ -306,10 +308,23 @@ export class EntrenadorPage implements OnInit {
       fotoPerfil: this.fotoFile(),
       certificaciones: this.archivos().map(a => a.file),
     })
-    .subscribe({
-      next: () => {},
-      error: () => {},
-    });
+      .subscribe({
+        next: () => { },
+        error: (err) => {
+          if (err.status === 409) {
+            this.registroError.set('El correo electrónico ya está registrado.');
+          } else if (err.status === 400) {
+            const msg = err.error?.message ?? err.error?.error;
+            this.registroError.set(msg ?? 'Datos inválidos. Revisa los campos.');
+          } else {
+            this.registroError.set('Error al enviar la solicitud. Inténtalo de nuevo.');
+          }
+          setTimeout(() => {
+            const banner = this.el.nativeElement.querySelector('.registro-error-banner');
+            banner?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 50);
+        },
+      });
   }
 
   fieldError(campo: string): boolean {

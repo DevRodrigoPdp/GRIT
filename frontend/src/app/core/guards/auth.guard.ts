@@ -6,7 +6,7 @@ import { AuthService, Rol } from '../services/auth.service';
 
 /** Redirige al dashboard correspondiente si el usuario ya tiene sesión activa en memoria. */
 export const noAuthGuard: CanActivateFn = () => {
-  const auth   = inject(AuthService);
+  const auth = inject(AuthService);
   const router = inject(Router);
 
   const rol = auth.rol();
@@ -32,14 +32,14 @@ export const noAuthGuard: CanActivateFn = () => {
  *   canActivate: [rolGuard('ADMIN')]
  */
 export function rolGuard(rolRequerido: Rol): CanActivateFn {
-  return () => {
-    const auth   = inject(AuthService);
+  return (_route, state) => {
+    const auth = inject(AuthService);
     const router = inject(Router);
 
     const verificar = (rol: Rol | null) => {
       if (!rol) return router.createUrlTree(['/login']);
       if (rol !== rolRequerido) return router.createUrlTree(['/']);
-      if (rol === 'ENTRENADOR' && auth.estado() === 'PENDIENTE_REVISION') {
+      if (rol === 'ENTRENADOR' && auth.estado() === 'PENDIENTE_REVISION' && !state.url.startsWith('/pendiente')) {
         return router.createUrlTree(['/pendiente']);
       }
       return true;
