@@ -103,11 +103,6 @@ export class AuthService {
   readonly loginError          = signal<string | null>(null);
   readonly loading             = signal(false);
 
-  constructor() {
-    // Intentar restaurar sesión desde localStorage al inicializar
-    this.restaurarSesionDesdeStorage();
-  }
-
   // ── Registro atleta ──────────────────────────────────────────────────────
 
   /**
@@ -253,22 +248,12 @@ export class AuthService {
       .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
       .pipe(
         tap((res) => {
-          console.log('Sesión restaurada desde backend:', res);
           this.setSession(res.data.rol, res.data.estado,
             res.data.tituloEntrenamiento, res.data.tituloNutricion,
             res.data.servicio, res.data.nombre);
         }),
         catchError((err) => {
-          console.log('Error restaurando sesión desde backend:', err);
-          // Si falla la restauración desde backend, intentar desde localStorage
-          if (this.rol() === null) {
-            console.log('Intentando restaurar desde localStorage');
-            this.restaurarSesionDesdeStorage();
-          }
-          if (err.status === 401 || err.status === 409) {
-            this.clearSession();
-            this.router.navigate(['/login']);
-          }
+          if (err.status === 401 || err.status === 409) { this.clearSession(); this.router.navigate(['/login']); }
           return of(null);
         })
       );
@@ -304,18 +289,6 @@ export class AuthService {
     this.tituloNutricion.set(tituloNutricion);
     this.servicio.set(servicio);
     this.nombre.set(nombre);
-
-    // Guardar en localStorage como respaldo
-    const sessionData = {
-      rol,
-      estado,
-      tituloEntrenamiento,
-      tituloNutricion,
-      servicio,
-      nombre,
-      timestamp: Date.now()
-    };
-    localStorage.setItem('auth_session', JSON.stringify(sessionData));
   }
 
   private clearSession() {
@@ -325,38 +298,6 @@ export class AuthService {
     this.tituloNutricion.set(null);
     this.servicio.set(null);
     this.nombre.set(null);
-
-    // Limpiar localStorage
-    localStorage.removeItem('auth_session');
-  }
-
-  private restaurarSesionDesdeStorage() {
-    try {
-      const sessionData = localStorage.getItem('auth_session');
-      if (sessionData) {
-        const session = JSON.parse(sessionData);
-        // Verificar que no haya expirado (24 horas)
-        const ahora = Date.now();
-        const expiracion = 24 * 60 * 60 * 1000; // 24 horas
-        if (ahora - session.timestamp < expiracion) {
-          this.setSession(
-            session.rol,
-            session.estado,
-            session.tituloEntrenamiento,
-            session.tituloNutricion,
-            session.servicio,
-            session.nombre
-          );
-          console.log('Sesión restaurada desde localStorage');
-        } else {
-          localStorage.removeItem('auth_session');
-          console.log('Sesión expirada, eliminada de localStorage');
-        }
-      }
-    } catch (error) {
-      console.error('Error restaurando sesión desde localStorage:', error);
-      localStorage.removeItem('auth_session');
-    }
   }
 
   private redirigir(
