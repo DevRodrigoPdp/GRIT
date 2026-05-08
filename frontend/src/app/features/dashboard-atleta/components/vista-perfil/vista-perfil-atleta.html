@@ -27,7 +27,7 @@
       </button>
     </div>
     <div>
-      <p class="text-sm font-black text-black uppercase tracking-tight">{{ auth.nombre() }}</p>
+      <p class="text-sm font-black text-black uppercase tracking-tight">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</p>
       <p class="text-xs text-gray-400 font-light mt-0.5">Haz clic en la foto para cambiarla</p>
     </div>
     <input #fileInputFoto type="file" accept="image/*" class="hidden"
@@ -167,94 +167,4 @@
     </div>
   }
 
-  <!-- Conectar con profesional -->
-  <div class="mb-8">
-    <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">CONECTAR CON PROFESIONAL</p>
-    <div class="border border-[#E5E7EB] p-5">
-      <p class="text-sm font-light text-gray-400 mb-4">Si tu entrenador o nutricionista te ha dado un código, introdúcelo aquí para conectar.</p>
-
-      @if (auth.servicio() === 'AMBOS') {
-        <div class="flex border border-[#E5E7EB] mb-4 w-fit">
-          <button type="button"
-            (click)="rolConectar.set('ENTRENAMIENTO')"
-            class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors"
-            [class]="rolConectar() === 'ENTRENAMIENTO' ? 'bg-black text-white' : 'text-gray-400 hover:text-black'">
-            ENTRENADOR
-          </button>
-          <button type="button"
-            (click)="rolConectar.set('NUTRICION')"
-            class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors border-l border-[#E5E7EB]"
-            [class]="rolConectar() === 'NUTRICION' ? 'bg-black text-white' : 'text-gray-400 hover:text-black'">
-            NUTRICIONISTA
-          </button>
-        </div>
-      }
-
-      <div class="flex gap-2">
-        <input
-          [value]="codigoEntrenador()"
-          (input)="codigoEntrenador.set($any($event.target).value.toUpperCase()); codigoError.set(''); codigoExito.set(false)"
-          (keydown.enter)="conectarConCodigo()"
-          [placeholder]="auth.servicio() === 'AMBOS' ? (rolConectar() === 'ENTRENAMIENTO' ? 'Código de tu entrenador' : 'Código de tu nutricionista') : 'Ej. GRIT-A1B2C3'"
-          aria-label="Código del profesional"
-          class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-mono font-medium text-black placeholder:text-gray-300 placeholder:font-light outline-none focus:border-black transition-colors bg-transparent uppercase"
-        />
-        <button (click)="conectarConCodigo()"
-          [disabled]="!codigoEntrenador().trim() || enviandoCodigo()"
-          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-          [class]="codigoEntrenador().trim() && !enviandoCodigo() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
-          @if (enviandoCodigo()) { CONECTANDO... } @else { CONECTAR }
-        </button>
-      </div>
-      @if (codigoError()) {
-        <p class="text-xs font-bold text-red-400 mt-2" role="alert">{{ codigoError() }}</p>
-      }
-      @if (codigoExito()) {
-        <p class="text-xs font-bold text-[#2ED38D] mt-2" role="status">● Conectado correctamente</p>
-      }
-    </div>
-  </div>
-
-  <!-- Mis profesionales -->
-  @if (profesionales().length > 0) {
-    <div>
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">MIS PROFESIONALES</p>
-      <div class="flex flex-col gap-4">
-        @for (prof of profesionales(); track prof.id) {
-          <div class="border border-[#E5E7EB] p-5">
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 bg-black flex items-center justify-center flex-shrink-0">
-                <span class="text-xs font-black text-white">{{ prof.nombre[0] }}</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-3 flex-wrap mb-0.5">
-                  <span class="text-sm font-black uppercase tracking-tight text-black">{{ prof.nombre }}</span>
-                  <span class="text-[9px] font-black tracking-[0.2em] uppercase px-2 py-0.5"
-                    [class]="prof.rol === 'ENTRENADOR' ? 'bg-black text-white' : 'bg-[#2ED38D] text-black'">
-                    {{ prof.rol }}
-                  </span>
-                </div>
-                <div class="flex items-center gap-3 flex-wrap mb-2">
-                  <p class="text-[10px] text-gray-400 font-light">{{ prof.titulacion }}</p>
-                  @if (prof.anosExperiencia) {
-                    <span class="text-[10px] font-bold text-gray-400">· {{ prof.anosExperiencia }} años de experiencia</span>
-                  }
-                </div>
-                @if (prof.sobreMi) {
-                  <p class="text-sm text-gray-500 font-light leading-relaxed mb-3">{{ prof.sobreMi }}</p>
-                }
-                @if (prof.masters && prof.masters.length > 0) {
-                  <div class="flex flex-wrap gap-1.5 mt-2">
-                    @for (master of prof.masters; track master) {
-                      <span class="text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 border border-[#E5E7EB] text-gray-500">{{ master }}</span>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  }
 </div>

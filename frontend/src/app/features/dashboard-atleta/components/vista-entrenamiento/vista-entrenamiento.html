@@ -57,7 +57,7 @@
         <div>
           <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SEMANA</span>
           <span class="text-lg font-black text-black leading-none">
-            {{ plan()!.semanaActual }}<span class="text-gray-300 text-sm font-bold">/{{ plan()!.semanas }}</span>
+            {{ plan()!.semanaActual ?? '—' }}<span class="text-gray-300 text-sm font-bold">/{{ plan()!.semanas ?? '—' }}</span>
           </span>
         </div>
         <div>

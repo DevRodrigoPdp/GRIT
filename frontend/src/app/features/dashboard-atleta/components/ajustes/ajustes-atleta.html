@@ -58,6 +58,71 @@
     }
   </div>
 
+  <!-- Editar perfil -->
+  @if (perfilAtleta()) {
+    <div class="mb-6 border border-[#E5E7EB]">
+      <button type="button" (click)="abrirEditarPerfil()"
+        [attr.aria-expanded]="perfilAbierto()"
+        class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
+        <p class="text-xs font-black tracking-[0.2em] uppercase text-black">EDITAR PERFIL</p>
+        <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ perfilAbierto() ? '▲' : '▼' }}</span>
+      </button>
+      @if (perfilAbierto()) {
+        <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+          @if (perfilGuardado()) {
+            <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2" role="status">
+              <p class="text-sm font-bold text-[#2ED38D]">Perfil actualizado correctamente.</p>
+            </div>
+          }
+          @if (perfilError()) {
+            <div class="border border-red-300 px-5 py-4 mt-4 mb-2" role="alert">
+              <p class="text-sm text-red-500 font-light">{{ perfilError() }}</p>
+            </div>
+          }
+          <div class="flex flex-col gap-4 mt-4">
+            <div>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">DEPORTE</label>
+              <input type="text"
+                [value]="editDeporte()"
+                (input)="editDeporte.set($any($event.target).value)"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+            </div>
+            <div>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NIVEL</label>
+              <select
+                [value]="editNivel()"
+                (change)="editNivel.set($any($event.target).value)"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white">
+                @for (n of niveles; track n.value) {
+                  <option [value]="n.value" [selected]="editNivel() === n.value">{{ n.label }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">OBJETIVO</label>
+              <select
+                [value]="editObjetivo() ?? ''"
+                (change)="editObjetivo.set($any($event.target).value || null)"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white">
+                @for (o of objetivos; track o.value) {
+                  <option [value]="o.value ?? ''" [selected]="editObjetivo() === o.value">{{ o.label }}</option>
+                }
+              </select>
+            </div>
+            <button type="button" (click)="guardarPerfil()"
+              [disabled]="!editDeporte().trim() || guardandoPerfil()"
+              class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              [class]="editDeporte().trim() && !guardandoPerfil()
+                ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black'
+                : 'bg-[#F3F4F6] text-gray-400'">
+              {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
   <!-- Tema -->
   <div class="mb-6 border border-[#E5E7EB]">
     <div class="px-5 py-4 flex items-center justify-between">

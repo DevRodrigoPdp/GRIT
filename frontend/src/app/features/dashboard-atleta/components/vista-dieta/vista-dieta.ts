@@ -1,7 +1,7 @@
 import { Component, input, computed, signal, effect } from '@angular/core';
 import { PlanNutricion, NotaNutricionista } from '../../services/atleta.service';
 
-interface ItemCompra { nombre: string; cantidad: string; }
+interface ItemCompra { nombre: string; }
 
 @Component({
   selector: 'app-vista-dieta',
@@ -13,8 +13,6 @@ export class VistaDietaComponent {
   readonly plan  = input<PlanNutricion | null>(null);
   readonly notas = input<NotaNutricionista[]>([]);
 
-  readonly comidaActiva = signal<string | null>(null);
-
   private readonly COMPRA_KEY  = 'grit_compra_checked';
   private readonly COMPRA_PLAN = 'grit_compra_plan_id';
   readonly itemsCompraChecked  = signal<string[]>(
@@ -24,11 +22,12 @@ export class VistaDietaComponent {
   readonly listaCompra = computed<ItemCompra[]>(() => {
     const plan = this.plan();
     if (!plan) return [];
-    const mapa = new Map<string, string>();
+    const vistos = new Set<string>();
+    const items: ItemCompra[] = [];
     for (const comida of plan.comidas)
       for (const alimento of comida.alimentos)
-        if (!mapa.has(alimento.nombre)) mapa.set(alimento.nombre, alimento.cantidad);
-    return Array.from(mapa.entries()).map(([nombre, cantidad]) => ({ nombre, cantidad }));
+        if (!vistos.has(alimento.nombre)) { vistos.add(alimento.nombre); items.push({ nombre: alimento.nombre }); }
+    return items;
   });
 
   constructor() {
@@ -40,10 +39,6 @@ export class VistaDietaComponent {
         this.itemsCompraChecked.set([]);
       }
     });
-  }
-
-  abrirComida(nombre: string): void {
-    this.comidaActiva.set(this.comidaActiva() === nombre ? null : nombre);
   }
 
   toggleItemCompra(nombre: string): void {

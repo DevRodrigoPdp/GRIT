@@ -1,6 +1,5 @@
 import { Component, inject, signal, input, output, ViewChild, ElementRef } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { AtletaService, PerfilAtleta, ProfesionalAsignado } from '../../services/atleta.service';
+import { AtletaService, PerfilAtleta } from '../../services/atleta.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -13,22 +12,14 @@ export class VistaPerfilAtletaComponent {
   readonly auth  = inject(AuthService);
   private atleta = inject(AtletaService);
 
-  readonly perfilAtleta  = input<PerfilAtleta | null>(null);
-  readonly profesionales = input<ProfesionalAsignado[]>([]);
-
-  readonly perfilActualizado         = output<PerfilAtleta>();
-  readonly profesionalesActualizados = output<ProfesionalAsignado[]>();
+  readonly perfilAtleta      = input<PerfilAtleta | null>(null);
+  readonly perfilActualizado = output<PerfilAtleta>();
 
   @ViewChild('fileInputFoto') fileInputFoto?: ElementRef<HTMLInputElement>;
 
-  readonly nuevaAlergia     = signal('');
-  readonly nuevaLesion      = signal('');
-  readonly codigoEntrenador = signal('');
-  readonly rolConectar      = signal<'ENTRENAMIENTO' | 'NUTRICION'>('ENTRENAMIENTO');
-  readonly enviandoCodigo   = signal(false);
-  readonly codigoError      = signal('');
-  readonly codigoExito      = signal(false);
-  readonly subiendoFoto     = signal(false);
+  readonly nuevaAlergia = signal('');
+  readonly nuevaLesion  = signal('');
+  readonly subiendoFoto = signal(false);
 
   agregarAlergia(): void {
     const texto = this.nuevaAlergia().trim();
@@ -67,34 +58,6 @@ export class VistaPerfilAtletaComponent {
       if (p) this.perfilActualizado.emit({ ...p, fotoUrl: url });
       this.subiendoFoto.set(false);
       if (this.fileInputFoto) this.fileInputFoto.nativeElement.value = '';
-    });
-  }
-
-  conectarConCodigo(): void {
-    const codigo = this.codigoEntrenador().trim().toUpperCase();
-    if (!codigo) return;
-    const servicio = this.auth.servicio();
-    const rol: 'ENTRENAMIENTO' | 'NUTRICION' =
-      servicio === 'AMBOS' ? this.rolConectar() :
-      servicio === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
-    this.enviandoCodigo.set(true);
-    this.codigoError.set('');
-    this.codigoExito.set(false);
-    this.atleta.conectarConEntrenador(codigo, rol).subscribe({
-      next: () => {
-        this.codigoExito.set(true);
-        this.codigoEntrenador.set('');
-        this.enviandoCodigo.set(false);
-        this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionalesActualizados.emit(p));
-      },
-      error: (err: HttpErrorResponse) => {
-        this.codigoError.set(
-          err.status === 409
-            ? 'Ya tienes un profesional asignado para este servicio.'
-            : 'Código no válido. Comprueba que lo has introducido correctamente.'
-        );
-        this.enviandoCodigo.set(false);
-      },
     });
   }
 

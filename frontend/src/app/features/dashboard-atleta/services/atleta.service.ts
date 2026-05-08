@@ -67,8 +67,11 @@ export interface CheckInPeso {
 }
 
 export interface Alimento {
+  id?: string;
+  codigo?: string;
   nombre: string;
-  cantidad: string;
+  marca?: string;
+  cantidadG: number;
   kcal?: number;
   proteinas?: number;
   carbos?: number;
@@ -300,5 +303,15 @@ export class AtletaService {
   conectarConEntrenador(codigo: string, rolSolicitado: 'ENTRENAMIENTO' | 'NUTRICION'): Observable<void> {
     return this.http.post<ApiResponseDTO<void>>(`${this.API}/conectar`, { codigo, rolSolicitado }, { withCredentials: true })
       .pipe(map(() => undefined));
+  }
+
+  desconectarProfesional(profesionalId: string): Observable<void> {
+    return this.http.delete<ApiResponseDTO<void>>(`${this.API}/profesionales/${profesionalId}`, { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
+
+  actualizarPerfil(datos: { deporte?: string; nivel?: string; objetivo?: string | null }): Observable<PerfilAtleta> {
+    return this.http.patch<ApiResponseDTO<PerfilAtleta>>(`${this.API}/perfil`, datos, { withCredentials: true })
+      .pipe(map(r => r.data));
   }
 }
