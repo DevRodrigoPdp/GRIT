@@ -29,13 +29,25 @@ export const noAuthGuard: CanActivateFn = () => {
  *   canActivate: [rolGuard('ADMIN')]
  */
 export function rolGuard(rolRequerido: Rol): CanActivateFn {
-  return () => {
+  return (_route, state) => {
     const auth   = inject(AuthService);
     const router = inject(Router);
 
     const verificar = (rol: Rol | null) => {
       if (!rol) return router.createUrlTree(['/login']);
       if (rol !== rolRequerido) return router.createUrlTree(['/']);
+      const estado = auth.estado();
+      if (estado === 'PENDIENTE_REVISION') {
+        if (rol === 'ENTRENADOR' && !state.url.startsWith('/pendiente')) {
+          return router.createUrlTree(['/pendiente']);
+        }
+        if (rol !== 'ENTRENADOR') {
+          return router.createUrlTree(['/login']);
+        }
+      }
+      if (estado === 'RECHAZADO') {
+        return router.createUrlTree(['/login']);
+      }
       return true;
     };
 
