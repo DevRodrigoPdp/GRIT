@@ -34,13 +34,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException{
+        String path = request.getServletPath();
 
-        if (request.getServletPath().contains("/management")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (request.getServletPath().contains("/api/v1/auth")) { // Optimizamos: Auth tiene sus propias reglas
+        if (path.contains("/api/v1/auth") ||
+                path.contains("/management") ||
+                path.contains("/swagger-ui") ||
+                path.contains("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .orElse(null);
         }
 
-        // 2. Si no hay token, delegar a Spring Security (él decidirá si permite el paso o no) [cite: 12]
+        // 2. Si no hay token, delegar a Spring Security (él decidirá si permite el paso o no)
         if (jwt == null) {
             filterChain.doFilter(request, response);
             return;

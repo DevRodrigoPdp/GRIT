@@ -6,9 +6,11 @@ import grit.sistema.backend.security.handler.CustomAccessDeniedHandler;
 import grit.sistema.backend.security.handler.JwtAuthenticationEntryPoint;
 import grit.sistema.backend.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -21,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -28,6 +31,7 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
@@ -36,11 +40,15 @@ public class SecurityConfig {
     private final RateLimitFilter rateLimitFilter;
     private final MDCFilter mdcFilter;
 
+    private final Environment env;
+
     @Value("${application.cors.allowed-origins}")
     private String allowedOrigins;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
+
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -48,33 +56,35 @@ public class SecurityConfig {
                         .authenticationEntryPoint(unauthorizedHandler)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
-                .authorizeHttpRequests(auth-> auth
-                        // 1. Recursos totalmente públicos (Swagger, Auth, Health)
-                        .requestMatchers(
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(
+                            "/api/v1/auth/**",
+                            "/api/v1/diagnostic/**",
+                            "/management/**"
+                    ).permitAll();
+
+                    if (isDev) {
+                        auth.requestMatchers(
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/api/v1/auth/**",
-                                "/api/v1/diagnostic/**",
-                                "/management/**"
-                        ).permitAll()
+                                "/swagger-ui.html"
+                        ).permitAll();
+                        log.info("Swagger UI habilitado en SecurityFilterChain (Perfil DEV)");
+                    }
 
-                        // 3. Lógica de negocio específica
-                        .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated()
-                        .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/entrenador/**").hasAnyRole("ENTRENADOR", "ADMIN")
-                        .requestMatchers("/api/v1/atleta/**").hasAnyRole("ATLETA", "ADMIN")
-                        .requestMatchers("/api/v1/entrenamiento/**").hasAnyRole("ENTRENADOR", "ADMIN")
-                        .requestMatchers("/api/v1/nutricion/**").hasAnyRole("ENTRENADOR", "ADMIN")
-
-                        // 4. Todo lo demás requiere estar autenticado
-                        .anyRequest().authenticated()
-                )
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated()
+                            .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
+                            .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/api/v1/entrenador/**").hasAnyRole("ENTRENADOR", "ADMIN")
+                            .requestMatchers("/api/v1/atleta/**").hasAnyRole("ATLETA", "ADMIN")
+                            .requestMatchers("/api/v1/entrenamiento/**").hasAnyRole("ENTRENADOR", "ADMIN")
+                            .requestMatchers("/api/v1/nutricion/**").hasAnyRole("ENTRENADOR", "ADMIN")
+                            .anyRequest().authenticated();
+                })
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(mdcFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(jwtAuthFilter, MDCFilter.class)
