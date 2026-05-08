@@ -26,24 +26,64 @@
         <div class="flex flex-col gap-4 mt-4">
           <div>
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONTRASEÑA ACTUAL</label>
-            <input type="password" [value]="passActual()"
-              (input)="passActual.set($any($event.target).value)"
-              autocomplete="current-password"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+            <div class="relative">
+              <input [type]="showPassActual() ? 'text' : 'password'" [value]="passActual()"
+                (input)="passActual.set($any($event.target).value)"
+                autocomplete="current-password"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 pr-10 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+              <button type="button" (click)="showPassActual.update(v => !v)"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors" tabindex="-1">
+                @if (showPassActual()) {
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
+                } @else {
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square"/><circle cx="12" cy="12" r="3"/></svg>
+                }
+              </button>
+            </div>
           </div>
           <div>
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NUEVA CONTRASEÑA</label>
-            <input type="password" [value]="passNueva()"
-              (input)="passNueva.set($any($event.target).value)"
-              autocomplete="new-password"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+            <div class="relative">
+              <input [type]="showPassNueva() ? 'text' : 'password'" [value]="passNueva()"
+                (input)="passNueva.set($any($event.target).value)"
+                autocomplete="new-password"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 pr-10 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+              <button type="button" (click)="showPassNueva.update(v => !v)"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors" tabindex="-1">
+                @if (showPassNueva()) {
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
+                } @else {
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square"/><circle cx="12" cy="12" r="3"/></svg>
+                }
+              </button>
+            </div>
+            @if (passNueva()) {
+              <ul class="mt-2 flex flex-col gap-1">
+                @for (r of passReglas(); track r.label) {
+                  <li class="flex items-center gap-1.5 text-[10px]" [class]="r.ok ? 'text-[#2ED38D]' : 'text-gray-300'">
+                    <span>{{ r.ok ? '✓' : '○' }}</span>
+                    <span>{{ r.label }}</span>
+                  </li>
+                }
+              </ul>
+            }
           </div>
           <div>
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONFIRMAR NUEVA CONTRASEÑA</label>
-            <input type="password" [value]="passConfirm()"
-              (input)="passConfirm.set($any($event.target).value)"
-              autocomplete="new-password"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+            <div class="relative">
+              <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
+                (input)="passConfirm.set($any($event.target).value)"
+                autocomplete="new-password"
+                class="w-full border border-[#E5E7EB] px-4 py-2.5 pr-10 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+              <button type="button" (click)="showPassConfirm.update(v => !v)"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors" tabindex="-1">
+                @if (showPassConfirm()) {
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
+                } @else {
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square"/><circle cx="12" cy="12" r="3"/></svg>
+                }
+              </button>
+            </div>
           </div>
           <button type="button" (click)="cambiarPassword()"
             [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"

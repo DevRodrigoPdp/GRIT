@@ -43,6 +43,22 @@ export class DashboardEntrenadorPage implements OnInit {
   readonly cambiandoPass      = signal(false);
   readonly passCambiada       = signal(false);
   readonly passError          = signal('');
+  readonly showPassActual     = signal(false);
+  readonly showPassNueva      = signal(false);
+  readonly showPassConfirm    = signal(false);
+
+  private readonly PASS_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/;
+
+  readonly passReglas = computed(() => {
+    const v = this.passNueva();
+    return [
+      { label: 'Mínimo 8 caracteres',  ok: v.length >= 8 },
+      { label: 'Una mayúscula',         ok: /[A-Z]/.test(v) },
+      { label: 'Una minúscula',         ok: /[a-z]/.test(v) },
+      { label: 'Un número',             ok: /\d/.test(v) },
+      { label: 'Un carácter especial',  ok: /[^a-zA-Z\d]/.test(v) },
+    ];
+  });
 
   readonly bajaAbierta        = signal(false);
   readonly confirmarBaja      = signal(false);
@@ -107,11 +123,7 @@ export class DashboardEntrenadorPage implements OnInit {
 
   ngOnInit() {
     this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
-    this.entrenador.getMisAtletas().subscribe(a => {
-      this.atletas.set(a);
-      const primero = a.find(x => x.servicio === 'AMBOS') ?? a[0];
-      if (primero) this.seleccionarAtleta(primero);
-    });
+    this.entrenador.getMisAtletas().subscribe(a => this.atletas.set(a));
   }
 
   navegarA(vista: Vista): void {
@@ -166,8 +178,8 @@ export class DashboardEntrenadorPage implements OnInit {
       this.passError.set('Las contraseñas nuevas no coinciden.');
       return;
     }
-    if (this.passNueva().length < 8) {
-      this.passError.set('La contraseña debe tener al menos 8 caracteres.');
+    if (!this.PASS_REGEX.test(this.passNueva())) {
+      this.passError.set('La contraseña no cumple los requisitos de seguridad.');
       return;
     }
     this.cambiandoPass.set(true);

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { AtletaService } from '../../services/atleta.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -19,15 +19,31 @@ export class AjustesAtletaComponent {
   readonly cambiandoPass     = signal(false);
   readonly passCambiada      = signal(false);
   readonly passError         = signal('');
+  readonly showPassActual    = signal(false);
+  readonly showPassNueva     = signal(false);
+  readonly showPassConfirm   = signal(false);
   readonly bajaAbierta       = signal(false);
   readonly confirmarBaja     = signal(false);
   readonly textoConfirmaBaja = signal('');
   readonly eliminandoCuenta  = signal(false);
 
+  private readonly PASS_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/;
+
+  readonly passReglas = computed(() => {
+    const v = this.passNueva();
+    return [
+      { label: 'Mínimo 8 caracteres',  ok: v.length >= 8 },
+      { label: 'Una mayúscula',         ok: /[A-Z]/.test(v) },
+      { label: 'Una minúscula',         ok: /[a-z]/.test(v) },
+      { label: 'Un número',             ok: /\d/.test(v) },
+      { label: 'Un carácter especial',  ok: /[^a-zA-Z\d]/.test(v) },
+    ];
+  });
+
   cambiarPassword(): void {
     this.passError.set('');
     if (this.passNueva() !== this.passConfirm()) { this.passError.set('Las contraseñas nuevas no coinciden.'); return; }
-    if (this.passNueva().length < 8) { this.passError.set('La contraseña debe tener al menos 8 caracteres.'); return; }
+    if (!this.PASS_REGEX.test(this.passNueva())) { this.passError.set('La contraseña no cumple los requisitos de seguridad.'); return; }
     this.cambiandoPass.set(true);
     this.atleta.cambiarPassword(this.passActual(), this.passNueva()).subscribe({
       next: () => {
