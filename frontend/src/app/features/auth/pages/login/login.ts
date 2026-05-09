@@ -29,6 +29,10 @@ export class LoginPage {
       titulo: 'Cuenta rechazada',
       desc: 'Tu solicitud ha sido revisada y no ha podido ser aprobada. Contacta con soporte para más información.',
     },
+    usuario_bloqueado: {
+      titulo: 'Cuenta inactiva',
+      desc: 'Tu cuenta está bloqueada o inactiva. Contacta con soporte para más información.',
+    },
     error_servidor: {
       titulo: 'Error de conexión',
       desc: 'No hemos podido conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.',
@@ -37,7 +41,7 @@ export class LoginPage {
 
   form = this.fb.group({
     correo:   ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required]],
   });
 
   get errorActual(): { titulo: string; desc: string } | null {

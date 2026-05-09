@@ -224,10 +224,19 @@ export class AuthService {
           },
           error: (err) => {
             this.loading.set(false);
+            const msg: string = (err.error?.message ?? err.error?.error ?? '').toLowerCase();
             if (err.status === 401) {
-              this.loginError.set('credenciales_invalidas');
+              if (msg.includes('inactivo') || msg.includes('bloqueado')) {
+                this.loginError.set('usuario_bloqueado');
+              } else {
+                this.loginError.set('credenciales_invalidas');
+              }
             } else if (err.status === 403) {
-              this.loginError.set('cuenta_rechazada');
+              if (msg.includes('rechazado')) {
+                this.loginError.set('cuenta_rechazada');
+              } else {
+                this.loginError.set('usuario_bloqueado');
+              }
             } else {
               this.loginError.set('error_servidor');
             }
@@ -306,20 +315,16 @@ export class AuthService {
     _tituloEntrenamiento: boolean | null,
     _tituloNutricion: boolean | null
   ) {
-    if (estado === 'PENDIENTE_REVISION') {
-      this.router.navigate(['/pendiente']);
-      return;
-    }
-    if (estado === 'RECHAZADO') {
-      this.loginError.set('Tu cuenta ha sido rechazada. Contacta con soporte.');
-      return;
-    }
     if (rol === 'ATLETA') {
       this.router.navigate(['/dashboard/atleta']);
       return;
     }
     if (rol === 'ENTRENADOR') {
-      this.router.navigate(['/dashboard/entrenador']);
+      if (estado !== 'ACTIVO') {
+        this.router.navigate(['/pendiente']);
+      } else {
+        this.router.navigate(['/dashboard/entrenador']);
+      }
       return;
     }
     if (rol === 'ADMIN') {

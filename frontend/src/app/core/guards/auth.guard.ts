@@ -12,7 +12,7 @@ export const noAuthGuard: CanActivateFn = () => {
   const rol = auth.rol();
   if (rol === 'ATLETA') return of(router.createUrlTree(['/dashboard/atleta']));
   if (rol === 'ENTRENADOR') {
-    if (auth.estado() === 'PENDIENTE_REVISION') return of(router.createUrlTree(['/pendiente']));
+    if (auth.estado() !== 'ACTIVO') return of(router.createUrlTree(['/pendiente']));
     return of(router.createUrlTree(['/dashboard/entrenador']));
   }
   if (rol === 'ADMIN') return of(router.createUrlTree(['/admin']));
@@ -39,7 +39,7 @@ export function rolGuard(rolRequerido: Rol): CanActivateFn {
     const verificar = (rol: Rol | null) => {
       if (!rol) return router.createUrlTree(['/login']);
       if (rol !== rolRequerido) return router.createUrlTree(['/']);
-      if (rol === 'ENTRENADOR' && auth.estado() === 'PENDIENTE_REVISION' && !state.url.startsWith('/pendiente')) {
+      if (rol === 'ENTRENADOR' && auth.estado() !== 'ACTIVO' && !state.url.startsWith('/pendiente')) {
         return router.createUrlTree(['/pendiente']);
       }
       return true;
