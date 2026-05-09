@@ -215,6 +215,8 @@
             <button (click)="$event.stopPropagation(); activarRutina(rutina.id)"
               class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
           }
+          <button (click)="$event.stopPropagation(); editarRutina(rutina)"
+            class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">MODIFICAR</button>
           <button (click)="$event.stopPropagation(); eliminarRutina(rutina.id)"
             class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">ELIMINAR</button>
         </div>
@@ -271,6 +273,10 @@
           ACTIVAR
         </button>
       }
+      <button (click)="editarRutina(rutina); vista.set('crear')"
+        class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors">
+        MODIFICAR
+      </button>
       <button (click)="vista.set('lista')"
         class="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors">
         ← VOLVER
@@ -357,7 +363,7 @@
 
     <div class="flex items-start justify-between mb-6">
       <div>
-        <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-1">NUEVA RUTINA</p>
+        <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-1">{{ rutinaEditandoId() ? 'MODIFICAR RUTINA' : 'NUEVA RUTINA' }}</p>
         <p class="text-xs font-light text-gray-400">Escribe el nombre, luego organiza las sesiones y ejercicios.</p>
       </div>
       <button (click)="vista.set('lista')"
@@ -556,7 +562,7 @@
     <button (click)="guardarRutina()" [disabled]="!nombreRutina().trim() || guardando()"
       class="text-sm font-black tracking-[0.15em] uppercase px-8 py-3 transition-colors"
       [class]="nombreRutina().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-300 cursor-not-allowed'">
-      @if (guardando()) { GUARDANDO... } @else { GUARDAR RUTINA }
+      @if (guardando()) { GUARDANDO... } @else { {{ rutinaEditandoId() ? 'ACTUALIZAR RUTINA' : 'GUARDAR RUTINA' }} }
     </button>
   </div>
 

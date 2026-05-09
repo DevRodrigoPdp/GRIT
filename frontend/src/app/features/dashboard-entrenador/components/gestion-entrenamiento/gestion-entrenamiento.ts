@@ -28,7 +28,8 @@ export class GestionEntrenamientoComponent implements OnInit {
   readonly rutinas = signal<Rutina[]>([]);
   readonly guardando = signal(false);
   readonly errorGuardando = signal('');
-  readonly rutinaDetalle = signal<Rutina | null>(null);
+  readonly rutinaDetalle    = signal<Rutina | null>(null);
+  readonly rutinaEditandoId = signal<string | null>(null);
   readonly sesionDetalleIdx = signal(0);
   readonly sesionDetalleActiva = computed(() =>
     this.rutinaDetalle()?.sesiones[this.sesionDetalleIdx()] ?? null
@@ -84,11 +85,24 @@ export class GestionEntrenamientoComponent implements OnInit {
   }
 
   iniciarCreacion(): void {
+    this.rutinaEditandoId.set(null);
     this.nombreRutina.set('');
     this.descripcionRutina.set('');
     this.sesiones.set([{ id: crypto.randomUUID(), nombre: 'Sesión 1', tipo: 'entrenamiento', ejercicios: [] }]);
     this.sesionActivaIdx.set(0);
     this.editandoNombreSesion.set(false);
+    this.limpiarForm();
+    this.vista.set('crear');
+  }
+
+  editarRutina(rutina: Rutina): void {
+    this.rutinaEditandoId.set(rutina.id);
+    this.nombreRutina.set(rutina.nombre);
+    this.descripcionRutina.set(rutina.descripcion);
+    this.sesiones.set(rutina.sesiones.map(s => ({ ...s, ejercicios: [...s.ejercicios] })));
+    this.sesionActivaIdx.set(0);
+    this.editandoNombreSesion.set(false);
+    this.errorGuardando.set('');
     this.limpiarForm();
     this.vista.set('crear');
   }
@@ -209,12 +223,24 @@ export class GestionEntrenamientoComponent implements OnInit {
 
     this.guardando.set(true);
     this.errorGuardando.set('');
-    this.entrenamiento.crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
-      .subscribe(rutina => {
-        this.rutinas.update(r => [...r, rutina]);
-        this.guardando.set(false);
-        this.vista.set('lista');
-      });
+
+    const rutinaId = this.rutinaEditandoId();
+    if (rutinaId) {
+      this.entrenamiento.actualizarRutina(rutinaId, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
+        .subscribe(rutina => {
+          this.rutinas.update(r => r.map(x => x.id === rutinaId ? rutina : x));
+          this.rutinaEditandoId.set(null);
+          this.guardando.set(false);
+          this.vista.set('lista');
+        });
+    } else {
+      this.entrenamiento.crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
+        .subscribe(rutina => {
+          this.rutinas.update(r => [...r, rutina]);
+          this.guardando.set(false);
+          this.vista.set('lista');
+        });
+    }
   }
 
   activarRutina(rutinaId: string): void {

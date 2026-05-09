@@ -165,6 +165,36 @@ export class EntrenamientoService {
       })));
   }
 
+  actualizarRutina(rutinaId: string, nombre: string, descripcion: string, sesiones: Sesion[]): Observable<Rutina> {
+    const payload = {
+      nombre,
+      descripcion,
+      sesiones: sesiones.map((s, si) => ({
+        nombre: s.nombre,
+        orden:  si,
+        ejercicios: s.ejercicios.map((e, ei) => ({
+          ejercicioId: e.id,
+          nombre:      e.nombre,
+          orden:       ei,
+          series:      e.series,
+          reps:        e.reps,
+          notas:       e.notas,
+        })),
+      })),
+    };
+    return this.http
+      .put<ApiResponse<{ id: string; atletaId: string; creadoEn: string; activa: boolean }>>(`${this.API}/rutinas/${rutinaId}`, payload)
+      .pipe(map(r => ({
+        id:          r.data.id,
+        atletaId:    r.data.atletaId,
+        nombre,
+        descripcion,
+        sesiones,
+        creadoEn:    new Date(r.data.creadoEn),
+        activa:      r.data.activa,
+      })));
+  }
+
   eliminarRutina(_atletaId: string, rutinaId: string): Observable<void> {
     return this.http
       .delete<ApiResponse<void>>(`${this.API}/rutinas/${rutinaId}`)
