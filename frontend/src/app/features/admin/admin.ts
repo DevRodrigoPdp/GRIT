@@ -71,6 +71,10 @@ export class AdminPage implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    // Restaurar sesión si fue necesario (respaldo si guard no lo hizo)
+    if (!this.auth.rol()) {
+      this.auth.me().subscribe();
+    }
     this.cargarSolicitudes();
     this.cargarUsuarios();
   }

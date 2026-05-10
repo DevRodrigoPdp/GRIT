@@ -16,7 +16,7 @@
   <!-- ── Top bar ── -->
   <header class="border-b border-[#E5E7EB] px-6 h-14 flex items-center justify-between flex-shrink-0 bg-white z-10">
     <span class="font-black tracking-tighter text-lg text-black uppercase select-none">GRIT</span>
-    <span class="text-[10px] font-black tracking-[0.25em] uppercase text-[#2ED38D]">● ACTIVO</span>
+    <span class="text-sm font-black uppercase tracking-tight text-black">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</span>
   </header>
 
   <div class="flex-1 min-h-0 flex overflow-hidden">
@@ -32,12 +32,12 @@
         } @else {
           <div class="w-8 h-8 bg-black flex-shrink-0 flex items-center justify-center">
             <span class="text-[10px] font-black text-[#2ED38D] uppercase select-none">
-              {{ (auth.nombre() ?? 'A').split(' ').slice(0,2).map(n => n[0]).join('') }}
+              {{ (perfilAtleta()?.nombre ?? auth.nombre() ?? 'A').split(' ').slice(0,2).map(n => n[0]).join('') }}
             </span>
           </div>
         }
         <div class="hidden lg:block min-w-0">
-          <p class="text-xs font-black uppercase tracking-tight text-black leading-none truncate">{{ auth.nombre() }}</p>
+          <p class="text-xs font-black uppercase tracking-tight text-black leading-none truncate">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</p>
           <p class="text-[10px] text-[#2ED38D] font-bold mt-0.5">
             @switch (auth.servicio()) {
               @case ('ENTRENAMIENTO') { Entrenamiento }
@@ -72,6 +72,11 @@
               @if (item.id === 'perfil') {
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke-linecap="square"/>
                 <circle cx="12" cy="7" r="4"/>
+              }
+              @if (item.id === 'profesionales') {
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="square"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="square"/>
               }
               @if (item.id === 'ajustes') {
                 <circle cx="12" cy="12" r="3"/>
@@ -235,7 +240,7 @@
                 @if (chartData()) {
                   <svg viewBox="0 0 500 76" class="w-full mb-4" preserveAspectRatio="none" aria-hidden="true">
                     <polyline [attr.points]="chartData()!.polyline" stroke="#2ED38D" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
-                    @for (pt of chartData()!.points; track pt.fecha; let last = $last) {
+                    @for (pt of chartData()!.points; track $index; let last = $last) {
                       <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="last ? 5 : 3" [attr.fill]="last ? '#000' : '#2ED38D'"/>
                     }
                   </svg>
@@ -255,20 +260,30 @@
         </div>
       }
 
+      @if (vistaActual() === 'profesionales') {
+        <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10">
+          <app-vista-profesionales
+            [profesionales]="profesionales()"
+            (profesionalesActualizados)="onProfesionalesActualizados($event)"
+          />
+        </div>
+      }
+
       @if (vistaActual() === 'perfil') {
         <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10">
           <app-vista-perfil-atleta
             [perfilAtleta]="perfilAtleta()"
-            [profesionales]="profesionales()"
             (perfilActualizado)="onPerfilActualizado($event)"
-            (profesionalesActualizados)="onProfesionalesActualizados($event)"
           />
         </div>
       }
 
       @if (vistaActual() === 'ajustes') {
         <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10">
-          <app-ajustes-atleta />
+          <app-ajustes-atleta
+            [perfilAtleta]="perfilAtleta()"
+            (perfilActualizado)="onPerfilActualizado($event)"
+          />
         </div>
       }
 

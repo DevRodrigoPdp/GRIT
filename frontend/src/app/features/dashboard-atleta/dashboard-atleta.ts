@@ -17,8 +17,9 @@ import { VistaEntrenamientoComponent } from './components/vista-entrenamiento/vi
 import { VistaDietaComponent } from './components/vista-dieta/vista-dieta';
 import { VistaPerfilAtletaComponent } from './components/vista-perfil/vista-perfil-atleta';
 import { AjustesAtletaComponent } from './components/ajustes/ajustes-atleta';
+import { VistaProfesionalesComponent } from './components/vista-profesionales/vista-profesionales';
 
-type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'perfil' | 'ajustes';
+type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'profesionales' | 'perfil' | 'ajustes';
 
 interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
 
@@ -31,6 +32,7 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
     VistaDietaComponent,
     VistaPerfilAtletaComponent,
     AjustesAtletaComponent,
+    VistaProfesionalesComponent,
     FormsModule,
     NgTemplateOutlet,
   ],
@@ -58,10 +60,11 @@ export class DashboardAtletaPage implements OnInit {
     const s = this.auth.servicio();
     const items: { id: Vista; label: string }[] = [];
     if (s === 'ENTRENAMIENTO' || s === 'AMBOS') items.push({ id: 'entrenamiento', label: 'ENTRENAMIENTO' });
-    if (s === 'NUTRICION'     || s === 'AMBOS') items.push({ id: 'dieta',         label: 'DIETA'         });
-    items.push({ id: 'cuaderno', label: 'COMUNICACIÓN' });
-    items.push({ id: 'perfil',   label: 'MI PERFIL'    });
-    items.push({ id: 'ajustes',  label: 'AJUSTES'      });
+    if (s === 'NUTRICION'     || s === 'AMBOS') items.push({ id: 'dieta',          label: 'DIETA'           });
+    items.push({ id: 'cuaderno',      label: 'COMUNICACIÓN'  });
+    items.push({ id: 'profesionales', label: 'PROFESIONALES' });
+    items.push({ id: 'perfil',        label: 'MI PERFIL'     });
+    items.push({ id: 'ajustes',       label: 'AJUSTES'       });
     return items;
   });
 
@@ -97,6 +100,10 @@ export class DashboardAtletaPage implements OnInit {
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
+    // Restaurar sesión si fue necesario (respaldo si guard no lo hizo)
+    if (!this.auth.rol()) {
+      this.auth.me().subscribe();
+    }
     this.cargarDatos();
   }
 

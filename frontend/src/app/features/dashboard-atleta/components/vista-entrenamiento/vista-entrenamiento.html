@@ -57,7 +57,7 @@
         <div>
           <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SEMANA</span>
           <span class="text-lg font-black text-black leading-none">
-            {{ plan()!.semanaActual }}<span class="text-gray-300 text-sm font-bold">/{{ plan()!.semanas }}</span>
+            {{ plan()!.semanaActual ?? '—' }}<span class="text-gray-300 text-sm font-bold">/{{ plan()!.semanas ?? '—' }}</span>
           </span>
         </div>
         <div>
@@ -107,44 +107,4 @@
     </div>
   </div>
 
-  @if (historialPesos().length > 0) {
-    <div class="max-w-2xl">
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">EVOLUCIÓN DEL PESO</p>
-      <div class="border border-[#E5E7EB] p-5 bg-white">
-        <div class="flex items-center gap-8 mb-6">
-          <div>
-            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">INICIAL</span>
-            <span class="text-xl font-black text-black">{{ historialPesos()[0].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
-          </div>
-          <div>
-            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">ACTUAL</span>
-            <span class="text-xl font-black text-black">{{ historialPesos()[historialPesos().length - 1].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
-          </div>
-          <div>
-            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">DIFERENCIA</span>
-            @let diff = historialPesos()[historialPesos().length - 1].pesoKg - historialPesos()[0].pesoKg;
-            <span class="text-xl font-black" [class]="diff <= 0 ? 'text-[#2ED38D]' : 'text-red-500'">
-              {{ diff > 0 ? '+' : '' }}{{ diff.toFixed(1) }}<span class="text-xs ml-0.5">kg</span>
-            </span>
-          </div>
-        </div>
-        @if (chartData()) {
-          <svg viewBox="0 0 500 76" class="w-full mb-4" preserveAspectRatio="none" aria-hidden="true">
-            <polyline [attr.points]="chartData()!.polyline" stroke="#2ED38D" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
-            @for (pt of chartData()!.points; track pt.fecha; let last = $last) {
-              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="last ? 5 : 3" [attr.fill]="last ? '#000' : '#2ED38D'"/>
-            }
-          </svg>
-        }
-        <div class="flex flex-col divide-y divide-[#F3F4F6]">
-          @for (entrada of historialPesos(); track entrada.id; let last = $last) {
-            <div class="flex items-center justify-between py-2.5">
-              <span class="text-xs text-gray-400">{{ formatFecha(entrada.fecha) }}</span>
-              <span class="text-sm font-black" [class]="last ? 'text-black' : 'text-gray-400'">{{ entrada.pesoKg }} kg</span>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-  }
 }

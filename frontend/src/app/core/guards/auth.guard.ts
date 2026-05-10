@@ -19,18 +19,6 @@ export const noAuthGuard: CanActivateFn = () => {
   return of(true);
 };
 
-/**
- * Guard de autenticación y autorización por rol.
- *
- * Si la sesión ya está cargada en signals → comprueba el rol directamente.
- * Si los signals están vacíos (recarga de página) → llama a GET /me para
- * restaurar la sesión desde la cookie HttpOnly antes de decidir.
- *
- * Uso en rutas:
- *   canActivate: [rolGuard('ATLETA')]
- *   canActivate: [rolGuard('ENTRENADOR')]
- *   canActivate: [rolGuard('ADMIN')]
- */
 export function rolGuard(rolRequerido: Rol): CanActivateFn {
   return (_route, state) => {
     const auth = inject(AuthService);
