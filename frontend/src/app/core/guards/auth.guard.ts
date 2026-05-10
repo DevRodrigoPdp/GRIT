@@ -33,8 +33,12 @@ export function rolGuard(rolRequerido: Rol): CanActivateFn {
       return true;
     };
 
-    // Sesión ya cargada → respuesta inmediata
+    // Sesión ya cargada → respuesta inmediata, SALVO entrenador con estado no-ACTIVO
+    // (localStorage puede tener dato stale de cuando se registró como PENDIENTE_REVISION)
     if (auth.rol() !== null) {
+      if (auth.rol() === 'ENTRENADOR' && auth.estado() !== 'ACTIVO') {
+        return auth.me().pipe(map(() => verificar(auth.rol())));
+      }
       return of(verificar(auth.rol()));
     }
 
