@@ -33,13 +33,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-    ) throws ServletException, IOException{
+    ) throws ServletException, IOException {
         String path = request.getServletPath();
 
-        if (path.contains("/api/v1/auth") ||
-                path.contains("/management") ||
-                path.contains("/swagger-ui") ||
-                path.contains("/v3/api-docs")) {
+        if (path.equals("/api/v1/auth/login") ||
+                path.equals("/api/v1/auth/registro/entrenador") ||
+                path.equals("/api/v1/auth/registro/atleta")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (path.contains("/management") ||
+                        path.contains("/swagger-ui") ||
+                        path.contains("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -88,7 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     log.debug("Usuario {} autenticado exitosamente", userEmail);
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error("No se pudo establecer la autenticación de usuario: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         }
