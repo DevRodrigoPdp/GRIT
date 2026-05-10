@@ -9,6 +9,11 @@ export const noAuthGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
+  // Solo redirigir si el servidor confirmó la sesión en este arranque.
+  // Sin este check, datos stale del localStorage bloquearían el acceso al login
+  // cuando el cookie ha caducado.
+  if (!auth.sessionVerified()) return of(true);
+
   const rol = auth.rol();
   if (rol === 'ATLETA') return of(router.createUrlTree(['/dashboard/atleta']));
   if (rol === 'ENTRENADOR') {

@@ -103,21 +103,11 @@ export class AuthService {
   readonly loginError          = signal<string | null>(null);
   readonly loading             = signal(false);
   
-  // Indica si la sesión ya ha sido inicializada (importante para el guard)
   readonly sessionInitialized  = signal(false);
+  // true solo cuando /me confirmó la sesión (no mero localStorage)
+  readonly sessionVerified     = signal(false);
 
-  constructor() {
-    // Restaurar sesión desde localStorage si existe (fallback para cookies que no persisten)
-    const saved = localStorage.getItem('grit_session');
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
-      } catch (e) {
-        // storage corrupto
-      }
-    }
-  }
+  constructor() {}
 
   // ── Registro atleta ──────────────────────────────────────────────────────
 
@@ -277,40 +267,18 @@ export class AuthService {
           this.setSession(res.data.rol, res.data.estado,
             res.data.tituloEntrenamiento, res.data.tituloNutricion,
             res.data.servicio, res.data.nombre);
-          // Guardar en localStorage como backup
-          this.guardarSesionLocal();
+          this.sessionVerified.set(true);
           this.sessionInitialized.set(true);
         }),
         map(() => void 0),
-        catchError((err) => {
-          const saved = localStorage.getItem('grit_session');
-          if (saved) {
-            try {
-              const data = JSON.parse(saved);
-              this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
-            } catch (e) {
-              this.clearSession();
-            }
-          } else {
-            this.clearSession();
-          }
+        catchError(() => {
+          this.clearSession();
           this.sessionInitialized.set(true);
           return of(void 0);
         })
       );
   }
 
-  private guardarSesionLocal() {
-    const data = {
-      rol: this.rol(),
-      estado: this.estado(),
-      tituloEntrenamiento: this.tituloEntrenamiento(),
-      tituloNutricion: this.tituloNutricion(),
-      servicio: this.servicio(),
-      nombre: this.nombre(),
-    };
-    localStorage.setItem('grit_session', JSON.stringify(data));
-  }
 
   // ── Me (restaurar sesión tras recarga) ───────────────────────────────────
 
@@ -326,9 +294,9 @@ export class AuthService {
           this.setSession(res.data.rol, res.data.estado,
             res.data.tituloEntrenamiento, res.data.tituloNutricion,
             res.data.servicio, res.data.nombre);
+          this.sessionVerified.set(true);
         }),
-        catchError((err) => {
-          // No navegar aquí - deja que el guard lo haga
+        catchError(() => {
           this.clearSession();
           return of(null);
         })
@@ -365,7 +333,6 @@ export class AuthService {
     this.tituloNutricion.set(tituloNutricion);
     this.servicio.set(servicio);
     this.nombre.set(nombre);
-    // Guardar automáticamente en localStorage
     this.guardarSesionLocal();
   }
 
@@ -376,8 +343,19 @@ export class AuthService {
     this.tituloNutricion.set(null);
     this.servicio.set(null);
     this.nombre.set(null);
-    // Limpiar también localStorage
+    this.sessionVerified.set(false);
     localStorage.removeItem('grit_session');
+  }
+
+  private guardarSesionLocal() {
+    localStorage.setItem('grit_session', JSON.stringify({
+      rol:                 this.rol(),
+      estado:              this.estado(),
+      tituloEntrenamiento: this.tituloEntrenamiento(),
+      tituloNutricion:     this.tituloNutricion(),
+      servicio:            this.servicio(),
+      nombre:              this.nombre(),
+    }));
   }
 
   private redirigir(
