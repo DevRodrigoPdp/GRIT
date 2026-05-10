@@ -169,7 +169,7 @@
         <div class="border border-[#E5E7EB] p-4 mb-4">
           <svg viewBox="0 -8 460 76" class="w-full" preserveAspectRatio="none">
             <polyline [attr.points]="chart.polyline" fill="none" stroke="#2ED38D" stroke-width="1.5"/>
-            @for (p of chart.points; track p.fecha) {
+            @for (p of chart.points; track $index) {
               <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3" fill="#2ED38D"/>
             }
           </svg>

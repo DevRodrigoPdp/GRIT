@@ -147,7 +147,7 @@ export class ComunicacionComponent implements OnInit {
         }));
         this.hilos.set(hilosMapeados);
       },
-      error: (err) => console.error("Error cargando hilos:", err)
+      error: () => {}
     });
   }
 
@@ -199,10 +199,7 @@ export class ComunicacionComponent implements OnInit {
     //El GET /hilos/:hiloId ya marca el hilo como leído en el backend (no hace falta PUT /leer aparte)
     this.http.get<any>(`${this.API}/hilos/${hilo.id}`)
       .subscribe(r => {
-        if (!r) {
-          console.error('No se recibió respuesta del servidor');
-          return;
-        }
+        if (!r) return;
         const h = r?.data ?? r;
         const hiloCompleto: Hilo = {
           id: h.id,
@@ -300,11 +297,8 @@ export class ComunicacionComponent implements OnInit {
           this.nuevoAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
           this.nuevoFiles.clear();
         },
-        error: (err) => {
-          console.error("Error al crear el hilo:", err);
-          // Opcional: Podrías eliminar el hilo de la lista si falla la persistencia
+        error: () => {
           this.hilos.update(list => list.filter(h => h.id !== idTemporal));
-          alert("No se pudo crear el hilo. Inténtalo de nuevo.");
         }
       });
 

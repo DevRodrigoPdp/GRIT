@@ -112,10 +112,9 @@ export class AuthService {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        console.log('✓ Sesión restaurada desde localStorage:', data.rol);
         this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
       } catch (e) {
-        console.log('✗ Error al restaurar sesión desde localStorage');
+        // storage corrupto
       }
     }
   }
@@ -275,7 +274,6 @@ export class AuthService {
       .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
       .pipe(
         tap((res) => {
-          console.log('✓ Sesión restaurada desde cookie:', res.data.rol);
           this.setSession(res.data.rol, res.data.estado,
             res.data.tituloEntrenamiento, res.data.tituloNutricion,
             res.data.servicio, res.data.nombre);
@@ -285,20 +283,15 @@ export class AuthService {
         }),
         map(() => void 0),
         catchError((err) => {
-          // Cookie falló, intentar localStorage
-          console.log('✗ Cookie no disponible, intentando localStorage');
           const saved = localStorage.getItem('grit_session');
           if (saved) {
             try {
               const data = JSON.parse(saved);
-              console.log('✓ Sesión restaurada desde localStorage:', data.rol);
               this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
             } catch (e) {
-              console.log('✗ Error al restaurar sesión desde localStorage');
               this.clearSession();
             }
           } else {
-            console.log('✗ No hay sesión en localStorage');
             this.clearSession();
           }
           this.sessionInitialized.set(true);

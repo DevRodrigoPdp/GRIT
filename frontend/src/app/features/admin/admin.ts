@@ -133,7 +133,7 @@ export class AdminPage implements OnInit, OnDestroy {
         this.loadingSolicitudes.set(false);
       },
       error: (err) => {
-        console.error(err);
+
         this.error.set('Error al cargar las solicitudes. Inténtalo de nuevo más tarde.');
         this.loadingSolicitudes.set(false);
       }
@@ -176,7 +176,7 @@ export class AdminPage implements OnInit, OnDestroy {
         this.mostrarModalExito.set(true);
       },
       error: (err) => {
-        console.error(err);
+
         this.error.set('No se pudo aprobar al entrenador.');
         this.loadingSolicitudes.set(false);
       }
@@ -208,7 +208,7 @@ export class AdminPage implements OnInit, OnDestroy {
         this.loadingUsuarios.set(false);
       },
       error: (err) => {
-        console.error(err);
+
         this.error.set('No se pudo eliminar el usuario.');
         this.loadingUsuarios.set(false);
       }
@@ -240,14 +240,13 @@ export class AdminPage implements OnInit, OnDestroy {
             this.loadingSolicitudes.set(false);
           },
           error: (err) => {
-            console.error('Error al eliminar usuario:', err);
             this.error.set('La solicitud fue rechazada pero hubo un error al eliminar la cuenta.');
             this.loadingSolicitudes.set(false);
           }
         });
       },
       error: (err) => {
-        console.error(err);
+
         this.error.set('No se pudo rechazar la solicitud.');
         this.loadingSolicitudes.set(false);
       }
@@ -261,7 +260,7 @@ export class AdminPage implements OnInit, OnDestroy {
         this.usuarios.update(list => list.map(u => u.id === actualizado.id ? actualizado : u));
       },
       error: (err) => {
-        console.error(err);
+
         this.error.set('No se pudo cambiar el estado del usuario.');
       }
     });
@@ -328,7 +327,7 @@ export class AdminPage implements OnInit, OnDestroy {
         this.loadingUsuarios.set(false);
       },
       error: (err) => {
-        console.error(err);
+
         this.error.set('No se pudieron guardar los cambios.');
         this.loadingUsuarios.set(false);
       }
