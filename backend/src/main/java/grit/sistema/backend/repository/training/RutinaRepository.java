@@ -13,10 +13,10 @@ import java.util.UUID;
 
 @Repository
 public interface RutinaRepository extends JpaRepository<Rutina, UUID> {
-    List<Rutina> findAllByEntrenadorId(UUID entrenadorId);
-    List<Rutina> findAllByEntrenadorIdAndAtletaId(UUID entrenadorId, UUID atletaId);
+    List<Rutina> findAllByEntrenadorIdOrderByCreadoEnDesc(UUID entrenadorId);
+    List<Rutina> findAllByEntrenadorIdAndAtletaIdOrderByCreadoEnDesc(UUID entrenadorId, UUID atletaId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Rutina r SET r.activo = false WHERE r.atleta.id = :atletaId AND r.activo = true")
     void desactivarRutinasActivas(@Param("atletaId") UUID atletaId);
 

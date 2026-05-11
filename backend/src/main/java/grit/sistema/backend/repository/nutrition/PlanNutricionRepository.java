@@ -14,11 +14,13 @@ import java.util.UUID;
 
 @Repository
 public interface PlanNutricionRepository extends JpaRepository<PlanNutricion, UUID> {
-    List<PlanNutricion> findAllByEntrenadorId(UUID entrenadorId);
-    List<PlanNutricion> findAllByEntrenadorIdAndAtletaId(UUID entrenadorId, UUID atletaId);
+    List<PlanNutricion> findAllByEntrenadorIdOrderByCreadoEnDesc(UUID entrenadorId);
+
+    List<PlanNutricion> findAllByEntrenadorIdAndAtletaIdOrderByCreadoEnDesc(UUID entrenadorId, UUID atletaId);
+
     Optional<PlanNutricion> findByIdAndEntrenadorId(UUID id, UUID entrenadorId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE PlanNutricion p SET p.activo = false WHERE p.atleta.id = :atletaId AND p.activo = true")
     void desactivarPlanesActivos(@Param("atletaId") UUID atletaId);
 

@@ -41,11 +41,11 @@ public class EntrenamientoController {
 
     @Operation(summary = "Listar rutinas de entrenamiento")
     @GetMapping("/rutinas")
-    public ResponseEntity<ApiResponseDTO<List<RutinaDTO>>> listarRutinas(
+    public ResponseEntity<ApiResponseDTO<List<RutinaResponseDTO>>> listarRutinas(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(required = false) UUID atletaId
     ) {
-        List<RutinaDTO> rutinas = entrenamientoService.listarRutinas(principal.getId(), atletaId);
+        List<RutinaResponseDTO> rutinas = entrenamientoService.listarRutinas(principal.getId(), atletaId);
         return ResponseEntity.ok(ApiResponseDTO.success(rutinas, "Rutinas encontradas"));
     }
 

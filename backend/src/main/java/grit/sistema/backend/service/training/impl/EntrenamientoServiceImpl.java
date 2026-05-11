@@ -89,14 +89,14 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RutinaDTO> listarRutinas(UUID entrenadorId, UUID atletaId) {
+    public List<RutinaResponseDTO> listarRutinas(UUID entrenadorId, UUID atletaId) {
 
         List<Rutina> rutinas = (atletaId == null)
-                ? rutinaRepository.findAllByEntrenadorId(entrenadorId)
-                : rutinaRepository.findAllByEntrenadorIdAndAtletaId(entrenadorId, atletaId);
+                ? rutinaRepository.findAllByEntrenadorIdOrderByCreadoEnDesc(entrenadorId)
+                : rutinaRepository.findAllByEntrenadorIdAndAtletaIdOrderByCreadoEnDesc(entrenadorId, atletaId);
 
         return rutinas.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toResponseDTO)
                 .toList();
     }
 

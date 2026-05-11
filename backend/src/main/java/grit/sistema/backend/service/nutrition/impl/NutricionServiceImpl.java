@@ -62,9 +62,12 @@ public class NutricionServiceImpl implements NutricionService {
     @Transactional(readOnly = true)
     public List<PlanNutricionResponseDTO> listarPlanes(UUID entrenadorId, UUID atletaId) {
         List<PlanNutricion> planes = (atletaId == null)
-                ? planRepository.findAllByEntrenadorId(entrenadorId)
-                : planRepository.findAllByEntrenadorIdAndAtletaId(entrenadorId, atletaId);
-        return planes.stream().map(mapper::toResponseDTO).toList();
+                ? planRepository.findAllByEntrenadorIdOrderByCreadoEnDesc(entrenadorId)
+                : planRepository.findAllByEntrenadorIdAndAtletaIdOrderByCreadoEnDesc(entrenadorId, atletaId);
+
+        return planes.stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     @Override
