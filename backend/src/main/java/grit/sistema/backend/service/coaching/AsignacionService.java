@@ -8,4 +8,6 @@ public interface AsignacionService {
      * Realiza validaciones de competencia profesional y estado de cuenta.
      */
     void conectarConEntrenador(UUID atletaId, String codigo);
+
+    void terminarAsignacion(UUID entrenadorId,UUID atletaId);
 }

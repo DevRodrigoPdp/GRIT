@@ -46,6 +46,5 @@ public class Asignacion {
     @PrePersist
     protected void onCreate() {
         this.creadaEn = OffsetDateTime.now();
-
     }
 }

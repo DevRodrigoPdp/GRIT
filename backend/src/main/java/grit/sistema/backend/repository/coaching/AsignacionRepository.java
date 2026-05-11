@@ -25,6 +25,8 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
             "AND a.activa = true")
     List<Asignacion> findAsignacionesActivas(@Param("atletaId") UUID atletaId);
 
+    Optional<Asignacion> findByEntrenadorIdAndAtletaId(UUID entrenadorId, UUID atletaId);
+
     Optional<Asignacion> findByAtletaIdAndActivaTrue(UUID atletaId);
 
     boolean existsByAtletaIdAndTipoServicioAndActivaTrue(UUID atletaId, TipoServicio tipoServicio);

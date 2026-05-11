@@ -10,8 +10,10 @@ import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.validator.strategy.ValidacionServicioStrategy;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,5 +77,16 @@ public class AsignacionServiceImpl implements AsignacionService {
             throw new BusinessException("CONFLICTO_ASIGNACION",
                     "No se pudo procesar la asignación. Es posible que ya tengas un servicio activo.");
         }
+    }
+
+    @Override
+    @Transactional
+    public void terminarAsignacion(UUID entrenadorId, UUID atletaId) {
+        Asignacion asignacion = asignacionRepo.findByEntrenadorIdAndAtletaId(entrenadorId, atletaId)
+                .orElseThrow(() -> new EntityNotFoundException("No existe un vínculo activo entre este entrenador y el atleta"));
+
+        asignacion.setActiva(false);
+
+        asignacionRepo.save(asignacion);
     }
 }

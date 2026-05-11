@@ -8,6 +8,7 @@ import grit.sistema.backend.dto.nutrition.NotaNutricionistaRequestDTO;
 import grit.sistema.backend.dto.nutrition.NotaResponseDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
 import grit.sistema.backend.security.model.UserPrincipal;
+import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.service.coaching.EntrenadorService;
 import grit.sistema.backend.service.nutrition.NutricionService;
 import grit.sistema.backend.service.training.PesoService;
@@ -39,6 +40,7 @@ import java.util.UUID;
 public class EntrenadorController {
     private final EntrenadorService entrenadorService;
     private final NutricionService nutricionService;
+    private final AsignacionService asignacionService;
     private final PesoService pesoService;
     private final UsuarioService usuarioService;
 
@@ -55,6 +57,13 @@ public class EntrenadorController {
         List<AtletaResumenDTO> listaAtletas = entrenadorService.listarMisAtletas(usuario.getEmail());
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Atletas del entrenador", listaAtletas));
+    }
+
+    @Operation(summary = "Darse de baja del atleta")
+    @GetMapping("/atletas/{atletaId}/desconectar")
+    public  ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID atletaId, @AuthenticationPrincipal UserPrincipal usuario) {
+        asignacionService.terminarAsignacion(usuario.getId(), atletaId);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Crear nota al atleta")
