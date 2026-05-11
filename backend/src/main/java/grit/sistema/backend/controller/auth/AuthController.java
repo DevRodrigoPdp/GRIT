@@ -186,6 +186,7 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<MeResponseDTO> getCurrentUser(@AuthenticationPrincipal UserPrincipal usuario) {
         if (usuario == null) {
+            log.warn("Intento de acceso al perfil sin usuario autenticado");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 

@@ -1,5 +1,6 @@
 package grit.sistema.backend.security.config;
 
+import grit.sistema.backend.security.filter.CsrfCookieFilter;
 import grit.sistema.backend.security.filter.MDCFilter;
 import grit.sistema.backend.security.filter.RateLimitFilter;
 import grit.sistema.backend.security.handler.CustomAccessDeniedHandler;
@@ -19,6 +20,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -39,6 +42,14 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final RateLimitFilter rateLimitFilter;
     private final MDCFilter mdcFilter;
+    private final CsrfCookieFilter csrfCookieFilter;
+
+    private static final String[] SWAGGER_WHITELIST = {
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+    };
 
     private final Environment env;
 
@@ -49,9 +60,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
 
+        // Manejador necesario para Spring Security 6+ que procesa el token CSRF
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName(null);
+
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // Permite lectura desde JS
+                        .csrfTokenRequestHandler(requestHandler) // Usamos nuestro handler configurado
+                        .ignoringRequestMatchers("/api/v1/diagnostic/**", "/management/**")
+                        .ignoringRequestMatchers(SWAGGER_WHITELIST)
+                )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler)
                         .accessDeniedHandler(accessDeniedHandler)
@@ -64,12 +84,7 @@ public class SecurityConfig {
                     ).permitAll();
 
                     if (isDev) {
-                        auth.requestMatchers(
-                                "/v3/api-docs/**",
-                                "/v3/api-docs.yaml",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll();
+                        auth.requestMatchers(SWAGGER_WHITELIST).permitAll();
                         log.info("Swagger UI habilitado en SecurityFilterChain (Perfil DEV)");
                     }
 
@@ -87,7 +102,8 @@ public class SecurityConfig {
         )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(mdcFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(jwtAuthFilter, MDCFilter.class)
+                .addFilterAfter(csrfCookieFilter, MDCFilter.class)
+                .addFilterAfter(jwtAuthFilter, CsrfCookieFilter.class)
                 .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
@@ -106,6 +122,7 @@ public class SecurityConfig {
         config.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
+                "X-XSRF-TOKEN",
                 "Cache-Control",
                 "X-Requested-With",
                 "X-RateLimit-Limit",

@@ -37,6 +37,7 @@ import java.net.URI;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -91,11 +92,35 @@ public class GlobalExceptionHandler {
         return createProblemDetail(HttpStatus.UNAUTHORIZED, "No Autenticado", "No se encontraron credenciales de autenticación.", request);
     }
 
-    @ExceptionHandler({AccessDeniedException.class, AccesoDenegadoException.class, AuthorizationDeniedException.class})
+    @ExceptionHandler({AccesoDenegadoException.class, AuthorizationDeniedException.class})
     public ProblemDetail handleAccessDenied(Exception ex, HttpServletRequest request) {
         log.warn("Acceso denegado en {}: {}", request.getRequestURI(), ex.getMessage());
         String detail = (ex instanceof TituloFaltanteException) ? ex.getMessage() : "No tiene permisos para ejecutar esta acción.";
         return createProblemDetail(HttpStatus.FORBIDDEN, "Acceso Denegado", detail, request);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        // 1. Determinar si es un error de CSRF o de Permisos (Roles)
+        boolean isCsrf = ex.getMessage().toLowerCase().contains("csrf");
+
+        // 2. Crear el objeto ProblemDetail con el estatus adecuado
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+
+        // 3. Configurar campos estándar
+        problemDetail.setTitle(isCsrf ? "Error de Integridad (CSRF)" : "Acceso Denegado");
+        problemDetail.setType(URI.create("https://tu-api.com/errors/forbidden"));
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        // 4. Añadir propiedades personalizadas (Aquí va tu ErrorCode)
+        // Evita pasar LocalDateTime directamente si el cliente espera un String/Enum
+        problemDetail.setProperty("errorCode", isCsrf ? "SECURITY_CSRF_INVALID" : "SECURITY_FORBIDDEN");
+        problemDetail.setProperty("timestamp", Instant.now());
+
+        return problemDetail;
     }
 
     // --- 2. VALIDACIONES Y CLIENTE (400, 405) ---
