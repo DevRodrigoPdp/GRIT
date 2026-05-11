@@ -165,8 +165,11 @@ export class EntrenamientoService {
       })));
   }
 
-  actualizarRutina(rutinaId: string, nombre: string, descripcion: string, sesiones: Sesion[]): Observable<Rutina> {
+  actualizarRutina(
+    rutinaId: string, atletaId: string, nombre: string, descripcion: string, sesiones: Sesion[]
+  ): Observable<Rutina> {
     const payload = {
+      atletaId,
       nombre,
       descripcion,
       sesiones: sesiones.map((s, si) => ({
