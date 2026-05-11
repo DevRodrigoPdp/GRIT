@@ -5,6 +5,7 @@ import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.dto.common.ArchivosAEliminarEventDTO;
 import grit.sistema.backend.dto.user.UsuarioBusquedaDTO;
+import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
@@ -127,6 +128,24 @@ public class AdminServiceImpl implements AdminService {
         eventPublisher.publishEvent(new ArchivosAEliminarEventDTO(keysParaBorrar));
 
         log.info("Eliminación definitiva completada para el usuario: {}", id);
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponseDTO alternarEstadoUsuario(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
+
+        // Lógica de negocio: Conmutación de estado
+        if (usuario.getEstado() == EstadoUsuario.BLOQUEADO) {
+            usuario.setEstado(EstadoUsuario.ACTIVO);
+        } else {
+            usuario.setEstado(EstadoUsuario.BLOQUEADO);
+        }
+
+        usuarioRepository.save(usuario);
+
+       return usuarioMapper.toResponseDTO(usuario);
     }
 
     // --- MÉTODOS PRIVADOS DE APOYO (ENCAPSULAMIENTO) ---

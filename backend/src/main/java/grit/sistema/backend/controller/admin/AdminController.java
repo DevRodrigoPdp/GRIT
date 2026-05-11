@@ -2,8 +2,10 @@ package grit.sistema.backend.controller.admin;
 
 import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
+import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.user.UsuarioBusquedaDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
+import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.service.admin.AdminService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Tag(name = "Administración")
@@ -84,5 +87,13 @@ public class AdminController {
     public ResponseEntity<Void> eliminarUsuario(@PathVariable UUID id) {
         adminService.eliminarUsuarioCompleto(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Bloquear un usuario")
+    @PatchMapping("/usuarios/{id}")
+    public ResponseEntity<UsuarioResponseDTO> BloquearUsuario(@PathVariable UUID id) {
+        UsuarioResponseDTO usuario = adminService.alternarEstadoUsuario(id);
+
+        return ResponseEntity.ok(usuario);
     }
 }
