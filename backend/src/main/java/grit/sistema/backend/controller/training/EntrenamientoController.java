@@ -39,6 +39,16 @@ public class EntrenamientoController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Desactivar una rutina de entrenamiento")
+    @PatchMapping("/rutinas/{rutinaId}/desactivar")
+    public ResponseEntity<Void> desactivarRutina(
+            @PathVariable UUID rutinaId,
+            @AuthenticationPrincipal UserPrincipal usuario
+    ) {
+        entrenamientoService.desactivarRutina(usuario.getId(), rutinaId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Listar rutinas de entrenamiento")
     @GetMapping("/rutinas")
     public ResponseEntity<ApiResponseDTO<List<RutinaResponseDTO>>> listarRutinas(

@@ -8,6 +8,7 @@ public interface NutricionService {
     // Gestión de Planes
     PlanNutricionActivoResponseDTO getPlanNutricionActivoAtleta(UUID atletaId);
     void activarPlan(UUID entrenadorId, UUID planId);
+    void desactivarPlan(UUID entrenadorId, UUID planId);
     List<PlanNutricionResponseDTO> listarPlanes(UUID entrenadorId, UUID atletaId);
     PlanNutricionResponseDTO crearPlan(UUID entrenadorId, PlanNutricionRequestDTO request);
     PlanNutricionResponseDTO actualizarPlan(UUID entrenadorId, UUID planId, PlanNutricionRequestDTO request);

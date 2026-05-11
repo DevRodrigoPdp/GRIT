@@ -12,4 +12,5 @@ public interface EntrenamientoService {
     void eliminarRutina(UUID entrenadorId, UUID rutinaId);
     Optional<RutinaDTO> getPlanEntrenamientoActivoAtleta(UUID atletaId);
     void activarRutina(UUID entrenadorId, UUID rutinaId);
+    void desactivarRutina(UUID entrenadorId, UUID rutinaId);
 }

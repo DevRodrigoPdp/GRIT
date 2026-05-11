@@ -4,6 +4,7 @@ import grit.sistema.backend.dto.nutrition.*;
 import grit.sistema.backend.entity.nutrition.AlimentoReciente;
 import grit.sistema.backend.entity.nutrition.NotaNutricionista;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
+import grit.sistema.backend.entity.training.Rutina;
 import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
@@ -14,6 +15,7 @@ import grit.sistema.backend.service.nutrition.NutricionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +58,27 @@ public class NutricionServiceImpl implements NutricionService {
         planRepository.saveAndFlush(plan); // saveAndFlush es clave aquí
 
         log.info("Plan de nutrición {} activado para atleta {}", planId, plan.getAtleta().getId());
+    }
+
+    @Override
+    @Transactional
+    public void desactivarPlan(UUID entrenadorId, UUID planId) {
+        PlanNutricion plan = planRepository.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
+
+        if (!plan.getEntrenador().getId().equals(entrenadorId)) {
+            throw new AccessDeniedException("No tienes permiso para modificar este plan");
+        }
+
+        if (!plan.isActivo()) {
+            log.info("El plan {} ya se encuentra desactivado.", planId);
+            return;
+        }
+
+        plan.setActivo(false);
+        planRepository.save(plan);
+
+        log.info("Plan {} desactivado por el entrenador {}", planId, entrenadorId);
     }
 
     @Override

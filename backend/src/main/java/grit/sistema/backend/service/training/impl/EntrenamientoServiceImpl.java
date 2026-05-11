@@ -171,6 +171,27 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
         log.info("Rutina {} activada para el atleta {}", rutinaId, rutina.getAtleta().getId());
     }
 
+    @Override
+    @Transactional
+    public void desactivarRutina(UUID entrenadorId, UUID rutinaId) {
+        Rutina rutina = rutinaRepository.findById(rutinaId)
+                .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
+
+        if (!rutina.getEntrenador().getId().equals(entrenadorId)) {
+            throw new AccessDeniedException("No tienes permiso para modificar esta rutina");
+        }
+
+        if (!rutina.isActivo()) {
+            log.info("La rutina {} ya se encuentra desactivada.", rutinaId);
+            return;
+        }
+
+        rutina.setActivo(false);
+        rutinaRepository.save(rutina);
+
+        log.info("Rutina {} desactivada por el entrenador {}", rutinaId, entrenadorId);
+    }
+
     private void validarPropiedad(UUID entrenadorId, Rutina rutina) {
         if (!rutina.getEntrenador().getId().equals(entrenadorId)) {
             throw new AccesoDenegadoException("No tienes permiso sobre esta rutina");
