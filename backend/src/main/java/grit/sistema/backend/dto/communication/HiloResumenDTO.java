@@ -11,10 +11,11 @@ public record HiloResumenDTO(
         String titulo,
         CategoriaHilo categoria,
         ContextoHilo contexto,
-        String creadoPor, // "ENTRENADOR" | "ATLETA"
-        LocalDateTime fechaAbierto,
-        Long totalMensajes,
-        UltimoMensajeDTO ultimoMensaje,
-        boolean leidoPorMi
-) {
-}
+        String creadoPor,
+        LocalDateTime creadoEn,
+        Integer totalMensajes,         // CAMBIADO: De Long a Integer para resolver el conflicto
+        String ultimoTexto,
+        LocalDateTime ultimoEnvio,
+        String ultimoEnviadoPor,
+        boolean leido
+) {}

@@ -78,7 +78,7 @@ public class AtletaController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Profesionales del atleta", profesionales));
     }
 
-    @Operation(summary = "Darse de baja del atleta")
+    @Operation(summary = "Darse de baja del entrenador")
     @DeleteMapping("/profesionales/{profesionalId}")
     public  ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID profesionalId, @AuthenticationPrincipal UserPrincipal usuario) {
         asignacionService.terminarAsignacion(profesionalId, usuario.getId());

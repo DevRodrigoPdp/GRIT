@@ -19,6 +19,7 @@ import grit.sistema.backend.service.communication.HiloService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,9 +94,15 @@ public class HiloServiceImpl implements HiloService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto, UUID usuarioId) {
-        // Usamos la query optimizada del repositorio
-        return hiloRepository.findResumenByAtletaAndContexto(atletaId, contexto, usuarioId);
+    public List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto, UUID solicitanteId) {
+        if (!atletaId.equals(solicitanteId)) {
+            boolean esSuEntrenador = asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, solicitanteId);
+            if (!esSuEntrenador) {
+                throw new AccessDeniedException("No tienes permiso para ver los hilos de este atleta.");
+            }
+        }
+
+        return hiloRepository.findResumenByAtletaAndContexto(atletaId, contexto, solicitanteId);
     }
 
     @Override

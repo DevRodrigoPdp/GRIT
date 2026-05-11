@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,13 +36,22 @@ public class ComunicacionController {
                 .body(hiloService.crearHilo(dto, archivos, emisor.getId()));
     }
 
-    @GetMapping("/hilos")
-    public ResponseEntity<List<HiloResumenDTO>> listarHilos(
-            @RequestParam UUID atletaId,
+    @GetMapping("/atleta/hilos")
+    public ResponseEntity<List<HiloResumenDTO>> listarMisHilos(
             @RequestParam ContextoHilo contexto,
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
-        return ResponseEntity.ok(hiloService.obtenerHilosPorAtleta(atletaId, contexto, usuario.getId()));
+        return ResponseEntity.ok(hiloService.obtenerHilosPorAtleta(usuario.getId(), contexto, usuario.getId()));
+    }
+
+    @PreAuthorize("hasRole('ENTRENADOR')")
+    @GetMapping("/entrenador/atleta/{atletaId}/hilos")
+    public ResponseEntity<List<HiloResumenDTO>> listarHilosDeAtleta(
+            @PathVariable UUID atletaId,
+            @RequestParam ContextoHilo contexto,
+            @AuthenticationPrincipal UserPrincipal entrenador
+    ) {
+        return ResponseEntity.ok(hiloService.obtenerHilosPorAtleta(atletaId, contexto, entrenador.getId()));
     }
 
     @GetMapping("/hilos/{id}")

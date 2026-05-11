@@ -12,27 +12,29 @@ import java.util.UUID;
 
 public interface HiloRepository extends JpaRepository<Hilo, UUID> {
     @Query("""
-        SELECT new grit.sistema.backend.dto.communication.HiloResumenDTO(
-                h.id,\s
-                h.titulo,\s
-                h.categoria,\s
-                h.contexto,\s
-                h.creadoPor,\s
-                h.creadoEn,
-                (SELECT COUNT(m) FROM Mensaje m WHERE m.hilo = h),
-                new grit.sistema.backend.dto.communication.UltimoMensajeDTO(
-                    m_last.texto, m_last.enviadoEn, m_last.enviadoPor
-                ),
-                (l.leidoEn >= m_last.enviadoEn)
-            )
-        FROM Hilo h
-        JOIN h.mensajes m_last
-        LEFT JOIN LecturaHilo l ON l.hilo = h AND l.usuario.id = :usuarioId
-        WHERE h.atleta.id = :atletaId
-        AND h.contexto = :contexto
-        AND m_last.enviadoEn = (SELECT MAX(m2.enviadoEn) FROM Mensaje m2 WHERE m2.hilo = h)
-        ORDER BY m_last.enviadoEn DESC
-    """)
+                SELECT new grit.sistema.backend.dto.communication.HiloResumenDTO(
+                        h.id,
+                        h.titulo,
+                        h.categoria,
+                        h.contexto,
+                        h.creadoPor,
+                        h.creadoEn,
+                        CAST(COUNT(m) AS integer),
+                        m_last.texto,
+                        m_last.enviadoEn,
+                        m_last.enviadoPor,
+                        (CASE WHEN l.leidoEn IS NOT NULL AND l.leidoEn >= m_last.enviadoEn THEN true ELSE false END)
+                    )
+                FROM Hilo h
+                LEFT JOIN h.mensajes m
+                JOIN h.mensajes m_last
+                LEFT JOIN LecturaHilo l ON l.hilo = h AND l.usuario.id = :usuarioId
+                WHERE h.atleta.id = :atletaId
+                AND h.contexto = :contexto
+                AND m_last.enviadoEn = (SELECT MAX(m2.enviadoEn) FROM Mensaje m2 WHERE m2.hilo = h)
+                GROUP BY h.id, h.titulo, h.categoria, h.contexto, h.creadoPor, h.creadoEn, m_last.texto, m_last.enviadoEn, m_last.enviadoPor, l.leidoEn
+                ORDER BY m_last.enviadoEn DESC
+            """)
     List<HiloResumenDTO> findResumenByAtletaAndContexto(
             @Param("atletaId") UUID atletaId,
             @Param("contexto") ContextoHilo contexto,

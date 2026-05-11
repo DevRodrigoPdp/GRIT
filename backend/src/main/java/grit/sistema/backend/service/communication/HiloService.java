@@ -21,7 +21,7 @@ public interface HiloService {
      * Obtiene los hilos de un atleta filtrados por contexto (ENTRENAMIENTO/NUTRICION).
      * Devuelve una proyección o DTO para el dashboard.
      */
-    List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto, UUID usuarioAutenticadoId);
+    List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto, UUID entrenadorId);
 
     /**
      * Obtiene un hilo completo por su ID, marcándolo como leído para el usuario.
