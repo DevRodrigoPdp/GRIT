@@ -28,7 +28,7 @@ export class GestionEntrenamientoComponent implements OnInit {
   readonly rutinas = signal<Rutina[]>([]);
   readonly guardando = signal(false);
   readonly errorGuardando = signal('');
-  readonly rutinaDetalle    = signal<Rutina | null>(null);
+  readonly rutinaDetalle = signal<Rutina | null>(null);
   readonly rutinaEditandoId = signal<string | null>(null);
   readonly sesionDetalleIdx = signal(0);
   readonly sesionDetalleActiva = computed(() =>
@@ -133,15 +133,15 @@ export class GestionEntrenamientoComponent implements OnInit {
   // ── Ejercicios ────────────────────────────────────────────────────────────
 
   seleccionarSugerencia(sugerencia: EjercicioSugerencia): void {
-  // 1. Guardamos el objeto completo (incluyendo el ID real de la DB)
-  this.ejercicioSeleccionado.set(sugerencia); 
-  
-  // 2. Sincronizamos el nombre para la UI
-  this.nuevoNombre.set(sugerencia.nombre); 
-  
-  // 3. Cerramos la lista de sugerencias
-  this.mostrarSugerencias.set(false); 
-}
+    // 1. Guardamos el objeto completo (incluyendo el ID real de la DB)
+    this.ejercicioSeleccionado.set(sugerencia);
+
+    // 2. Sincronizamos el nombre para la UI
+    this.nuevoNombre.set(sugerencia.nombre);
+
+    // 3. Cerramos la lista de sugerencias
+    this.mostrarSugerencias.set(false);
+  }
 
   agregarEjercicio(): void {
     const maestro = this.ejercicioSeleccionado();
@@ -217,7 +217,7 @@ export class GestionEntrenamientoComponent implements OnInit {
 
     const totalEj = this.sesiones().reduce((s, ses) => s + ses.ejercicios.length, 0);
     if (totalEj === 0) {
-      this.errorGuardando.set('La rutina debe tener al menos un ejercicio en alguna sesión.');
+      this.errorGuardando.set('La rutina debe tener al menos un ejercicio.');
       return;
     }
 
@@ -225,22 +225,36 @@ export class GestionEntrenamientoComponent implements OnInit {
     this.errorGuardando.set('');
 
     const rutinaId = this.rutinaEditandoId();
-    if (rutinaId) {
-      this.entrenamiento.actualizarRutina(rutinaId, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
-        .subscribe(rutina => {
+
+    const observer = {
+      next: (rutina: Rutina) => {
+        if (rutinaId) {
           this.rutinas.update(r => r.map(x => x.id === rutinaId ? rutina : x));
-          this.rutinaEditandoId.set(null);
-          this.guardando.set(false);
-          this.vista.set('lista');
-        });
+        } else {
+          this.rutinas.update(r => [...r, rutina]);
+        }
+        this.finalizarFlujo();
+      },
+      error: (err: any) => {
+        this.guardando.set(false);
+        this.errorGuardando.set('Error en el servidor. Inténtalo de nuevo.');
+        console.error('Error persistiendo rutina:', err);
+      }
+    };
+
+    if (rutinaId) {
+      this.entrenamiento.actualizarRutina(rutinaId, id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
+        .subscribe(observer);
     } else {
       this.entrenamiento.crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
-        .subscribe(rutina => {
-          this.rutinas.update(r => [...r, rutina]);
-          this.guardando.set(false);
-          this.vista.set('lista');
-        });
+        .subscribe(observer);
     }
+  }
+
+  private finalizarFlujo(): void {
+    this.rutinaEditandoId.set(null);
+    this.guardando.set(false);
+    this.vista.set('lista');
   }
 
   activarRutina(rutinaId: string): void {
