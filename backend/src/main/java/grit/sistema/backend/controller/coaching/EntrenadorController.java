@@ -1,5 +1,6 @@
 package grit.sistema.backend.controller.coaching;
 
+import grit.sistema.backend.dto.coaching.EntrenadorEditarPerfilDTO;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.coaching.AtletaResumenDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
@@ -49,6 +50,13 @@ public class EntrenadorController {
     public ResponseEntity<ApiResponseDTO<EntrenadorPerfilDTO>> getPerfil(@AuthenticationPrincipal UserPrincipal usuario) {
         EntrenadorPerfilDTO perfilDTO = entrenadorService.obtenerPerfil(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del entrenador", perfilDTO));
+    }
+
+    @Operation(summary = "Actualizar perfil de entrenador")
+    @PutMapping("/perfil")
+    public ResponseEntity<ApiResponseDTO<EntrenadorPerfilDTO>> actualizarPerfil(@Valid @RequestBody EntrenadorEditarPerfilDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
+        EntrenadorPerfilDTO perfilDTO = entrenadorService.editarPerfil(usuario.getId(), dto);
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del entrenador actualizado", perfilDTO));
     }
 
     @Operation(summary = "Listar atletas asociados a un entrenador")

@@ -1,10 +1,8 @@
 package grit.sistema.backend.service.coaching.impl;
 
 import grit.sistema.backend.clientAPI.PwnedPasswordClient;
-import grit.sistema.backend.dto.coaching.AtletaResumenDTO;
-import grit.sistema.backend.dto.coaching.EntrenadorPerfilDTO;
-import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
-import grit.sistema.backend.dto.coaching.EntrenadorResponseDTO;
+import grit.sistema.backend.dto.coaching.*;
+import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
@@ -81,6 +79,21 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         return entrenadorRepository.findById(entrenadorId)
                 .map(entrenadorMapper::toPerfilDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+    }
+
+    @Override
+    @Transactional
+    public EntrenadorPerfilDTO editarPerfil(UUID entrenadorId, EntrenadorEditarPerfilDTO request) {
+        Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+
+        entrenador.setNombre(request.nombre());
+        entrenador.setDescripcion(request.descripcion());
+        entrenador.setExperienciaAnos(request.experienciaAnos());
+        entrenador.setMasters(request.masters());
+
+        Entrenador entrenadorActual = entrenadorRepository.save(entrenador);
+        return entrenadorMapper.toPerfilDTO(entrenadorActual);
     }
 
     @Override

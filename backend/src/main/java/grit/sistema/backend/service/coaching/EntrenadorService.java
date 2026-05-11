@@ -1,9 +1,6 @@
 package grit.sistema.backend.service.coaching;
 
-import grit.sistema.backend.dto.coaching.AtletaResumenDTO;
-import grit.sistema.backend.dto.coaching.EntrenadorPerfilDTO;
-import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
-import grit.sistema.backend.dto.coaching.EntrenadorResponseDTO;
+import grit.sistema.backend.dto.coaching.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,6 +13,8 @@ public interface EntrenadorService {
                                               List<MultipartFile> certificaciones);
 
     EntrenadorPerfilDTO obtenerPerfil(UUID entrenadorId);
+
+    EntrenadorPerfilDTO editarPerfil(UUID entrenadorId, EntrenadorEditarPerfilDTO request);
 
     List<AtletaResumenDTO> listarMisAtletas(String email);
 
