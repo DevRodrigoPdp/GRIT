@@ -5,7 +5,7 @@ import {
   APP_INITIALIZER,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
@@ -15,7 +15,17 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    
+    // CONFIGURACIÓN CORRECTA DEL CLIENTE HTTP
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor]),
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN',      // Nombre de la cookie que envía tu CsrfCookieFilter 
+        headerName: 'X-XSRF-TOKEN',    // Cabecera que espera tu SecurityConfig 
+      })
+    ),
+    
     {
       provide: APP_INITIALIZER,
       useFactory: (auth: AuthService) => () => auth.initSession(),
