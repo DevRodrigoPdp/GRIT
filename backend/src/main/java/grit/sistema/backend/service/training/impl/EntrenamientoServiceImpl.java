@@ -119,6 +119,36 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     }
 
     @Override
+    @Transactional
+    public RutinaResponseDTO actualizarRutina(UUID entrenadorId, UUID planId, RutinaRequestDTO request) {
+        Rutina rutinaExistente = rutinaRepository.findByIdAndEntrenadorId(planId, entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
+
+        rutinaExistente.setNombre(request.nombre());
+        rutinaExistente.setDescripcion(request.descripcion());
+
+        if (request.activo() && !rutinaExistente.isActivo()) {
+            rutinaRepository.findByAtletaIdAndActivoTrue(rutinaExistente.getAtleta().getId())
+                    .filter(p -> !p.getId().equals(planId))
+                    .ifPresent(p -> p.setActivo(false));
+        }
+        rutinaExistente.setActivo(request.activo());
+
+        Rutina datosNuevos = mapper.toEntity(request);
+
+        rutinaExistente.getSesiones().clear();
+
+        if (datosNuevos.getSesiones() != null) {
+            datosNuevos.getSesiones().forEach(nuevaSesion -> {
+                nuevaSesion.setRutina(rutinaExistente);
+                rutinaExistente.getSesiones().add(nuevaSesion);
+            });
+        }
+
+        return mapper.toResponseDTO(rutinaRepository.save(rutinaExistente));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Optional<RutinaDTO> getPlanEntrenamientoActivoAtleta(UUID atletaId) {
         return rutinaRepository.findByAtletaIdAndActivoTrue(atletaId)

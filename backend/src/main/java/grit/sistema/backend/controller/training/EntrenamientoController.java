@@ -1,7 +1,6 @@
 package grit.sistema.backend.controller.training;
 
 import grit.sistema.backend.dto.common.ApiResponseDTO;
-import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
 import grit.sistema.backend.dto.training.RutinaResponseDTO;
 import grit.sistema.backend.security.model.UserPrincipal;
@@ -29,6 +28,7 @@ import java.util.UUID;
 public class EntrenamientoController {
     private final EntrenamientoService entrenamientoService;
 
+    @Operation(summary = "Activar rutinas de entrenamiento")
     @PatchMapping("/rutinas/{rutinaId}/activar")
     public ResponseEntity<Void> activarRutina(
             @PathVariable UUID rutinaId,
@@ -47,6 +47,17 @@ public class EntrenamientoController {
     ) {
         List<RutinaResponseDTO> rutinas = entrenamientoService.listarRutinas(principal.getId(), atletaId);
         return ResponseEntity.ok(ApiResponseDTO.success(rutinas, "Rutinas encontradas"));
+    }
+
+    @Operation(summary = "Actualizar plan de entrenamiento")
+    @PutMapping("/rutinas/{id}")
+    public ResponseEntity<ApiResponseDTO<RutinaResponseDTO>> actualizarPlan(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id,
+            @Valid @RequestBody RutinaRequestDTO request
+    ) {
+        RutinaResponseDTO response = entrenamientoService.actualizarRutina(principal.getId(), id, request);
+        return ResponseEntity.ok(ApiResponseDTO.success(response, "Plan de entrenamiento actualizado correctamente"));
     }
 
     @Operation(summary = "Crear rutina de entrenamiento")

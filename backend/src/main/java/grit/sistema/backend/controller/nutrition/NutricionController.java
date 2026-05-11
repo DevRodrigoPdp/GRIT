@@ -57,8 +57,6 @@ public class NutricionController {
             @PathVariable UUID id,
             @Valid @RequestBody PlanNutricionRequestDTO request
     ) {
-
-        // Delegamos al servicio pasando el ID de la URL y el ID del token
         PlanNutricionResponseDTO response = nutricionService.actualizarPlan(principal.getId(), id, request);
 
         return ResponseEntity.ok(ApiResponseDTO.success(response, "Plan de nutrición actualizado correctamente"));

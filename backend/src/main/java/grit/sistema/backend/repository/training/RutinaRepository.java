@@ -1,5 +1,6 @@
 package grit.sistema.backend.repository.training;
 
+import grit.sistema.backend.entity.nutrition.PlanNutricion;
 import grit.sistema.backend.entity.training.Rutina;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +16,8 @@ import java.util.UUID;
 public interface RutinaRepository extends JpaRepository<Rutina, UUID> {
     List<Rutina> findAllByEntrenadorIdOrderByCreadoEnDesc(UUID entrenadorId);
     List<Rutina> findAllByEntrenadorIdAndAtletaIdOrderByCreadoEnDesc(UUID entrenadorId, UUID atletaId);
+
+    Optional<Rutina> findByIdAndEntrenadorId(UUID id, UUID entrenadorId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Rutina r SET r.activo = false WHERE r.atleta.id = :atletaId AND r.activo = true")
