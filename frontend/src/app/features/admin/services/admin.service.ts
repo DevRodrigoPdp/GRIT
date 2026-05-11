@@ -93,8 +93,8 @@ export class AdminService {
   /**
    * Actualiza los datos de un usuario.
    */
-  actualizarUsuario(id: string, data: Partial<UsuarioDTO>): Observable<UsuarioDTO> {
-    return this.http.put<UsuarioDTO>(
+  bloquearUsuario(id: string, data: Partial<UsuarioDTO>): Observable<UsuarioDTO> {
+    return this.http.patch<UsuarioDTO>(
       `${this.API}/usuarios/${id}`,
       data,
       { withCredentials: true }

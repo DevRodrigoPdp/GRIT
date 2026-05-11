@@ -255,7 +255,7 @@ export class AdminPage implements OnInit, OnDestroy {
 
   toggleBloqueo(usuario: UsuarioDTO) {
     const nuevoEstado = usuario.estado === 'BLOQUEADO' ? 'ACTIVO' : 'BLOQUEADO';
-    this.adminService.actualizarUsuario(usuario.id, { estado: nuevoEstado }).subscribe({
+    this.adminService.bloquearUsuario(usuario.id, { estado: nuevoEstado }).subscribe({
       next: (actualizado) => {
         this.usuarios.update(list => list.map(u => u.id === actualizado.id ? actualizado : u));
       },
@@ -315,7 +315,7 @@ export class AdminPage implements OnInit, OnDestroy {
     if (!u || !edicion) return;
 
     this.loadingUsuarios.set(true);
-    this.adminService.actualizarUsuario(u.id, edicion).subscribe({
+    this.adminService.bloquearUsuario(u.id, edicion).subscribe({
       next: (usuarioActualizado) => {
         // Actualizar la lista de usuarios
         this.usuarios.update(list =>
