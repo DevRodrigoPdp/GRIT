@@ -107,7 +107,17 @@ export class AuthService {
   // true solo cuando /me confirmó la sesión (no mero localStorage)
   readonly sessionVerified     = signal(false);
 
-  constructor() {}
+  constructor() {
+    const saved = localStorage.getItem('grit_session');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
+      } catch {
+        localStorage.removeItem('grit_session');
+      }
+    }
+  }
 
   // ── Registro atleta ──────────────────────────────────────────────────────
 
@@ -148,6 +158,7 @@ export class AuthService {
           next: (res) => {
             const data = res.data;
             this.setSession(data.rol, data.estado, null, null, payload.servicio, payload.nombre);
+            this.sessionVerified.set(true);
             this.redirigir(data.rol, data.estado, null, null);
           },
         })
@@ -202,6 +213,7 @@ export class AuthService {
             const tituloEntrenamiento = !!payload.titulacionEntrenamiento;
             const tituloNutricion = !!payload.titulacionNutricion;
             this.setSession(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion, null, payload.nombre);
+            this.sessionVerified.set(true);
             this.redirigir(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion);
           },
           error: () => this.loading.set(false),
@@ -221,12 +233,34 @@ export class AuthService {
         tap({
           next: (res) => {
             this.loading.set(false);
-            if (res.data.estado === 'PENDIENTE_REVISION') {
-              this.loginError.set('cuenta_pendiente');
+            const estadosValidos: EstadoCuenta[] = ['ACTIVO', 'PENDIENTE_REVISION', 'RECHAZADO'];
+            const estado = res?.data?.estado;
+            const rol    = res?.data?.rol;
+
+            // Estado válido → flujo normal
+            if (rol && estadosValidos.includes(estado)) {
+              if (estado === 'PENDIENTE_REVISION') {
+                this.loginError.set('cuenta_pendiente');
+                return;
+              }
+              this.setSession(rol, estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
+              this.sessionVerified.set(true);
+              this.redirigir(rol, estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
               return;
             }
-            this.setSession(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
-            this.redirigir(res.data.rol, res.data.estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
+
+            // Backend devolvió datos incompletos/incorrectos → confirmar con /me
+            this.me().subscribe(() => {
+              if (!this.rol()) {
+                this.loginError.set('error_servidor');
+                return;
+              }
+              if (this.estado() === 'PENDIENTE_REVISION') {
+                this.loginError.set('cuenta_pendiente');
+                return;
+              }
+              this.redirigir(this.rol()!, this.estado()!, this.tituloEntrenamiento(), this.tituloNutricion());
+            });
           },
           error: (err) => {
             this.loading.set(false);

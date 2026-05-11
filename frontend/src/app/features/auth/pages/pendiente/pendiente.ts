@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -8,8 +8,15 @@ import { AuthService } from '../../../../core/services/auth.service';
   imports: [RouterLink],
   templateUrl: './pendiente.html',
 })
-export class PendientePage {
+export class PendientePage implements OnInit {
   protected auth = inject(AuthService);
-  // TODO: cuando haya backend, cargar aquí el rejection_reason desde la sesión
-  // o desde GET /api/v1/auth/me para mostrárselo al entrenador rechazado
+  private router = inject(Router);
+
+  ngOnInit(): void {
+    this.auth.me().subscribe(() => {
+      if (this.auth.estado() === 'ACTIVO') {
+        this.router.navigate(['/dashboard/entrenador']);
+      }
+    });
+  }
 }

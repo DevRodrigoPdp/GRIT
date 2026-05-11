@@ -71,35 +71,37 @@
   <div class="mb-12">
     <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">SESIONES DE LA SEMANA</p>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      @for (sesion of plan()!.sesiones; track sesion.nombre) {
+      @for (sesion of plan()!.sesiones; track $index) {
         <div class="border border-[#E5E7EB] p-5 bg-white">
           <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.nombre }}</p>
           <div class="flex flex-col gap-1">
-            @for (ej of sesion.ejercicios; track ej.nombre) {
+            @for (ej of sesion.ejercicios; track $index) {
               @let activo = ejercicioActivo()?.sesion === sesion.nombre && ejercicioActivo()?.nombre === ej.nombre;
-              <button
-                type="button"
-                (click)="toggleEjercicio(sesion.nombre, ej.nombre)"
-                class="w-full flex items-start justify-between gap-3 px-3 py-2 -mx-3 text-left transition-colors"
-                [class]="activo ? 'bg-black' : (ej.notas ? 'hover:bg-[#F9FAFB] cursor-pointer' : 'cursor-default')"
-              >
-                <div class="min-w-0">
-                  <span class="text-sm leading-tight block" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
-                  @if (ej.notas && !activo) {
-                    <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● nota</span>
-                  }
-                </div>
-                <div class="flex-shrink-0 text-right">
-                  <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
-                  @if (ej.descanso) { <span class="text-[10px] text-gray-400">{{ ej.descanso }}</span> }
-                </div>
-              </button>
-              @if (activo && ej.notas) {
-                <div class="px-3 py-3 -mx-3 bg-black border-t border-[#1a1a1a]">
-                  <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1.5">NOTA DEL ENTRENADOR</p>
-                  <p class="text-sm text-gray-300 font-light leading-relaxed">{{ ej.notas }}</p>
-                </div>
-              }
+              <div class="flex flex-col">
+                <button
+                  type="button"
+                  (click)="toggleEjercicio(sesion.nombre, ej.nombre)"
+                  class="w-full flex items-start justify-between gap-3 px-3 py-2.5 -mx-3 text-left transition-colors"
+                  [class]="activo ? 'bg-black' : (ej.notas ? 'hover:bg-[#F9FAFB] cursor-pointer' : 'cursor-default')"
+                >
+                  <div class="min-w-0">
+                    <span class="text-sm leading-tight block" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                    @if (ej.notas && !activo) {
+                      <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● nota</span>
+                    }
+                  </div>
+                  <div class="flex-shrink-0 text-right">
+                    <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
+                    @if (ej.descanso) { <span class="text-[10px] text-gray-400">{{ ej.descanso }}</span> }
+                  </div>
+                </button>
+                @if (activo && ej.notas) {
+                  <div class="ml-1 mt-1 mb-1 pl-3 py-2 border-l-2 border-[#2ED38D]">
+                    <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">NOTA DEL ENTRENADOR</p>
+                    <p class="text-sm text-gray-600 font-light leading-relaxed">{{ ej.notas }}</p>
+                  </div>
+                }
+              </div>
             }
           </div>
         </div>

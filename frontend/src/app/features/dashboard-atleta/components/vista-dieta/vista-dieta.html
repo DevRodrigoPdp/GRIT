@@ -65,14 +65,14 @@
   <div class="mb-10">
     <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">COMIDAS DEL DÍA</p>
     <div class="flex flex-col gap-4">
-      @for (comida of plan()!.comidas; track comida.nombre) {
+      @for (comida of plan()!.comidas; track $index) {
         <div class="border border-[#E5E7EB]">
           <div class="px-5 py-4 flex items-center justify-between bg-black">
             <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ comida.nombre }}</p>
             <span class="text-[10px] font-bold text-[#2ED38D]">{{ totalKcalComida(comida.alimentos) }} kcal</span>
           </div>
           <div class="px-5 py-3 flex flex-col divide-y divide-[#F3F4F6]">
-            @for (alimento of comida.alimentos; track alimento.nombre) {
+            @for (alimento of comida.alimentos; track $index) {
               <div class="flex items-center justify-between py-2.5 gap-4">
                 <span class="text-sm text-black font-light">{{ alimento.nombre }}</span>
                 <div class="flex items-center gap-4 flex-shrink-0">
@@ -102,7 +102,7 @@
         <span class="text-[10px] text-gray-400">{{ itemsCompraChecked().length }}/{{ listaCompra().length }}</span>
       </div>
       <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
-        @for (item of listaCompra(); track item.nombre) {
+        @for (item of listaCompra(); track $index) {
           @let checked = itemsCompraChecked().includes(item.nombre);
           <button type="button" (click)="toggleItemCompra(item.nombre)"
             [attr.aria-label]="(checked ? 'Desmarcar' : 'Marcar') + ' ' + item.nombre"
