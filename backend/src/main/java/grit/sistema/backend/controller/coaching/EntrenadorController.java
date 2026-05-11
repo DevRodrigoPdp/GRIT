@@ -60,7 +60,7 @@ public class EntrenadorController {
     }
 
     @Operation(summary = "Darse de baja del atleta")
-    @GetMapping("/atletas/{atletaId}/desconectar")
+    @DeleteMapping("/atletas/{atletaId}/desconectar")
     public  ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID atletaId, @AuthenticationPrincipal UserPrincipal usuario) {
         asignacionService.terminarAsignacion(usuario.getId(), atletaId);
         return ResponseEntity.noContent().build();

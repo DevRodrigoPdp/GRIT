@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/atleta")
@@ -75,6 +76,13 @@ public class AtletaController {
     public ResponseEntity<ApiResponseDTO<List<ProfesionalAsignadoDTO>>> getProfesionalesAsignados(@AuthenticationPrincipal UserPrincipal usuario) {
         List<ProfesionalAsignadoDTO> profesionales = atletaService.getProfesionalesAsignados(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Profesionales del atleta", profesionales));
+    }
+
+    @Operation(summary = "Darse de baja del atleta")
+    @DeleteMapping("/profesionales/{profesionalId}")
+    public  ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID profesionalId, @AuthenticationPrincipal UserPrincipal usuario) {
+        asignacionService.terminarAsignacion(profesionalId, usuario.getId());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Conexión con el entrenador por código de invitación en el perfil")
