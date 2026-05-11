@@ -5,28 +5,42 @@ import { Observable, map } from 'rxjs';
 export type CategoriaHilo = 'tecnica' | 'duda' | 'apunte';
 
 export interface Adjunto {
-  id:   string;
-  url:  string;
+  id: string;
+  url: string;
   tipo: 'imagen' | 'video';
   nombre: string;
 }
 
 export interface MensajeHilo {
-  id:        string;
-  texto:     string;
-  de:        'entrenador' | 'atleta';
-  fecha:     Date;
+  id: string;
+  texto: string;
+  de: 'entrenador' | 'atleta';
+  fecha: Date;
   adjuntos?: Adjunto[];
 }
 
+export interface HiloResumenDTO {
+  id: string;
+  titulo: string;
+  categoria: string; // TECNICA, DUDA, etc.
+  contexto: string;
+  creadoPor: string;
+  creadoEn: string;
+  totalMensajes: number;
+  ultimoTexto: string;
+  ultimoEnvio: string;
+  ultimoEnviadoPor: string;
+  leido: boolean;
+}
+
 export interface Hilo {
-  id:           string;
-  titulo:       string;
-  categoria:    CategoriaHilo;
-  de:           'entrenador' | 'atleta';
+  id: string;
+  titulo: string;
+  categoria: CategoriaHilo;
+  de: 'entrenador' | 'atleta';
   fechaAbierto: Date;
-  mensajes:     MensajeHilo[];
-  leido:        boolean;
+  mensajes: MensajeHilo[];
+  leido: boolean;
 }
 
 
@@ -42,10 +56,9 @@ export class ComunicacionService {
    */
   getHilos(atletaId: string, contexto: string): Observable<Hilo[]> {
     const params = new HttpParams()
-      .set('atletaId', atletaId)
       .set('contexto', contexto);
 
-    return this.http.get<{ ok: boolean; data: any[] }>(`${this.API}/hilos`, { params }).pipe(
+    return this.http.get<{ ok: boolean; data: any[] }>(`${this.API}/entrenador/atleta/${atletaId}/hilos`, { params }).pipe(
       map(res => res.data.map(h => this.mapToHilo(h)))
     );
   }
@@ -69,7 +82,7 @@ export class ComunicacionService {
     fd.append('categoria', categoria.toUpperCase());
     fd.append('contexto', contexto);
     fd.append('texto', texto);
-    
+
     archivos.forEach(file => fd.append('archivos', file));
 
     return this.http.post(`${this.API}/hilos`, fd);

@@ -125,14 +125,14 @@ export class ComunicacionComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const id = this.atletaId();
-    this.seg.getHistorialPesos(id).subscribe(h => this.historialPesos.set(h));
-    this.seg.tieneCheckInPendiente(id).subscribe(b => this.checkInPendiente.set(b));
+    const atletaId = this.atletaId();
+    this.seg.getHistorialPesos(atletaId).subscribe(h => this.historialPesos.set(h));
+    this.seg.tieneCheckInPendiente(atletaId).subscribe(b => this.checkInPendiente.set(b));
 
     const ctx = this.servicio() === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
 
     this.http.get<any>(
-      `${this.API}/hilos?atletaId=${id}&contexto=${ctx}`
+      `${this.API}/entrenador/atleta/${atletaId}/hilos?contexto=${ctx}`
     ).subscribe({
       next: (res: any) => {
         const arr: any[] = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
