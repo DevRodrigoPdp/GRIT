@@ -227,7 +227,11 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
             texto: m.texto ?? '',
             de: m.de === 'ATLETA' ? 'atleta' : 'entrenador', 
             fecha: new Date(m.fecha), 
-            adjuntos: m.adjuntos
+            adjuntos: m.adjuntos?.map((a: any) => ({
+              id: a.id, url: a.url,
+              tipo: a.tipo.toLowerCase() as 'imagen' | 'video',
+              nombre: a.nombre,
+            }))
           })),
         };
         this.hiloActivo.set(hiloCompleto);
