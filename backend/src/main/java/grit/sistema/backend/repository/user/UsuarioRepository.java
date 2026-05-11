@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
 
     @Query(value = """
-    SELECT u.id, u.nombre, u.email, u.rol, u.estado
+    SELECT u.id, u.nombre, u.email, u.rol, u.estado, u.created_at
     FROM usuarios u
     WHERE (:termino IS NULL OR :termino = '' OR
            public.immutable_unaccent(LOWER(u.nombre)) ILIKE public.immutable_unaccent(LOWER(CONCAT('%', :termino, '%'))) OR
