@@ -11,6 +11,7 @@ public record MeResponseDTO (
             String nombre,
             String rol,
             String estado,
+            String estadoRevision,
             String servicio, // Solo para Atletas
             Boolean tituloEntrenamiento, // Solo para Entrenadores
             Boolean tituloNutricion,      // Solo para Entrenadores

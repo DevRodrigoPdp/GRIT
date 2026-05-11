@@ -72,6 +72,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                     e.getNombre(),
                     e.getRol().name(),
                     e.getEstado().name(),
+                    e.getEstadoRevision().name(),
                     null, // servicio es null para entrenadores
                     e.getTitulacionEntrenamiento() != null,
                     e.getTitulacionNutricion() != null,
@@ -84,6 +85,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                     a.getNombre(),
                     a.getRol().name(),
                     a.getEstado().name(),
+                    null,
                     a.getServicio() != null ? a.getServicio().name() : null,
                     null, // tituloEntrenamiento es null para atletas
                     null, // tituloNutricion es null para atletas
@@ -94,7 +96,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             // Caso genérico (Admin)
             meData = new MeResponseDTO.MeData(
                     usuario.getId(), usuario.getNombre(), usuario.getRol().name(),
-                    usuario.getEstado().name(), null, null, null, null, null
+                    usuario.getEstado().name(),null, null, null, null, null, null
             );
         }
 
