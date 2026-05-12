@@ -9,6 +9,7 @@ import grit.sistema.backend.security.model.UserPrincipal;
 import grit.sistema.backend.service.communication.HiloService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,10 +66,14 @@ public class ComunicacionController {
     @PostMapping(value = "/hilos/{id}/mensajes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MensajeDTO> responder(
             @PathVariable UUID id,
-            @RequestPart("texto") String texto,
+            @RequestPart(value = "texto", required = false) String texto,
             @RequestPart(value = "archivos", required = false) List<MultipartFile> archivos,
             @AuthenticationPrincipal UserPrincipal usuario
-    ) {
+    ) throws BadRequestException {
+        if ((texto == null || texto.isBlank()) && (archivos == null || archivos.isEmpty())) {
+            throw new BadRequestException("Debe enviar al menos un texto o un archivo");
+        }
+
         return ResponseEntity.ok(hiloService.responderHilo(id, texto, archivos, usuario.getId()));
     }
 }
