@@ -8,7 +8,8 @@ import { setLoggingOut } from '../interceptors/auth.interceptor';
 // ── Tipos compartidos ────────────────────────────────────────────────────────
 
 export type Rol            = 'ATLETA' | 'ENTRENADOR' | 'ADMIN';
-export type EstadoCuenta   = 'ACTIVO' | 'PENDIENTE_REVISION' | 'RECHAZADO';
+export type EstadoCuenta   = 'ACTIVO' | 'PENDIENTE_REVISION' | 'RECHAZADO' | 'BLOQUEADO';
+export type EstadoRevision = 'PENDIENTE_REVISION' | 'APROBADO' | 'RECHAZADO';
 export type ServicioAtleta = 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
 
 // ── Payloads de registro ─────────────────────────────────────────────────────
@@ -52,6 +53,7 @@ export interface LoginResponse {
   data: {
     rol:                  Rol;
     estado:               EstadoCuenta;
+    estadoRevision:       EstadoRevision | null;
     tituloEntrenamiento:  boolean | null;
     tituloNutricion:      boolean | null;
     servicio:             ServicioAtleta | null;
@@ -76,6 +78,7 @@ export interface MeResponse {
     nombre:                  string;
     rol:                     Rol;
     estado:                  EstadoCuenta;
+    estadoRevision:          EstadoRevision | null;
     servicio:                ServicioAtleta | null;
     tituloEntrenamiento:     boolean | null;
     tituloNutricion:         boolean | null;
@@ -96,6 +99,7 @@ export class AuthService {
   // Signals de sesión (única fuente de verdad en el frontend)
   readonly rol                 = signal<Rol | null>(null);
   readonly estado              = signal<EstadoCuenta | null>(null);
+  readonly estadoRevision      = signal<EstadoRevision | null>(null);
   readonly tituloEntrenamiento = signal<boolean | null>(null);
   readonly tituloNutricion     = signal<boolean | null>(null);
   readonly servicio            = signal<ServicioAtleta | null>(null);
@@ -112,7 +116,7 @@ export class AuthService {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        this.setSession(data.rol, data.estado, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
+        this.setSession(data.rol, data.estado, data.estadoRevision ?? null, data.tituloEntrenamiento, data.tituloNutricion, data.servicio, data.nombre);
       } catch {
         localStorage.removeItem('grit_session');
       }
@@ -157,7 +161,7 @@ export class AuthService {
         tap({
           next: (res) => {
             const data = res.data;
-            this.setSession(data.rol, data.estado, null, null, payload.servicio, payload.nombre);
+            this.setSession(data.rol, data.estado, null, null, null, payload.servicio, payload.nombre);
             this.sessionVerified.set(true);
             this.redirigir(data.rol, data.estado, null, null);
           },
@@ -212,7 +216,7 @@ export class AuthService {
             this.loading.set(false);
             const tituloEntrenamiento = !!payload.titulacionEntrenamiento;
             const tituloNutricion = !!payload.titulacionNutricion;
-            this.setSession(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion, null, payload.nombre);
+            this.setSession(res.data.rol, res.data.estado, null, tituloEntrenamiento, tituloNutricion, null, payload.nombre);
             this.sessionVerified.set(true);
             this.redirigir(res.data.rol, res.data.estado, tituloEntrenamiento, tituloNutricion);
           },
@@ -239,11 +243,8 @@ export class AuthService {
 
             // Estado válido → flujo normal
             if (rol && estadosValidos.includes(estado)) {
-              if (estado === 'PENDIENTE_REVISION') {
-                this.loginError.set('cuenta_pendiente');
-                return;
-              }
-              this.setSession(rol, estado, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
+              const rev = res.data.estadoRevision ?? null;
+              this.setSession(rol, estado, rev, res.data.tituloEntrenamiento, res.data.tituloNutricion, res.data.servicio, res.data.nombre);
               this.sessionVerified.set(true);
               this.redirigir(rol, estado, res.data.tituloEntrenamiento, res.data.tituloNutricion);
               return;
@@ -298,7 +299,7 @@ export class AuthService {
       .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
       .pipe(
         tap((res) => {
-          this.setSession(res.data.rol, res.data.estado,
+          this.setSession(res.data.rol, res.data.estado, res.data.estadoRevision ?? null,
             res.data.tituloEntrenamiento, res.data.tituloNutricion,
             res.data.servicio, res.data.nombre);
           this.sessionVerified.set(true);
@@ -325,7 +326,7 @@ export class AuthService {
       .get<MeResponse>(`${this.API}/me`, { withCredentials: true })
       .pipe(
         tap((res) => {
-          this.setSession(res.data.rol, res.data.estado,
+          this.setSession(res.data.rol, res.data.estado, res.data.estadoRevision ?? null,
             res.data.tituloEntrenamiento, res.data.tituloNutricion,
             res.data.servicio, res.data.nombre);
           this.sessionVerified.set(true);
@@ -356,6 +357,7 @@ export class AuthService {
   private setSession(
     rol: Rol,
     estado: EstadoCuenta,
+    estadoRevision: EstadoRevision | null,
     tituloEntrenamiento: boolean | null,
     tituloNutricion: boolean | null,
     servicio: ServicioAtleta | null,
@@ -363,6 +365,7 @@ export class AuthService {
   ) {
     this.rol.set(rol);
     this.estado.set(estado);
+    this.estadoRevision.set(estadoRevision);
     this.tituloEntrenamiento.set(tituloEntrenamiento);
     this.tituloNutricion.set(tituloNutricion);
     this.servicio.set(servicio);
@@ -373,6 +376,7 @@ export class AuthService {
   private clearSession() {
     this.rol.set(null);
     this.estado.set(null);
+    this.estadoRevision.set(null);
     this.tituloEntrenamiento.set(null);
     this.tituloNutricion.set(null);
     this.servicio.set(null);
@@ -385,6 +389,7 @@ export class AuthService {
     localStorage.setItem('grit_session', JSON.stringify({
       rol:                 this.rol(),
       estado:              this.estado(),
+      estadoRevision:      this.estadoRevision(),
       tituloEntrenamiento: this.tituloEntrenamiento(),
       tituloNutricion:     this.tituloNutricion(),
       servicio:            this.servicio(),
@@ -403,11 +408,10 @@ export class AuthService {
       return;
     }
     if (rol === 'ENTRENADOR') {
-      if (estado !== 'ACTIVO') {
-        this.router.navigate(['/pendiente']);
-      } else {
-        this.router.navigate(['/dashboard/entrenador']);
-      }
+      const rev = this.estadoRevision();
+      // estadoRevision es la fuente de verdad; si no viene, fallback a estado
+      const pendiente = rev !== null ? rev !== 'APROBADO' : estado !== 'ACTIVO';
+      this.router.navigate(pendiente ? ['/pendiente'] : ['/dashboard/entrenador']);
       return;
     }
     if (rol === 'ADMIN') {

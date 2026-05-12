@@ -37,7 +37,7 @@
   @if (perfilAtleta()) {
     @let p = perfilAtleta()!;
 
-    <!-- Datos personales -->
+    <!-- Datos personales (siempre solo lectura) -->
     <div class="mb-8">
       <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS PERSONALES</p>
       <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
@@ -64,18 +64,22 @@
     <div class="mb-8">
       <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS DEPORTIVOS</p>
       <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+
         <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Deporte</span>
           <span class="text-sm text-black font-light">{{ p.deporte }}</span>
         </div>
+
         <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Nivel</span>
           <span class="text-sm text-black font-light">{{ labelNivel(p.nivel) }}</span>
         </div>
+
         <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Objetivo</span>
           <span class="text-sm text-black font-light">{{ labelObjetivo(p.objetivo) }}</span>
         </div>
+
       </div>
     </div>
 
@@ -83,88 +87,21 @@
     <div class="mb-8">
       <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS FÍSICOS</p>
       <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+
         <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Peso inicial</span>
+          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Peso</span>
           <span class="text-sm text-black font-light">{{ p.peso }} kg</span>
         </div>
+
         <div class="px-5 py-3.5 flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Altura</span>
           <span class="text-sm text-black font-light">{{ p.altura }} cm</span>
         </div>
+
       </div>
     </div>
+
   }
 
-  <!-- Alergias e intolerancias -->
-  @if (perfilAtleta() && (auth.servicio() === 'NUTRICION' || auth.servicio() === 'AMBOS')) {
-    <div class="mb-8">
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">ALERGIAS E INTOLERANCIAS</p>
-      <div class="border border-[#E5E7EB] p-5">
-        <div class="flex flex-wrap gap-2 mb-4">
-          @for (alergia of perfilAtleta()!.alergias; track $index; let i = $index) {
-            <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
-              <span class="text-xs font-medium text-black">{{ alergia }}</span>
-              <button (click)="eliminarAlergia(i)"
-                [attr.aria-label]="'Eliminar ' + alergia"
-                class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
-            </div>
-          }
-          @if (perfilAtleta()!.alergias.length === 0) {
-            <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
-          }
-        </div>
-        <div class="flex gap-2">
-          <input
-            [value]="nuevaAlergia()"
-            (input)="nuevaAlergia.set($any($event.target).value)"
-            (keydown.enter)="agregarAlergia()"
-            placeholder="Añadir alergia o intolerancia..."
-            class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
-          />
-          <button (click)="agregarAlergia()" [disabled]="!nuevaAlergia().trim()"
-            class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            [class]="nuevaAlergia().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
-            AÑADIR
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Lesiones previas -->
-  @if (perfilAtleta() && (auth.servicio() === 'ENTRENAMIENTO' || auth.servicio() === 'AMBOS')) {
-    <div class="mb-8">
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">LESIONES PREVIAS</p>
-      <div class="border border-[#E5E7EB] p-5">
-        <div class="flex flex-wrap gap-2 mb-4">
-          @for (lesion of perfilAtleta()!.lesiones; track $index; let i = $index) {
-            <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
-              <span class="text-xs font-medium text-black">{{ lesion }}</span>
-              <button (click)="eliminarLesion(i)"
-                [attr.aria-label]="'Eliminar ' + lesion"
-                class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
-            </div>
-          }
-          @if (perfilAtleta()!.lesiones.length === 0) {
-            <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
-          }
-        </div>
-        <div class="flex gap-2">
-          <input
-            [value]="nuevaLesion()"
-            (input)="nuevaLesion.set($any($event.target).value)"
-            (keydown.enter)="agregarLesion()"
-            placeholder="Añadir lesión previa..."
-            class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent"
-          />
-          <button (click)="agregarLesion()" [disabled]="!nuevaLesion().trim()"
-            class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            [class]="nuevaLesion().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
-            AÑADIR
-          </button>
-        </div>
-      </div>
-    </div>
-  }
 
 </div>

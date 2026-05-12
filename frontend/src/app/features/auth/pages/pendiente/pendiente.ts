@@ -14,7 +14,7 @@ export class PendientePage implements OnInit {
 
   ngOnInit(): void {
     this.auth.me().subscribe(() => {
-      if (this.auth.estado() === 'ACTIVO') {
+      if (this.auth.estadoRevision() === 'APROBADO') {
         this.router.navigate(['/dashboard/entrenador']);
       }
     });

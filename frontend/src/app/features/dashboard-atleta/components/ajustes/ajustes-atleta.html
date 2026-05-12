@@ -74,7 +74,8 @@
               <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
                 (input)="passConfirm.set($any($event.target).value)"
                 autocomplete="new-password"
-                class="w-full border border-[#E5E7EB] px-4 py-2.5 pr-10 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+                class="w-full border px-4 py-2.5 pr-10 text-sm text-black focus:outline-none transition-colors bg-white"
+                [class]="passConfirmError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
               <button type="button" (click)="showPassConfirm.update(v => !v)"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors" tabindex="-1">
                 @if (showPassConfirm()) {
@@ -84,15 +85,164 @@
                 }
               </button>
             </div>
+            @if (passConfirmError()) {
+              <p class="text-[10px] text-red-400 mt-1">{{ passConfirmError() }}</p>
+            }
           </div>
           <button type="button" (click)="cambiarPassword()"
-            [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
+            [disabled]="!passActual() || !passNueva() || !passConfirm() || !!passConfirmError() || cambiandoPass()"
             class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            [class]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
+            [class]="passActual() && passNueva() && passConfirm() && !passConfirmError() && !cambiandoPass()
               ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black'
               : 'bg-[#F3F4F6] text-gray-400'">
             {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
           </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Editar perfil deportivo -->
+  <div class="mb-6 border border-[#E5E7EB]">
+    <button type="button" (click)="abrirEditarPerfil()"
+      [attr.aria-expanded]="perfilAbierto()"
+      class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
+      <p class="text-xs font-black tracking-[0.2em] uppercase text-black">EDITAR PERFIL</p>
+      <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ perfilAbierto() ? '▲' : '▼' }}</span>
+    </button>
+    @if (perfilAbierto()) {
+      <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+        @if (perfilGuardado()) {
+          <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2" role="status">
+            <p class="text-sm font-bold text-[#2ED38D]">Perfil actualizado correctamente.</p>
+          </div>
+        }
+        @if (perfilError()) {
+          <div class="border border-red-300 px-5 py-4 mt-4 mb-2" role="alert">
+            <p class="text-sm text-red-500 font-light">{{ perfilError() }}</p>
+          </div>
+        }
+        <div class="flex flex-col gap-4 mt-4">
+          <div>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">DEPORTE</label>
+            <input type="text" [value]="editDeporte()"
+              (input)="editDeporte.set($any($event.target).value)"
+              class="w-full border px-4 py-2.5 text-sm text-black focus:outline-none transition-colors bg-white"
+              [class]="deporteError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
+            @if (deporteError()) {
+              <p class="text-[10px] text-red-400 mt-1">{{ deporteError() }}</p>
+            }
+          </div>
+          <div>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NIVEL</label>
+            <select [value]="editNivel()" (change)="editNivel.set($any($event.target).value)"
+              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white cursor-pointer">
+              @for (n of niveles; track n.value) {
+                <option [value]="n.value">{{ n.label }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">OBJETIVO</label>
+            <select [value]="editObjetivo() ?? ''" (change)="editObjetivo.set($any($event.target).value || null)"
+              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white cursor-pointer">
+              @for (o of objetivos; track o.label) {
+                <option [value]="o.value ?? ''">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="flex gap-4">
+            <div class="flex-1">
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">PESO</label>
+              <div class="flex items-center gap-2">
+                <input type="number" [value]="editPeso()"
+                  (input)="editPeso.set(+$any($event.target).value)"
+                  min="30" max="300" step="0.1"
+                  class="flex-1 min-w-0 border px-4 py-2.5 text-sm text-black focus:outline-none transition-colors bg-white"
+                  [class]="pesoError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
+                <span class="text-xs text-gray-400 shrink-0">kg</span>
+              </div>
+              @if (pesoError()) {
+                <p class="text-[10px] text-red-400 mt-1">{{ pesoError() }}</p>
+              }
+            </div>
+            <div class="flex-1">
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">ALTURA</label>
+              <div class="flex items-center gap-2">
+                <input type="number" [value]="editAltura()"
+                  (input)="editAltura.set(+$any($event.target).value)"
+                  min="100" max="250" step="1"
+                  class="flex-1 min-w-0 border px-4 py-2.5 text-sm text-black focus:outline-none transition-colors bg-white"
+                  [class]="alturaError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
+                <span class="text-xs text-gray-400 shrink-0">cm</span>
+              </div>
+              @if (alturaError()) {
+                <p class="text-[10px] text-red-400 mt-1">{{ alturaError() }}</p>
+              }
+            </div>
+          </div>
+          <button type="button" (click)="guardarPerfil()"
+            [disabled]="guardandoPerfil()"
+            class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            [class]="!guardandoPerfil() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
+            {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
+          </button>
+
+          @if (auth.servicio() === 'NUTRICION' || auth.servicio() === 'AMBOS') {
+            <div class="pt-4 border-t border-[#E5E7EB]">
+              <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">ALERGIAS E INTOLERANCIAS</p>
+              <div class="flex flex-wrap gap-2 mb-3">
+                @for (alergia of perfilAtleta()!.alergias; track $index; let i = $index) {
+                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
+                    <span class="text-xs font-medium text-black">{{ alergia }}</span>
+                    <button (click)="eliminarAlergia(i)" [attr.aria-label]="'Eliminar ' + alergia"
+                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                  </div>
+                }
+                @if (perfilAtleta()!.alergias.length === 0) {
+                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                }
+              </div>
+              <div class="flex gap-2">
+                <input [value]="nuevaAlergia()" (input)="nuevaAlergia.set($any($event.target).value)"
+                  (keydown.enter)="agregarAlergia()" placeholder="Añadir alergia o intolerancia..."
+                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent" />
+                <button (click)="agregarAlergia()" [disabled]="!nuevaAlergia().trim()"
+                  class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  [class]="nuevaAlergia().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
+                  AÑADIR
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (auth.servicio() === 'ENTRENAMIENTO' || auth.servicio() === 'AMBOS') {
+            <div class="pt-4 border-t border-[#E5E7EB]">
+              <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">LESIONES PREVIAS</p>
+              <div class="flex flex-wrap gap-2 mb-3">
+                @for (lesion of perfilAtleta()!.lesiones; track $index; let i = $index) {
+                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
+                    <span class="text-xs font-medium text-black">{{ lesion }}</span>
+                    <button (click)="eliminarLesion(i)" [attr.aria-label]="'Eliminar ' + lesion"
+                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                  </div>
+                }
+                @if (perfilAtleta()!.lesiones.length === 0) {
+                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                }
+              </div>
+              <div class="flex gap-2">
+                <input [value]="nuevaLesion()" (input)="nuevaLesion.set($any($event.target).value)"
+                  (keydown.enter)="agregarLesion()" placeholder="Añadir lesión previa..."
+                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent" />
+                <button (click)="agregarLesion()" [disabled]="!nuevaLesion().trim()"
+                  class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  [class]="nuevaLesion().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
+                  AÑADIR
+                </button>
+              </div>
+            </div>
+          }
         </div>
       </div>
     }

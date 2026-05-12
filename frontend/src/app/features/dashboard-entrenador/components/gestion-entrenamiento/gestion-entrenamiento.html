@@ -46,7 +46,7 @@
               }
             </div>
             <button type="button" (click)="quitarEjercicio(sesionActivaIdx(), ej.id)"
-              class="text-gray-200 hover:text-red-400 transition-colors opacity-0 group-hover/item:opacity-100 flex-shrink-0 text-sm mt-0.5">✕</button>
+              class="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 text-sm mt-0.5">✕</button>
           </div>
           }
         </div>
@@ -216,7 +216,7 @@
               class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">ACTIVAR</button>
           }
           <button (click)="$event.stopPropagation(); editarRutina(rutina)"
-            class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">MODIFICAR</button>
+            class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors">MODIFICAR</button>
           <button (click)="$event.stopPropagation(); eliminarRutina(rutina.id)"
             class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">ELIMINAR</button>
         </div>
@@ -520,7 +520,7 @@
               }
             </div>
             <button (click)="quitarEjercicio(si, ej.id)"
-              class="text-gray-300 hover:text-red-400 transition-colors opacity-0 group-hover/card:opacity-100 flex-shrink-0 text-sm">✕</button>
+              class="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 text-sm">✕</button>
           </div>
         </div>
         }
