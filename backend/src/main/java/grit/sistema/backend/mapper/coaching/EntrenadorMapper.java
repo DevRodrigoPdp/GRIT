@@ -1,5 +1,6 @@
 package grit.sistema.backend.mapper.coaching;
 
+import grit.sistema.backend.dto.coaching.AmpliarFormacionDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorResponseDTO;
@@ -33,6 +34,13 @@ public abstract class EntrenadorMapper {
     @Mapping(target = "documentos", expression = "java(mapFilesToDocumentos(certificaciones, urls))")
     @Mapping(target = "estadoRevision", constant = "PENDIENTE_REVISION")
     public abstract Entrenador toEntity(EntrenadorRequestDTO request, List<String> urls, List<MultipartFile> certificaciones);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true) // El password se encripta en el Service
+    @Mapping(target = "rol", ignore = true)      // El rol se asigna en el Service
+    @Mapping(target = "documentos", expression = "java(mapFilesToDocumentos(certificaciones, urls))")
+    @Mapping(target = "estadoRevision", constant = "PENDIENTE_REVISION")
+    public abstract Entrenador toEntityAmpliarFormacion(AmpliarFormacionDTO request, List<String> urls, List<MultipartFile> certificaciones);
 
     // --- 2. ENTITY -> RESPONSE DTO (Listados rápidos) ---
     @Mapping(target = "estado", source = "estadoRevision")

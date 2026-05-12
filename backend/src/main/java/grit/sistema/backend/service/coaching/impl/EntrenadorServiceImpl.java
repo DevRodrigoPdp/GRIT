@@ -129,6 +129,25 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     }
 
     @Override
+    public EntrenadorResponseDTO ampliarFormacion(UUID entrenadorId, AmpliarFormacionDTO request, List<MultipartFile> documentos) {
+        validarTamanoArchivos(documentos);
+
+        Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+
+        List<String> urls = subirCertificaciones(documentos);
+
+        try {
+            Entrenador entrenadorActual = persistenceService.ampliarFormacion(entrenador, request, urls, documentos);
+            return entrenadorMapper.toResponse(entrenadorActual);
+        } catch (Exception e) {
+            log.error("Error en persistencia en ampliar formación. Iniciando compensación de archivos en MinIO...");
+            compensarArchivos(urls, null);
+            throw e;
+        }
+    }
+
+    @Override
     @Transactional
     public void solicitarBajaCuenta(UUID entrenadorId) {
         if (!entrenadorRepository.existsById(entrenadorId)) {

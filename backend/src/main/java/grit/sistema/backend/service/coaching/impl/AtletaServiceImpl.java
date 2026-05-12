@@ -121,7 +121,7 @@ public class AtletaServiceImpl implements AtletaService {
     private String subirFotoPerfil(MultipartFile foto) {
         return Optional.ofNullable(foto)
                 .filter(f -> !f.isEmpty())
-                .map(storageService::uploadEntrenadorFoto)
+                .map(storageService::uploadAtletaFoto)
                 .orElse(null);
     }
 

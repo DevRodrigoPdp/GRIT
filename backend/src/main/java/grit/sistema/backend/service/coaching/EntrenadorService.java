@@ -18,5 +18,9 @@ public interface EntrenadorService {
 
     List<AtletaResumenDTO> listarMisAtletas(String email);
 
+    EntrenadorResponseDTO ampliarFormacion(UUID entrenadorId,
+                                           AmpliarFormacionDTO dto,
+                                           List<MultipartFile> documentos);
+
     void solicitarBajaCuenta(UUID entrenadorId);
 }

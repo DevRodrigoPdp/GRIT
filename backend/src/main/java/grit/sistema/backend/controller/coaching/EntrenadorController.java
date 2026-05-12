@@ -1,10 +1,8 @@
 package grit.sistema.backend.controller.coaching;
 
-import grit.sistema.backend.dto.coaching.EntrenadorEditarPerfilDTO;
+import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
-import grit.sistema.backend.dto.coaching.AtletaResumenDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
-import grit.sistema.backend.dto.coaching.EntrenadorPerfilDTO;
 import grit.sistema.backend.dto.nutrition.NotaNutricionistaRequestDTO;
 import grit.sistema.backend.dto.nutrition.NotaResponseDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
@@ -20,13 +18,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -69,9 +65,16 @@ public class EntrenadorController {
 
     @Operation(summary = "Darse de baja del atleta")
     @DeleteMapping("/atletas/{atletaId}/desconectar")
-    public  ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID atletaId, @AuthenticationPrincipal UserPrincipal usuario) {
+    public ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID atletaId, @AuthenticationPrincipal UserPrincipal usuario) {
         asignacionService.terminarAsignacion(usuario.getId(), atletaId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Entrenador solicita ampliación de titulación.")
+    @PostMapping(value = "/ampliar-formacion", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> ampliarFormacion(@RequestPart("datos") @Valid AmpliarFormacionDTO dto, @RequestPart(value = "fotoPerfil", required = false) List<MultipartFile> documentos, @AuthenticationPrincipal UserPrincipal usuario) {
+        EntrenadorResponseDTO response = entrenadorService.ampliarFormacion(usuario.getId(), dto, documentos);
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Solicitud de ampliación de formación enviada", response));
     }
 
     @Operation(summary = "Crear nota al atleta")
@@ -93,7 +96,7 @@ public class EntrenadorController {
     public ResponseEntity<ApiResponseDTO<String>> solicitar(@PathVariable UUID atletaId, @AuthenticationPrincipal UserPrincipal usuario) {
         pesoService.solicitarCheckin(atletaId, usuario.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponseDTO<>(true, "Solicitud creada correctamente",null));
+                .body(new ApiResponseDTO<>(true, "Solicitud creada correctamente", null));
     }
 
     @GetMapping("/atletas/{atletaId}/peso/pendiente")
@@ -129,6 +132,6 @@ public class EntrenadorController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(new ApiResponseDTO(true, "Cuenta desactivada correctamente.",null));
+        return ResponseEntity.ok(new ApiResponseDTO(true, "Cuenta desactivada correctamente.", null));
     }
 }

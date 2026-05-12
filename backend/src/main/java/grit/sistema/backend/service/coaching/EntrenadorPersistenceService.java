@@ -1,6 +1,9 @@
 package grit.sistema.backend.service.coaching;
 
+import grit.sistema.backend.dto.coaching.AmpliarFormacionDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
+import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
+import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
 import grit.sistema.backend.exception.business.UsuarioExistenteException;
 import grit.sistema.backend.mapper.coaching.EntrenadorMapper;
 import grit.sistema.backend.entity.coaching.Entrenador;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +55,25 @@ public class EntrenadorPersistenceService {
         }
 
         // 4. Persistencia única
+        return entrenadorRepository.save(entrenador);
+    }
+
+    @Transactional
+    public Entrenador ampliarFormacion(Entrenador entrenador, AmpliarFormacionDTO request, List<String> urls, List<MultipartFile> documentos) {
+        if (request.modulo().equals("NUTRICION")){
+            entrenador.setTitulacionNutricion(TitulacionNutricion.valueOf(request.titulacion()));
+        }else if (request.modulo().equals("ENTRENAMIENTO")){
+            entrenador.setTitulacionEntrenamiento(TitulacionEntrenamiento.valueOf(request.titulacion()));
+        }
+
+        Entrenador entrenadorAmpliado = entrenadorMapper.toEntityAmpliarFormacion(request, urls, documentos);
+
+        entrenadorAmpliado.getDocumentos().forEach(entrenador::addDocumento);
+
+        if (entrenador.getDocumentos() != null) {
+            entrenador.getDocumentos().forEach(doc -> doc.setEntrenador(entrenador));
+        }
+
         return entrenadorRepository.save(entrenador);
     }
 }
