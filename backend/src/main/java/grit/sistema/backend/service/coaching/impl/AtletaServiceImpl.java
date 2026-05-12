@@ -83,7 +83,7 @@ public class AtletaServiceImpl implements AtletaService {
                 .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
 
         String fotoKey = subirFotoPerfil(foto);
-        atleta.setFotoKey(fotoKey);
+        atleta.setFotoUrl(fotoKey);
 
         atletaRepository.save(atleta);
     }
