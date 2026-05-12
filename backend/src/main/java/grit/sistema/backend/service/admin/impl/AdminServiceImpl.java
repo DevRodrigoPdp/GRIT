@@ -58,7 +58,7 @@ public class AdminServiceImpl implements AdminService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         return entrenadorRepository
-                .findByEstadoRevision(EstadoRevision.PENDIENTE_REVISION, pageable)
+                .findRevisionesPrioritarias(EstadoRevision.PENDIENTE_REVISION, pageable)
                 .map(this::mapToDTO);
     }
 

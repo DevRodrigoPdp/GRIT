@@ -41,7 +41,7 @@ public class StorageServiceImpl implements StorageService {
     public String uploadFile(MultipartFile file) {
         if (file.isEmpty()) throw new FileStorageException("Archivo vacío");
 
-        // [Mejora Senior]: Validar que sea PDF o imagen antes de subir
+        // Validar que sea PDF o imagen antes de subir
         validarMimeType(file.getContentType());
 
         String fileName = null;
@@ -55,7 +55,7 @@ public class StorageServiceImpl implements StorageService {
                     file.getOriginalFilename().replace(" ", "_") : "file";
             fileName = UUID.randomUUID() + "_" + originalName;
 
-            // [Mejora Senior]: Si optimizamos, normalizamos nombre y content-type
+            // Si optimizamos, normalizamos nombre y content-type
             if (contentType != null && contentType.startsWith("image/")) {
                 finalBytes = optimizarImagen(file);
                 contentType = "image/jpeg"; // Forzamos porque Thumbnailator saca JPG

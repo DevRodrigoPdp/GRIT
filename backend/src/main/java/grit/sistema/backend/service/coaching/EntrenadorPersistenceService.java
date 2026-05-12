@@ -2,6 +2,7 @@ package grit.sistema.backend.service.coaching;
 
 import grit.sistema.backend.dto.coaching.AmpliarFormacionDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
+import grit.sistema.backend.entity.coaching.enums.SolicitudAmpliacionTipo;
 import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
 import grit.sistema.backend.exception.business.UsuarioExistenteException;
@@ -60,20 +61,26 @@ public class EntrenadorPersistenceService {
 
     @Transactional
     public Entrenador ampliarFormacion(Entrenador entrenador, AmpliarFormacionDTO request, List<String> urls, List<MultipartFile> documentos) {
-        if (request.modulo().equals("NUTRICION")){
-            entrenador.setTitulacionNutricion(TitulacionNutricion.valueOf(request.titulacion()));
-        }else if (request.modulo().equals("ENTRENAMIENTO")){
-            entrenador.setTitulacionEntrenamiento(TitulacionEntrenamiento.valueOf(request.titulacion()));
-        }
+        actualizarTitulaciones(entrenador, request);
 
         Entrenador entrenadorAmpliado = entrenadorMapper.toEntityAmpliarFormacion(request, urls, documentos);
 
         entrenadorAmpliado.getDocumentos().forEach(entrenador::addDocumento);
+
+        entrenador.setSolicitudAmpliacionPendiente(SolicitudAmpliacionTipo.valueOf(request.modulo()));
 
         if (entrenador.getDocumentos() != null) {
             entrenador.getDocumentos().forEach(doc -> doc.setEntrenador(entrenador));
         }
 
         return entrenadorRepository.save(entrenador);
+    }
+
+    private void actualizarTitulaciones(Entrenador e, AmpliarFormacionDTO r) {
+        if ("NUTRICION".equals(r.modulo())) {
+            e.setTitulacionNutricion(TitulacionNutricion.valueOf(r.titulacion()));
+        } else if ("ENTRENAMIENTO".equals(r.modulo())) {
+            e.setTitulacionEntrenamiento(TitulacionEntrenamiento.valueOf(r.titulacion()));
+        }
     }
 }

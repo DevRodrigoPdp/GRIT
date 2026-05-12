@@ -72,7 +72,7 @@ public class EntrenadorController {
 
     @Operation(summary = "Entrenador solicita ampliación de titulación.")
     @PostMapping(value = "/ampliar-formacion", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> ampliarFormacion(@RequestPart("datos") @Valid AmpliarFormacionDTO dto, @RequestPart(value = "fotoPerfil", required = false) List<MultipartFile> documentos, @AuthenticationPrincipal UserPrincipal usuario) {
+    public ResponseEntity<ApiResponseDTO<EntrenadorResponseDTO>> ampliarFormacion(@RequestPart("datos") @Valid AmpliarFormacionDTO dto, @RequestPart(value = "documentos", required = false) List<MultipartFile> documentos, @AuthenticationPrincipal UserPrincipal usuario) {
         EntrenadorResponseDTO response = entrenadorService.ampliarFormacion(usuario.getId(), dto, documentos);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Solicitud de ampliación de formación enviada", response));
     }

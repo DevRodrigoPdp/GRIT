@@ -25,6 +25,16 @@ public interface EntrenadorRepository  extends JpaRepository<Entrenador, UUID> {
 
     Page<Entrenador> findByEstadoRevision(EstadoRevision estado, Pageable pageable);
 
+    @Query("SELECT e FROM Entrenador e WHERE e.estadoRevision = :estado " +
+            "OR e.solicitudAmpliacionPendiente IS NOT NULL")
+    Page<Entrenador> findRevisionesPrioritarias(
+            @Param("estado") EstadoRevision tipoEstado,
+            Pageable pageable
+    );
+
+    @Query("SELECT e FROM Entrenador e LEFT JOIN FETCH e.documentos WHERE e.id = :id")
+    Optional<Entrenador> findByIdWithDocumentos(@Param("id") UUID id);
+
     @Query(value = """
     SELECT
         u.id, u.nombre, u.email, u.created_at,

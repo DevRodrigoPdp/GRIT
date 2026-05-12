@@ -5,6 +5,7 @@ import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
+import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
@@ -62,7 +63,6 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         List<String> urls = subirCertificaciones(certificaciones);
         String fotoKey = subirFotoPerfil(fotoPerfil);
 
-        // 2. Persistencia - Dentro de transacción
         try {
             Entrenador entrenador = persistenceService.guardarEntrenador(request, urls, certificaciones, fotoKey);
             return entrenadorMapper.toResponse(entrenador);
@@ -129,20 +129,19 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     }
 
     @Override
-    public EntrenadorResponseDTO ampliarFormacion(UUID entrenadorId, AmpliarFormacionDTO request, List<MultipartFile> documentos) {
-        validarTamanoArchivos(documentos);
-
-        Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
+    public EntrenadorResponseDTO ampliarFormacion(UUID id, AmpliarFormacionDTO request, List<MultipartFile> archivos) {
+        Entrenador entrenador = entrenadorRepository.findByIdWithDocumentos(id)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
-        List<String> urls = subirCertificaciones(documentos);
+        List<String> urls = subirCertificaciones(archivos);
 
         try {
-            Entrenador entrenadorActual = persistenceService.ampliarFormacion(entrenador, request, urls, documentos);
+            Entrenador entrenadorActual =  persistenceService.ampliarFormacion(entrenador, request, urls, archivos);
+
             return entrenadorMapper.toResponse(entrenadorActual);
         } catch (Exception e) {
-            log.error("Error en persistencia en ampliar formación. Iniciando compensación de archivos en MinIO...");
-            compensarArchivos(urls, null);
+            log.error("Fallo en persistencia, compensando archivos en S3...");
+            urls.forEach(storageService::deleteFile);
             throw e;
         }
     }
