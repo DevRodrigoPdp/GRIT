@@ -5,7 +5,6 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   selector: 'app-pendiente',
   standalone: true,
-  imports: [RouterLink],
   templateUrl: './pendiente.html',
 })
 export class PendientePage implements OnInit {
