@@ -1,5 +1,6 @@
 package grit.sistema.backend.service.coaching;
 
+import grit.sistema.backend.dto.coaching.AsignacionRequestDTO;
 import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
 import grit.sistema.backend.dto.coaching.AtletaResponseDTO;
 import grit.sistema.backend.exception.business.UsuarioExistenteException;
@@ -42,7 +43,7 @@ public class AtletaPersistenceService {
         if (dto.codigoInvitacion() != null && !dto.codigoInvitacion().isBlank()) {
             log.info("Procesando código de invitación automático para el nuevo atleta: {}", dto.email());
             // Reutilizamos el servicio que ya valida códigos, estados y competencias
-            asignacionService.conectarConEntrenador(atletaGuardado.getId(), dto.codigoInvitacion());
+            asignacionService.conectarConEntrenador(atletaGuardado.getId(), new AsignacionRequestDTO(dto.codigoInvitacion(), atleta.getServicio()));
         }
 
         return atletaMapper.toResponseDTO(atletaGuardado);

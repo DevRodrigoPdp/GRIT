@@ -1,5 +1,6 @@
 package grit.sistema.backend.service.coaching.impl;
 
+import grit.sistema.backend.dto.coaching.AsignacionRequestDTO;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
@@ -31,14 +32,14 @@ public class AsignacionServiceImpl implements AsignacionService {
 
     @Override
     @Transactional
-    public void conectarConEntrenador(UUID atletaId, String codigo) {
-        log.info("Intento de conexión: Atleta {} con código {}", atletaId, codigo);
+    public void conectarConEntrenador(UUID atletaId, AsignacionRequestDTO request) {
+        log.info("Intento de conexión: Atleta {} con código {}", atletaId, request.codigo());
 
         // 1. Validaciones de existencia (Fail-Fast)
         Atleta atleta = atletaRepository.findById(atletaId)
                 .orElseThrow(() -> new BusinessException("ATLETA_NO_ENCONTRADO", "El atleta no existe."));
 
-        Entrenador entrenador = entrenadorRepo.findByCodigoInvitacion(codigo)
+        Entrenador entrenador = entrenadorRepo.findByCodigoInvitacion(request.codigo())
                 .orElseThrow(() -> new BusinessException("CODIGO_INVALIDO", "Código de invitación no válido."));
 
         // 2. Validaciones de estado y competencia
@@ -47,10 +48,10 @@ public class AsignacionServiceImpl implements AsignacionService {
         }
 
         estrategias.stream()
-                .filter(s -> s.aplicaA(atleta.getServicio()))
+                .filter(s -> s.aplicaA(request.rolSolicitado()))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException("ESTRATEGIA_NO_ENCONTRADA",
-                        "No se encontró lógica de validación para: " + atleta.getServicio()))
+                        "No se encontró lógica de validación para: " + request.rolSolicitado()))
                 .validar(entrenador);
 
         // 3. Validaciones de negocio (Estado actual)
@@ -58,7 +59,7 @@ public class AsignacionServiceImpl implements AsignacionService {
             throw new BusinessException("ALREADY_LINKED", "Ya estás vinculado con este profesional.");
         }
 
-        if (asignacionRepo.existsByAtletaIdAndTipoServicioAndActivaTrue(atletaId, atleta.getServicio())) {
+        if (asignacionRepo.existsByAtletaIdAndTipoServicioAndActivaTrue(atletaId, request.rolSolicitado())) {
             throw new BusinessException("SERVICIO_ACTIVO", "Ya tienes un profesional activo para este servicio.");
         }
 
@@ -66,7 +67,7 @@ public class AsignacionServiceImpl implements AsignacionService {
             Asignacion nuevaAsignacion = new Asignacion();
             nuevaAsignacion.setAtleta(atleta);
             nuevaAsignacion.setEntrenador(entrenador);
-            nuevaAsignacion.setTipoServicio(atleta.getServicio());
+            nuevaAsignacion.setTipoServicio(request.rolSolicitado());
             nuevaAsignacion.setActiva(true);
 
             asignacionRepo.save(nuevaAsignacion);

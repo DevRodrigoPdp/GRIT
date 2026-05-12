@@ -91,7 +91,7 @@ public class AtletaController {
             @Valid @RequestBody AsignacionRequestDTO request,
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
-        asignacionService.conectarConEntrenador(usuario.getId(), request.codigo());
+        asignacionService.conectarConEntrenador(usuario.getId(), request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "ok", true,
