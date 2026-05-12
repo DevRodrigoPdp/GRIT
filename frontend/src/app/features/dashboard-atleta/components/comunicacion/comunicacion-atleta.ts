@@ -63,6 +63,7 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
 
   readonly atletaId = input.required<string>();
   readonly contexto = input<'ENTRENAMIENTO' | 'NUTRICION'>('ENTRENAMIENTO');
+
   readonly profesionalNombre = input<string>('Tu profesional');
   readonly solicitudCheckIn = input<SolicitudCheckIn | null>(null);
   readonly checkInCompletado = output<void>();
@@ -95,18 +96,20 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
 
   // ── Hilos ─────────────────────────────────────────────────────────────────
   readonly vista = signal<Vista>('lista');
-  readonly hiloActivo = signal<Hilo | null>(null);
   readonly hilos = signal<Hilo[]>([]);
+  readonly hiloActivo = signal<Hilo | null>(null);
 
   // ── Formulario nuevo hilo ─────────────────────────────────────────────────
   readonly nuevoTitulo = signal('');
   readonly nuevaCategoria = signal<CategoriaHilo>('apunte');
   readonly nuevoTexto = signal('');
   readonly nuevoAdjuntos = signal<Adjunto[]>([]);
+  private nuevoFiles = new Map<string, File>();
 
   // ── Formulario respuesta ──────────────────────────────────────────────────
   readonly textoRespuesta = signal('');
   readonly respuestaAdjuntos = signal<Adjunto[]>([]);
+  private respuestaFiles = new Map<string, File>();
 
   readonly categorias: { value: CategoriaHilo; label: string }[] = [
     { value: 'tecnica', label: 'TÉCNICA' },
@@ -119,9 +122,12 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
 
   readonly hilosNoLeidos = computed(() => this.hilos().filter(h => !h.leido).length);
 
-  ultimoMensaje(hilo: Hilo): MensajeHilo | null {
-    return hilo.mensajes.at(-1) ?? null;
-  }
+  readonly ultimoMensaje = (hilo: Hilo): MensajeHilo => {
+    if (!hilo?.mensajes || hilo.mensajes.length === 0) {
+      return { id: '', texto: '', de: 'atleta', fecha: new Date() } as MensajeHilo;
+    }
+    return hilo.mensajes[hilo.mensajes.length - 1];
+  };
 
   readonly hilosFiltrados = computed(() => {
     const q = this.busqueda().trim().toLowerCase();
@@ -136,32 +142,23 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.cargarHilos();
+  }
+
+  private cargarHilos(): void {
     const ctx = this.contexto();
-    this.http.get<HiloResumenDTO[]>(
-      `${this.API}/atleta/hilos?contexto=${ctx}`,
-      this.opts
-    ).subscribe({
-      next: (hilos) => {
-        // 2. 'hilos' ya es el array, no necesitas .data
-        this.hilos.set(hilos.map(h => ({
-          id: h.id,
-          titulo: h.titulo,
-          categoria: h.categoria.toLowerCase() as CategoriaHilo,
-          de: h.creadoPor === 'ATLETA' ? 'atleta' : 'entrenador',
-          fecha: new Date(h.creadoEn),
-          leido: h.leido,
-          total: h.totalMensajes,
-          mensajes: []
-        })));
-      },
-      error: (err) => console.error("Error al cargar hilos:", err)
-    });
+    this.http.get<HiloResumenDTO[]>(`${this.API}/atleta/hilos?contexto=${ctx}`, this.opts)
+      .subscribe({
+        next: (res) => {
+          this.hilos.set(res.map(h => this.mapDtoToHilo(h)));
+        },
+        error: (err) => console.error("Fallo en la arquitectura: no se pudieron cargar hilos", err)
+      });
   }
 
   ngOnDestroy(): void {
-    // Revocar object URLs para evitar memory leaks
-    [...this.nuevoAdjuntos(), ...this.respuestaAdjuntos()]
-      .forEach(a => URL.revokeObjectURL(a.url));
+    this.nuevoAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
+    this.respuestaAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
   }
 
   // ── Multimedia ────────────────────────────────────────────────────────────
@@ -169,33 +166,34 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   adjuntarArchivos(event: Event, destino: 'nuevo' | 'respuesta'): void {
     const files = (event.target as HTMLInputElement).files;
     if (!files) return;
+
     Array.from(files).forEach(file => {
-      const adjunto: Adjunto = {
-        id: crypto.randomUUID(),
-        url: URL.createObjectURL(file),
-        tipo: file.type.startsWith('video/') ? 'video' : 'imagen',
-        nombre: file.name,
-      };
+      const id = crypto.randomUUID(); // ID único para vincular UI y Archivo
+      const tipo: 'imagen' | 'video' = file.type.startsWith('video/') ? 'video' : 'imagen';
+      const url = URL.createObjectURL(file);
+
+      const adjunto: Adjunto = { id, url, tipo, nombre: file.name };
+
       if (destino === 'nuevo') {
         this.nuevoAdjuntos.update(l => [...l, adjunto]);
+        this.nuevoFiles.set(id, file);
       } else {
         this.respuestaAdjuntos.update(l => [...l, adjunto]);
+        this.respuestaFiles.set(id, file);
       }
     });
     (event.target as HTMLInputElement).value = '';
   }
 
   quitarAdjunto(id: string, destino: 'nuevo' | 'respuesta'): void {
-    const revocar = (lista: Adjunto[]) => {
-      const adj = lista.find(a => a.id === id);
-      if (adj) URL.revokeObjectURL(adj.url);
-      return lista.filter(a => a.id !== id);
-    };
-    if (destino === 'nuevo') {
-      this.nuevoAdjuntos.update(revocar);
-    } else {
-      this.respuestaAdjuntos.update(revocar);
-    }
+    const lista = destino === 'nuevo' ? this.nuevoAdjuntos : this.respuestaAdjuntos;
+    const mapa = destino === 'nuevo' ? this.nuevoFiles : this.respuestaFiles;
+
+    const adjunto = lista().find(a => a.id === id);
+    if (adjunto) URL.revokeObjectURL(adjunto.url); // Liberar memoria RAM
+
+    lista.update(l => l.filter(a => a.id !== id));
+    mapa.delete(id);
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────
@@ -213,20 +211,20 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
     this.vista.set('detalle');
 
     this.http.get<any>(`${this.API}/hilos/${hilo.id}`, this.opts)
-      .subscribe(h => { 
+      .subscribe(h => {
         const hiloCompleto: Hilo = {
           id: h.id,
           titulo: h.titulo,
           categoria: h.categoria.toLowerCase() as CategoriaHilo,
-          de: h.de === 'ATLETA' ? 'atleta' : 'entrenador', 
+          de: h.de === 'ATLETA' ? 'atleta' : 'entrenador',
           fecha: new Date(h.fechaAbierto),
           leido: true,
-          total: h.mensajes.length, 
+          total: h.mensajes.length,
           mensajes: h.mensajes.map((m: any) => ({
             id: m.id,
             texto: m.texto ?? '',
-            de: m.de === 'ATLETA' ? 'atleta' : 'entrenador', 
-            fecha: new Date(m.fecha), 
+            de: m.de === 'ATLETA' ? 'atleta' : 'entrenador',
+            fecha: new Date(m.fecha),
             adjuntos: m.adjuntos?.map((a: any) => ({
               id: a.id, url: a.url,
               tipo: a.tipo.toLowerCase() as 'imagen' | 'video',
@@ -236,7 +234,7 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
         };
         this.hiloActivo.set(hiloCompleto);
       });
-}
+  }
 
   volverALista(): void {
     this.hiloActivo.set(null);
@@ -248,99 +246,97 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   crearHilo(): void {
     const titulo = this.nuevoTitulo().trim();
     const texto = this.nuevoTexto().trim();
-    const categoria = this.nuevaCategoria();
     if (!titulo || !texto) return;
 
-    const hilo: Hilo = {
-      id: crypto.randomUUID(),
+    const idTemporal = crypto.randomUUID();
+
+    // 1. DTO siguiendo el estándar del Entrenador (Blob JSON)
+    const datosDTO = {
+      atletaId: this.atletaId(),
+      titulo: titulo,
+      categoria: this.nuevaCategoria().toUpperCase(),
+      contexto: this.contexto(),
+      texto: texto
+    };
+
+    const fd = new FormData();
+    fd.append('datos', new Blob([JSON.stringify(datosDTO)], { type: 'application/json' }));
+    this.nuevoFiles.forEach(file => fd.append('archivos', file));
+
+    // 2. Optimistic UI: Mostrar el hilo antes de la respuesta del servidor
+    const nuevoHiloLocal: Hilo = {
+      id: idTemporal,
       titulo,
-      categoria,
+      categoria: this.nuevaCategoria(),
       de: 'atleta',
       fecha: new Date(),
       leido: true,
       total: 1,
-      mensajes: [{
-        id: crypto.randomUUID(),
-        texto,
-        de: 'atleta',
-        fecha: new Date(),
-        adjuntos: this.nuevoAdjuntos().length ? [...this.nuevoAdjuntos()] : undefined,
-      }],
+      mensajes: []
     };
 
-    this.hilos.update(list => [hilo, ...list]);
-    this.nuevoTitulo.set('');
-    this.nuevoTexto.set('');
-    this.nuevaCategoria.set('apunte');
-    this.nuevoAdjuntos.set([]);
-    this.vista.set('lista');
+    this.hilos.update(prev => [nuevoHiloLocal, ...prev]);
+    this.resetFormularioNuevo();
 
-    const fd = new FormData();
-    fd.append('atletaId', this.atletaId());
-    fd.append('titulo', titulo);
-    fd.append('categoria', categoria.toUpperCase());
-    fd.append('contexto', this.contexto());
-    fd.append('texto', texto);
-    this.http.post<{ ok: boolean; data: { id: string; fechaAbierto: string } }>(
-      `${this.API}/hilos`, fd, this.opts
-    ).subscribe(r => {
-      this.hilos.update(list => list.map(h =>
-        h.id === hilo.id ? { ...h, id: r.data.id, fecha: new Date(r.data.fechaAbierto) } : h
-      ));
+    // 3. Persistencia
+    this.http.post<any>(`${this.API}/hilos`, fd, this.opts).subscribe({
+      next: (res) => {
+        const idReal = res.id || res.data?.id;
+        this.hilos.update(list => list.map(h => h.id === idTemporal ? { ...h, id: idReal } : h));
+      },
+      error: () => {
+        // Rollback si falla
+        this.hilos.update(list => list.filter(h => h.id !== idTemporal));
+      }
     });
   }
 
   responder(): void {
     const texto = this.textoRespuesta().trim();
     const hilo = this.hiloActivo();
-    if ((!texto && !this.respuestaAdjuntos().length) || !hilo) return;
+    if (!hilo || (!texto && this.respuestaFiles.size === 0)) return;
 
-    // 1. Crear mensaje temporal (Optimista)
-    const msgIdTemporal = crypto.randomUUID();
-    const msg: MensajeHilo = {
-      id: msgIdTemporal,
-      texto,
-      de: 'atleta',
-      fecha: new Date(),
-      adjuntos: this.respuestaAdjuntos().length ? [...this.respuestaAdjuntos()] : undefined,
-    };
-
-    const hiloActualizado: Hilo = { ...hilo, mensajes: [...hilo.mensajes, msg] };
-    this.hilos.update(list => list.map(h => h.id === hilo.id ? hiloActualizado : h));
-    this.hiloActivo.set(hiloActualizado);
-    this.textoRespuesta.set('');
-    this.respuestaAdjuntos.set([]);
-
-    // 2. Sincronizar con el Backend
     const fd = new FormData();
-    if (texto) fd.append('texto', texto);
+    if (texto) fd.append('texto', new Blob([texto], { type: 'text/plain' }));
+    this.respuestaFiles.forEach(f => fd.append('archivos', f));
 
-    // Tipamos la respuesta para evitar el 'any' y errores de 'undefined'
-    this.http.post<{ id: string; enviadoEn: string }>(
-      `${this.API}/hilos/${hilo.id}/mensajes`,
-      fd,
-      this.opts
-    ).subscribe({
-      next: (res) => {
-        this.hilos.update(list => list.map(h => {
-          if (h.id !== hilo.id) return h;
-          return {
-            ...h,
-            mensajes: h.mensajes.map(m =>
-              // Usamos 'res.id' directamente, NO 'res.data.id'
-              m.id === msgIdTemporal ? { ...m, id: res.id, fecha: new Date(res.enviadoEn) } : m
-            )
-          };
-        }));
-        // Sincronizar el hilo activo con los datos reales
-        const hActual = this.hilos().find(h => h.id === hilo.id);
-        if (hActual) this.hiloActivo.set(hActual);
-      },
-      error: (err) => console.error("Error al enviar mensaje:", err)
-    });
+    this.http.post<any>(`${this.API}/hilos/${hilo.id}/mensajes`, fd, this.opts)
+      .subscribe({
+        next: () => {
+          this.limpiarRespuesta();
+          this.abrirHilo(hilo); // Refrescar para obtener datos del servidor
+        }
+      });
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+
+  private mapDtoToHilo(h: HiloResumenDTO): Hilo {
+    return {
+      id: h.id,
+      titulo: h.titulo,
+      categoria: h.categoria.toLowerCase() as CategoriaHilo,
+      de: h.creadoPor === 'ATLETA' ? 'atleta' : 'entrenador',
+      fecha: new Date(h.creadoEn),
+      leido: h.leido,
+      total: h.totalMensajes,
+      mensajes: []
+    };
+  }
+
+  private resetFormularioNuevo(): void {
+    this.nuevoTitulo.set('');
+    this.nuevoTexto.set('');
+    this.nuevoAdjuntos.set([]);
+    this.nuevoFiles.clear();
+    this.vista.set('lista');
+  }
+
+  private limpiarRespuesta(): void {
+    this.textoRespuesta.set('');
+    this.respuestaAdjuntos.set([]);
+    this.respuestaFiles.clear();
+  }
 
   labelCategoria(cat: CategoriaHilo): string {
     return { tecnica: 'TÉCNICA', duda: 'DUDA', apunte: 'APUNTE' }[cat];
