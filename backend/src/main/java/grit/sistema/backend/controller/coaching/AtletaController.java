@@ -26,6 +26,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,8 +64,17 @@ public class AtletaController {
 
     @Operation(summary = "Actualizar foto de perfil del atleta")
     @PutMapping(value = "/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponseDTO<Void>> actualizarFoto(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal UserPrincipal usuario) {
-        atletaService.actualizarFoto(usuario.getId(), file);
+    public ResponseEntity<ApiResponseDTO<Void>> actualizarFoto(
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+            @RequestPart(value = "foto", required = false) MultipartFile foto,
+            @AuthenticationPrincipal UserPrincipal usuario) {
+        MultipartFile upload = file != null ? file : (fotoPerfil != null ? fotoPerfil : foto);
+        if (upload == null || upload.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponseDTO<>(false, "No se proporcionó ningún archivo de foto", null));
+        }
+
+        atletaService.actualizarFoto(usuario.getId(), upload);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto de perfil actualizada", null));
     }
 
