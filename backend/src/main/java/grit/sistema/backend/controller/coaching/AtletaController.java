@@ -1,9 +1,7 @@
 package grit.sistema.backend.controller.coaching;
 
+import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
-import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
-import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
-import grit.sistema.backend.dto.coaching.AsignacionRequestDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.nutrition.NotaResponseDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
@@ -54,6 +52,13 @@ public class AtletaController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta", perfilDTO));
     }
 
+    @Operation(summary = "Actualizar perfil de atleta")
+    @PutMapping("/perfil")
+    public ResponseEntity<ApiResponseDTO<AtletaPerfilDTO>> actualizarPerfil(@Valid @RequestBody AtletaEditarPerfilDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
+        AtletaPerfilDTO perfilDTO = atletaService.editarPerfil(usuario.getId(), dto);
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta actualizado", perfilDTO));
+    }
+
     @Operation(summary = "Ver plan activo entrenamiento del atleta")
     @GetMapping("/entrenamiento/plan-activo")
     public ResponseEntity<ApiResponseDTO<RutinaDTO>> getPlanEntrenamientoActivo(@AuthenticationPrincipal UserPrincipal usuario) {
@@ -80,7 +85,7 @@ public class AtletaController {
 
     @Operation(summary = "Darse de baja del entrenador")
     @DeleteMapping("/profesionales/{profesionalId}")
-    public  ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID profesionalId, @AuthenticationPrincipal UserPrincipal usuario) {
+    public ResponseEntity<ApiResponseDTO<Void>> desconectarAtleta(@PathVariable UUID profesionalId, @AuthenticationPrincipal UserPrincipal usuario) {
         asignacionService.terminarAsignacion(profesionalId, usuario.getId());
         return ResponseEntity.noContent().build();
     }
@@ -113,13 +118,13 @@ public class AtletaController {
     @GetMapping("/peso/solicitud-pendiente")
     public ResponseEntity<ApiResponseDTO<SolicitudPendienteDTO>> getPendiente(@AuthenticationPrincipal UserPrincipal usuario) {
         var data = pesoService.obtenerSolicitudPendiente(usuario.getId());
-        return ResponseEntity.ok(new ApiResponseDTO<>(true,"Solicitud recuperada", data));
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Solicitud recuperada", data));
     }
 
     @PostMapping("/peso")
     public ResponseEntity<ApiResponseDTO<PesoResponseDTO>> registrar(@Valid @RequestBody PesoRequestDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
         var data = pesoService.registrarPeso(dto, usuario.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, "Peso registrado con éxito",data));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, "Peso registrado con éxito", data));
     }
 
     @GetMapping("peso/historial")

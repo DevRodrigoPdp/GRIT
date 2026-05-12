@@ -1,12 +1,12 @@
 package grit.sistema.backend.service.coaching.impl;
 
 import grit.sistema.backend.clientAPI.PwnedPasswordClient;
-import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
-import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
-import grit.sistema.backend.dto.coaching.AtletaResponseDTO;
-import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
+import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.entity.coaching.Asignacion;
+import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.enums.NivelAtleta;
+import grit.sistema.backend.entity.coaching.enums.Objetivo;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.exception.security.PwnedPasswordException;
 import grit.sistema.backend.mapper.coaching.AtletaMapper;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,22 @@ public class AtletaServiceImpl implements AtletaService {
         return atletaRepository.findById(atletaId)
                 .map(atletaMapper::toPerfilDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
+    }
+
+    @Override
+    @Transactional
+    public AtletaPerfilDTO editarPerfil(UUID atletaId, AtletaEditarPerfilDTO request){
+        Atleta atleta = atletaRepository.findById(atletaId)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+
+        atleta.setDeporte(request.deporte());
+        atleta.setNivel(NivelAtleta.valueOf(request.nivel()));
+        atleta.setAlturaCm(request.altura());
+        atleta.setObjetivo(Objetivo.valueOf(request.objetivo()));
+        atleta.setPesoKg(BigDecimal.valueOf(request.peso()));
+
+        Atleta atletaActual = atletaRepository.save(atleta);
+        return atletaMapper.toPerfilDTO(atletaActual);
     }
 
     @Override

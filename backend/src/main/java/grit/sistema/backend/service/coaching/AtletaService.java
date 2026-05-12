@@ -1,9 +1,6 @@
 package grit.sistema.backend.service.coaching;
 
-import grit.sistema.backend.dto.coaching.ProfesionalAsignadoDTO;
-import grit.sistema.backend.dto.coaching.AtletaPerfilDTO;
-import grit.sistema.backend.dto.coaching.AtletaRequestDTO;
-import grit.sistema.backend.dto.coaching.AtletaResponseDTO;
+import grit.sistema.backend.dto.coaching.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -14,6 +11,8 @@ public interface AtletaService {
     AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto, MultipartFile foto);
 
     AtletaPerfilDTO obtenerPerfil(UUID atletaId);
+
+    AtletaPerfilDTO editarPerfil(UUID atletaId, AtletaEditarPerfilDTO dto);
 
     List<ProfesionalAsignadoDTO> getProfesionalesAsignados(UUID atletaId);
 
