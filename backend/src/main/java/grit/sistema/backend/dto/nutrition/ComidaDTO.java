@@ -7,6 +7,7 @@ public record ComidaDTO(
         UUID id,
         String nombre,
         Short orden,
+        String notas,
         List<AlimentoDTO> alimentos
 ) {
 }
