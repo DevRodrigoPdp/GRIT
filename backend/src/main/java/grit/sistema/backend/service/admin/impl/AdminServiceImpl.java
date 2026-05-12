@@ -153,6 +153,7 @@ public class AdminServiceImpl implements AdminService {
     private void aprobarEntrenador(Entrenador entrenador) {
         entrenador.setEstadoRevision(EstadoRevision.APROBADO);
         entrenador.setEstado(EstadoUsuario.ACTIVO);
+        entrenador.setSolicitudAmpliacionPendiente(null);
         evaluarAccesosIniciales(entrenador);
 
         entrenador.getDocumentos().forEach(d -> {
