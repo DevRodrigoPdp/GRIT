@@ -7,29 +7,29 @@ import { setLoggingOut } from '../interceptors/auth.interceptor';
 
 // ── Tipos compartidos ────────────────────────────────────────────────────────
 
-export type Rol            = 'ATLETA' | 'ENTRENADOR' | 'ADMIN';
-export type EstadoCuenta   = 'ACTIVO' | 'PENDIENTE_REVISION' | 'RECHAZADO' | 'BLOQUEADO';
+export type Rol = 'ATLETA' | 'ENTRENADOR' | 'ADMIN';
+export type EstadoCuenta = 'ACTIVO' | 'PENDIENTE_REVISION' | 'RECHAZADO' | 'BLOQUEADO';
 export type EstadoRevision = 'PENDIENTE_REVISION' | 'APROBADO' | 'RECHAZADO';
 export type ServicioAtleta = 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
 
 // ── Payloads de registro ─────────────────────────────────────────────────────
 
 export interface RegistroAtletaPayload {
-  nombre:            string;
-  email:             string;
-  password:          string;
-  fechaNac:          string;
-  genero:            string;
-  pesoKg:            number;
-  alturaCm:          number;
-  deporte:           string;
-  nivel:             string;
-  servicio:          ServicioAtleta;
-  objetivo:          string | null;
-  codigoInvitacion:  string | null;
-  alergias:          string[];
-  intolerancias:     string[];
-  fotoPerfil:        File | null;
+  nombre: string;
+  email: string;
+  password: string;
+  fechaNac: string;
+  genero: string;
+  pesoKg: number;
+  alturaCm: number;
+  deporte: string;
+  nivel: string;
+  servicio: ServicioAtleta;
+  objetivo: string | null;
+  codigoInvitacion: string | null;
+  alergias: string[];
+  intolerancias: string[];
+  fotoPerfil: File | null;
 }
 
 export interface RegistroEntrenadorPayload {
@@ -51,22 +51,22 @@ export interface RegistroEntrenadorPayload {
 export interface LoginResponse {
   ok: boolean;
   data: {
-    rol:                  Rol;
-    estado:               EstadoCuenta;
-    estadoRevision:       EstadoRevision | null;
-    tituloEntrenamiento:  boolean | null;
-    tituloNutricion:      boolean | null;
-    servicio:             ServicioAtleta | null;
-    nombre:               string;
+    rol: Rol;
+    estado: EstadoCuenta;
+    estadoRevision: EstadoRevision | null;
+    tituloEntrenamiento: boolean | null;
+    tituloNutricion: boolean | null;
+    servicio: ServicioAtleta | null;
+    nombre: string;
   };
 }
 
 export interface RegistroResponse {
-  ok:       true;
-  message:  string;
+  ok: true;
+  message: string;
   data: {
-    id:    string;
-    rol:   Rol;
+    id: string;
+    rol: Rol;
     estado: EstadoCuenta;
   };
 }
@@ -74,16 +74,16 @@ export interface RegistroResponse {
 export interface MeResponse {
   ok: boolean;
   data: {
-    id:                      string;
-    nombre:                  string;
-    rol:                     Rol;
-    estado:                  EstadoCuenta;
-    estadoRevision:          EstadoRevision | null;
-    servicio:                ServicioAtleta | null;
-    tituloEntrenamiento:     boolean | null;
-    tituloNutricion:         boolean | null;
+    id: string;
+    nombre: string;
+    rol: Rol;
+    estado: EstadoCuenta;
+    estadoRevision: EstadoRevision | null;
+    servicio: ServicioAtleta | null;
+    tituloEntrenamiento: boolean | null;
+    tituloNutricion: boolean | null;
     titulacionEntrenamiento: string | null;
-    titulacionNutricion:     string | null;
+    titulacionNutricion: string | null;
   };
 }
 
@@ -91,25 +91,25 @@ export interface MeResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http   = inject(HttpClient);
+  private http = inject(HttpClient);
   private router = inject(Router);
 
   private readonly API = '/api/v1/auth';
 
   // Signals de sesión (única fuente de verdad en el frontend)
-  readonly rol                 = signal<Rol | null>(null);
-  readonly estado              = signal<EstadoCuenta | null>(null);
-  readonly estadoRevision      = signal<EstadoRevision | null>(null);
+  readonly rol = signal<Rol | null>(null);
+  readonly estado = signal<EstadoCuenta | null>(null);
+  readonly estadoRevision = signal<EstadoRevision | null>(null);
   readonly tituloEntrenamiento = signal<boolean | null>(null);
-  readonly tituloNutricion     = signal<boolean | null>(null);
-  readonly servicio            = signal<ServicioAtleta | null>(null);
-  readonly nombre              = signal<string | null>(null);
-  readonly loginError          = signal<string | null>(null);
-  readonly loading             = signal(false);
-  
-  readonly sessionInitialized  = signal(false);
+  readonly tituloNutricion = signal<boolean | null>(null);
+  readonly servicio = signal<ServicioAtleta | null>(null);
+  readonly nombre = signal<string | null>(null);
+  readonly loginError = signal<string | null>(null);
+  readonly loading = signal(false);
+
+  readonly sessionInitialized = signal(false);
   // true solo cuando /me confirmó la sesión (no mero localStorage)
-  readonly sessionVerified     = signal(false);
+  readonly sessionVerified = signal(false);
 
   constructor() {
     const saved = localStorage.getItem('grit_session');
@@ -133,20 +133,20 @@ export class AuthService {
     const formData = new FormData();
 
     const dto = {
-      nombre:           payload.nombre,
-      email:            payload.email,
-      password:         payload.password,
-      fechaNac:         payload.fechaNac,
-      genero:           payload.genero,
-      pesoKg:           payload.pesoKg,
-      alturaCm:         payload.alturaCm,
-      deporte:          payload.deporte,
-      nivel:            payload.nivel,
-      servicio:         payload.servicio,
-      objetivo:         payload.objetivo,
+      nombre: payload.nombre,
+      email: payload.email,
+      password: payload.password,
+      fechaNac: payload.fechaNac,
+      genero: payload.genero,
+      pesoKg: payload.pesoKg,
+      alturaCm: payload.alturaCm,
+      deporte: payload.deporte,
+      nivel: payload.nivel,
+      servicio: payload.servicio,
+      objetivo: payload.objetivo,
       codigoInvitacion: payload.codigoInvitacion,
-      alergias:         payload.alergias,
-      intolerancias:    payload.intolerancias,
+      alergias: payload.alergias,
+      intolerancias: payload.intolerancias,
     };
 
     formData.append('datos', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
@@ -184,17 +184,22 @@ export class AuthService {
     const formData = new FormData();
 
     // ── Construir DTO para la parte "datos" ─────────────────────────────────
-    const dto = {
+    const dto: any = {
       nombre: payload.nombre,
       email: payload.email,
       password: payload.password,
       codigoProfesional: payload.codigoProfesional || null,
-      titulacionEntrenamiento: payload.titulacionEntrenamiento || null,
-      titulacionNutricion: payload.titulacionNutricion || null,
       experienciaAnos: payload.anosExperiencia || null,
       masters: payload.masters || null,
       descripcion: payload.sobreMi || null,
     };
+
+    if (payload.titulacionEntrenamiento) {
+      dto.titulacionEntrenamiento = payload.titulacionEntrenamiento;
+    }
+    if (payload.titulacionNutricion) {
+      dto.titulacionNutricion = payload.titulacionNutricion;
+    }
 
     // Enviar DTO como JSON en la parte "datos"
     formData.append('datos', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
@@ -240,7 +245,7 @@ export class AuthService {
             this.loading.set(false);
             const estadosValidos: EstadoCuenta[] = ['ACTIVO', 'PENDIENTE_REVISION', 'RECHAZADO'];
             const estado = res?.data?.estado;
-            const rol    = res?.data?.rol;
+            const rol = res?.data?.rol;
 
             // Estado válido → flujo normal
             if (rol && estadosValidos.includes(estado)) {
@@ -388,13 +393,13 @@ export class AuthService {
 
   private guardarSesionLocal() {
     localStorage.setItem('grit_session', JSON.stringify({
-      rol:                 this.rol(),
-      estado:              this.estado(),
-      estadoRevision:      this.estadoRevision(),
+      rol: this.rol(),
+      estado: this.estado(),
+      estadoRevision: this.estadoRevision(),
       tituloEntrenamiento: this.tituloEntrenamiento(),
-      tituloNutricion:     this.tituloNutricion(),
-      servicio:            this.servicio(),
-      nombre:              this.nombre(),
+      tituloNutricion: this.tituloNutricion(),
+      servicio: this.servicio(),
+      nombre: this.nombre(),
     }));
   }
 
