@@ -111,8 +111,14 @@ export class EntrenadorService {
 
   solicitarAmpliacionFormacion(modulo: 'ENTRENAMIENTO' | 'NUTRICION', titulacion: string, documentos: File[]): Observable<void> {
     const fd = new FormData();
-    fd.append('modulo', modulo);
-    fd.append('titulacion', titulacion);
+
+    const dto: any = {
+      modulo: modulo,
+      titulacion: titulacion
+    }
+
+    fd.append('datos', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
+
     documentos.forEach(f => fd.append('documentos', f));
     return this.http.post<ApiResponseDTO<void>>(`${this.API}/ampliar-formacion`, fd, { withCredentials: true })
       .pipe(map(() => undefined));
