@@ -192,6 +192,7 @@ export class AuthService {
       titulacionEntrenamiento: payload.titulacionEntrenamiento || null,
       titulacionNutricion: payload.titulacionNutricion || null,
       experienciaAnos: payload.anosExperiencia || null,
+      masters: payload.masters || null,
       descripcion: payload.sobreMi || null,
     };
 
