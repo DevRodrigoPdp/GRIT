@@ -106,6 +106,9 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   readonly nuevoAdjuntos = signal<Adjunto[]>([]);
   private nuevoFiles = new Map<string, File>();
 
+  // ── Lightbox ──────────────────────────────────────────────────────────────
+  readonly zoomUrl = signal<string | null>(null);
+
   // ── Formulario respuesta ──────────────────────────────────────────────────
   readonly textoRespuesta = signal('');
   readonly respuestaAdjuntos = signal<Adjunto[]>([]);

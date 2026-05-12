@@ -17,37 +17,7 @@ export class VistaPerfilAtletaComponent {
 
   @ViewChild('fileInputFoto') fileInputFoto?: ElementRef<HTMLInputElement>;
 
-  readonly nuevaAlergia = signal('');
-  readonly nuevaLesion  = signal('');
   readonly subiendoFoto = signal(false);
-
-  agregarAlergia(): void {
-    const texto = this.nuevaAlergia().trim();
-    const p = this.perfilAtleta();
-    if (!texto || !p) return;
-    this.perfilActualizado.emit({ ...p, alergias: [...p.alergias, texto] });
-    this.nuevaAlergia.set('');
-  }
-
-  eliminarAlergia(idx: number): void {
-    const p = this.perfilAtleta();
-    if (!p) return;
-    this.perfilActualizado.emit({ ...p, alergias: p.alergias.filter((_, i) => i !== idx) });
-  }
-
-  agregarLesion(): void {
-    const texto = this.nuevaLesion().trim();
-    const p = this.perfilAtleta();
-    if (!texto || !p) return;
-    this.perfilActualizado.emit({ ...p, lesiones: [...p.lesiones, texto] });
-    this.nuevaLesion.set('');
-  }
-
-  eliminarLesion(idx: number): void {
-    const p = this.perfilAtleta();
-    if (!p) return;
-    this.perfilActualizado.emit({ ...p, lesiones: p.lesiones.filter((_, i) => i !== idx) });
-  }
 
   seleccionarFotoPerfil(event: Event): void {
     const archivo = (event.target as HTMLInputElement).files?.[0];

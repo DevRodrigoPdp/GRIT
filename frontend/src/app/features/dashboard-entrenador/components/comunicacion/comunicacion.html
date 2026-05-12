@@ -1,3 +1,17 @@
+<!-- ── LIGHTBOX ────────────────────────────────────────────────────────────── -->
+@if (zoomUrl()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-sm cursor-zoom-out"
+  (click)="zoomUrl.set(null)">
+  <img [src]="zoomUrl()!" class="max-w-[90vw] max-h-[90vh] object-contain select-none" (click)="$event.stopPropagation()"/>
+  <button (click)="zoomUrl.set(null)"
+    class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors">
+    <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
+      <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+    </svg>
+  </button>
+</div>
+}
+
 <div class="flex flex-col h-full py-6 gap-10">
 
   <!-- ── VISTA: LISTA ──────────────────────────────────────────────────────── -->
@@ -369,7 +383,7 @@
                         [class.border-white/20]="msg.de === 'entrenador'"
                         [class.border-[#E5E7EB]]="msg.de === 'atleta'">
                         @if (adj.tipo === 'imagen') {
-                          <img [src]="adj.url" class="max-w-[200px] max-h-[160px] object-cover block" [alt]="adj.nombre"/>
+                          <img [src]="adj.url" class="max-w-[200px] max-h-[160px] object-cover block cursor-zoom-in hover:opacity-90 transition-opacity" [alt]="adj.nombre" (click)="zoomUrl.set(adj.url)"/>
                         } @else {
                           <video [src]="adj.url" controls class="max-w-[200px] block"></video>
                         }

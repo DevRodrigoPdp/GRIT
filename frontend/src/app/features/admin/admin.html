@@ -303,7 +303,7 @@
                 </div>
                 <div class="flex justify-center gap-4 text-gray-200 group-hover:text-gray-400">
                   <!-- Bloquear / Desbloquear -->
-                  <button (click)="toggleBloqueo(u)"
+                  <button (click)="pedirConfirmacionBloqueo(u)"
                     [title]="u.estado === 'BLOQUEADO' ? 'Desbloquear usuario' : 'Bloquear usuario'"
                     [class]="u.estado === 'BLOQUEADO' ? 'text-amber-400 hover:text-amber-600' : 'hover:text-amber-500'"
                     class="transition-colors">
@@ -487,6 +487,68 @@
         <button (click)="mostrarModalRechazo.set(false)"
           class="px-8 border border-gray-200 text-gray-400 py-4 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black hover:border-black transition-all">
           CANCELAR
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Modal: Confirmar Bloqueo / Desbloqueo -->
+  @if (mostrarModalBloqueo()) {
+  @let u = usuarioSeleccionado();
+  @let esBloqueado = u?.estado === 'BLOQUEADO';
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6"
+    (click)="mostrarModalBloqueo.set(false)">
+    <div class="bg-white w-full max-w-md p-10 relative overflow-hidden shadow-[0_0_100px_rgba(245,158,11,0.2)]"
+      (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 w-full h-2"
+        [class]="esBloqueado ? 'bg-[#2ED38D]' : 'bg-amber-500'"></div>
+
+      <div class="w-16 h-16 flex items-center justify-center mb-8 mx-auto"
+        [class]="esBloqueado ? 'bg-green-50' : 'bg-amber-50'">
+        @if (esBloqueado) {
+          <!-- Candado abierto -->
+          <svg class="w-8 h-8 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" stroke-linecap="square"/>
+          </svg>
+        } @else {
+          <!-- Candado cerrado -->
+          <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4" stroke-linecap="square"/>
+          </svg>
+        }
+      </div>
+
+      <h3 class="text-3xl font-black uppercase tracking-tighter text-center text-black mb-4 leading-none italic">
+        {{ esBloqueado ? 'DESBLOQUEAR CUENTA' : 'BLOQUEAR CUENTA' }}
+      </h3>
+
+      @if (u) {
+      <div class="bg-gray-50 p-4 mb-8"
+        [class]="esBloqueado ? 'border-l-2 border-[#2ED38D]' : 'border-l-2 border-amber-500'">
+        <p class="text-[9px] font-black tracking-widest text-gray-400 uppercase mb-1">CUENTA AFECTADA</p>
+        <p class="text-base font-black uppercase text-black italic">{{ u.nombre }}</p>
+        <p class="text-[11px] font-bold text-gray-400 lowercase">{{ u.correo }}</p>
+      </div>
+      }
+
+      <p class="text-[11px] text-gray-500 font-bold uppercase tracking-widest text-center mb-10 leading-relaxed">
+        @if (esBloqueado) {
+          EL USUARIO RECUPERARÁ EL ACCESO<br>A LA PLATAFORMA DE FORMA INMEDIATA.
+        } @else {
+          EL USUARIO NO PODRÁ ACCEDER<br>A LA PLATAFORMA HASTA SER DESBLOQUEADO.
+        }
+      </p>
+
+      <div class="flex flex-col gap-3">
+        <button (click)="confirmarBloqueo()" [disabled]="loadingUsuarios()"
+          class="w-full text-white py-5 text-xs font-black tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-30"
+          [class]="esBloqueado ? 'bg-[#2ED38D] text-black hover:bg-black hover:text-white' : 'bg-amber-500 hover:bg-black'">
+          {{ esBloqueado ? 'SÍ, DESBLOQUEAR' : 'SÍ, BLOQUEAR' }}
+        </button>
+        <button (click)="mostrarModalBloqueo.set(false)"
+          class="w-full text-gray-300 py-3 text-[10px] font-black tracking-[0.2em] uppercase hover:text-black transition-all">
+          CANCELAR OPERACIÓN
         </button>
       </div>
     </div>

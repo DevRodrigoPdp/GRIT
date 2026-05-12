@@ -46,6 +46,7 @@ export class AdminPage implements OnInit, OnDestroy {
   readonly mostrarModalConfirmacion = signal(false);
   readonly mostrarModalExito = signal(false);
   readonly mostrarModalEliminacion = signal(false);
+  readonly mostrarModalBloqueo = signal(false);
   readonly nombreAprobado = signal('');
 
   // Edición de usuario
@@ -253,14 +254,22 @@ export class AdminPage implements OnInit, OnDestroy {
     });
   }
 
-  toggleBloqueo(usuario: UsuarioDTO) {
-    const nuevoEstado = usuario.estado === 'BLOQUEADO' ? 'ACTIVO' : 'BLOQUEADO';
-    this.adminService.bloquearUsuario(usuario.id, { estado: nuevoEstado }).subscribe({
-      next: (actualizado) => {
-        this.usuarios.update(list => list.map(u => u.id === actualizado.id ? actualizado : u));
-      },
-      error: (err) => {
+  pedirConfirmacionBloqueo(usuario: UsuarioDTO) {
+    this.usuarioSeleccionado.set(usuario);
+    this.mostrarModalBloqueo.set(true);
+  }
 
+  confirmarBloqueo() {
+    const u = this.usuarioSeleccionado();
+    if (!u) return;
+    const nuevoEstado = u.estado === 'BLOQUEADO' ? 'ACTIVO' : 'BLOQUEADO';
+    this.adminService.bloquearUsuario(u.id, { estado: nuevoEstado }).subscribe({
+      next: (actualizado) => {
+        this.usuarios.update(list => list.map(x => x.id === actualizado.id ? actualizado : x));
+        this.mostrarModalBloqueo.set(false);
+        this.usuarioSeleccionado.set(null);
+      },
+      error: () => {
         this.error.set('No se pudo cambiar el estado del usuario.');
       }
     });

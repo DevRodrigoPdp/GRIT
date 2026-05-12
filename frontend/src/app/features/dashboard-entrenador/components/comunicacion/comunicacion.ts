@@ -63,6 +63,9 @@ export class ComunicacionComponent implements OnInit {
   // Cuando se conecte la API: guardar los File reales aquí en paralelo a nuevoAdjuntos
   private nuevoFiles = new Map<string, File>();
 
+  // ── Lightbox ──────────────────────────────────────────────────────────────
+  readonly zoomUrl = signal<string | null>(null);
+
   // ── Formulario respuesta ──────────────────────────────────────────────────
   textoRespuesta = '';
   readonly respuestaAdjuntos = signal<Adjunto[]>([]);

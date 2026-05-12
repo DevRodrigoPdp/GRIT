@@ -10,7 +10,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class AjustesAtletaComponent {
   private atleta = inject(AtletaService);
-  private auth   = inject(AuthService);
+  readonly auth   = inject(AuthService);
 
   readonly perfilAtleta      = input<PerfilAtleta | null>(null);
   readonly perfilActualizado = output<PerfilAtleta>();
@@ -43,13 +43,47 @@ export class AjustesAtletaComponent {
     ];
   });
 
-  readonly perfilAbierto   = signal(false);
-  readonly editDeporte     = signal('');
-  readonly editNivel       = signal<PerfilAtleta['nivel']>('PRINCIPIANTE');
-  readonly editObjetivo    = signal<PerfilAtleta['objetivo']>(null);
-  readonly guardandoPerfil = signal(false);
-  readonly perfilGuardado  = signal(false);
-  readonly perfilError     = signal('');
+  readonly passConfirmError = computed(() => {
+    const c = this.passConfirm();
+    if (!c) return '';
+    return c !== this.passNueva() ? 'Las contraseñas no coinciden' : '';
+  });
+
+  readonly nuevaAlergia    = signal('');
+  readonly nuevaLesion     = signal('');
+
+  readonly perfilAbierto    = signal(false);
+  readonly perfilIntentado  = signal(false);
+  readonly editDeporte      = signal('');
+  readonly editNivel        = signal<PerfilAtleta['nivel']>('PRINCIPIANTE');
+  readonly editObjetivo     = signal<PerfilAtleta['objetivo']>(null);
+  readonly editPeso         = signal(0);
+  readonly editAltura       = signal(0);
+  readonly guardandoPerfil  = signal(false);
+  readonly perfilGuardado   = signal(false);
+  readonly perfilError      = signal('');
+
+  readonly deporteError = computed(() => {
+    if (!this.perfilIntentado()) return '';
+    const v = this.editDeporte().trim();
+    if (!v) return 'Requerido';
+    if (v.length > 50) return 'Máximo 50 caracteres';
+    return '';
+  });
+
+  readonly pesoError = computed(() => {
+    if (!this.perfilIntentado()) return '';
+    const v = this.editPeso();
+    if (!v || v < 30 || v > 300) return 'Valor entre 30 y 300 kg';
+    return '';
+  });
+
+  readonly alturaError = computed(() => {
+    if (!this.perfilIntentado()) return '';
+    const v = this.editAltura();
+    if (!v || v < 100 || v > 250) return 'Valor entre 100 y 250 cm';
+    return '';
+  });
 
   readonly objetivos: { value: PerfilAtleta['objetivo']; label: string }[] = [
     { value: null,              label: 'Sin objetivo específico' },
@@ -73,13 +107,21 @@ export class AjustesAtletaComponent {
       this.editDeporte.set(p.deporte);
       this.editNivel.set(p.nivel);
       this.editObjetivo.set(p.objetivo);
+      this.editPeso.set(p.peso);
+      this.editAltura.set(p.altura);
       this.perfilGuardado.set(false);
       this.perfilError.set('');
+      this.perfilIntentado.set(false);
     }
     this.perfilAbierto.set(!this.perfilAbierto());
   }
 
   guardarPerfil(): void {
+    this.perfilIntentado.set(true);
+    const peso = this.editPeso();
+    const altura = this.editAltura();
+    const deporte = this.editDeporte().trim();
+    if (!deporte || deporte.length > 50 || peso < 30 || peso > 300 || altura < 100 || altura > 250) return;
     this.guardandoPerfil.set(true);
     this.perfilError.set('');
     this.perfilGuardado.set(false);
@@ -87,6 +129,8 @@ export class AjustesAtletaComponent {
       deporte:  this.editDeporte(),
       nivel:    this.editNivel(),
       objetivo: this.editObjetivo(),
+      peso:     this.editPeso(),
+      altura:   this.editAltura(),
     }).subscribe({
       next: (p) => {
         this.perfilActualizado.emit(p);
@@ -98,6 +142,34 @@ export class AjustesAtletaComponent {
         this.guardandoPerfil.set(false);
       },
     });
+  }
+
+  agregarAlergia(): void {
+    const texto = this.nuevaAlergia().trim();
+    const p = this.perfilAtleta();
+    if (!texto || !p) return;
+    this.perfilActualizado.emit({ ...p, alergias: [...p.alergias, texto] });
+    this.nuevaAlergia.set('');
+  }
+
+  eliminarAlergia(idx: number): void {
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilActualizado.emit({ ...p, alergias: p.alergias.filter((_, i) => i !== idx) });
+  }
+
+  agregarLesion(): void {
+    const texto = this.nuevaLesion().trim();
+    const p = this.perfilAtleta();
+    if (!texto || !p) return;
+    this.perfilActualizado.emit({ ...p, lesiones: [...p.lesiones, texto] });
+    this.nuevaLesion.set('');
+  }
+
+  eliminarLesion(idx: number): void {
+    const p = this.perfilAtleta();
+    if (!p) return;
+    this.perfilActualizado.emit({ ...p, lesiones: p.lesiones.filter((_, i) => i !== idx) });
   }
 
   cambiarPassword(): void {

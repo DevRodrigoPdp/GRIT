@@ -326,7 +326,7 @@ export class AtletaService {
       .pipe(map(() => undefined));
   }
 
-  actualizarPerfil(datos: { deporte?: string; nivel?: string; objetivo?: string | null }): Observable<PerfilAtleta> {
+  actualizarPerfil(datos: { deporte?: string; nivel?: string; objetivo?: string | null; peso?: number; altura?: number }): Observable<PerfilAtleta> {
     return this.http.patch<ApiResponseDTO<PerfilAtleta>>(`${this.API}/perfil`, datos, { withCredentials: true })
       .pipe(map(r => r.data));
   }

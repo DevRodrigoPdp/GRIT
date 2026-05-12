@@ -68,9 +68,16 @@
     }
 
     @for (plan of planes(); track plan.id) {
-      <div class="border border-[#E5E7EB] mb-3 p-5 hover:border-black transition-colors group cursor-pointer" (click)="abrirDetalle(plan)">
+      <div class="border mb-3 hover:border-black transition-colors group cursor-pointer flex overflow-hidden"
+        [class]="plan.activo ? 'border-[#2ED38D]' : 'border-[#E5E7EB]'"
+        (click)="abrirDetalle(plan)">
+        <div class="w-1 flex-shrink-0" [class]="plan.activo ? 'bg-[#2ED38D]' : 'bg-transparent group-hover:bg-[#E5E7EB] transition-colors'"></div>
+        <div class="flex-1 min-w-0 p-5">
         <div class="flex items-start justify-between">
           <div class="flex-1 min-w-0 mr-4">
+            @if (plan.activo) {
+              <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-[#2ED38D] mb-0.5">● ACTIVO</p>
+            }
             <p class="text-sm font-black uppercase tracking-tight"
               [class]="plan.nombre ? 'text-black' : 'text-gray-300 italic'">
               {{ plan.nombre || '(sin nombre)' }}
@@ -79,21 +86,24 @@
               <p class="text-sm font-light text-gray-400 mt-0.5">{{ plan.descripcion }}</p>
             }
           </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="flex items-center gap-3 flex-shrink-0">
+            <button (click)="$event.stopPropagation(); iniciarEdicion(plan)"
+              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors">
+              MODIFICAR
+            </button>
             @if (plan.activo) {
-              <span class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 bg-[#2ED38D] text-black">● ACTIVO</span>
               <button (click)="$event.stopPropagation(); desactivarPlan(plan.id)"
-                class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 border border-transparent text-gray-300 hover:border-orange-200 hover:text-orange-400 transition-colors opacity-0 group-hover:opacity-100">
+                class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-orange-400 transition-colors opacity-0 group-hover:opacity-100">
                 DESACTIVAR
               </button>
             } @else {
               <button (click)="$event.stopPropagation(); activarPlan(plan.id)"
-                class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 border border-black text-black hover:bg-black hover:text-white transition-colors opacity-0 group-hover:opacity-100">
+                class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">
                 ACTIVAR
               </button>
             }
             <button (click)="$event.stopPropagation(); eliminarPlan(plan.id)"
-              class="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 border border-transparent text-gray-300 hover:border-red-200 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
               ELIMINAR
             </button>
           </div>
@@ -122,6 +132,7 @@
             <p class="text-sm font-light text-gray-400">{{ plan.creadoEn | date:'dd/MM/yyyy' }}</p>
           </div>
         </div>
+        </div> <!-- /.flex-1 min-w-0 -->
       </div>
     }
   </div>
