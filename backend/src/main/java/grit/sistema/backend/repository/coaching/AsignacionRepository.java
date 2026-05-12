@@ -29,6 +29,8 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
 
     Optional<Asignacion> findByAtletaIdAndActivaTrue(UUID atletaId);
 
+    Optional<Asignacion> findByAtletaIdAndActivaTrueAndTipoServicio(UUID atletaId, TipoServicio tipo);
+
     boolean existsByAtletaIdAndTipoServicioAndActivaTrue(UUID atletaId, TipoServicio tipoServicio);
 
     boolean existsByAtletaIdAndEntrenadorEmailAndActivaTrue(UUID atletaId, String email);

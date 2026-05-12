@@ -5,6 +5,7 @@ import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
+import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.entity.communication.*;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
 import grit.sistema.backend.exception.security.AccesoDenegadoException;
@@ -45,12 +46,12 @@ public class HiloServiceImpl implements HiloService {
     @Transactional
     public HiloDetalleDTO crearHilo(CrearHiloDTO dto, List<MultipartFile> archivos, UUID emisorId) {
         log.info("Creando hilo: '{}' para Atleta ID: {}", dto.titulo(), dto.atletaId());
-// 1. Validar que el atleta existe
+        // 1. Validar que el atleta existe
         Atleta atleta = atletaRepository.findById(dto.atletaId())
                 .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
 
         // 2. BUSCAR EL ENTRENADOR A TRAVÉS DE LA ASIGNACIÓN ACTIVA
-        Asignacion asignacion = asignacionRepository.findByAtletaIdAndActivaTrue(atleta.getId())
+        Asignacion asignacion = asignacionRepository.findByAtletaIdAndActivaTrueAndTipoServicio(atleta.getId(), TipoServicio.valueOf(dto.contexto().name()))
                 .orElseThrow(() -> new IllegalStateException("El atleta no tiene un entrenamiento activo"));
 
         Entrenador entrenador = asignacion.getEntrenador();
