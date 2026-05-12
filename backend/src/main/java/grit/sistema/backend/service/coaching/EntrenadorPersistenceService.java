@@ -43,6 +43,7 @@ public class EntrenadorPersistenceService {
         entrenador.setEstado(EstadoUsuario.ACTIVO);
         entrenador.setFotoUrl(fotoKey);
         entrenador.setCodigoInvitacion(nuevoCodigo);
+        entrenador.setMasters(request.getMasters());
 
         // IMPORTANTE: Vincular los documentos al entrenador (Relación bidireccional)
         if (entrenador.getDocumentos() != null) {

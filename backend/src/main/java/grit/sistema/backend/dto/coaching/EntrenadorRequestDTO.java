@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -52,4 +54,6 @@ public class EntrenadorRequestDTO {
     @Size(max = 2000, message = "La descripción no puede superar los 2000 caracteres")
     @Schema(example = "Especialista en entrenamiento de fuerza y rehabilitación...", description = "Breve biografía profesional")
     private String descripcion;
+
+    private List<String> masters;
 }
