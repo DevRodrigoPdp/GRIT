@@ -5,7 +5,7 @@ import java.util.List;
 
 public record ComidaResponseDTO(
         String nombre,
-        String descripcion,
+        String notas,
         List<AlimentoDTO> alimentos
 ) {
 }

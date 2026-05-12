@@ -22,6 +22,8 @@ public interface NutricionMapper {
     // Este es para el dashboard del atleta
     PlanData toDataDTO(PlanNutricion plan);
 
+    ComidaResponseDTO toComidaResponseDTO(Comida entity);
+
     // --- 2. COMIDAS ---
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "plan", ignore = true)
