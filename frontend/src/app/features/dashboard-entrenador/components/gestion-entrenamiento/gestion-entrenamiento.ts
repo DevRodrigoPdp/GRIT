@@ -143,47 +143,51 @@ export class GestionEntrenamientoComponent implements OnInit {
     this.mostrarSugerencias.set(false);
   }
 
-  agregarEjercicio(): void {
-    const maestro = this.ejercicioSeleccionado();
-    const nombreEnInput = this.nuevoNombre().trim();
+ agregarEjercicio(): void {
+  const nombreEnInput = this.nuevoNombre().trim();
+  const maestro = this.ejercicioSeleccionado();
+  const esDescanso = nombreEnInput.toLowerCase() === 'descanso';
 
-    // 1. Validamos que exista un ejercicio seleccionado
-    if (!maestro) {
-      alert('Debes seleccionar un ejercicio de la lista de sugerencias.');
-      return;
-    }
-
-    // 2. Validamos coincidencia ignorando mayúsculas/minúsculas
-    // Esto evita que falle por una letra minúscula
-    if (maestro.nombre.toLowerCase() !== nombreEnInput.toLowerCase()) {
-      alert('El nombre no coincide con el ejercicio seleccionado. Por favor, selecciona uno de la lista.');
-      return;
-    }
-
-    // 3. Si todo está bien, creamos el objeto para la sesión
-    const ej: EjercicioManual = {
-      id: maestro.id, // ID real de la DB
-      nombre: maestro.nombre, // Nombre oficial del catálogo
-      series: this.nuevoSeries(),
-      reps: this.nuevoReps().toString().trim() || '10',
-      notas: this.nuevoNotas().trim(),
-    };
-
-    const idx = this.sesionActivaIdx();
-    this.sesiones.update(lista => {
-      const nuevasSesiones = [...lista];
-      const sesion = nuevasSesiones[idx];
-      if (sesion) {
-        nuevasSesiones[idx] = {
-          ...sesion,
-          ejercicios: [...sesion.ejercicios, ej]
-        };
-      }
-      return nuevasSesiones;
-    });
-
-    this.cerrarModal(); // Esto debería limpiar el form y el ejercicioSeleccionado
+  if (!esDescanso && !maestro) {
+    alert('Selecciona un ejercicio del catálogo o escribe "Descanso".');
+    return;
   }
+
+  if (!esDescanso && maestro) { 
+    if (maestro.nombre.toLowerCase() !== nombreEnInput.toLowerCase()) {
+      alert('El nombre no coincide con el catálogo.');
+      return;
+    }
+  }
+
+  const idFinal = esDescanso ? crypto.randomUUID() : maestro!.id;
+  const nombreFinal = esDescanso ? 'Descanso' : maestro!.nombre;
+
+  // 4. Creación del DTO limpio
+  const ej: EjercicioManual = {
+    id: idFinal,
+    nombre: nombreFinal,
+    series: this.nuevoSeries(),
+    reps: esDescanso ? '0' : this.nuevoReps().toString(),
+    notas: this.nuevoNotas().trim()
+  };
+
+  // 5. Actualización del estado (Signals)
+  const idx = this.sesionActivaIdx();
+  this.sesiones.update(lista => {
+    const nuevasSesiones = [...lista];
+    const sesion = nuevasSesiones[idx];
+    if (sesion) {
+      nuevasSesiones[idx] = {
+        ...sesion,
+        ejercicios: [...sesion.ejercicios, ej]
+      };
+    }
+    return nuevasSesiones;
+  });
+
+  this.cerrarModal();
+}
 
   quitarEjercicio(sesionIdx: number, ejId: string): void {
     this.sesiones.update(l => {
