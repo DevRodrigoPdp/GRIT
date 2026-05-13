@@ -62,20 +62,14 @@ public class AtletaController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta actualizado", perfilDTO));
     }
 
-    @Operation(summary = "Actualizar foto de perfil del atleta")
-    @PutMapping(value = "/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponseDTO<Void>> actualizarFoto(
-            @RequestPart(value = "file", required = false) MultipartFile file,
-            @RequestPart(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
-            @RequestPart(value = "foto", required = false) MultipartFile foto,
+    @Operation(summary = "Actualizar foto de perfil")
+    @PatchMapping(value = "/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponseDTO<FotoPerfilResponseDTO>> actualizarFoto(
+            @RequestPart("fotoPerfil") MultipartFile foto,
             @AuthenticationPrincipal UserPrincipal usuario) {
-        MultipartFile upload = file != null ? file : (fotoPerfil != null ? fotoPerfil : foto);
-        if (upload == null || upload.isEmpty()) {
-            return ResponseEntity.badRequest().body(new ApiResponseDTO<>(false, "No se proporcionó ningún archivo de foto", null));
-        }
+        FotoPerfilResponseDTO response = atletaService.actualizarFoto(usuario.getId(), foto);
 
-        atletaService.actualizarFoto(usuario.getId(), upload);
-        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto de perfil actualizada", null));
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto actualizada exitosamente", response));
     }
 
     @Operation(summary = "Ver plan activo entrenamiento del atleta")

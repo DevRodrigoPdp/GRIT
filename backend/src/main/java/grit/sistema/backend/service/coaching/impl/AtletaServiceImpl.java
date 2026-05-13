@@ -41,6 +41,8 @@ public class AtletaServiceImpl implements AtletaService {
     private final AtletaMapper atletaMapper;
     private final AtletaPersistenceService persistenceService;
 
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
     @Override
     public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto, MultipartFile foto) {
         if (pwnedClient.isPasswordPwned(dto.password())) {
@@ -78,14 +80,22 @@ public class AtletaServiceImpl implements AtletaService {
 
     @Override
     @Transactional
-    public void actualizarFoto(UUID atletaId, MultipartFile foto) {
+    public FotoPerfilResponseDTO actualizarFoto(UUID atletaId, MultipartFile foto) {
         Atleta atleta = atletaRepository.findById(atletaId)
-                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Atleta con ID " + atletaId + " no existe"));
 
         String fotoKey = subirFotoPerfil(foto);
-        atleta.setFotoUrl(fotoKey);
 
+        if (atleta.getFotoUrl() != null) {
+            storageService.deleteFile(atleta.getFotoUrl());
+        }
+
+        atleta.setFotoUrl(fotoKey);
         atletaRepository.save(atleta);
+
+        String nuevaFotoUrl = storageService.getPresignedUrl(atleta.getFotoUrl());
+
+        return new FotoPerfilResponseDTO(nuevaFotoUrl);
     }
 
     @Override
