@@ -1,4 +1,4 @@
-import { Component, inject, input, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, input, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SeguimientoService, CheckInPeso } from '../../services/seguimiento.service';
 import { HttpClient } from '@angular/common/http';
@@ -40,7 +40,7 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
   imports: [FormsModule],
   templateUrl: './comunicacion.html',
 })
-export class ComunicacionComponent implements OnInit {
+export class ComunicacionComponent implements OnInit, OnDestroy {
   private seg = inject(SeguimientoService);
   private http = inject(HttpClient);
 
@@ -56,18 +56,17 @@ export class ComunicacionComponent implements OnInit {
   readonly hilos = signal<Hilo[]>([]);
 
   // ── Formulario nuevo hilo ─────────────────────────────────────────────────
-  nuevoTitulo = '';
-  nuevaCategoria = signal<CategoriaHilo>('apunte');
-  nuevoTexto = '';
+  readonly nuevoTitulo = signal('');
+  readonly nuevaCategoria = signal<CategoriaHilo>('apunte');
+  readonly nuevoTexto = signal('');
   readonly nuevoAdjuntos = signal<Adjunto[]>([]);
-  // Cuando se conecte la API: guardar los File reales aquí en paralelo a nuevoAdjuntos
   private nuevoFiles = new Map<string, File>();
 
   // ── Lightbox ──────────────────────────────────────────────────────────────
   readonly zoomUrl = signal<string | null>(null);
 
   // ── Formulario respuesta ──────────────────────────────────────────────────
-  textoRespuesta = '';
+  readonly textoRespuesta = signal('');
   readonly respuestaAdjuntos = signal<Adjunto[]>([]);
   private respuestaFiles = new Map<string, File>();
 
@@ -77,18 +76,16 @@ export class ComunicacionComponent implements OnInit {
     { value: 'apunte', label: 'APUNTE' },
   ];
 
-  busqueda = '';
-  filtroCategoria = signal<CategoriaHilo | 'TODOS'>('TODOS');
+  readonly busqueda = signal('');
+  readonly filtroCategoria = signal<CategoriaHilo | 'TODOS'>('TODOS');
 
   readonly hilosNoLeidos = computed(() => this.hilos().filter(h => !h.leido).length);
   readonly ultimoMensaje = (hilo: Hilo): MensajeHilo => {
-    // Si no hay mensajes, devolvemos un objeto vacío con la estructura de MensajeHilo
-    // para evitar que el HTML intente leer propiedades de 'undefined'
     if (!hilo?.mensajes || hilo.mensajes.length === 0) {
       return {
         id: '',
         texto: '',
-        de: 'atleta', // Valor por defecto del DTO
+        de: 'atleta',
         fecha: new Date()
       } as MensajeHilo;
     }
@@ -96,7 +93,7 @@ export class ComunicacionComponent implements OnInit {
   };
 
   readonly hilosFiltrados = computed(() => {
-    const q = this.busqueda.trim().toLowerCase();
+    const q = this.busqueda().trim().toLowerCase();
     const filtro = this.filtroCategoria();
     return this.hilos().filter(h => {
       const coincideCategoria = filtro === 'TODOS' || h.categoria === filtro;
@@ -143,9 +140,9 @@ export class ComunicacionComponent implements OnInit {
           id: h.id,
           titulo: h.titulo,
           categoria: h.categoria.toLowerCase() as CategoriaHilo,
-          de: (h.de === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
-          fechaAbierto: new Date(h.fechaAbierto),
-          leido: h.leidoPorMi,
+          de: (h.creadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
+          fechaAbierto: new Date(h.creadoEn),
+          leido: h.leido,
           mensajes: [],
         }));
         this.hilos.set(hilosMapeados);
@@ -161,7 +158,7 @@ export class ComunicacionComponent implements OnInit {
     if (!files) return;
 
     Array.from(files).forEach(file => {
-      const id = crypto.randomUUID(); // ID único para vincular UI y Archivo
+      const id = crypto.randomUUID();
       const tipo: 'imagen' | 'video' = file.type.startsWith('video/') ? 'video' : 'imagen';
       const url = URL.createObjectURL(file);
 
@@ -183,7 +180,7 @@ export class ComunicacionComponent implements OnInit {
     const mapa = destino === 'nuevo' ? this.nuevoFiles : this.respuestaFiles;
 
     const adjunto = lista().find(a => a.id === id);
-    if (adjunto) URL.revokeObjectURL(adjunto.url); // Liberar memoria RAM
+    if (adjunto) URL.revokeObjectURL(adjunto.url);
 
     lista.update(l => l.filter(a => a.id !== id));
     mapa.delete(id);
@@ -194,12 +191,10 @@ export class ComunicacionComponent implements OnInit {
   abrirHilo(hilo: Hilo): void {
     this.hilos.update(list => list.map(h => h.id === hilo.id ? { ...h, leido: true } : h));
     this.hiloActivo.set(this.hilos().find(h => h.id === hilo.id) ?? hilo);
-    this.textoRespuesta = '';
+    this.textoRespuesta.set('');
     this.respuestaAdjuntos.set([]);
     this.vista.set('detalle');
 
-    //── Descomentar para cargar mensajes completos desde la API ────────────
-    //El GET /hilos/:hiloId ya marca el hilo como leído en el backend (no hace falta PUT /leer aparte)
     this.http.get<any>(`${this.API}/hilos/${hilo.id}`)
       .subscribe(r => {
         if (!r) return;
@@ -236,15 +231,11 @@ export class ComunicacionComponent implements OnInit {
   // ── Acciones ──────────────────────────────────────────────────────────────
 
   crearHilo(): void {
-    const titulo = this.nuevoTitulo.trim();
-    const texto = this.nuevoTexto.trim();
+    const titulo = this.nuevoTitulo().trim();
+    const texto = this.nuevoTexto().trim();
     if (!titulo || !texto) return;
 
-    // Determinamos el contexto según el input del componente
     const ctx = this.servicio() === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
-
-    // 1. Creamos el objeto local para la UI (Optimistic UI)
-    // Usamos un ID temporal que luego reemplazaremos con el del servidor
     const idTemporal = crypto.randomUUID();
     const hiloLocal: Hilo = {
       id: idTemporal,
@@ -262,41 +253,27 @@ export class ComunicacionComponent implements OnInit {
       }],
     };
 
-    // Actualizamos la lista localmente para que el usuario vea el hilo al instante
     this.hilos.update(list => [hiloLocal, ...list]);
 
-    // 2. Preparamos el FormData para el Backend
     const datosDTO = {
       atletaId: this.atletaId(),
       titulo: titulo,
-      categoria: this.nuevaCategoria().toUpperCase(), // Spring suele esperar Enums en Mayúsculas
+      categoria: this.nuevaCategoria().toUpperCase(),
       contexto: ctx,
       texto: texto
     };
 
     const fd = new FormData();
-
-    // Convertimos el DTO a Blob JSON para cumplir con @RequestPart("datos")
-    fd.append('datos', new Blob([JSON.stringify(datosDTO)], {
-      type: 'application/json'
-    }));
-
-    // Extraemos los archivos reales de nuestro Map y los añadimos
+    fd.append('datos', new Blob([JSON.stringify(datosDTO)], { type: 'application/json' }));
     Array.from(this.nuevoFiles.values()).forEach(f => fd.append('archivos', f));
 
-    // 3. Petición al Servidor
     this.http.post<any>(`${this.API}/hilos`, fd)
       .subscribe({
         next: (response) => {
-          // El backend devuelve el Hilo real. Actualizamos el ID temporal por el real.
-          // Nota: Ajusta 'response.id' según la estructura exacta de tu retorno.
           const servidorId = response.id || response.data?.id;
-
           this.hilos.update(list =>
             list.map(h => h.id === idTemporal ? { ...h, id: servidorId } : h)
           );
-
-          // Limpieza de archivos y memoria
           this.nuevoAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
           this.nuevoFiles.clear();
         },
@@ -305,37 +282,44 @@ export class ComunicacionComponent implements OnInit {
         }
       });
 
-    // 4. Limpieza de la interfaz
-    this.nuevoTitulo = '';
-    this.nuevoTexto = '';
-    this.nuevoAdjuntos.set([]);
-    this.vista.set('lista');
+    this.resetFormularioNuevo();
   }
 
   responder(): void {
-    const texto = this.textoRespuesta.trim();
+    const texto = this.textoRespuesta().trim();
     const hilo = this.hiloActivo();
     if ((!texto && this.respuestaFiles.size === 0) || !hilo) return;
 
     const fd = new FormData();
-
-    // Enviamos el texto como una parte
     if (texto) {
       fd.append('texto', new Blob([texto], { type: 'text/plain' }));
     }
-
     Array.from(this.respuestaFiles.values()).forEach(f => fd.append('archivos', f));
 
     this.http.post<any>(`${this.API}/hilos/${hilo.id}/mensajes`, fd)
-      .subscribe(() => {
-        this.respuestaFiles.clear();
-        this.textoRespuesta = '';
-        this.respuestaAdjuntos.set([]);
-        this.abrirHilo(hilo); // Refrescar el hilo para ver el nuevo mensaje
+      .subscribe({
+        next: () => {
+          this.limpiarRespuesta();
+          this.abrirHilo(hilo);
+        }
       });
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+
+  private resetFormularioNuevo(): void {
+    this.nuevoTitulo.set('');
+    this.nuevoTexto.set('');
+    this.nuevoAdjuntos.set([]);
+    this.nuevoFiles.clear();
+    this.vista.set('lista');
+  }
+
+  private limpiarRespuesta(): void {
+    this.textoRespuesta.set('');
+    this.respuestaAdjuntos.set([]);
+    this.respuestaFiles.clear();
+  }
 
   labelCategoria(cat: CategoriaHilo): string {
     return { tecnica: 'TÉCNICA', duda: 'DUDA', apunte: 'APUNTE' }[cat];
@@ -372,7 +356,6 @@ export class ComunicacionComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    // Liberar todas las URLs de previsualización al destruir el componente
     this.nuevoAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
     this.respuestaAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
   }
