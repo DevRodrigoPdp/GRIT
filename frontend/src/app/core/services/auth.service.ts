@@ -27,8 +27,8 @@ export interface RegistroAtletaPayload {
   servicio: ServicioAtleta;
   objetivo: string | null;
   codigoInvitacion: string | null;
-  restriccionesDieteticas: string[];
-  restriccionesFisicas: string[];
+  restriccionesDieteticas: string;
+  restriccionesFisicas: string;
   fotoPerfil: File | null;
 }
 
