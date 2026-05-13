@@ -77,6 +77,18 @@ public class AtletaServiceImpl implements AtletaService {
     }
 
     @Override
+    @Transactional
+    public void actualizarFoto(UUID atletaId, MultipartFile foto) {
+        Atleta atleta = atletaRepository.findById(atletaId)
+                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
+
+        String fotoKey = subirFotoPerfil(foto);
+        atleta.setFotoUrl(fotoKey);
+
+        atletaRepository.save(atleta);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<ProfesionalAsignadoDTO> getProfesionalesAsignados(UUID atletaId) {
         List<Asignacion> asignaciones = asignacionRepository.findAsignacionesActivas(atletaId);

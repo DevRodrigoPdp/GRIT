@@ -21,11 +21,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -57,6 +60,22 @@ public class AtletaController {
     public ResponseEntity<ApiResponseDTO<AtletaPerfilDTO>> actualizarPerfil(@Valid @RequestBody AtletaEditarPerfilDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
         AtletaPerfilDTO perfilDTO = atletaService.editarPerfil(usuario.getId(), dto);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del atleta actualizado", perfilDTO));
+    }
+
+    @Operation(summary = "Actualizar foto de perfil del atleta")
+    @PutMapping(value = "/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponseDTO<Void>> actualizarFoto(
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+            @RequestPart(value = "foto", required = false) MultipartFile foto,
+            @AuthenticationPrincipal UserPrincipal usuario) {
+        MultipartFile upload = file != null ? file : (fotoPerfil != null ? fotoPerfil : foto);
+        if (upload == null || upload.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponseDTO<>(false, "No se proporcionó ningún archivo de foto", null));
+        }
+
+        atletaService.actualizarFoto(usuario.getId(), upload);
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto de perfil actualizada", null));
     }
 
     @Operation(summary = "Ver plan activo entrenamiento del atleta")
