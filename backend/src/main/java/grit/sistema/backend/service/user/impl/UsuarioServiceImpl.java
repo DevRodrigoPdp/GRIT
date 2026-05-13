@@ -127,10 +127,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         String urlAntigua;
 
         if (usuario instanceof Entrenador e) {
-            carpeta = "perfiles/entrenadores";
+            carpeta = "profiles/entrenadores";
             urlAntigua = e.getFotoUrl();
         } else if (usuario instanceof Atleta a) {
-            carpeta = "perfiles/atletas";
+            carpeta = "profiles/atletas";
             urlAntigua = a.getFotoUrl();
         } else {
             throw new IllegalArgumentException("Tipo de usuario no soportado");
