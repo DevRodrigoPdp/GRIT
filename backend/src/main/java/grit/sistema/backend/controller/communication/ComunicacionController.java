@@ -77,7 +77,7 @@ public class ComunicacionController {
         return ResponseEntity.ok(hiloService.responderHilo(id, texto, archivos, usuario.getId()));
     }
 
-    @PostMapping("/hilos/{id}/leer")
+    @PatchMapping("/hilos/{id}/leer")
     public ResponseEntity<Void> marcarComoLeido(@PathVariable UUID id, @AuthenticationPrincipal UserPrincipal usuario) {
         hiloService.marcarComoLeido(id, usuario.getId());
         return ResponseEntity.ok().build();
