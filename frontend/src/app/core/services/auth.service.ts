@@ -27,6 +27,7 @@ export interface RegistroAtletaPayload {
   servicio: ServicioAtleta;
   objetivo: string | null;
   codigoInvitacion: string | null;
+  tipoProfesionalCodigo: string | null;
   restriccionesDieteticas: string;
   restriccionesFisicas: string;
   fotoPerfil: File | null;
@@ -145,6 +146,7 @@ export class AuthService {
       servicio: payload.servicio,
       objetivo: payload.objetivo,
       codigoInvitacion: payload.codigoInvitacion,
+      tipoProfesionalCodigo: payload.tipoProfesionalCodigo,
       restriccionesDieteticas: payload.restriccionesDieteticas,
       restriccionesFisicas: payload.restriccionesFisicas,
     };

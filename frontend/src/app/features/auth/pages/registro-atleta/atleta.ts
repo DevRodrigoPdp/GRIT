@@ -8,6 +8,7 @@ export type Objetivo = 'rendimiento' | 'masa_muscular' | 'perder_peso' | 'salud'
 export type Nivel     = 'principiante' | 'intermedio' | 'avanzado' | 'elite';
 export type Genero    = 'hombre' | 'mujer' | 'otro' | '';
 export type Servicio  = 'entrenamiento' | 'nutricion' | 'ambos';
+export type RolProfesional = 'ENTRENAMIENTO' | 'NUTRICION';
 
 @Component({
   selector: 'app-atleta-page',
@@ -23,6 +24,7 @@ export class AtletaPage implements OnInit {
   @ViewChild('inputFoto') inputFoto?: ElementRef<HTMLInputElement>;
   readonly fotoFile    = signal<File | null>(null);
   readonly fotoPreview = signal<string | null>(null);
+  readonly rolConectar = signal<RolProfesional>('ENTRENAMIENTO');
 
   seleccionarFoto(event: Event): void {
     const archivo = (event.target as HTMLInputElement).files?.[0];
@@ -101,7 +103,7 @@ export class AtletaPage implements OnInit {
       servicio:  ['', Validators.required],
       alergias:       [''],
       lesiones:       [''],
-      codigoEntrenador: [''],
+      codigoEntrenador: ['']
     }, { validators: [this.passwordMatchValidator, this.imcValidator] });
   }
 
@@ -155,6 +157,11 @@ export class AtletaPage implements OnInit {
 
   selectObjetivo(value: Objetivo): void {
     this.form.get('objetivo')?.setValue(value);
+  }
+
+  cambiarRol(rol: RolProfesional): void {
+    this.rolConectar.set(rol);
+    this.form.get('codigoEntrenador')?.setValue('');
   }
 
   get mostrarObjetivo(): boolean {
@@ -218,6 +225,7 @@ export class AtletaPage implements OnInit {
       servicio:         (v.servicio as Servicio).toUpperCase() as ServicioAtleta,
       objetivo:         v.objetivo ? (v.objetivo as string).toUpperCase() : null,
       codigoInvitacion: v.codigoEntrenador || null,
+      tipoProfesionalCodigo: this.rolConectar(),
       restriccionesDieteticas:  v.alergias,
       restriccionesFisicas:    v.lesiones,
       fotoPerfil:       this.fotoFile(),
