@@ -127,9 +127,7 @@ export class DashboardAtletaPage implements OnInit {
     }
 
     if (incluyeNutricion) {
-      this.atleta.getPlanNutricion().subscribe(p => this.planNutricion.set(p));
-      this.atleta.getNotasNutricionista().subscribe(n => this.notasNutricionista.set(n));
-    }
+      this.atleta.getPlanNutricion().subscribe(p => this.planNutricion.set(p));    }
 
     this.cargando.set(false);
   }

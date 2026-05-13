@@ -204,8 +204,6 @@ export class AtletaPage implements OnInit {
 
     this.loading.set(true);
     const v = this.form.value;
-    const parseLista = (raw: string): string[] =>
-      raw ? raw.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
 
     this.auth.registroAtleta({
       nombre:           v.nombre,
@@ -220,8 +218,8 @@ export class AtletaPage implements OnInit {
       servicio:         (v.servicio as Servicio).toUpperCase() as ServicioAtleta,
       objetivo:         v.objetivo ? (v.objetivo as string).toUpperCase() : null,
       codigoInvitacion: v.codigoEntrenador || null,
-      alergias:         parseLista(v.alergias),
-      intolerancias:    parseLista(v.lesiones),
+      restriccionesDieteticas:  v.alergias,
+      restriccionesFisicas:    v.lesiones,
       fotoPerfil:       this.fotoFile(),
     }).subscribe({
       next: () => this.loading.set(false),

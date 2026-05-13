@@ -27,8 +27,8 @@ export interface RegistroAtletaPayload {
   servicio: ServicioAtleta;
   objetivo: string | null;
   codigoInvitacion: string | null;
-  alergias: string[];
-  intolerancias: string[];
+  restriccionesDieteticas: string[];
+  restriccionesFisicas: string[];
   fotoPerfil: File | null;
 }
 
@@ -145,8 +145,8 @@ export class AuthService {
       servicio: payload.servicio,
       objetivo: payload.objetivo,
       codigoInvitacion: payload.codigoInvitacion,
-      alergias: payload.alergias,
-      intolerancias: payload.intolerancias,
+      restriccionesDieteticas: payload.restriccionesDieteticas,
+      restriccionesFisicas: payload.restriccionesFisicas,
     };
 
     formData.append('datos', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
