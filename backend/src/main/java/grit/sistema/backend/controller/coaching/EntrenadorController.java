@@ -77,21 +77,6 @@ public class EntrenadorController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Solicitud de ampliación de formación enviada", response));
     }
 
-    @Operation(summary = "Crear nota al atleta")
-    @PostMapping("/atletas/{atletaId}/notas")
-    public ResponseEntity<Map<String, Object>> dejarNota(
-            @PathVariable UUID atletaId,
-            @Valid @RequestBody NotaNutricionistaRequestDTO request,
-            @AuthenticationPrincipal UserPrincipal usuario) {
-
-        NotaResponseDTO data = nutricionService.crearNota(usuario.getId(), atletaId, request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "ok", true,
-                "data", data
-        ));
-    }
-
     @PostMapping("/atletas/{atletaId}/peso/solicitar")
     public ResponseEntity<ApiResponseDTO<String>> solicitar(@PathVariable UUID atletaId, @AuthenticationPrincipal UserPrincipal usuario) {
         pesoService.solicitarCheckin(atletaId, usuario.getId());

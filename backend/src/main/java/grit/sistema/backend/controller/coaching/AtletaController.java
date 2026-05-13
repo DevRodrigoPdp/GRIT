@@ -104,17 +104,6 @@ public class AtletaController {
         ));
     }
 
-    @GetMapping("/nutricion/notas")
-    public ResponseEntity<Map<String, Object>> verMisNotas(@AuthenticationPrincipal UserPrincipal usuario) {
-        List<NotaResponseDTO> notas = nutricionService.obtenerNotasAtleta(usuario.getId());
-
-        return ResponseEntity.ok(Map.of(
-                "ok", true,
-                "data", notas
-        ));
-    }
-
-
     @GetMapping("/peso/solicitud-pendiente")
     public ResponseEntity<ApiResponseDTO<SolicitudPendienteDTO>> getPendiente(@AuthenticationPrincipal UserPrincipal usuario) {
         var data = pesoService.obtenerSolicitudPendiente(usuario.getId());

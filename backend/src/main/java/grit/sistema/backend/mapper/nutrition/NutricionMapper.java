@@ -2,7 +2,6 @@ package grit.sistema.backend.mapper.nutrition;
 
 import grit.sistema.backend.dto.nutrition.*;
 import grit.sistema.backend.entity.nutrition.AlimentoEnComida;
-import grit.sistema.backend.entity.nutrition.AlimentoReciente;
 import grit.sistema.backend.entity.nutrition.Comida;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
 import org.mapstruct.*;
@@ -48,14 +47,6 @@ public interface NutricionMapper {
     @Mapping(target = "grasas", source = "entity", qualifiedByName = "calcularGrasas")
     @Mapping(target = "codigo", source = "codigoAlimento")
     AlimentoDTO toAlimentoDTO(AlimentoEnComida entity);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "alimentoId", source = "id")
-    @Mapping(target = "usadoEn", expression = "java(java.time.OffsetDateTime.now())")
-    AlimentoReciente toAlimentoRecienteEntity(AlimentoDTO dto);
-
-    @Mapping(target = "id", source = "alimentoId")
-    AlimentoRecienteDTO toAlimentoRecienteDTO(AlimentoReciente entity);
 
     // --- 5. LÓGICA DE CÁLCULO (DELEGADA A ENTIDAD) ---
     @Named("calcularKcal")

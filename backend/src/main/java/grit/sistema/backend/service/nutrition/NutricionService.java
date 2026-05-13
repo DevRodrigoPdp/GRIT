@@ -13,12 +13,4 @@ public interface NutricionService {
     PlanNutricionResponseDTO crearPlan(UUID entrenadorId, PlanNutricionRequestDTO request);
     PlanNutricionResponseDTO actualizarPlan(UUID entrenadorId, UUID planId, PlanNutricionRequestDTO request);
     void eliminarPlan(UUID entrenadorId, UUID planId);
-
-    // Alimentos Recientes
-    void registrarAlimentoReciente(UUID usuarioId, AlimentoRecienteRequestDTO request);
-    List<AlimentoRecienteDTO> listarAlimentosRecientes(UUID usuarioId, String nombreComida);
-
-    // Notas
-    NotaResponseDTO crearNota(UUID entrenadorId, UUID atletaId, NotaNutricionistaRequestDTO request);
-    List<NotaResponseDTO> obtenerNotasAtleta(UUID atletaId);
 }

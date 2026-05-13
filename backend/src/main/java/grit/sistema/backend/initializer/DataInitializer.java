@@ -132,8 +132,8 @@ public class DataInitializer implements CommandLineRunner {
             atleta.setGenero(GeneroTipo.HOMBRE);
             atleta.setFechaNac(LocalDate.of(1990, 1, 1));
             atleta.setNivel(NivelAtleta.INTERMEDIO);
-            atleta.setIntolerancias(List.of("Leche"));
-            atleta.setAlergias(List.of("Frutos Secos"));
+            atleta.setRestriccionesDieteticas("Alergia severa al polén.");
+            atleta.setRestriccionesFisicas("Lesión en el 2022 en el peroné.");
 
             atletaRepository.save(atleta);
             log.info("Atleta creado: {}", email);

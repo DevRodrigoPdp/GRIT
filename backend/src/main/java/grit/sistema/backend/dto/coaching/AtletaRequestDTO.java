@@ -10,7 +10,6 @@ import org.hibernate.validator.constraints.Range;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 public record AtletaRequestDTO(
         // --- Datos de Usuario ---
@@ -62,9 +61,9 @@ public record AtletaRequestDTO(
 
         Objetivo objetivo,
 
-        List<String> alergias, // Spring inicializa esto como lista vacía si es null en JSON
+        String restriccionesDieteticas,
 
-        List<String> intolerancias,
+        String restriccionesFisicas,
 
         String codigoInvitacion
 ) {

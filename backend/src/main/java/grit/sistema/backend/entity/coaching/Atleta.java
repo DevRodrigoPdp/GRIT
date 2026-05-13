@@ -16,8 +16,6 @@ import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "atletas")
@@ -68,13 +66,11 @@ public class Atleta extends Usuario {
     @Column(name = "objetivo", columnDefinition = "objetivo_tipo", length = 20)
     private Objetivo objetivo;
 
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(name = "alergias", columnDefinition = "text[]")
-    private List<String> alergias = new ArrayList<>();
+    @Column(name = "restricciones_dieteticas", columnDefinition = "TEXT")
+    private String restriccionesDieteticas;
 
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(name = "intolerancias", columnDefinition = "text[]")
-    private List<String> intolerancias = new ArrayList<>();
+    @Column(name = "restricciones_fisicas", columnDefinition = "TEXT")
+    private String restriccionesFisicas;
 
     @Column(name = "foto_url", length = 500)
     private String fotoUrl;

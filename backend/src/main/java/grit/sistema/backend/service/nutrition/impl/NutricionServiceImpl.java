@@ -1,15 +1,10 @@
 package grit.sistema.backend.service.nutrition.impl;
 
 import grit.sistema.backend.dto.nutrition.*;
-import grit.sistema.backend.entity.nutrition.AlimentoReciente;
-import grit.sistema.backend.entity.nutrition.NotaNutricionista;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
-import grit.sistema.backend.entity.training.Rutina;
 import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
-import grit.sistema.backend.repository.nutrition.AlimentoRecienteRepository;
-import grit.sistema.backend.repository.nutrition.NotaNutricionistaRepository;
 import grit.sistema.backend.repository.nutrition.PlanNutricionRepository;
 import grit.sistema.backend.service.nutrition.NutricionService;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,10 +23,8 @@ import java.util.UUID;
 @Slf4j
 public class NutricionServiceImpl implements NutricionService {
     private final PlanNutricionRepository planRepository;
-    private final AlimentoRecienteRepository recienteRepository;
     private final AtletaRepository atletaRepository;
     private final EntrenadorRepository entrenadorRepository;
-    private final NotaNutricionistaRepository notaNutricionistaRepository;
     private final NutricionMapper mapper;
 
     @Override
@@ -158,67 +151,5 @@ public class NutricionServiceImpl implements NutricionService {
         PlanNutricion plan = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
         planRepository.delete(plan);
-    }
-
-    @Override
-    @Transactional
-    public void registrarAlimentoReciente(UUID usuarioId, AlimentoRecienteRequestDTO request) {
-        AlimentoReciente reciente = recienteRepository
-                .findByUsuarioIdAndNombreComidaAndAlimentoId(
-                        usuarioId,
-                        request.nombreComida(),
-                        request.alimento().id()
-                )
-                .map(existente -> {
-                    existente.setUsadoEn(OffsetDateTime.now());
-                    return existente;
-                })
-                .orElseGet(() -> {
-                    AlimentoReciente nuevo = mapper.toAlimentoRecienteEntity(request.alimento());
-                    nuevo.setUsuarioId(usuarioId);
-                    nuevo.setNombreComida(request.nombreComida());
-                    return nuevo;
-                });
-
-        recienteRepository.save(reciente);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<AlimentoRecienteDTO> listarAlimentosRecientes(UUID usuarioId, String nombreComida) {
-        return recienteRepository
-                .findTop8ByUsuarioIdAndNombreComidaOrderByUsadoEnDesc(usuarioId, nombreComida)
-                .stream()
-                .map(mapper::toAlimentoRecienteDTO).toList();
-    }
-
-    @Override
-    @Transactional
-    public NotaResponseDTO crearNota(UUID entrenadorId, UUID atletaId, NotaNutricionistaRequestDTO request) {
-        // 1. Validaciones de existencia (Criterio Profesional)
-        var entrenador = entrenadorRepository.findById(entrenadorId)
-                .orElseThrow(() -> new RuntimeException("Entrenador no encontrado"));
-
-        var atleta = atletaRepository.findById(atletaId)
-                .orElseThrow(() -> new RuntimeException("Atleta no encontrado"));
-
-        // 2. Mapeo manual de DTO a Entity (Evita exponer la entidad al exterior)
-        NotaNutricionista nuevaNota = new NotaNutricionista();
-        nuevaNota.setTexto(request.texto());
-        nuevaNota.setEntrenador(entrenador);
-        nuevaNota.setAtleta(atleta);
-
-        // 3. Persistencia
-        NotaNutricionista guardada = notaNutricionistaRepository.save(nuevaNota);
-        return new NotaResponseDTO(guardada.getId(), guardada.getTexto(), guardada.getFecha());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<NotaResponseDTO> obtenerNotasAtleta(UUID atletaId) {
-        return notaNutricionistaRepository.findByAtletaIdOrderByCreadaEnDesc(atletaId)
-                .stream()
-                .map(n -> new NotaResponseDTO(n.getId(), n.getTexto(), n.getFecha()))
-                .toList();
     }
 }

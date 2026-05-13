@@ -92,24 +92,4 @@ public class NutricionController {
         nutricionService.eliminarPlan(principal.getId(), id);
         return ResponseEntity.ok(ApiResponseDTO.success(null, "Plan de nutrición eliminado correctamente"));
     }
-
-    @Operation(summary = "Listar alimentos recientes por comida")
-    @GetMapping("/recientes")
-    public ResponseEntity<ApiResponseDTO<List<AlimentoRecienteDTO>>> listarRecientes(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @RequestParam String comida
-    ) {
-        List<AlimentoRecienteDTO> recientes = nutricionService.listarAlimentosRecientes(principal.getId(), comida);
-        return ResponseEntity.ok(ApiResponseDTO.success(recientes, "Alimentos recientes encontrados"));
-    }
-
-    @Operation(summary = "Registrar alimento reciente")
-    @PostMapping("/recientes")
-    public ResponseEntity<ApiResponseDTO<Void>> registrarReciente(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @Valid @RequestBody AlimentoRecienteRequestDTO request
-    ) {
-        nutricionService.registrarAlimentoReciente(principal.getId(), request);
-        return ResponseEntity.ok(ApiResponseDTO.success(null, "Alimento reciente registrado correctamente"));
-    }
 }
