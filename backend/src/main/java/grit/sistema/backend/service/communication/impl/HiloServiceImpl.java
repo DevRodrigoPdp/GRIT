@@ -4,7 +4,6 @@ import grit.sistema.backend.dto.communication.*;
 import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
-import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.entity.communication.*;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
@@ -13,10 +12,10 @@ import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.communication.HiloRepository;
 import grit.sistema.backend.repository.communication.LecturaHiloRepository;
-import grit.sistema.backend.repository.communication.MensajeRepository;
 import grit.sistema.backend.repository.user.UsuarioRepository;
 import grit.sistema.backend.service.common.StorageService;
 import grit.sistema.backend.service.communication.HiloService;
+import grit.sistema.backend.service.communication.MensajeService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,64 +32,41 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class HiloServiceImpl implements HiloService {
+    private static final List<String> TIPOS_IMAGEN = List.of("image/jpeg", "image/png", "image/webp");
+    private static final List<String> TIPOS_VIDEO = List.of("video/mp4", "video/mpeg", "video/quicktime");
+    private static final long MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
+    private final MensajeService mensajeService;
     private final HiloRepository hiloRepository;
-    private final MensajeRepository mensajeRepository;
     private final LecturaHiloRepository lecturaRepository;
     private final UsuarioRepository usuarioRepository;
-    private final StorageService storageService; // Interfaz para subir a S3
+    private final StorageService storageService;
     private final AtletaRepository atletaRepository;
     private final AsignacionRepository asignacionRepository;
 
     @Override
     @Transactional
     public HiloDetalleDTO crearHilo(CrearHiloDTO dto, List<MultipartFile> archivos, UUID emisorId) {
-        log.info("Creando hilo: '{}' para Atleta ID: {}", dto.titulo(), dto.atletaId());
-        // 1. Validar que el atleta existe
+        log.info("Iniciando creación de hilo: '{}'", dto.titulo());
+
         Atleta atleta = atletaRepository.findById(dto.atletaId())
                 .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
 
-        // 2. BUSCAR EL ENTRENADOR A TRAVÉS DE LA ASIGNACIÓN ACTIVA
         Asignacion asignacion = asignacionRepository.findByAtletaIdAndActivaTrueAndTipoServicio(atleta.getId(), TipoServicio.valueOf(dto.contexto().name()))
                 .orElseThrow(() -> new IllegalStateException("El atleta no tiene un entrenamiento activo"));
 
-        Entrenador entrenador = asignacion.getEntrenador();
+        Usuario emisor = usuarioRepository.findById(emisorId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario emisor no encontrado"));
 
-        // 3. Validar permisos (Si el emisor es el atleta, debe ser SU ID)
-        Usuario emisor = usuarioRepository.findById(emisorId).orElseThrow();
         if (emisor.getRol().name().equals("ATLETA") && !atleta.getId().equals(emisorId)) {
             throw new AccesoDenegadoException("No puedes crear hilos para otro atleta");
         }
 
-        // 4. Crear el hilo con el entrenador de la asignación
-        Hilo hilo = new Hilo();
-        hilo.setId(UUID.randomUUID());
-        hilo.setTitulo(dto.titulo());
-        hilo.setCategoria(dto.categoria());
-        hilo.setContexto(dto.contexto());
-        hilo.setAtleta(atleta);
-        hilo.setEntrenador(entrenador);
-        hilo.setCreadoPor(emisor.getRol().name());
+        List<AdjuntoData> adjuntosSubidos = procesarSubidaS3(archivos);
 
-        // 4. Crear Mensaje inicial
-        Mensaje mensaje = new Mensaje();
-        mensaje.setTexto(dto.texto());
-        mensaje.setEnviadoPor(emisor.getRol().name());
-        mensaje.setHilo(hilo);
-        mensaje.setEnviadoEn(LocalDateTime.now());
+        Hilo guardado = mensajeService.crearHiloConPrimerMensaje(dto, adjuntosSubidos, atleta, asignacion.getEntrenador(), emisor);
 
-        // 5. Procesar adjuntos usando el método privado robusto
-        procesarAdjuntos(archivos, mensaje);
-
-        hilo.getMensajes().add(mensaje);
-
-        // Al guardar Hilo, se guardará el mensaje y los adjuntos por CascadeType.ALL
-        Hilo guardado = hiloRepository.save(hilo);
-
-        // 6. Actualizar registro de lectura
-        actualizarEstadoLectura(guardado, emisor);
-
-        return mapToDetalleDTO(guardado, emisorId);
+        return mapToDetalleDTO(guardado);
     }
 
     @Override
@@ -107,6 +83,19 @@ public class HiloServiceImpl implements HiloService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<HiloResumenDTO> obtenerHilosParaEntrenador(UUID atletaId, UUID entrenadorId, ContextoHilo contexto) {
+        if (!atletaId.equals(entrenadorId)) {
+            boolean esSuEntrenador = asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, entrenadorId);
+            if (!esSuEntrenador) {
+                throw new AccessDeniedException("No tienes permiso para ver los hilos de este atleta.");
+            }
+        }
+
+        return hiloRepository.findResumenByAtletaForEntrenador(atletaId, entrenadorId, contexto);
+    }
+
+    @Override
     @Transactional
     public HiloDetalleDTO obtenerDetalleHilo(UUID hiloId, UUID usuarioId) {
         Hilo hilo = hiloRepository.findById(hiloId)
@@ -119,40 +108,20 @@ public class HiloServiceImpl implements HiloService {
         Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
         actualizarEstadoLectura(hilo, usuario);
 
-        return mapToDetalleDTO(hilo, usuarioId);
+        return mapToDetalleDTO(hilo);
     }
 
     @Override
-    @Transactional
     public MensajeDTO responderHilo(UUID hiloId, String texto, List<MultipartFile> archivos, UUID emisorId) {
-        log.info("Usuario {} respondiendo al hilo {}", emisorId, hiloId);
-
-        // 1. Recuperar el hilo y validar existencia
+        log.info("Iniciando respuesta al hilo {}", hiloId);
         Hilo hilo = hiloRepository.findById(hiloId)
                 .orElseThrow(() -> new EntityNotFoundException("Hilo no encontrado"));
 
-        // 2. Validar que el emisor pertenece al hilo
         validarAccesoAHilo(hilo, emisorId);
 
-        Usuario emisor = usuarioRepository.getReferenceById(emisorId);
+        List<AdjuntoData> adjuntosSubidos = procesarSubidaS3(archivos);
 
-        // 3. Crear y configurar el nuevo mensaje
-        Mensaje mensaje = new Mensaje();
-        mensaje.setTexto(texto);
-        mensaje.setEnviadoPor(emisor.getRol().name());
-        mensaje.setHilo(hilo);
-        mensaje.setEnviadoEn(LocalDateTime.now());
-
-        // 4. Procesar adjuntos (reutilizando la lógica que ya tenemos)
-        if (archivos != null && !archivos.isEmpty()) {
-            procesarAdjuntos(archivos, mensaje);
-        }
-
-        // 5. Persistir mensaje y actualizar fecha del hilo para ordenamiento
-        Mensaje guardado = mensajeRepository.save(mensaje);
-
-        // 6. Sincronizar lectura: El emisor está al día
-        actualizarEstadoLectura(hilo, emisor);
+        Mensaje guardado = mensajeService.salvarMensaje(hiloId, texto, adjuntosSubidos, emisorId);
 
         return mapToMensajeDTO(guardado);
     }
@@ -165,7 +134,6 @@ public class HiloServiceImpl implements HiloService {
         Hilo hilo = hiloRepository.findById(hiloId)
                 .orElseThrow(() -> new EntityNotFoundException("Hilo no encontrado"));
 
-        // Validamos que el usuario pueda marcarlo como leído
         validarAccesoAHilo(hilo, usuarioId);
 
         Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
@@ -187,43 +155,19 @@ public class HiloServiceImpl implements HiloService {
         }
     }
 
-    private void procesarAdjuntos(List<MultipartFile> archivos, Mensaje mensaje) {
-        if (archivos == null || archivos.isEmpty()) {
-            return;
-        }
+    private List<AdjuntoData> procesarSubidaS3(List<MultipartFile> archivos) {
+        if (archivos == null || archivos.isEmpty()) return List.of();
 
-        for (MultipartFile file : archivos) {
-            // 1. Validación de seguridad básica (Max 100MB por archivo)
-            if (file.getSize() > 100 * 1024 * 1024) {
-                throw new IllegalArgumentException("El archivo " + file.getOriginalFilename() + " excede el límite de 100MB");
-            }
-
-            // 2. Subida física al almacenamiento (S3)
-            // El storageService debe devolver la 'key' única (ej. un UUID)
-            String s3Key = storageService.uploadFile(file);
-
-            // 3. Creación del objeto de metadatos
-            Adjunto adjunto = new Adjunto();
-            adjunto.setS3Key(s3Key);
-            adjunto.setNombreOriginal(file.getOriginalFilename());
-            adjunto.setMensaje(mensaje);
-
-            // 4. Determinación del tipo de medio
-            String contentType = file.getContentType();
-            if (contentType != null && contentType.startsWith("video")) {
-                adjunto.setTipo("VIDEO");
-            } else if (contentType != null && contentType.startsWith("image")) {
-                adjunto.setTipo("IMAGEN");
-            } else {
-                throw new UnsupportedOperationException("Tipo de archivo no permitido: " + contentType);
-            }
-
-            // 5. Vincular al mensaje (Relación bidireccional)
-            mensaje.getAdjuntos().add(adjunto);
-        }
+        return archivos.stream()
+                .map(file -> {
+                    validarArchivo(file); // Tu método de validación
+                    String key = storageService.uploadFile(file); // Llamada a S3
+                    return new AdjuntoData(key, file.getOriginalFilename(), determinarTipo(file.getContentType()));
+                })
+                .toList();
     }
 
-    private HiloDetalleDTO mapToDetalleDTO(Hilo hilo, UUID usuarioId) {
+    private HiloDetalleDTO mapToDetalleDTO(Hilo hilo) {
         List<MensajeDTO> mensajesDTO = hilo.getMensajes().stream()
                 .map(this::mapToMensajeDTO)
                 .toList();
@@ -235,7 +179,7 @@ public class HiloServiceImpl implements HiloService {
                 hilo.getContexto(),
                 hilo.getCreadoPor(),
                 hilo.getCreadoEn(),
-                true, // Si lo acaba de abrir/crear, está leído para él
+                true,
                 mensajesDTO
         );
     }
@@ -244,7 +188,7 @@ public class HiloServiceImpl implements HiloService {
         List<AdjuntoDTO> adjuntosDTO = m.getAdjuntos().stream()
                 .map(a -> new AdjuntoDTO(
                         a.getId(),
-                        storageService.getPresignedUrl(a.getS3Key()), // Generar URL temporal
+                        storageService.getPresignedUrl(a.getS3Key()),
                         a.getTipo(),
                         a.getNombreOriginal()
                 ))
@@ -257,5 +201,37 @@ public class HiloServiceImpl implements HiloService {
                 m.getEnviadoEn(),
                 adjuntosDTO
         );
+    }
+
+    private void validarArchivo(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("El archivo está vacío o es nulo");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException(
+                    String.format("El archivo %s excede el límite de 100MB", file.getOriginalFilename())
+            );
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || (!TIPOS_IMAGEN.contains(contentType) && !TIPOS_VIDEO.contains(contentType))) {
+            throw new UnsupportedOperationException("Formato de archivo no permitido: " + contentType);
+        }
+    }
+
+    /**
+     * Clasifica el archivo en las categorías de tu lógica de negocio (IMAGEN o VIDEO).
+     */
+    private String determinarTipo(String contentType) {
+        if (contentType == null) return "OTRO";
+
+        if (contentType.startsWith("image/")) {
+            return "IMAGEN";
+        } else if (contentType.startsWith("video/")) {
+            return "VIDEO";
+        }
+
+        return "DESCONOCIDO";
     }
 }

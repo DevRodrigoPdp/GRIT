@@ -93,22 +93,19 @@ public class StorageServiceImpl implements StorageService {
     public String uploadProfilePhoto(MultipartFile file, String folder) {
         if (file.isEmpty()) throw new FileStorageException("La foto de perfil está vacía");
 
-        // 1. Validar que sea estrictamente una imagen
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new FileStorageException("El archivo debe ser una imagen válida (JPG/PNG)");
         }
 
-        // 2. Generar nombre único estructurado por carpetas
         String fileName = folder + "/" + UUID.randomUUID() + ".jpg";
 
         try {
-            // 3. Optimización extrema para perfiles (Cuadrado 500x500 es el estándar)
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Thumbnails.of(file.getInputStream())
-                    .size(500, 500)         // Tamaño estándar para perfiles
-                    .crop(net.coobird.thumbnailator.geometry.Positions.CENTER) // Centramos el recorte
-                    .outputQuality(0.80)    // Buena calidad, poco peso
+                    .size(500, 500)
+                    .crop(net.coobird.thumbnailator.geometry.Positions.CENTER)
+                    .outputQuality(0.80)
                     .outputFormat("jpg")
                     .toOutputStream(outputStream);
 
@@ -119,9 +116,6 @@ public class StorageServiceImpl implements StorageService {
                     .bucket(bucketName)
                     .key(fileName)
                     .contentType("image/jpeg")
-                    // [Nota Senior]: Si tu bucket es privado por defecto,
-                    // aquí podrías añadir el ACL público si MinIO lo permite,
-                    // o simplemente confiar en la política de la carpeta.
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(photoBytes));
@@ -166,12 +160,7 @@ public class StorageServiceImpl implements StorageService {
             log.info("Archivo eliminado correctamente del almacenamiento: {}", objectKey);
 
         } catch (S3Exception e) {
-            // [Nota Senior]: No lanzamos excepción para no romper la transacción de BD,
-            // pero logueamos con ERROR para que salte en nuestros sistemas de monitoreo.
             log.error("Error crítico al eliminar el archivo {} de S3: {}", objectKey, e.awsErrorDetails().errorMessage());
-
-            // Opcional: Podrías insertar esto en una tabla de "limpieza_pendiente"
-            // para que un proceso programado (Cron/Job) lo intente borrar más tarde.
         }
     }
 
@@ -213,7 +202,6 @@ public class StorageServiceImpl implements StorageService {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-            // Intento de optimización
             Thumbnails.of(file.getInputStream())
                     .size(1280, 720)
                     .outputQuality(0.75)

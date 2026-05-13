@@ -52,7 +52,7 @@ public class ComunicacionController {
             @RequestParam ContextoHilo contexto,
             @AuthenticationPrincipal UserPrincipal entrenador
     ) {
-        return ResponseEntity.ok(hiloService.obtenerHilosPorAtleta(atletaId, contexto, entrenador.getId()));
+        return ResponseEntity.ok(hiloService.obtenerHilosParaEntrenador(atletaId, entrenador.getId(), contexto));
     }
 
     @GetMapping("/hilos/{id}")
@@ -75,5 +75,11 @@ public class ComunicacionController {
         }
 
         return ResponseEntity.ok(hiloService.responderHilo(id, texto, archivos, usuario.getId()));
+    }
+
+    @PostMapping("/hilos/{id}/leer")
+    public ResponseEntity<Void> marcarComoLeido(@PathVariable UUID id, @AuthenticationPrincipal UserPrincipal usuario) {
+        hiloService.marcarComoLeido(id, usuario.getId());
+        return ResponseEntity.ok().build();
     }
 }

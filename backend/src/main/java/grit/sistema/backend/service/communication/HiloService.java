@@ -23,6 +23,8 @@ public interface HiloService {
      */
     List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto, UUID entrenadorId);
 
+    List<HiloResumenDTO> obtenerHilosParaEntrenador(UUID atletaId, UUID entrenadorId, ContextoHilo contexto);
+
     /**
      * Obtiene un hilo completo por su ID, marcándolo como leído para el usuario.
      */

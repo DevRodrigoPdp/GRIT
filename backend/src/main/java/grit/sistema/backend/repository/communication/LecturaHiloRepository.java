@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LecturaHiloRepository extends JpaRepository<LecturaHilo, LecturaHiloId> {
-    // Spring Data JPA ya entiende LecturaHiloId como la PK compuesta
 }
