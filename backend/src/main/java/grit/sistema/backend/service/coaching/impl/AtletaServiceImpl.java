@@ -79,26 +79,6 @@ public class AtletaServiceImpl implements AtletaService {
     }
 
     @Override
-    @Transactional
-    public FotoPerfilResponseDTO actualizarFoto(UUID atletaId, MultipartFile foto) {
-        Atleta atleta = atletaRepository.findById(atletaId)
-                .orElseThrow(() -> new EntityNotFoundException("Atleta con ID " + atletaId + " no existe"));
-
-        String fotoKey = subirFotoPerfil(foto);
-
-        if (atleta.getFotoUrl() != null) {
-            storageService.deleteFile(atleta.getFotoUrl());
-        }
-
-        atleta.setFotoUrl(fotoKey);
-        atletaRepository.save(atleta);
-
-        String nuevaFotoUrl = storageService.getPresignedUrl(atleta.getFotoUrl());
-
-        return new FotoPerfilResponseDTO(nuevaFotoUrl);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<ProfesionalAsignadoDTO> getProfesionalesAsignados(UUID atletaId) {
         List<Asignacion> asignaciones = asignacionRepository.findAsignacionesActivas(atletaId);

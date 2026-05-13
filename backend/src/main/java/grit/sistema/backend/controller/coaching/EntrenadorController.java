@@ -55,6 +55,16 @@ public class EntrenadorController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del entrenador actualizado", perfilDTO));
     }
 
+    @Operation(summary = "Actualizar foto de perfil")
+    @PatchMapping(value = "/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponseDTO<FotoPerfilResponseDTO>> actualizarFoto(
+            @RequestPart("fotoPerfil") MultipartFile foto,
+            @AuthenticationPrincipal UserPrincipal usuario) {
+        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getId(), foto);
+
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto actualizada exitosamente", response));
+    }
+
     @Operation(summary = "Listar atletas asociados a un entrenador")
     @GetMapping("/atletas")
     public ResponseEntity<ApiResponseDTO<List<AtletaResumenDTO>>> getAtletas(@AuthenticationPrincipal UserPrincipal usuario) {

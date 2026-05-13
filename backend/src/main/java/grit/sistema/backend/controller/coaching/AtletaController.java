@@ -67,7 +67,7 @@ public class AtletaController {
     public ResponseEntity<ApiResponseDTO<FotoPerfilResponseDTO>> actualizarFoto(
             @RequestPart("fotoPerfil") MultipartFile foto,
             @AuthenticationPrincipal UserPrincipal usuario) {
-        FotoPerfilResponseDTO response = atletaService.actualizarFoto(usuario.getId(), foto);
+        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getId(), foto);
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto actualizada exitosamente", response));
     }

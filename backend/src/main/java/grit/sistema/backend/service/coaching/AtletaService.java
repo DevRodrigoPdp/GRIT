@@ -14,8 +14,6 @@ public interface AtletaService {
 
     AtletaPerfilDTO editarPerfil(UUID atletaId, AtletaEditarPerfilDTO dto);
 
-    FotoPerfilResponseDTO actualizarFoto(UUID atletaId, MultipartFile foto);
-
     List<ProfesionalAsignadoDTO> getProfesionalesAsignados(UUID atletaId);
 
     void solicitarBajaCuenta(UUID atletaId);

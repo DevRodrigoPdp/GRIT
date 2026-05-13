@@ -3,6 +3,7 @@ package grit.sistema.backend.service.user.impl;
 import grit.sistema.backend.clientAPI.PwnedPasswordClient;
 import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
+import grit.sistema.backend.dto.coaching.FotoPerfilResponseDTO;
 import grit.sistema.backend.dto.user.MeResponseDTO;
 import grit.sistema.backend.dto.user.UsuarioDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
@@ -13,7 +14,10 @@ import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.exception.business.SesionActivaException;
 import grit.sistema.backend.exception.security.PwnedPasswordException;
 import grit.sistema.backend.mapper.user.UsuarioMapper;
+import grit.sistema.backend.repository.coaching.AtletaRepository;
+import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.repository.user.UsuarioRepository;
+import grit.sistema.backend.service.common.StorageService;
 import grit.sistema.backend.service.user.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,8 +38,11 @@ import java.util.UUID;
 public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final UsuarioRepository usuarioRepository;
+    private final AtletaRepository atletaRepository;
+    private final EntrenadorRepository entrenadorRepository;
     private final PasswordEncoder passwordEncoder;
     private final PwnedPasswordClient pwnedClient;
+    private final StorageService storageService;
 
     @Override
     @Transactional(readOnly = true)
@@ -48,14 +56,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return usuarioMapper.toLoginData(usuario);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UsuarioDTO findByEmail(String email) {
-        return usuarioRepository.findByEmail(email)
-                .map(usuarioMapper::toDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + email));
     }
 
     @Override
@@ -115,6 +115,37 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return usuarioMapper.toDTO(usuario);
+    }
+
+    @Override
+    @Transactional
+    public FotoPerfilResponseDTO actualizarFotoPerfil(UUID usuarioId, MultipartFile foto) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        String carpeta;
+        String urlAntigua;
+
+        if (usuario instanceof Entrenador e) {
+            carpeta = "perfiles/entrenadores";
+            urlAntigua = e.getFotoUrl();
+        } else if (usuario instanceof Atleta a) {
+            carpeta = "perfiles/atletas";
+            urlAntigua = a.getFotoUrl();
+        } else {
+            throw new IllegalArgumentException("Tipo de usuario no soportado");
+        }
+
+        String fotoKey = storageService.uploadProfilePhoto(foto, carpeta);
+
+        if (urlAntigua != null && !urlAntigua.isBlank()) {
+            storageService.deleteFile(urlAntigua);
+        }
+
+        if (usuario instanceof Entrenador e) e.setFotoUrl(fotoKey);
+        if (usuario instanceof Atleta a) a.setFotoUrl(fotoKey);
+
+        return new FotoPerfilResponseDTO(storageService.getPresignedUrl(fotoKey));
     }
 
     @Override
