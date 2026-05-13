@@ -28,7 +28,7 @@ export interface PerfilEntrenador {
 }
 
 export type TitulacionEntrenamiento = 'GRADO_CAFYD' | 'TSAF_TSEAS' | 'CERT_AFDA0210';
-export type TitulacionNutricion     = 'GRADO_NUTRICION_DIETETICA' | 'TSD';
+export type TitulacionNutricion = 'GRADO_NUTRICION_DIETETICA' | 'TSD';
 
 export interface AtletaAsignado {
   id: string;
@@ -84,8 +84,8 @@ export class EntrenadorService {
 
   subirFotoPerfil(archivo: File): Observable<string> {
     const form = new FormData();
-    form.append('foto', archivo);
-    return this.http.post<ApiResponseDTO<{ url: string }>>(`${this.API}/foto`, form, { withCredentials: true })
+    form.append('fotoPerfil', archivo);
+    return this.http.patch<ApiResponseDTO<{ url: string }>>(`${this.API}/foto`, form, { withCredentials: true })
       .pipe(map(r => r.data.url));
   }
 

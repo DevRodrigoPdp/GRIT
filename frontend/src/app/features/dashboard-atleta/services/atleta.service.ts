@@ -242,8 +242,8 @@ export class AtletaService {
 
   subirFotoPerfil(archivo: File): Observable<string> {
     const form = new FormData();
-    form.append('foto', archivo);
-    return this.http.put<ApiResponseDTO<{ url: string }>>(`${this.API}/foto`, form, { withCredentials: true })
+    form.append('fotoPerfil', archivo);
+    return this.http.patch<ApiResponseDTO<{ url: string }>>(`${this.API}/foto`, form, { withCredentials: true })
       .pipe(map(r => r.data.url));
   }
 
