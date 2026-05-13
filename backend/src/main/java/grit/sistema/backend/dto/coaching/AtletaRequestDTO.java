@@ -65,6 +65,8 @@ public record AtletaRequestDTO(
 
         String restriccionesFisicas,
 
+        String tipoProfesionalCodigo,
+
         String codigoInvitacion
 ) {
 

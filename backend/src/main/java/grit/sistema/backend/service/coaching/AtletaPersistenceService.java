@@ -39,11 +39,9 @@ public class AtletaPersistenceService {
 
         Atleta atletaGuardado = atletaRepository.save(atleta);
 
-        // 2. Lógica de conexión automática
         if (dto.codigoInvitacion() != null && !dto.codigoInvitacion().isBlank()) {
             log.info("Procesando código de invitación automático para el nuevo atleta: {}", dto.email());
-            // Reutilizamos el servicio que ya valida códigos, estados y competencias
-            asignacionService.conectarConEntrenador(atletaGuardado.getId(), new AsignacionRequestDTO(dto.codigoInvitacion(), atleta.getServicio()));
+            asignacionService.conectarConEntrenador(atletaGuardado.getId(), new AsignacionRequestDTO(dto.codigoInvitacion(), TipoServicio.valueOf(dto.tipoProfesionalCodigo())));
         }
 
         return atletaMapper.toResponseDTO(atletaGuardado);
