@@ -44,6 +44,9 @@ export interface Hilo {
   leido: boolean;
   total: number;        // Agregado para el conteo de mensajes
   mensajes: MensajeHilo[]; // Mantenerlo como opcional o inicializar vacío
+  ultimoTexto?: string;
+  ultimoEnvio?: Date;
+  ultimoEnviadoPor?: 'ATLETA' | 'ENTRENADOR';
 }
 
 type Vista = 'lista' | 'detalle' | 'nuevo';
@@ -126,10 +129,21 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   readonly hilosNoLeidos = computed(() => this.hilos().filter(h => !h.leido).length);
 
   readonly ultimoMensaje = (hilo: Hilo): MensajeHilo => {
-    if (!hilo?.mensajes || hilo.mensajes.length === 0) {
-      return { id: '', texto: '', de: 'atleta', fecha: new Date() } as MensajeHilo;
+    // Si ya se han cargado los mensajes completos, usar el último del array
+    if (hilo?.mensajes && hilo.mensajes.length > 0) {
+      return hilo.mensajes[hilo.mensajes.length - 1];
     }
-    return hilo.mensajes[hilo.mensajes.length - 1];
+    // Si no, usar los datos de resumen del servidor
+    if (hilo?.ultimoTexto || hilo?.ultimoEnvio) {
+      return {
+        id: '',
+        texto: hilo.ultimoTexto || '',
+        de: (hilo.ultimoEnviadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
+        fecha: hilo.ultimoEnvio || new Date()
+      } as MensajeHilo;
+    }
+    // Fallback
+    return { id: '', texto: '', de: 'atleta', fecha: new Date() } as MensajeHilo;
   };
 
   readonly hilosFiltrados = computed(() => {
@@ -323,7 +337,10 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
       fecha: new Date(h.creadoEn),
       leido: h.leido,
       total: h.totalMensajes,
-      mensajes: []
+      mensajes: [],
+      ultimoTexto: h.ultimoTexto,
+      ultimoEnvio: h.ultimoEnvio ? new Date(h.ultimoEnvio) : undefined,
+      ultimoEnviadoPor: h.ultimoEnviadoPor as 'ATLETA' | 'ENTRENADOR'
     };
   }
 
