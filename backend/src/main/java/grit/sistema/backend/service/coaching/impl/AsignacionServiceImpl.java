@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-@Service
+@Service("asignacionService")
 @RequiredArgsConstructor
 @Slf4j
 public class AsignacionServiceImpl implements AsignacionService {
@@ -77,6 +77,11 @@ public class AsignacionServiceImpl implements AsignacionService {
             throw new BusinessException("CONFLICTO_ASIGNACION",
                     "No se pudo procesar la asignación. Es posible que ya tengas un servicio activo.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean esEntrenadorDeAtleta(UUID entrenadorId, UUID atletaId) {
+        return asignacionRepo.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, entrenadorId);
     }
 
     @Override

@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -55,8 +56,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public MeResponseDTO obtenerMiInformacion(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+    public MeResponseDTO obtenerMiInformacion(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         MeResponseDTO.MeData meData;
@@ -68,7 +69,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                     e.getRol().name(),
                     e.getEstado().name(),
                     e.getEstadoRevision().name(),
-                    null, // servicio es null para entrenadores
+                    null,
                     e.getTitulacionEntrenamiento() != null,
                     e.getTitulacionNutricion() != null,
                     e.getTitulacionEntrenamiento() != null ? e.getTitulacionEntrenamiento().name() : null,
@@ -82,13 +83,12 @@ public class UsuarioServiceImpl implements UsuarioService {
                     a.getEstado().name(),
                     null,
                     a.getServicio() != null ? a.getServicio().name() : null,
-                    null, // tituloEntrenamiento es null para atletas
-                    null, // tituloNutricion es null para atletas
+                    null,
+                    null,
                     null,
                     null
             );
         } else {
-            // Caso genérico (Admin)
             meData = new MeResponseDTO.MeData(
                     usuario.getId(), usuario.getNombre(), usuario.getRol().name(),
                     usuario.getEstado().name(),null, null, null, null, null, null
@@ -114,8 +114,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public FotoPerfilResponseDTO actualizarFotoPerfil(String email, MultipartFile foto) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+    public FotoPerfilResponseDTO actualizarFotoPerfil(UUID usuarioId, MultipartFile foto) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         String carpeta;
@@ -145,8 +145,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public void actualizarPassword(String email, PasswordUpdateDTO dto) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+    public void actualizarPassword(UUID usuarioId, PasswordUpdateDTO dto) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         if (!passwordEncoder.matches(dto.actual(), usuario.getPassword())) {
@@ -166,8 +166,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public void suspenderUsuario(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+    public void suspenderUsuario(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         usuario.setEstado(EstadoUsuario.SUSPENDIDO);

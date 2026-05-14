@@ -92,13 +92,6 @@ public class HiloServiceImpl implements HiloService {
     @Override
     @Transactional(readOnly = true)
     public List<HiloResumenDTO> obtenerHilosParaEntrenador(UUID atletaId, UUID entrenadorId, ContextoHilo contexto) {
-        if (!atletaId.equals(entrenadorId)) {
-            boolean esSuEntrenador = asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, entrenadorId);
-            if (!esSuEntrenador) {
-                throw new AccessDeniedException("No tienes permiso para ver los hilos de este atleta.");
-            }
-        }
-
         return hiloRepository.findResumenByAtletaForEntrenador(atletaId, entrenadorId, contexto);
     }
 

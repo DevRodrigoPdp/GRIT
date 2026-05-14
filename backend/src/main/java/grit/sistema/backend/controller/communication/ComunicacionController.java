@@ -47,7 +47,7 @@ public class ComunicacionController {
         return ResponseEntity.ok(hiloService.obtenerHilosPorAtleta(usuario.getId(), contexto, usuario.getId()));
     }
 
-    @PreAuthorize("hasRole('ENTRENADOR')")
+    @PreAuthorize("hasRole('ENTRENADOR') and @asignacionService.esEntrenadorDeAtleta(authentication.principal.id, #atletaId)")
     @GetMapping("/entrenador/atleta/{atletaId}/hilos")
     public ResponseEntity<List<HiloResumenDTO>> listarHilosDeAtleta(
             @PathVariable UUID atletaId,

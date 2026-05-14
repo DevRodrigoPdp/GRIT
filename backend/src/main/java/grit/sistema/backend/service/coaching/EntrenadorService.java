@@ -16,11 +16,11 @@ public interface EntrenadorService {
 
     EntrenadorPerfilDTO editarPerfil(UUID entrenadorId, EntrenadorEditarPerfilDTO request);
 
-    List<AtletaResumenDTO> listarMisAtletas(String email);
+    List<AtletaResumenDTO> listarMisAtletas(UUID entrenadorId);
 
     EntrenadorResponseDTO ampliarFormacion(UUID entrenadorId,
                                            AmpliarFormacionDTO dto,
                                            List<MultipartFile> documentos);
 
-    void solicitarBajaCuenta(String email);
+    void solicitarBajaCuenta(UUID entrenadorId);
 }

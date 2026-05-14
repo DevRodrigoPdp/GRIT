@@ -9,6 +9,7 @@ import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface UsuarioService {
 
@@ -16,13 +17,13 @@ public interface UsuarioService {
 
     LoginData obtenerDatosParaRefresh(String email);
 
-    MeResponseDTO obtenerMiInformacion(String email);
+    MeResponseDTO obtenerMiInformacion(UUID usuarioId);
 
     UsuarioDTO obtenerUsuarioActual();
 
-    FotoPerfilResponseDTO actualizarFotoPerfil(String email,  MultipartFile foto);
+    FotoPerfilResponseDTO actualizarFotoPerfil(UUID usuarioId,  MultipartFile foto);
 
-    void actualizarPassword(String email, PasswordUpdateDTO dto);
+    void actualizarPassword(UUID usuarioId, PasswordUpdateDTO dto);
 
-    void suspenderUsuario(String email);
+    void suspenderUsuario(UUID usuarioId);
 }

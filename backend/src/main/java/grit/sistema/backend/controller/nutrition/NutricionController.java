@@ -29,6 +29,7 @@ public class NutricionController {
     private final NutricionService nutricionService;
 
     @Operation(summary = "Listar planes de nutrición")
+    @PreAuthorize("hasRole('ENTRENADOR') and @asignacionService.esEntrenadorDeAtleta(authentication.principal.id, #atletaId)")
     @GetMapping("/planes")
     public ResponseEntity<ApiResponseDTO<List<PlanNutricionResponseDTO>>> listarPlanes(
             @AuthenticationPrincipal UserPrincipal principal,

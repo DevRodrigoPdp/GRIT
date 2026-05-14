@@ -4,6 +4,7 @@ import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
+import grit.sistema.backend.security.jwt.JwtUtils;
 import grit.sistema.backend.security.model.UserPrincipal;
 import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.service.coaching.EntrenadorService;
@@ -11,7 +12,6 @@ import grit.sistema.backend.service.training.PesoService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +36,7 @@ public class EntrenadorController {
     private final AsignacionService asignacionService;
     private final PesoService pesoService;
     private final UsuarioService usuarioService;
+    private final JwtUtils jwtUtils;
 
     @Operation(summary = "Ver perfil de entrenador")
     @GetMapping("/perfil")
@@ -56,7 +57,7 @@ public class EntrenadorController {
     public ResponseEntity<ApiResponseDTO<FotoPerfilResponseDTO>> actualizarFoto(
             @RequestPart("fotoPerfil") MultipartFile foto,
             @AuthenticationPrincipal UserPrincipal usuario) {
-        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getUsername(), foto);
+        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getId(), foto);
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto actualizada exitosamente", response));
     }
@@ -64,7 +65,7 @@ public class EntrenadorController {
     @Operation(summary = "Listar atletas asociados a un entrenador")
     @GetMapping("/atletas")
     public ResponseEntity<ApiResponseDTO<List<AtletaResumenDTO>>> getAtletas(@AuthenticationPrincipal UserPrincipal usuario) {
-        List<AtletaResumenDTO> listaAtletas = entrenadorService.listarMisAtletas(usuario.getEmail());
+        List<AtletaResumenDTO> listaAtletas = entrenadorService.listarMisAtletas(usuario.getId());
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Atletas del entrenador", listaAtletas));
     }
@@ -96,6 +97,7 @@ public class EntrenadorController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "pendiente", Map.of("pendiente", pendiente)));
     }
 
+    @PreAuthorize("hasRole('ENTRENADOR') and @asignacionService.esEntrenadorDeAtleta(authentication.principal.id, #atletaId)")
     @GetMapping("/atletas/{atletaId}/peso/historial")
     public ResponseEntity<ApiResponseDTO<List<HistorialPesoDTO>>> getHistorialAtleta(@PathVariable UUID atletaId) {
         var data = pesoService.obtenerHistorialAtleta(atletaId);
@@ -103,26 +105,22 @@ public class EntrenadorController {
     }
 
     @PutMapping("/password")
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
-        usuarioService.actualizarPassword(usuario.getEmail(), dto);
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
+        usuarioService.actualizarPassword(usuario.getId(), dto);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/cuenta")
-    public ResponseEntity<ApiResponseDTO> eliminarCuenta(
-            @AuthenticationPrincipal UserPrincipal usuario,
-            HttpServletResponse response) {
+    public ResponseEntity<Void> eliminarCuenta(@AuthenticationPrincipal UserPrincipal usuario) {
 
-        entrenadorService.solicitarBajaCuenta(usuario.getUsername());
+        entrenadorService.solicitarBajaCuenta(usuario.getId());
 
-        ResponseCookie cookie = ResponseCookie.from("access_token", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
+        ResponseCookie accessCookie = jwtUtils.getCleanAccessCookie();
+        ResponseCookie refreshCookie = jwtUtils.getCleanRefreshCookie();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return ResponseEntity.ok(new ApiResponseDTO(true, "Cuenta desactivada correctamente.", null));
     }
 }

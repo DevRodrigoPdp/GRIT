@@ -109,13 +109,13 @@ public class AtletaServiceImpl implements AtletaService {
 
     @Override
     @Transactional
-    public void solicitarBajaCuenta(String email) {
-        Atleta atleta = atletaRepository.findByEmail(email)
+    public void solicitarBajaCuenta(UUID atletaId) {
+        Atleta atleta = atletaRepository.findById(atletaId)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
         asignacionRepository.desactivarAsignacionesPorAtleta(atleta.getId());
 
-        usuarioService.suspenderUsuario(email);
+        usuarioService.suspenderUsuario(atletaId);
     }
 
     private String subirFotoPerfil(MultipartFile foto) {

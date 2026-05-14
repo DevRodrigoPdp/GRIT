@@ -96,8 +96,8 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AtletaResumenDTO> listarMisAtletas(String email) {
-        List<Asignacion> asignaciones = asignacionRepository.findAllByEntrenadorEmailAndActivaTrue(email);
+    public List<AtletaResumenDTO> listarMisAtletas(UUID entrenadorId) {
+        List<Asignacion> asignaciones = asignacionRepository.findAllByEntrenadorIdAndActivaTrue(entrenadorId);
 
         // Agrupamos por Atleta para manejar el caso de "AMBOS" servicios
         Map<Atleta, List<Asignacion>> asignacionesPorAtleta = asignaciones.stream()
@@ -112,7 +112,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
                     String servicioLabel = determinarServicioLabel(asigs);
 
                     // Calculamos si tiene planes reales
-                    boolean tienePlan = calcularSiTienePlanActivo(a, email);
+                    boolean tienePlan = calcularSiTienePlanActivo(a, entrenadorId);
 
                     return new AtletaResumenDTO(
                             a.getId(),
@@ -146,22 +146,22 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     @Override
     @Transactional
-    public void solicitarBajaCuenta(String email) {
-        Entrenador entrenador = entrenadorRepository.findByEmail(email)
+    public void solicitarBajaCuenta(UUID entrenadorId) {
+        Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
         asignacionRepository.desactivarAsignacionesPorEntrenador(entrenador.getId());
 
-        usuarioService.suspenderUsuario(email);
+        usuarioService.suspenderUsuario(entrenadorId);
     }
 
     private String determinarServicioLabel(List<Asignacion> asigs) {
         if (asigs.size() > 1) return "AMBOS";
-        return asigs.get(0).getTipoServicio().name();
+        return asigs.getFirst().getTipoServicio().name();
     }
 
-    private boolean calcularSiTienePlanActivo(Atleta a, String entrenadorEmail) {
-        return asignacionRepository.existsByAtletaIdAndEntrenadorEmailAndActivaTrue(a.getId(), entrenadorEmail);
+    private boolean calcularSiTienePlanActivo(Atleta a, UUID entrenadorId) {
+        return asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(a.getId(), entrenadorId);
     }
 
     private void validarTamanoArchivos(List<MultipartFile> archivos) {

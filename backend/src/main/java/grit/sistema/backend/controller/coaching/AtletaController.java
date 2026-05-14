@@ -5,6 +5,7 @@ import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
 import grit.sistema.backend.dto.training.*;
+import grit.sistema.backend.security.jwt.JwtUtils;
 import grit.sistema.backend.security.model.UserPrincipal;
 import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.service.coaching.AtletaService;
@@ -14,7 +15,6 @@ import grit.sistema.backend.service.training.PesoService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +41,7 @@ public class AtletaController {
     private final EntrenamientoService entrenamientoService;
     private final AsignacionService asignacionService;
     private final PesoService pesoService;
+    private final JwtUtils jwtUtils;
 
     @Operation(summary = "Ver perfil del atleta")
     @GetMapping("/perfil")
@@ -61,7 +62,7 @@ public class AtletaController {
     public ResponseEntity<ApiResponseDTO<FotoPerfilResponseDTO>> actualizarFoto(
             @RequestPart("fotoPerfil") MultipartFile foto,
             @AuthenticationPrincipal UserPrincipal usuario) {
-        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getUsername(), foto);
+        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getId(), foto);
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto actualizada exitosamente", response));
     }
@@ -99,16 +100,14 @@ public class AtletaController {
 
     @Operation(summary = "Conexión con el entrenador por código de invitación en el perfil")
     @PostMapping("/conectar")
-    public ResponseEntity<Map<String, Object>> conectarConEntrenador(
+    public ResponseEntity<ApiResponseDTO<Void>> conectarConEntrenador(
             @Valid @RequestBody AsignacionRequestDTO request,
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
         asignacionService.conectarConEntrenador(usuario.getId(), request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "ok", true,
-                "mensaje", "EL atleta ha conectado con el entrenador correctamente"
-        ));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponseDTO<>(true, "Conexión establecida correctamente", null));
     }
 
     @GetMapping("/peso/solicitud-pendiente")
@@ -123,34 +122,29 @@ public class AtletaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, "Peso registrado con éxito", data));
     }
 
-    @GetMapping("peso/historial")
+    @GetMapping("/peso/historial")
     public ResponseEntity<ApiResponseDTO<List<HistorialPesoDTO>>> getHistorial(@AuthenticationPrincipal UserPrincipal usuario) {
         var data = pesoService.obtenerHistorialAtleta(usuario.getId());
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Historial recuperado", data));
     }
 
     @PutMapping("/password")
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
-        usuarioService.actualizarPassword(usuario.getEmail(), dto);
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
+        usuarioService.actualizarPassword(usuario.getId(), dto);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/cuenta")
-    public ResponseEntity<ApiResponseDTO> eliminarCuenta(
-            @AuthenticationPrincipal UserPrincipal usuario,
-            HttpServletResponse response) {
+    public ResponseEntity<Void> eliminarCuenta(@AuthenticationPrincipal UserPrincipal usuario) {
 
-        atletaService.solicitarBajaCuenta(usuario.getUsername());
+        atletaService.solicitarBajaCuenta(usuario.getId());
 
-        // Invalidar Cookie
-        ResponseCookie cookie = ResponseCookie.from("access_token", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
+        ResponseCookie accessCookie = jwtUtils.getCleanAccessCookie();
+        ResponseCookie refreshCookie = jwtUtils.getCleanRefreshCookie();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return ResponseEntity.ok(new ApiResponseDTO(true, "Tu cuenta de atleta ha sido desactivada.", null));
     }
 }

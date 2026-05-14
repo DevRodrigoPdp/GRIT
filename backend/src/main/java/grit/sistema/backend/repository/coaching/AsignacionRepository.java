@@ -15,7 +15,7 @@ import java.util.UUID;
 @Repository
 public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
 
-    List<Asignacion> findAllByEntrenadorEmailAndActivaTrue(String email);
+    List<Asignacion> findAllByEntrenadorIdAndActivaTrue(UUID id);
 
     @Query("SELECT a FROM Asignacion a " +
             "JOIN FETCH a.entrenador e " +
@@ -28,8 +28,6 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
     Optional<Asignacion> findByAtletaIdAndActivaTrueAndTipoServicio(UUID atletaId, TipoServicio tipo);
 
     boolean existsByAtletaIdAndTipoServicioAndActivaTrue(UUID atletaId, TipoServicio tipoServicio);
-
-    boolean existsByAtletaIdAndEntrenadorEmailAndActivaTrue(UUID atletaId, String email);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Asignacion a SET a.activa = false WHERE a.entrenador.id = :entrenadorId AND a.activa = true")

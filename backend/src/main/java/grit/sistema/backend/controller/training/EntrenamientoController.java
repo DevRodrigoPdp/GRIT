@@ -50,6 +50,7 @@ public class EntrenamientoController {
     }
 
     @Operation(summary = "Listar rutinas de entrenamiento")
+    @PreAuthorize("hasRole('ENTRENADOR') and @asignacionService.esEntrenadorDeAtleta(authentication.principal.id, #atletaId)")
     @GetMapping("/rutinas")
     public ResponseEntity<ApiResponseDTO<List<RutinaResponseDTO>>> listarRutinas(
             @AuthenticationPrincipal UserPrincipal principal,
