@@ -88,7 +88,7 @@
           </div>
           <div class="flex items-center gap-3 flex-shrink-0">
             <button (click)="$event.stopPropagation(); iniciarEdicion(plan)"
-              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors">
+              class="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">
               MODIFICAR
             </button>
             @if (plan.activo) {
