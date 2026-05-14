@@ -136,10 +136,9 @@ public class AdminServiceImpl implements AdminService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
 
-        // Lógica de negocio: Conmutación de estado
         if (usuario.getEstado() == EstadoUsuario.BLOQUEADO) {
             usuario.setEstado(EstadoUsuario.ACTIVO);
-        } else {
+        } else if (usuario.getEstado() == EstadoUsuario.ACTIVO) {
             usuario.setEstado(EstadoUsuario.BLOQUEADO);
         }
 
