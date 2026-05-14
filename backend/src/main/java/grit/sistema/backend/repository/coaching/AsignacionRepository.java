@@ -15,7 +15,10 @@ import java.util.UUID;
 @Repository
 public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
 
-    List<Asignacion> findAllByEntrenadorIdAndActivaTrue(UUID id);
+    @Query("SELECT a FROM Asignacion a " +
+            "JOIN FETCH a.atleta " +
+            "WHERE a.entrenador.id = :entrenadorId AND a.activa = true")
+    List<Asignacion> findAllWithAtletaByEntrenadorId(@Param("entrenadorId") UUID entrenadorId);
 
     @Query("SELECT a FROM Asignacion a " +
             "JOIN FETCH a.entrenador e " +

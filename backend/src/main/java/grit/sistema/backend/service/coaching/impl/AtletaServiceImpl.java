@@ -19,6 +19,8 @@ import grit.sistema.backend.service.user.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +44,7 @@ public class AtletaServiceImpl implements AtletaService {
     private final AtletaPersistenceService persistenceService;
 
     @Override
+    @CacheEvict(value = "perfilAtleta", key = "#dto.email")
     public AtletaResponseDTO registrarAtleta(AtletaRequestDTO dto, MultipartFile foto) {
         if (pwnedClient.isPasswordPwned(dto.password())) {
             throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
@@ -54,6 +57,7 @@ public class AtletaServiceImpl implements AtletaService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "perfilAtleta", key = "#atletaId")
     public AtletaPerfilDTO obtenerPerfil(UUID atletaId) {
         return atletaRepository.findById(atletaId)
                 .map(atletaMapper::toPerfilDTO)
@@ -62,9 +66,10 @@ public class AtletaServiceImpl implements AtletaService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "perfilAtleta", key = "#atletaId")
     public AtletaPerfilDTO editarPerfil(UUID atletaId, AtletaEditarPerfilDTO request){
         Atleta atleta = atletaRepository.findById(atletaId)
-                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Atleta no encontrado"));
 
         atleta.setDeporte(request.deporte());
         atleta.setNivel(NivelAtleta.valueOf(request.nivel()));
@@ -109,6 +114,7 @@ public class AtletaServiceImpl implements AtletaService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "perfilAtleta", key = "#atletaId")
     public void solicitarBajaCuenta(UUID atletaId) {
         Atleta atleta = atletaRepository.findById(atletaId)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));

@@ -20,6 +20,8 @@ import grit.sistema.backend.service.user.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +48,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     @Override
+    @CacheEvict(value = "perfilEntrenador", key = "#request.email")
     public EntrenadorResponseDTO registrarEntrenador(EntrenadorRequestDTO request, MultipartFile fotoPerfil, List<MultipartFile> certificaciones) {
         validarRequisitosProfesionales(request);
         validarTamanoArchivos(certificaciones);
@@ -73,6 +76,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "perfilEntrenador", key = "#entrenadorId")
     public EntrenadorPerfilDTO obtenerPerfil(UUID entrenadorId) {
         return entrenadorRepository.findById(entrenadorId)
                 .map(entrenadorMapper::toPerfilDTO)
@@ -81,6 +85,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "perfilEntrenador", key = "#entrenadorId")
     public EntrenadorPerfilDTO editarPerfil(UUID entrenadorId, EntrenadorEditarPerfilDTO request) {
         Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
@@ -97,9 +102,8 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     @Override
     @Transactional(readOnly = true)
     public List<AtletaResumenDTO> listarMisAtletas(UUID entrenadorId) {
-        List<Asignacion> asignaciones = asignacionRepository.findAllByEntrenadorIdAndActivaTrue(entrenadorId);
+        List<Asignacion> asignaciones = asignacionRepository.findAllWithAtletaByEntrenadorId(entrenadorId);
 
-        // Agrupamos por Atleta para manejar el caso de "AMBOS" servicios
         Map<Atleta, List<Asignacion>> asignacionesPorAtleta = asignaciones.stream()
                 .collect(Collectors.groupingBy(Asignacion::getAtleta));
 
@@ -108,19 +112,13 @@ public class EntrenadorServiceImpl implements EntrenadorService {
                     Atleta a = entry.getKey();
                     List<Asignacion> asigs = entry.getValue();
 
-                    // Determinamos el string del servicio (ENTRENAMIENTO, NUTRICION o AMBOS)
-                    String servicioLabel = determinarServicioLabel(asigs);
-
-                    // Calculamos si tiene planes reales
-                    boolean tienePlan = calcularSiTienePlanActivo(a, entrenadorId);
-
                     return new AtletaResumenDTO(
                             a.getId(),
                             a.getNombre(),
-                            a.getDeporte(), // Asegúrate de que Atleta tenga este campo
+                            a.getDeporte(),
                             a.getNivel().name(),
-                            servicioLabel,
-                            tienePlan
+                            determinarServicioLabel(asigs),
+                            !asigs.isEmpty()
                     );
                 })
                 .toList();
@@ -146,6 +144,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "perfilEntrenador", key = "#entrenadorId")
     public void solicitarBajaCuenta(UUID entrenadorId) {
         Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
@@ -158,10 +157,6 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     private String determinarServicioLabel(List<Asignacion> asigs) {
         if (asigs.size() > 1) return "AMBOS";
         return asigs.getFirst().getTipoServicio().name();
-    }
-
-    private boolean calcularSiTienePlanActivo(Atleta a, UUID entrenadorId) {
-        return asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(a.getId(), entrenadorId);
     }
 
     private void validarTamanoArchivos(List<MultipartFile> archivos) {
