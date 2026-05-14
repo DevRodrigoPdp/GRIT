@@ -2,6 +2,7 @@ package grit.sistema.backend.entity.communication;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Table(name = "mensajes_hilo")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Mensaje {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

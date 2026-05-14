@@ -6,6 +6,7 @@ import grit.sistema.backend.entity.communication.enums.CategoriaHilo;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Table(name = "hilos_comunicacion")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Hilo {
     @Id
     private UUID id; // Asignado manualmente o vía generador

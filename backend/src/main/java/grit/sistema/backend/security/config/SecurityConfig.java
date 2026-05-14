@@ -60,7 +60,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
 
-        // Manejador necesario para Spring Security 6+ que procesa el token CSRF
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName(null);
 
@@ -91,10 +90,11 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/usuarios/perfil").authenticated()
                             .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
                             .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                            .requestMatchers("/api/v1/entrenador/**").hasAnyRole("ENTRENADOR", "ADMIN")
-                            .requestMatchers("/api/v1/atleta/**").hasAnyRole("ATLETA", "ADMIN")
-                            .requestMatchers("/api/v1/entrenamiento/**").hasAnyRole("ENTRENADOR", "ADMIN")
-                            .requestMatchers("/api/v1/nutricion/**").hasAnyRole("ENTRENADOR", "ADMIN")
+                            .requestMatchers("/api/v1/entrenador/**").hasAnyRole("ENTRENADOR")
+                            .requestMatchers("/api/v1/atleta/**").hasAnyRole("ATLETA")
+                            .requestMatchers("/api/v1/entrenamiento/**").hasAnyRole("ENTRENADOR")
+                            .requestMatchers("/api/v1/nutricion/**").hasAnyRole("ENTRENADOR")
+                            .requestMatchers("/api/v1/comunicacion/**").hasAnyRole("ENTRENADOR", "ATLETA", "ADMIN")
                             .anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session
