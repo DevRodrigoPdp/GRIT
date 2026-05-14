@@ -76,6 +76,9 @@ export class HttpCacheInterceptor implements HttpInterceptor {
     if (url.includes('/nutricion')) {
       this.cache.invalidatePattern('/nutricion');
     }
+    if (url.includes('/peso')) {
+      this.cache.invalidatePattern('/peso');
+    }
     // Agrega más patrones según tu API
   }
 }
