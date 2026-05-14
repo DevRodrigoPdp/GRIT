@@ -4,6 +4,8 @@ import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
+import grit.sistema.backend.entity.training.Rutina;
+import grit.sistema.backend.exception.security.AccesoDenegadoException;
 import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
@@ -12,11 +14,15 @@ import grit.sistema.backend.service.nutrition.NutricionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,9 +33,13 @@ public class NutricionServiceImpl implements NutricionService {
     private final AtletaRepository atletaRepository;
     private final EntrenadorRepository entrenadorRepository;
     private final NutricionMapper mapper;
+    private final CacheManager cacheManager;
+
+    private static final String CACHE_PLAN_ACTIVO = "planNutricionActivo";
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CACHE_PLAN_ACTIVO, key = "#atletaId")
     public PlanNutricionActivoResponseDTO getPlanNutricionActivoAtleta(UUID atletaId) {
         return planRepository.findByAtletaIdAndActivoTrue(atletaId)
                 .map(plan -> new PlanNutricionActivoResponseDTO(true, mapper.toDataDTO(plan)))
@@ -39,17 +49,18 @@ public class NutricionServiceImpl implements NutricionService {
     @Override
     @Transactional
     public void activarPlan(UUID entrenadorId, UUID planId) {
-        // 1. Obtener el plan validando que pertenezca al entrenador (Seguridad)
-        PlanNutricion plan = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
-                .orElseThrow(() -> new EntityNotFoundException("Plan nutricional no encontrado"));
+        PlanNutricion plan = planRepository.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
 
-        // 2. Desactivación atómica directa en DB
-        // Esto garantiza que el índice UNIQUE no salte al activar el siguiente
-        planRepository.desactivarPlanesActivos(plan.getAtleta().getId());
+        validarPropiedad(entrenadorId, plan);
+        UUID atletaId = plan.getAtleta().getId();
 
-        // 3. Activar el nuevo y sincronizar
+        evictPlanActivo(atletaId);
+
+        planRepository.desactivarPlanesActivos(atletaId);
         plan.setActivo(true);
-        planRepository.saveAndFlush(plan); // saveAndFlush es clave aquí
+
+        planRepository.saveAndFlush(plan);
 
         log.info("Plan de nutrición {} activado para atleta {}", planId, plan.getAtleta().getId());
     }
@@ -71,6 +82,8 @@ public class NutricionServiceImpl implements NutricionService {
 
         plan.setActivo(false);
         planRepository.save(plan);
+
+        evictPlanActivo(plan.getAtleta().getId());
 
         log.info("Plan {} desactivado por el entrenador {}", planId, entrenadorId);
     }
@@ -99,18 +112,18 @@ public class NutricionServiceImpl implements NutricionService {
         plan.setEntrenador(entrenador);
         plan.setAtleta(atleta);
 
-        // Sincronizar macros globales del request (BigDecimal/Double según decidiste)
         plan.setKcalDiarias(request.kcalDiarias());
         plan.setProteinas(request.proteinas());
         plan.setCarbos(request.carbos());
         plan.setGrasas(request.grasas());
 
-        // Si el request dice que este plan nace activo, ejecutamos la lógica de desactivación previa
         if (request.activo()) {
             planRepository.findByAtletaIdAndActivoTrue(atleta.getId())
                     .ifPresent(p -> p.setActivo(false));
         }
         plan.setActivo(request.activo());
+
+        evictPlanActivo(plan.getAtleta().getId());
 
         return mapper.toResponseDTO(planRepository.save(plan));
     }
@@ -121,7 +134,8 @@ public class NutricionServiceImpl implements NutricionService {
         PlanNutricion planExistente = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
 
-        // 1. Actualización de campos básicos (MapStruct podría hacerlo, pero así es muy seguro)
+        UUID atletaId = planExistente.getAtleta().getId();
+
         planExistente.setNombre(request.nombre());
         planExistente.setDescripcion(request.descripcion());
         planExistente.setKcalDiarias(request.kcalDiarias());
@@ -129,19 +143,17 @@ public class NutricionServiceImpl implements NutricionService {
         planExistente.setCarbos(request.carbos());
         planExistente.setGrasas(request.grasas());
 
-        // 2. Manejo de estado activo
         if (request.activo() && !planExistente.isActivo()) {
             planRepository.findByAtletaIdAndActivoTrue(planExistente.getAtleta().getId())
                     .ifPresent(p -> p.setActivo(false));
         }
         planExistente.setActivo(request.activo());
 
-        // 3. LA CLAVE: Usamos el método de conveniencia
-        // Primero obtenemos las entidades del mapper
         PlanNutricion datosNuevos = mapper.toEntity(request);
 
-        // Esto dispara el orphanRemoval de forma controlada por Hibernate
         planExistente.setComidas(datosNuevos.getComidas());
+
+        evictPlanActivo(atletaId);
 
         return mapper.toResponseDTO(planRepository.save(planExistente));
     }
@@ -151,6 +163,24 @@ public class NutricionServiceImpl implements NutricionService {
     public void eliminarPlan(UUID entrenadorId, UUID planId) {
         PlanNutricion plan = planRepository.findByIdAndEntrenadorId(planId, entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
+
+        validarPropiedad(entrenadorId, plan);
+
+        UUID atletaId = plan.getAtleta().getId();
+
         planRepository.delete(plan);
+
+        evictPlanActivo(atletaId);
+    }
+
+    private void validarPropiedad(UUID entrenadorId, PlanNutricion plan) {
+        if (!plan.getEntrenador().getId().equals(entrenadorId)) {
+            throw new AccesoDenegadoException("No tienes permiso sobre esta plan");
+        }
+    }
+
+    private void evictPlanActivo(UUID atletaId) {
+        Optional.ofNullable(cacheManager.getCache(CACHE_PLAN_ACTIVO))
+                .ifPresent(c -> c.evict(atletaId));
     }
 }

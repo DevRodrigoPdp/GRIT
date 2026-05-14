@@ -18,6 +18,9 @@ import grit.sistema.backend.service.training.EntrenamientoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +37,16 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     private final EntrenadorRepository entrenadorRepository;
     private final EjercicioRepository ejercicioRepository;
     private final EntrenamientoMapper mapper;
+    private final CacheManager cacheManager;
+
+    private static final String CACHE_PLAN_ACTIVO = "planEntrenamientoActivo";
 
     @Override
     @Transactional
     public RutinaResponseDTO crearRutina(UUID entrenadorId, RutinaRequestDTO request) {
-        // 1. Validaciones
         var atleta = atletaRepository.findById(request.atletaId()).orElseThrow();
         var entrenador = entrenadorRepository.findById(entrenadorId).orElseThrow();
 
-        // 2. Carga masiva del catálogo (Optimización)
         Set<UUID> idsEjercicios = request.sesiones().stream()
                 .flatMap(s -> s.ejercicios().stream())
                 .map(EjercicioRequestDTO::ejercicioId)
@@ -84,6 +88,8 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
             rutina.addSesion(sesion);
         }
 
+        evictPlanActivo(request.atletaId());
+
         return mapper.toResponseDTO(rutinaRepository.save(rutina));
     }
 
@@ -103,19 +109,16 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Override
     @Transactional
     public void eliminarRutina(UUID entrenadorId, UUID rutinaId) {
-        // 1. Buscar la entidad o lanzar 404
         Rutina rutina = rutinaRepository.findById(rutinaId)
-                .orElseThrow(() -> new EntityNotFoundException("La rutina no existe"));
+                .orElseThrow(() -> new EntityNotFoundException("Rutina no existe"));
 
-        // 2. Validación de propiedad (Seguridad a nivel de datos)
-        if (!rutina.getEntrenador().getId().equals(entrenadorId)) {
-            log.warn("Intento de borrado no autorizado: Entrenador {} sobre rutina {}", entrenadorId, rutinaId);
-            throw new AccessDeniedException("No tienes permisos para eliminar esta rutina");
-        }
+        validarPropiedad(entrenadorId, rutina);
+        UUID atletaId = rutina.getAtleta().getId();
 
-        // 3. Borrado en cascada (gestionado por CascadeType.ALL en la entidad)
         rutinaRepository.delete(rutina);
-        log.info("Rutina {} eliminada correctamente", rutinaId);
+
+        evictPlanActivo(atletaId);
+        log.info("Rutina {} eliminada y caché de atleta {} limpiada", rutinaId, atletaId);
     }
 
     @Override
@@ -145,11 +148,16 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
             });
         }
 
-        return mapper.toResponseDTO(rutinaRepository.save(rutinaExistente));
+        Rutina guardada = rutinaRepository.save(rutinaExistente);
+
+        evictPlanActivo(guardada.getAtleta().getId());
+
+        return mapper.toResponseDTO(guardada);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CACHE_PLAN_ACTIVO, key = "#atletaId")
     public Optional<RutinaDTO> getPlanEntrenamientoActivoAtleta(UUID atletaId) {
         return rutinaRepository.findByAtletaIdAndActivoTrue(atletaId)
                 .map(mapper::toDTO);
@@ -159,13 +167,16 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Transactional
     public void activarRutina(UUID entrenadorId, UUID rutinaId) {
         Rutina rutina = rutinaRepository.findById(rutinaId)
-                .orElseThrow(() -> new EntityNotFoundException("Rutina con ID " + rutinaId + " no encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
 
         validarPropiedad(entrenadorId, rutina);
+        UUID atletaId = rutina.getAtleta().getId();
 
-        rutinaRepository.desactivarRutinasActivas(rutina.getAtleta().getId());
+        evictPlanActivo(atletaId);
 
+        rutinaRepository.desactivarRutinasActivas(atletaId);
         rutina.setActivo(true);
+
         rutinaRepository.saveAndFlush(rutina);
 
         log.info("Rutina {} activada para el atleta {}", rutinaId, rutina.getAtleta().getId());
@@ -189,6 +200,8 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
         rutina.setActivo(false);
         rutinaRepository.save(rutina);
 
+        evictPlanActivo(rutina.getAtleta().getId());
+
         log.info("Rutina {} desactivada por el entrenador {}", rutinaId, entrenadorId);
     }
 
@@ -196,5 +209,10 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
         if (!rutina.getEntrenador().getId().equals(entrenadorId)) {
             throw new AccesoDenegadoException("No tienes permiso sobre esta rutina");
         }
+    }
+
+    private void evictPlanActivo(UUID atletaId) {
+        Optional.ofNullable(cacheManager.getCache(CACHE_PLAN_ACTIVO))
+                .ifPresent(c -> c.evict(atletaId));
     }
 }

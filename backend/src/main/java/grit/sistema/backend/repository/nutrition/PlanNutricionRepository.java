@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@Repository("planRepository")
 public interface PlanNutricionRepository extends JpaRepository<PlanNutricion, UUID> {
+
     List<PlanNutricion> findAllByEntrenadorIdOrderByCreadoEnDesc(UUID entrenadorId);
 
     List<PlanNutricion> findAllByEntrenadorIdAndAtletaIdOrderByCreadoEnDesc(UUID entrenadorId, UUID atletaId);
