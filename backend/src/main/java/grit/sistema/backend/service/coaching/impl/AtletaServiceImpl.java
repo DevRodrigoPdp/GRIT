@@ -130,6 +130,4 @@ public class AtletaServiceImpl implements AtletaService {
                 .map(storageService::uploadAtletaFoto)
                 .orElse(null);
     }
-
-
 }

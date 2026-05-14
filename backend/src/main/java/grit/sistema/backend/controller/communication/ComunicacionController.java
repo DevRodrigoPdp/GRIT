@@ -10,6 +10,7 @@ import grit.sistema.backend.service.communication.HiloService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/comunicacion")
@@ -44,7 +46,9 @@ public class ComunicacionController {
             @RequestParam ContextoHilo contexto,
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
-        return ResponseEntity.ok(hiloService.obtenerHilosPorAtleta(usuario.getId(), contexto, usuario.getId()));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .body(hiloService.obtenerHilosPorAtleta(usuario.getId(), contexto, usuario.getId()));
     }
 
     @PreAuthorize("hasRole('ENTRENADOR') and @asignacionService.esEntrenadorDeAtleta(authentication.principal.id, #atletaId)")
@@ -54,7 +58,9 @@ public class ComunicacionController {
             @RequestParam ContextoHilo contexto,
             @AuthenticationPrincipal UserPrincipal entrenador
     ) {
-        return ResponseEntity.ok(hiloService.obtenerHilosParaEntrenador(atletaId, entrenador.getId(), contexto));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .body(hiloService.obtenerHilosParaEntrenador(atletaId, entrenador.getId(), contexto));
     }
 
     @PreAuthorize("hasAnyRole('ATLETA', 'ENTRENADOR')")

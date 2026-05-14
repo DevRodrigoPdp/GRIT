@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/entrenador")
@@ -42,7 +43,10 @@ public class EntrenadorController {
     @GetMapping("/perfil")
     public ResponseEntity<ApiResponseDTO<EntrenadorPerfilDTO>> getPerfil(@AuthenticationPrincipal UserPrincipal usuario) {
         EntrenadorPerfilDTO perfilDTO = entrenadorService.obtenerPerfil(usuario.getId());
-        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Perfil del entrenador", perfilDTO));
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .body(new ApiResponseDTO<>(true, "Perfil del Entrenador", perfilDTO));
     }
 
     @Operation(summary = "Actualizar perfil de entrenador")
@@ -67,7 +71,9 @@ public class EntrenadorController {
     public ResponseEntity<ApiResponseDTO<List<AtletaResumenDTO>>> getAtletas(@AuthenticationPrincipal UserPrincipal usuario) {
         List<AtletaResumenDTO> listaAtletas = entrenadorService.listarMisAtletas(usuario.getId());
 
-        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Atletas del entrenador", listaAtletas));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .body(new ApiResponseDTO<>(true, "Atletas del entrenador", listaAtletas));
     }
 
     @Operation(summary = "Darse de baja del atleta")
@@ -94,14 +100,18 @@ public class EntrenadorController {
     @GetMapping("/atletas/{atletaId}/peso/pendiente")
     public ResponseEntity<ApiResponseDTO<Map<String, Boolean>>> checkPendiente(@PathVariable UUID atletaId) {
         boolean pendiente = pesoService.tieneSolicitudPendiente(atletaId);
-        return ResponseEntity.ok(new ApiResponseDTO<>(true, "pendiente", Map.of("pendiente", pendiente)));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .body(new ApiResponseDTO<>(true, "pendiente", Map.of("pendiente", pendiente)));
     }
 
     @PreAuthorize("hasRole('ENTRENADOR') and @asignacionService.esEntrenadorDeAtleta(authentication.principal.id, #atletaId)")
     @GetMapping("/atletas/{atletaId}/peso/historial")
     public ResponseEntity<ApiResponseDTO<List<HistorialPesoDTO>>> getHistorialAtleta(@PathVariable UUID atletaId) {
         var data = pesoService.obtenerHistorialAtleta(atletaId);
-        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Historial del atleta recuperado", data));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .body(new ApiResponseDTO<>(true, "Historial del atleta recuperado", data));
     }
 
     @PutMapping("/password")
