@@ -69,7 +69,6 @@ public class UserPrincipal implements UserDetails {
         return this.estado == EstadoUsuario.ACTIVO;
     }
 
-    // Métodos obligatorios de UserDetails (puedes dejarlos en true si no manejas bloqueo)
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }

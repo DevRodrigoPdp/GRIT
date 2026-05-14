@@ -60,8 +60,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public MeResponseDTO obtenerMiInformacion(UUID usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
+    public MeResponseDTO obtenerMiInformacion(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         MeResponseDTO.MeData meData;
@@ -119,8 +119,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public FotoPerfilResponseDTO actualizarFotoPerfil(UUID usuarioId, MultipartFile foto) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
+    public FotoPerfilResponseDTO actualizarFotoPerfil(String email, MultipartFile foto) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         String carpeta;
@@ -150,17 +150,20 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public void actualizarPassword(UUID usuarioId, PasswordUpdateDTO dto) {
-        if (pwnedClient.isPasswordPwned(dto.nueva())) {
-            throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones de datos.");
-        }
-
-        Usuario usuario = usuarioRepository.findById(usuarioId)
+    public void actualizarPassword(String email, PasswordUpdateDTO dto) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
-        // 3. Validar password actual
         if (!passwordEncoder.matches(dto.actual(), usuario.getPassword())) {
             throw new BadCredentialsException("PASSWORD_INCORRECTO");
+        }
+
+        try {
+            if (pwnedClient.isPasswordPwned(dto.nueva())) {
+                throw new PwnedPasswordException("Seguridad insuficiente: Contraseña detectada en filtraciones.");
+            }
+        } catch (Exception e) {
+            log.warn("No se pudo verificar Pwned API, procediendo con cambio estándar.");
         }
 
         usuario.setPassword(passwordEncoder.encode(dto.nueva()));
@@ -168,12 +171,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public void suspenderUsuario(UUID usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
+    public void suspenderUsuario(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         usuario.setEstado(EstadoUsuario.SUSPENDIDO);
-
-        usuarioRepository.save(usuario);
     }
 }

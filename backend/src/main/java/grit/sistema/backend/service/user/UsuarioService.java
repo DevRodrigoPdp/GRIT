@@ -17,13 +17,13 @@ public interface UsuarioService {
 
     LoginData obtenerDatosParaRefresh(String email);
 
-    MeResponseDTO obtenerMiInformacion(UUID usuarioId);
+    MeResponseDTO obtenerMiInformacion(String email);
 
     UsuarioDTO obtenerUsuarioActual();
 
-    FotoPerfilResponseDTO actualizarFotoPerfil(UUID usuarioId,  MultipartFile foto);
+    FotoPerfilResponseDTO actualizarFotoPerfil(String email,  MultipartFile foto);
 
-    void actualizarPassword(UUID usuarioId, PasswordUpdateDTO dto);
+    void actualizarPassword(String email, PasswordUpdateDTO dto);
 
-    void suspenderUsuario(UUID usuarioId);
+    void suspenderUsuario(String email);
 }

@@ -3,13 +3,10 @@ package grit.sistema.backend.controller.coaching;
 import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
-import grit.sistema.backend.dto.nutrition.NotaNutricionistaRequestDTO;
-import grit.sistema.backend.dto.nutrition.NotaResponseDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
 import grit.sistema.backend.security.model.UserPrincipal;
 import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.service.coaching.EntrenadorService;
-import grit.sistema.backend.service.nutrition.NutricionService;
 import grit.sistema.backend.service.training.PesoService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +33,6 @@ import java.util.UUID;
 @Slf4j
 public class EntrenadorController {
     private final EntrenadorService entrenadorService;
-    private final NutricionService nutricionService;
     private final AsignacionService asignacionService;
     private final PesoService pesoService;
     private final UsuarioService usuarioService;
@@ -60,7 +56,7 @@ public class EntrenadorController {
     public ResponseEntity<ApiResponseDTO<FotoPerfilResponseDTO>> actualizarFoto(
             @RequestPart("fotoPerfil") MultipartFile foto,
             @AuthenticationPrincipal UserPrincipal usuario) {
-        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getId(), foto);
+        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getUsername(), foto);
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto actualizada exitosamente", response));
     }
@@ -108,8 +104,8 @@ public class EntrenadorController {
 
     @PutMapping("/password")
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
-        usuarioService.actualizarPassword(usuario.getId(), dto);
-        return ResponseEntity.ok(Map.of("ok", true));
+        usuarioService.actualizarPassword(usuario.getEmail(), dto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/cuenta")
@@ -117,7 +113,7 @@ public class EntrenadorController {
             @AuthenticationPrincipal UserPrincipal usuario,
             HttpServletResponse response) {
 
-        entrenadorService.solicitarBajaCuenta(usuario.getId());
+        entrenadorService.solicitarBajaCuenta(usuario.getUsername());
 
         ResponseCookie cookie = ResponseCookie.from("access_token", "")
                 .httpOnly(true)

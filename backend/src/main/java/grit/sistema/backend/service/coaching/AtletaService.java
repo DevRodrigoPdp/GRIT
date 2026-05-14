@@ -16,5 +16,5 @@ public interface AtletaService {
 
     List<ProfesionalAsignadoDTO> getProfesionalesAsignados(UUID atletaId);
 
-    void solicitarBajaCuenta(UUID atletaId);
+    void solicitarBajaCuenta(String email);
 }

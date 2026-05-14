@@ -148,14 +148,13 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     @Override
     @Transactional
-    public void solicitarBajaCuenta(UUID entrenadorId) {
-        if (!entrenadorRepository.existsById(entrenadorId)) {
-            throw new EntityNotFoundException("Entrenador no encontrado.");
-        }
+    public void solicitarBajaCuenta(String email) {
+        Entrenador entrenador = entrenadorRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
-        asignacionRepository.desactivarAsignacionesPorEntrenador(entrenadorId);
+        asignacionRepository.desactivarAsignacionesPorEntrenador(entrenador.getId());
 
-        usuarioService.suspenderUsuario(entrenadorId);
+        usuarioService.suspenderUsuario(email);
     }
 
     private String determinarServicioLabel(List<Asignacion> asigs) {

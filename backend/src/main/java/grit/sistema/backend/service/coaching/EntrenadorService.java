@@ -22,5 +22,5 @@ public interface EntrenadorService {
                                            AmpliarFormacionDTO dto,
                                            List<MultipartFile> documentos);
 
-    void solicitarBajaCuenta(UUID entrenadorId);
+    void solicitarBajaCuenta(String email);
 }

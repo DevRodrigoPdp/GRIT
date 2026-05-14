@@ -67,7 +67,7 @@ public class AtletaController {
     public ResponseEntity<ApiResponseDTO<FotoPerfilResponseDTO>> actualizarFoto(
             @RequestPart("fotoPerfil") MultipartFile foto,
             @AuthenticationPrincipal UserPrincipal usuario) {
-        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getId(), foto);
+        FotoPerfilResponseDTO response = usuarioService.actualizarFotoPerfil(usuario.getUsername(), foto);
 
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Foto actualizada exitosamente", response));
     }
@@ -137,8 +137,8 @@ public class AtletaController {
 
     @PutMapping("/password")
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateDTO dto, @AuthenticationPrincipal UserPrincipal usuario) {
-        usuarioService.actualizarPassword(usuario.getId(), dto);
-        return ResponseEntity.ok(Map.of("ok", true));
+        usuarioService.actualizarPassword(usuario.getEmail(), dto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/cuenta")
@@ -146,7 +146,7 @@ public class AtletaController {
             @AuthenticationPrincipal UserPrincipal usuario,
             HttpServletResponse response) {
 
-        atletaService.solicitarBajaCuenta(usuario.getId());
+        atletaService.solicitarBajaCuenta(usuario.getUsername());
 
         // Invalidar Cookie
         ResponseCookie cookie = ResponseCookie.from("access_token", "")

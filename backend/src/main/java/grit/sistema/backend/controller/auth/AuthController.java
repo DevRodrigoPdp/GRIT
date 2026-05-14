@@ -190,7 +190,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        MeResponseDTO response = usuarioService.obtenerMiInformacion(usuario.getId());
+        MeResponseDTO response = usuarioService.obtenerMiInformacion(usuario.getUsername());
 
         return ResponseEntity.ok(response);
     }
