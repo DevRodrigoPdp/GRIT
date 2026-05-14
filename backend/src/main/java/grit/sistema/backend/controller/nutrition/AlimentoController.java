@@ -47,7 +47,6 @@ public class AlimentoController {
      */
     @Operation(summary = "Buscador global de alimentos por término único")
     @GetMapping("/search")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponseDTO<Page<AlimentoResponseDTO>>> buscadorGlobal(
             @RequestParam(name = "q", required = false) String q,
             @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
@@ -65,7 +64,6 @@ public class AlimentoController {
      */
     @Operation(summary = "Filtrar alimentos por nombre/marca y categoría")
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponseDTO<Page<AlimentoResponseDTO>>> listarConFiltros(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String categoria,
@@ -77,7 +75,6 @@ public class AlimentoController {
 
     @Operation(summary = "Obtener lista de todas las categorías de alimentos disponibles")
     @GetMapping("/categorias")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponseDTO<List<String>>> obtenerCategorias() {
         List<String> categorias = alimentoService.listarCategorias();
         return ResponseEntity.ok(ApiResponseDTO.success(categorias, "Categorías obtenidas"));
@@ -85,7 +82,6 @@ public class AlimentoController {
 
     @Operation(summary = "Crear un nuevo alimento personalizado")
     @PostMapping
-    @PreAuthorize("hasRole('ENTRENADOR') and @auth.tieneTituloNutricion()")
     public ResponseEntity<ApiResponseDTO<AlimentoResponseDTO>> crearAlimento(
             @Valid @RequestBody AlimentoCrearRequestDTO request,
             @AuthenticationPrincipal UserPrincipal principal
