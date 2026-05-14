@@ -14,8 +14,6 @@ import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.exception.business.SesionActivaException;
 import grit.sistema.backend.exception.security.PwnedPasswordException;
 import grit.sistema.backend.mapper.user.UsuarioMapper;
-import grit.sistema.backend.repository.coaching.AtletaRepository;
-import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.repository.user.UsuarioRepository;
 import grit.sistema.backend.service.common.StorageService;
 import grit.sistema.backend.service.user.UsuarioService;
@@ -30,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +35,6 @@ import java.util.UUID;
 public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final UsuarioRepository usuarioRepository;
-    private final AtletaRepository atletaRepository;
-    private final EntrenadorRepository entrenadorRepository;
     private final PasswordEncoder passwordEncoder;
     private final PwnedPasswordClient pwnedClient;
     private final StorageService storageService;

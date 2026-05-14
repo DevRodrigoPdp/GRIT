@@ -8,6 +8,8 @@ import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.entity.communication.*;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
 import grit.sistema.backend.exception.security.AccesoDenegadoException;
+import grit.sistema.backend.mapper.communication.HiloMapper;
+import grit.sistema.backend.mapper.communication.MensajeMapper;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.communication.HiloRepository;
@@ -37,6 +39,8 @@ public class HiloServiceImpl implements HiloService {
     private static final long MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
     private final MensajeService mensajeService;
+    private final HiloMapper hiloMapper;
+    private final MensajeMapper mensajeMapper;
     private final HiloRepository hiloRepository;
     private final LecturaHiloRepository lecturaRepository;
     private final UsuarioRepository usuarioRepository;
@@ -66,7 +70,7 @@ public class HiloServiceImpl implements HiloService {
 
         Hilo guardado = mensajeService.crearHiloConPrimerMensaje(dto, adjuntosSubidos, atleta, asignacion.getEntrenador(), emisor);
 
-        return mapToDetalleDTO(guardado);
+        return hiloMapper.toDetalleDTO(guardado, true);
     }
 
     @Override
@@ -101,14 +105,15 @@ public class HiloServiceImpl implements HiloService {
         Hilo hilo = hiloRepository.findById(hiloId)
                 .orElseThrow(() -> new EntityNotFoundException("Hilo no encontrado"));
 
-        // SEGURIDAD SENIOR: Validar que el usuario pertenece al hilo
         validarAccesoAHilo(hilo, usuarioId);
 
-        // Al abrirlo, marcamos como leído para este usuario
-        Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
-        actualizarEstadoLectura(hilo, usuario);
+        boolean yaLeido = lecturaRepository.existsByHiloIdAndUsuarioId(hiloId, usuarioId);
 
-        return mapToDetalleDTO(hilo);
+        HiloDetalleDTO dto = hiloMapper.toDetalleDTO(hilo, yaLeido);
+
+        actualizarEstadoLectura(hilo, usuarioRepository.getReferenceById(usuarioId));
+
+        return dto;
     }
 
     @Override
@@ -123,7 +128,7 @@ public class HiloServiceImpl implements HiloService {
 
         Mensaje guardado = mensajeService.salvarMensaje(hiloId, texto, adjuntosSubidos, emisorId);
 
-        return mapToMensajeDTO(guardado);
+        return mensajeMapper.toDTO(guardado);
     }
 
     @Override
@@ -165,42 +170,6 @@ public class HiloServiceImpl implements HiloService {
                     return new AdjuntoData(key, file.getOriginalFilename(), determinarTipo(file.getContentType()));
                 })
                 .toList();
-    }
-
-    private HiloDetalleDTO mapToDetalleDTO(Hilo hilo) {
-        List<MensajeDTO> mensajesDTO = hilo.getMensajes().stream()
-                .map(this::mapToMensajeDTO)
-                .toList();
-
-        return new HiloDetalleDTO(
-                hilo.getId(),
-                hilo.getTitulo(),
-                hilo.getCategoria(),
-                hilo.getContexto(),
-                hilo.getCreadoPor(),
-                hilo.getCreadoEn(),
-                true,
-                mensajesDTO
-        );
-    }
-
-    private MensajeDTO mapToMensajeDTO(Mensaje m) {
-        List<AdjuntoDTO> adjuntosDTO = m.getAdjuntos().stream()
-                .map(a -> new AdjuntoDTO(
-                        a.getId(),
-                        storageService.getPresignedUrl(a.getS3Key()),
-                        a.getTipo(),
-                        a.getNombreOriginal()
-                ))
-                .toList();
-
-        return new MensajeDTO(
-                m.getId(),
-                m.getTexto(),
-                m.getEnviadoPor(),
-                m.getEnviadoEn(),
-                adjuntosDTO
-        );
     }
 
     private void validarArchivo(MultipartFile file) {

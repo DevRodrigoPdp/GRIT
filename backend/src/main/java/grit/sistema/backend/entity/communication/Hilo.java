@@ -5,9 +5,7 @@ import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.communication.enums.CategoriaHilo;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,6 +17,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Hilo {
     @Id
     private UUID id; // Asignado manualmente o vía generador
@@ -42,9 +42,11 @@ public class Hilo {
     @Column(name = "creado_por", nullable = false, updatable = false)
     private String creadoPor;
 
+    @Builder.Default
     @OneToMany(mappedBy = "hilo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Mensaje> mensajes = new ArrayList<>();
 
+    @Builder.Default
     @Column(name = "creado_en", updatable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
 
