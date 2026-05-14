@@ -9,7 +9,6 @@ import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface UsuarioService {
 

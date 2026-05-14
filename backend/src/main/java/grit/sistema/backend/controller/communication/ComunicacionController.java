@@ -27,6 +27,7 @@ import java.util.UUID;
 public class ComunicacionController {
     private final HiloService hiloService;
 
+    @PreAuthorize("hasAnyRole('ATLETA', 'ENTRENADOR', 'ADMIN')")
     @PostMapping(value = "/hilos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<HiloDetalleDTO> crearHilo(
             @RequestPart("datos") @Valid CrearHiloDTO dto,
@@ -37,6 +38,7 @@ public class ComunicacionController {
                 .body(hiloService.crearHilo(dto, archivos, emisor.getId()));
     }
 
+    @PreAuthorize("hasRole('ATLETA')")
     @GetMapping("/atleta/hilos")
     public ResponseEntity<List<HiloResumenDTO>> listarMisHilos(
             @RequestParam ContextoHilo contexto,
@@ -55,6 +57,7 @@ public class ComunicacionController {
         return ResponseEntity.ok(hiloService.obtenerHilosParaEntrenador(atletaId, entrenador.getId(), contexto));
     }
 
+    @PreAuthorize("hasAnyRole('ATLETA', 'ENTRENADOR')")
     @GetMapping("/hilos/{id}")
     public ResponseEntity<HiloDetalleDTO> verDetalle(
             @PathVariable UUID id,
@@ -63,6 +66,7 @@ public class ComunicacionController {
         return ResponseEntity.ok(hiloService.obtenerDetalleHilo(id, usuario.getId()));
     }
 
+    @PreAuthorize("hasAnyRole('ATLETA', 'ENTRENADOR')")
     @PostMapping(value = "/hilos/{id}/mensajes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MensajeDTO> responder(
             @PathVariable UUID id,
@@ -77,6 +81,7 @@ public class ComunicacionController {
         return ResponseEntity.ok(hiloService.responderHilo(id, texto, archivos, usuario.getId()));
     }
 
+    @PreAuthorize("hasAnyRole('ATLETA', 'ENTRENADOR')")
     @PatchMapping("/hilos/{id}/leer")
     public ResponseEntity<Void> marcarComoLeido(@PathVariable UUID id, @AuthenticationPrincipal UserPrincipal usuario) {
         hiloService.marcarComoLeido(id, usuario.getId());

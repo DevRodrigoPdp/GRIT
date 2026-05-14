@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/ejercicios")
 @RequiredArgsConstructor
 @Tag(name = "Ejercicios", description = "API para la consulta de la biblioteca de ejercicios")
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasRole('ENTRENADOR') and @auth.tieneTituloEntrenamiento()")
 @Slf4j
 public class EjercicioController {
     private final EjercicioService ejercicioService;
