@@ -1,6 +1,8 @@
 package grit.sistema.backend.service.nutrition.impl;
 
-import grit.sistema.backend.dto.nutrition.*;
+import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
 import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
@@ -14,7 +16,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 

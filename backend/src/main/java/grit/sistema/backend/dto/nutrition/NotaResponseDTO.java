@@ -1,6 +1,5 @@
 package grit.sistema.backend.dto.nutrition;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

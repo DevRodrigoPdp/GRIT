@@ -1,8 +1,8 @@
 package grit.sistema.backend.controller.coaching;
 
+import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
-import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.training.HistorialPesoDTO;
 import grit.sistema.backend.security.model.UserPrincipal;
 import grit.sistema.backend.service.coaching.AsignacionService;

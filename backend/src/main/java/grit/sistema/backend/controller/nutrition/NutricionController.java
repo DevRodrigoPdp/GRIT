@@ -1,8 +1,6 @@
 package grit.sistema.backend.controller.nutrition;
 
 import grit.sistema.backend.dto.common.ApiResponseDTO;
-import grit.sistema.backend.dto.nutrition.AlimentoRecienteDTO;
-import grit.sistema.backend.dto.nutrition.AlimentoRecienteRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
 import grit.sistema.backend.security.model.UserPrincipal;

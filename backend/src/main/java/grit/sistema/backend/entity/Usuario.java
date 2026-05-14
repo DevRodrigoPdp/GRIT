@@ -3,7 +3,6 @@ package grit.sistema.backend.entity;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.entity.common.enums.Rol;
 import jakarta.persistence.*;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

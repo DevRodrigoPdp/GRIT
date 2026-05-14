@@ -2,7 +2,6 @@ package grit.sistema.backend.dto.nutrition;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 import java.math.BigDecimal;
 import java.util.UUID;
 

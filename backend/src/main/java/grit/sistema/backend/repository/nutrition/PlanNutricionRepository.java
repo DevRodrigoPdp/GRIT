@@ -1,7 +1,6 @@
 package grit.sistema.backend.repository.nutrition;
 
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
-import grit.sistema.backend.entity.training.Rutina;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

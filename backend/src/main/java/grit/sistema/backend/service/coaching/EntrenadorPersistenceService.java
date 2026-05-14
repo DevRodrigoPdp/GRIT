@@ -2,14 +2,14 @@ package grit.sistema.backend.service.coaching;
 
 import grit.sistema.backend.dto.coaching.AmpliarFormacionDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorRequestDTO;
+import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.SolicitudAmpliacionTipo;
 import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;
-import grit.sistema.backend.exception.business.UsuarioExistenteException;
-import grit.sistema.backend.mapper.coaching.EntrenadorMapper;
-import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.entity.common.enums.Rol;
+import grit.sistema.backend.exception.business.UsuarioExistenteException;
+import grit.sistema.backend.mapper.coaching.EntrenadorMapper;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.repository.user.UsuarioRepository;
 import grit.sistema.backend.util.CodeGenerator;
@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

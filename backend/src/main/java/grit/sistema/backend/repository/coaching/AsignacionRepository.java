@@ -1,8 +1,6 @@
 package grit.sistema.backend.repository.coaching;
 
 import grit.sistema.backend.entity.coaching.Asignacion;
-import grit.sistema.backend.entity.coaching.Atleta;
-import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

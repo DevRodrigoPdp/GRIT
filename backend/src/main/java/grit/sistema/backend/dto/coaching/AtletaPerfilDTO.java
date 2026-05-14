@@ -5,7 +5,6 @@ import grit.sistema.backend.entity.coaching.enums.NivelAtleta;
 import grit.sistema.backend.entity.coaching.enums.Objetivo;
 import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;

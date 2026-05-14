@@ -1,9 +1,9 @@
 package grit.sistema.backend.service.user;
 
+import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.coaching.FotoPerfilResponseDTO;
 import grit.sistema.backend.dto.user.MeResponseDTO;
-import grit.sistema.backend.dto.auth.LoginData;
 import grit.sistema.backend.dto.user.UsuarioDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
 import org.springframework.web.multipart.MultipartFile;

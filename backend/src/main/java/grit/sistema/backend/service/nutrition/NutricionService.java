@@ -1,6 +1,9 @@
 package grit.sistema.backend.service.nutrition;
 
-import grit.sistema.backend.dto.nutrition.*;
+import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
+import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
+
 import java.util.List;
 import java.util.UUID;
 

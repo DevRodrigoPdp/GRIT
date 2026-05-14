@@ -1,8 +1,12 @@
 package grit.sistema.backend.service.training;
 
-import grit.sistema.backend.dto.training.*;
+import grit.sistema.backend.dto.training.RutinaDTO;
+import grit.sistema.backend.dto.training.RutinaRequestDTO;
+import grit.sistema.backend.dto.training.RutinaResponseDTO;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 
 public interface EntrenamientoService {

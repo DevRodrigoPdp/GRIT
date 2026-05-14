@@ -2,10 +2,8 @@ package grit.sistema.backend.controller.admin;
 
 import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
-import grit.sistema.backend.dto.common.ApiResponseDTO;
 import grit.sistema.backend.dto.user.UsuarioBusquedaDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
-import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.service.admin.AdminService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,13 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Tag(name = "Administración")

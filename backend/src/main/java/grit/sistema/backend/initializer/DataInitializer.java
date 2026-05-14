@@ -1,8 +1,8 @@
 package grit.sistema.backend.initializer;
 
+import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
-import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.enums.*;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
 import grit.sistema.backend.entity.common.enums.Rol;

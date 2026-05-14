@@ -3,12 +3,9 @@ package grit.sistema.backend.repository.communication;
 import grit.sistema.backend.dto.communication.HiloResumenDTO;
 import grit.sistema.backend.entity.communication.Hilo;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;

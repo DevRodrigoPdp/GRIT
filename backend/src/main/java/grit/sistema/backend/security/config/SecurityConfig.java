@@ -1,11 +1,11 @@
 package grit.sistema.backend.security.config;
 
 import grit.sistema.backend.security.filter.CsrfCookieFilter;
+import grit.sistema.backend.security.filter.JwtAuthenticationFilter;
 import grit.sistema.backend.security.filter.MDCFilter;
 import grit.sistema.backend.security.filter.RateLimitFilter;
 import grit.sistema.backend.security.handler.CustomAccessDeniedHandler;
 import grit.sistema.backend.security.handler.JwtAuthenticationEntryPoint;
-import grit.sistema.backend.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -2,10 +2,8 @@ package grit.sistema.backend.service.coaching.impl;
 
 import grit.sistema.backend.clientAPI.PwnedPasswordClient;
 import grit.sistema.backend.dto.coaching.*;
-import grit.sistema.backend.entity.Usuario;
 import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
-import grit.sistema.backend.entity.coaching.DocumentoEntrenador;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.TitulacionEntrenamiento;
 import grit.sistema.backend.entity.coaching.enums.TitulacionNutricion;

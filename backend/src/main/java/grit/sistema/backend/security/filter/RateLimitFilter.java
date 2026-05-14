@@ -1,13 +1,10 @@
 package grit.sistema.backend.security.filter;
 
-import grit.sistema.backend.exception.infrastructure.RateLimitException;
 import grit.sistema.backend.entity.common.enums.RateLimitPlan;
+import grit.sistema.backend.exception.infrastructure.RateLimitException;
 import grit.sistema.backend.service.common.RateLimitService;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -1,17 +1,16 @@
 package grit.sistema.backend.controller.coaching;
 
+import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
 import grit.sistema.backend.dto.coaching.*;
 import grit.sistema.backend.dto.common.ApiResponseDTO;
-import grit.sistema.backend.dto.auth.PasswordUpdateDTO;
-import grit.sistema.backend.dto.nutrition.NotaResponseDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
 import grit.sistema.backend.dto.training.*;
 import grit.sistema.backend.security.model.UserPrincipal;
+import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.service.coaching.AtletaService;
 import grit.sistema.backend.service.nutrition.NutricionService;
 import grit.sistema.backend.service.training.EntrenamientoService;
 import grit.sistema.backend.service.training.PesoService;
-import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.service.user.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,14 +18,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
