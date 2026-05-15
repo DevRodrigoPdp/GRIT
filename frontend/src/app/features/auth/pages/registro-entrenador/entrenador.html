@@ -17,53 +17,100 @@
   <div class="flex flex-1">
 
     <!-- Left panel — info fija -->
-    <aside class="hidden lg:flex flex-col justify-between w-80 xl:w-96 border-r border-[#E5E7EB] p-12 flex-shrink-0 sticky top-0 self-start h-screen">
-      <div>
-        <div class="flex items-center gap-3 mb-8">
-          <div class="w-5 h-px bg-[#2ED38D]"></div>
-          <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">REGISTRO / ENTRENADOR</span>
-        </div>
-        <h1 class="text-4xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-6">
-          TU PERFIL<br>PROFESIONAL
-        </h1>
-        <p class="text-sm font-light leading-relaxed text-gray-400">
-          Verificamos tus credenciales para garantizar que cada atleta en la plataforma recibe asesoramiento de un profesional cualificado.
-        </p>
+    <aside
+      class="hidden lg:flex flex-col justify-between w-80 xl:w-96 flex-shrink-0 sticky top-0 self-start h-screen relative overflow-hidden"
+      style="background-image: url('/images/nutricion/ella-olsson-KPDbRyFOTnE-unsplash.jpg'); background-size: cover; background-position: center;">
+      <div class="absolute inset-0 bg-gradient-to-b from-black/85 via-black/75 to-black/90"></div>
+      <div class="relative z-10 flex flex-col justify-between h-full p-12">
+        <div>
+          <div class="flex items-center gap-3 mb-8">
+            <div class="w-5 h-px bg-[#2ED38D]"></div>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">REGISTRO / PROFESIONAL</span>
+          </div>
+          <h1 class="text-4xl font-black uppercase tracking-tighter text-white leading-[0.9] mb-6">
+            TU PERFIL<br>PROFESIONAL
+          </h1>
+          <p class="text-sm font-light leading-relaxed text-gray-300">
+            Verificamos tus credenciales para garantizar que cada atleta en la plataforma recibe asesoramiento de un profesional cualificado.
+          </p>
 
-        <!-- Steps -->
-        <div class="mt-12 flex flex-col gap-4">
-          <div class="flex items-center gap-4">
-            <div class="w-6 h-6 bg-black flex items-center justify-center flex-shrink-0">
-              <span class="text-[10px] font-bold text-[#2ED38D]">01</span>
+          <!-- Steps -->
+          <div class="mt-12 flex flex-col gap-4">
+
+            <div class="flex items-center gap-4">
+              <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 transition-all duration-500"
+                [class.bg-[#2ED38D]]="paso1Completo()"
+                [class.border]="!paso1Completo()"
+                [class.border-white/20]="!paso1Completo()">
+                <span class="text-[10px] font-bold transition-colors duration-300"
+                  [class.text-black]="paso1Completo()"
+                  [class.text-white/30]="!paso1Completo()">{{ paso1Completo() ? '✓' : '01' }}</span>
+              </div>
+              <span class="text-xs font-bold tracking-[0.15em] uppercase transition-colors duration-500"
+                [class.text-white]="paso1Completo()"
+                [class.text-white/40]="!paso1Completo()">Datos personales</span>
             </div>
-            <span class="text-xs font-bold tracking-[0.15em] uppercase text-black">Datos personales</span>
-          </div>
-          <div class="w-px h-4 bg-[#E5E7EB] ml-3"></div>
-          <div class="flex items-center gap-4">
-            <div class="w-6 h-6 bg-black flex items-center justify-center flex-shrink-0">
-              <span class="text-[10px] font-bold text-[#2ED38D]">02</span>
+
+            <div class="w-px h-4 ml-3 transition-colors duration-500"
+              [class.bg-[#2ED38D]/50]="paso1Completo()"
+              [class.bg-white/20]="!paso1Completo()"></div>
+
+            <div class="flex items-center gap-4">
+              <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 transition-all duration-500"
+                [class.bg-[#2ED38D]]="paso2Completo()"
+                [class.border]="!paso2Completo()"
+                [class.border-white/20]="!paso2Completo()">
+                <span class="text-[10px] font-bold transition-colors duration-300"
+                  [class.text-black]="paso2Completo()"
+                  [class.text-white/30]="!paso2Completo()">{{ paso2Completo() ? '✓' : '02' }}</span>
+              </div>
+              <span class="text-xs font-bold tracking-[0.15em] uppercase transition-colors duration-500"
+                [class.text-white]="paso2Completo()"
+                [class.text-white/40]="!paso2Completo()">Credenciales</span>
             </div>
-            <span class="text-xs font-bold tracking-[0.15em] uppercase text-black">Credenciales</span>
-          </div>
-          <div class="w-px h-4 bg-[#E5E7EB] ml-3"></div>
-          <div class="flex items-center gap-4">
-            <div class="w-6 h-6 border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
-              <span class="text-[10px] font-bold text-gray-300">03</span>
+
+            <div class="w-px h-4 ml-3 transition-colors duration-500"
+              [class.bg-[#2ED38D]/50]="paso2Completo()"
+              [class.bg-white/20]="!paso2Completo()"></div>
+
+            <div class="flex items-center gap-4">
+              <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 transition-all duration-500"
+                [class.bg-[#2ED38D]]="paso3Completo()"
+                [class.border]="!paso3Completo()"
+                [class.border-white/20]="!paso3Completo()">
+                <span class="text-[10px] font-bold transition-colors duration-300"
+                  [class.text-black]="paso3Completo()"
+                  [class.text-white/30]="!paso3Completo()">{{ paso3Completo() ? '✓' : '03' }}</span>
+              </div>
+              <span class="text-xs font-bold tracking-[0.15em] uppercase transition-colors duration-500"
+                [class.text-white]="paso3Completo()"
+                [class.text-white/40]="!paso3Completo()">Perfil profesional</span>
             </div>
-            <span class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300">Perfil profesional</span>
-          </div>
-          <div class="w-px h-4 bg-[#E5E7EB] ml-3"></div>
-          <div class="flex items-center gap-4">
-            <div class="w-6 h-6 border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
-              <span class="text-[10px] font-bold text-gray-300">04</span>
+
+            <div class="w-px h-4 ml-3 transition-colors duration-500"
+              [class.bg-[#2ED38D]/50]="paso3Completo()"
+              [class.bg-white/20]="!paso3Completo()"></div>
+
+            <div class="flex items-center gap-4">
+              <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 transition-all duration-500"
+                [class.bg-[#2ED38D]]="paso4Completo()"
+                [class.border]="!paso4Completo()"
+                [class.border-white/20]="!paso4Completo()">
+                <span class="text-[10px] font-bold transition-colors duration-300"
+                  [class.text-black]="paso4Completo()"
+                  [class.text-white/30]="!paso4Completo()">{{ paso4Completo() ? '✓' : '04' }}</span>
+              </div>
+              <span class="text-xs font-bold tracking-[0.15em] uppercase transition-colors duration-500"
+                [class.text-white]="paso4Completo()"
+                [class.text-white/40]="!paso4Completo()">Documentación</span>
             </div>
-            <span class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300">Documentación</span>
+
           </div>
         </div>
-      </div>
 
-      <div class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300">
-        PASO 03 / 04
+        <div class="text-xs font-bold tracking-[0.15em] uppercase text-white/40">
+          PASO 03 / 04
+        </div>
       </div>
     </aside>
 

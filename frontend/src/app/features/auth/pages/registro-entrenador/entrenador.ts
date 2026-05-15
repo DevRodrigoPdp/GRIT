@@ -179,6 +179,31 @@ export class EntrenadorPage implements OnInit {
     return !this._titEnt() && !this._titNutr();
   });
 
+  private readonly _formTick = signal(0);
+
+  readonly paso1Completo = computed(() => {
+    this._formTick();
+    return this.form.get('nombre')?.valid === true
+      && this.form.get('correo')?.valid === true
+      && this.form.get('password')?.valid === true
+      && this.form.get('confirmPassword')?.valid === true;
+  });
+
+  readonly paso2Completo = computed(() => {
+    this._formTick();
+    return (this._titEnt() !== null || this._titNutr() !== null)
+      && this.form.get('codigoColegiado')?.valid === true;
+  });
+
+  readonly paso3Completo = computed(() => {
+    this._formTick();
+    const sobreMi = this.form.get('sobreMi')?.value;
+    const anos    = this.form.get('anosExperiencia')?.value;
+    return !!(sobreMi?.trim()) || !!(anos) || this.mastersSeleccionados().size > 0 || this.archivos().length > 0;
+  });
+
+  readonly paso4Completo = computed(() => this.archivos().length > 0);
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
@@ -207,6 +232,7 @@ export class EntrenadorPage implements OnInit {
 
   ngOnInit(): void {
     this.form.get('password')!.valueChanges.subscribe(v => this._passwordValue.set(v ?? ''));
+    this.form.valueChanges.subscribe(() => this._formTick.update(v => v + 1));
   }
 
   passwordMatchValidator(group: FormGroup): ValidationErrors | null {

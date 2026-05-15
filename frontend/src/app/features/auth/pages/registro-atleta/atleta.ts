@@ -87,6 +87,38 @@ export class AtletaPage implements OnInit {
     return Object.keys(this.form.controls).filter(k => this.form.get(k)?.invalid).length;
   });
 
+  private readonly _formTick = signal(0);
+
+  readonly paso1Completo = computed(() => {
+    this._formTick();
+    return this.form.get('nombre')?.valid === true
+      && this.form.get('correo')?.valid === true
+      && this.form.get('password')?.valid === true
+      && this.form.get('confirmPassword')?.valid === true
+      && this.form.get('fechaNac')?.valid === true
+      && this.form.get('genero')?.valid === true;
+  });
+
+  readonly paso2Completo = computed(() => {
+    this._formTick();
+    return this.form.get('peso')?.valid === true
+      && this.form.get('altura')?.valid === true
+      && this.form.get('deporte')?.valid === true
+      && this.form.get('nivel')?.valid === true
+      && !this.form.hasError('imcInvalid');
+  });
+
+  readonly paso3Completo = computed(() => {
+    this._formTick();
+    return this.form.get('servicio')?.valid === true;
+  });
+
+  readonly paso4Completo = computed(() => {
+    this._formTick();
+    return this.form.get('objetivo')?.valid === true
+      && !!this.form.get('objetivo')?.value;
+  });
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       nombre:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
@@ -109,6 +141,7 @@ export class AtletaPage implements OnInit {
 
   ngOnInit(): void {
     this.form.get('password')!.valueChanges.subscribe(v => this._passwordValue.set(v ?? ''));
+    this.form.valueChanges.subscribe(() => this._formTick.update(v => v + 1));
   }
 
   private fechaNacValidator(control: any): ValidationErrors | null {
