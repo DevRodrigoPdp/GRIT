@@ -441,10 +441,11 @@
   </div>
 
   <!-- Body: sidebar sesiones + panel ejercicios -->
-  <div class="flex-1 min-h-0 flex overflow-hidden">
+  <div class="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden">
 
     <!-- Sidebar: lista de sesiones -->
-    <div class="w-48 flex-shrink-0 flex flex-col" style="border-right: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+    <div class="flex-shrink-0 flex flex-col max-h-44 md:max-h-none md:w-48 border-b md:border-b-0 md:border-r"
+      style="border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
 
       <!-- Header sidebar -->
       <div class="px-4 py-3 flex items-center justify-between flex-shrink-0"
@@ -654,9 +655,9 @@
   </div>
 
   <!-- Footer -->
-  <div class="flex-shrink-0 py-4 flex items-center justify-between gap-4"
+  <div class="flex-shrink-0 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
     style="border-top: 1px solid rgba(255,255,255,0.12);">
-    <div class="flex items-center gap-5">
+    <div class="flex items-center gap-5 flex-wrap">
       <div>
         <p class="text-[9px] font-bold tracking-[0.35em] uppercase" style="color: rgba(255,255,255,0.5);">SESIONES</p>
         <p class="text-xl font-black text-white leading-tight">{{ sesiones().length }}</p>
@@ -676,7 +677,7 @@
       <p class="text-xs font-bold text-red-400 mr-4">{{ errorGuardando() }}</p>
     }
     <button (click)="guardarRutina()" [disabled]="!nombreRutina().trim() || guardando()"
-      class="text-sm font-black tracking-[0.15em] uppercase px-8 py-3 transition-all"
+      class="w-full sm:w-auto text-sm font-black tracking-[0.15em] uppercase px-8 py-3 transition-all"
       [style]="nombreRutina().trim() && !guardando()
         ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black; box-shadow: 0 4px 16px rgba(46,211,141,0.2);'
         : 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: not-allowed;'">
