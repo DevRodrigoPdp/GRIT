@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { EntrenadorService, AtletaAsignado, PerfilEntrenador } from './services/entrenador.service';
 import { GestionNutricionComponent } from './components/gestion-nutricion/gestion-nutricion';
@@ -14,7 +15,7 @@ type Vista  = 'atletas' | 'perfil' | 'ajustes';
 @Component({
   selector: 'app-dashboard-entrenador',
   standalone: true,
-  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule, PerfilEntrenadorVistaComponent, ComunicacionComponent],
+  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule, PerfilEntrenadorVistaComponent, ComunicacionComponent, NgClass],
   templateUrl: './dashboard-entrenador.html',
 })
 export class DashboardEntrenadorPage implements OnInit {
@@ -34,7 +35,8 @@ export class DashboardEntrenadorPage implements OnInit {
   // ── Sidebar ───────────────────────────────────────────────────────────────
   sidebarPinned  = signal(false);
   sidebarHovered = signal(false);
-  readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered());
+  mobileMenuOpen = signal(false);
+  readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered() || this.mobileMenuOpen());
 
   // ── Desconectar atleta ────────────────────────────────────────────────────
   readonly confirmandoDesconectar = signal<string | null>(null);
@@ -134,6 +136,7 @@ export class DashboardEntrenadorPage implements OnInit {
   navegarA(vista: Vista): void {
     this.vistaActual.set(vista);
     this.atletaActivo.set(null);
+    this.mobileMenuOpen.set(false);
   }
 
   seleccionarAtleta(atleta: AtletaAsignado): void {
