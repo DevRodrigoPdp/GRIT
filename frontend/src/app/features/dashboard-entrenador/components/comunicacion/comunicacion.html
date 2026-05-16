@@ -67,15 +67,15 @@
         }
       </div>
       <!-- Filtros de categoría -->
-      <div class="flex gap-2">
+      <div class="flex gap-2 overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button (click)="filtroCategoria.set('TODOS')"
-          class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
+          class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
           [style]="filtroCategoria() === 'TODOS'
             ? 'background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: white;'
             : 'background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4);'">TODOS</button>
         @for (cat of categorias; track cat.value) {
         <button (click)="filtroCategoria.set(cat.value)"
-          class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
+          class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
           [style]="filtroCategoria() === cat.value
             ? 'background: ' + categoriaEstilo(cat.value).fondo + '; border: 1px solid ' + categoriaEstilo(cat.value).borde + '; color: ' + categoriaEstilo(cat.value).texto + ';'
             : 'background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4);'">{{ cat.label }}</button>

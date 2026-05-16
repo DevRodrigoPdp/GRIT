@@ -110,10 +110,10 @@
               </button>
             }
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               (click)="filtroCategoria.set('TODOS')"
-              class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
+              class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
               [style.background]="filtroCategoria() === 'TODOS' ? 'rgba(255,255,255,0.15)' : 'transparent'"
               [style.border]="filtroCategoria() === 'TODOS' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.12)'"
               [style.color]="filtroCategoria() === 'TODOS' ? 'white' : 'rgba(255,255,255,0.4)'"
@@ -121,7 +121,7 @@
             @for (cat of categorias; track cat.value) {
               <button
                 (click)="filtroCategoria.set(cat.value)"
-                class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
+                class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
                 [style.background-color]="filtroCategoria() === cat.value ? categoriaEstilo(cat.value).borde : 'transparent'"
                 [style.border]="filtroCategoria() === cat.value ? '1px solid ' + categoriaEstilo(cat.value).borde : '1px solid rgba(255,255,255,0.12)'"
                 [style.color]="filtroCategoria() === cat.value ? 'black' : 'rgba(255,255,255,0.4)'"

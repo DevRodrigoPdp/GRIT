@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet, NgClass } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import {
   AtletaService,
@@ -35,6 +35,7 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
     VistaProfesionalesComponent,
     FormsModule,
     NgTemplateOutlet,
+    NgClass,
   ],
   templateUrl: './dashboard-atleta.html',
 })
@@ -59,7 +60,8 @@ export class DashboardAtletaPage implements OnInit {
   // ── Sidebar ───────────────────────────────────────────────────────────────
   sidebarPinned  = signal(false);
   sidebarHovered = signal(false);
-  readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered());
+  mobileMenuOpen = signal(false);
+  readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered() || this.mobileMenuOpen());
 
   readonly navItems = computed(() => {
     const s = this.auth.servicio();
@@ -138,7 +140,7 @@ export class DashboardAtletaPage implements OnInit {
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────
-  navegarA(vista: Vista): void { this.vistaActual.set(vista); }
+  navegarA(vista: Vista): void { this.vistaActual.set(vista); this.mobileMenuOpen.set(false); }
 
   // ── Registro de peso (cuaderno check-in) ──────────────────────────────────
   pesoInputValido(): boolean {

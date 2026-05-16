@@ -366,7 +366,7 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
     const map: Record<CategoriaHilo, { borde: string; texto: string; fondo: string }> = {
       tecnica: { borde: '#2ED38D', texto: '#2ED38D', fondo: 'rgba(46,211,141,0.06)' },
       duda: { borde: '#F97316', texto: '#F97316', fondo: 'rgba(249,115,22,0.06)' },
-      apunte: { borde: '#000000', texto: '#000000', fondo: 'rgba(0,0,0,0.02)' },
+      apunte: { borde: '#A78BFA', texto: '#A78BFA', fondo: 'rgba(167,139,250,0.06)' },
     };
     return map[cat];
   }
