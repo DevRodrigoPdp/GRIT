@@ -31,6 +31,11 @@ export class DashboardEntrenadorPage implements OnInit {
   filtroServicio = signal<Filtro>('TODOS');
   codigoCopiado  = signal(false);
 
+  // ── Sidebar ───────────────────────────────────────────────────────────────
+  sidebarPinned  = signal(false);
+  sidebarHovered = signal(false);
+  readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered());
+
   // ── Desconectar atleta ────────────────────────────────────────────────────
   readonly confirmandoDesconectar = signal<string | null>(null);
   readonly desconectando          = signal(false);

@@ -56,6 +56,11 @@ export class DashboardAtletaPage implements OnInit {
   // ── Navegación ────────────────────────────────────────────────────────────
   readonly vistaActual = signal<Vista>('entrenamiento');
 
+  // ── Sidebar ───────────────────────────────────────────────────────────────
+  sidebarPinned  = signal(false);
+  sidebarHovered = signal(false);
+  readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered());
+
   readonly navItems = computed(() => {
     const s = this.auth.servicio();
     const items: { id: Vista; label: string }[] = [];
