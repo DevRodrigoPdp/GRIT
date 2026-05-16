@@ -9,11 +9,16 @@
     <div class="h-px flex-shrink-0" style="background: linear-gradient(90deg, transparent, rgba(46,211,141,0.4), transparent)"></div>
 
     <!-- Header -->
-    <div class="px-8 py-5 flex items-center justify-between flex-shrink-0"
+    <div class="px-5 md:px-8 py-4 md:py-5 flex items-center justify-between flex-shrink-0"
       style="background: linear-gradient(180deg, rgba(7,7,13,0.9) 0%, rgba(10,10,18,0.7) 100%); border-bottom: 1px solid rgba(255,255,255,0.06);">
       <div>
         <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-0.5">{{ sesion?.nombre }}</p>
-        <span class="text-lg font-black uppercase tracking-tighter text-white">EJERCICIOS DE LA SESIÓN</span>
+        <div class="flex items-center gap-3">
+          <span class="text-base md:text-lg font-black uppercase tracking-tighter text-white">AÑADIR EJERCICIOS</span>
+          @if ((sesion?.ejercicios?.length ?? 0) > 0) {
+            <span class="md:hidden text-xs font-black text-[#2ED38D]">{{ sesion?.ejercicios?.length }} añadidos</span>
+          }
+        </div>
       </div>
       <button type="button" (click)="cerrarModal()" class="text-xl leading-none transition-colors"
         style="color: rgba(255,255,255,0.4);"
@@ -22,11 +27,11 @@
 
     @let esDescanso = nuevoNombre().toLowerCase().includes('descanso');
 
-    <!-- Body: dos columnas -->
-    <div class="flex flex-1 min-h-0 overflow-hidden">
+    <!-- Body: dos columnas (una en móvil) -->
+    <div class="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
 
-      <!-- Columna izquierda: resumen ejercicios añadidos -->
-      <div class="w-2/5 flex flex-col" style="border-right: 1px solid rgba(255,255,255,0.06);">
+      <!-- Columna izquierda: oculta en móvil -->
+      <div class="hidden md:flex w-2/5 flex-col" style="border-right: 1px solid rgba(255,255,255,0.06);">
         <div class="px-6 py-4 flex items-center justify-between flex-shrink-0"
           style="border-bottom: 1px solid rgba(255,255,255,0.06);">
           <span class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.4);">AÑADIDOS</span>
@@ -64,8 +69,8 @@
         </div>
       </div>
 
-      <!-- Columna derecha: formulario -->
-      <div class="flex-1 flex flex-col overflow-y-auto px-8 py-6 gap-6">
+      <!-- Columna derecha: formulario (full width en móvil) -->
+      <div class="flex-1 flex flex-col overflow-y-auto px-5 md:px-8 py-5 md:py-6 gap-5 md:gap-6">
 
         <!-- Nombre -->
         @if (!esDescanso) {
@@ -626,19 +631,19 @@
                       class="w-11 text-xs font-black text-white text-center outline-none bg-transparent border-b border-white/25 focus:border-white/50 transition-colors pb-0.5" />
                     <span class="text-[10px] font-medium ml-0.5" style="color: rgba(255,255,255,0.45);">reps</span>
                   </div>
-                  <!-- Notas -->
+                  <!-- Notas: ocultas en móvil -->
                   <input [value]="ej.notas"
                     (change)="actualizarEjercicio(si, ej.id, 'notas', $any($event.target).value)"
                     placeholder="Notas..."
-                    class="text-xs font-light placeholder:text-white/25 outline-none border-b border-transparent focus:border-white/20 transition-colors bg-transparent min-w-0"
+                    class="hidden md:inline-block text-xs font-light placeholder:text-white/25 outline-none border-b border-transparent focus:border-white/20 transition-colors bg-transparent min-w-0"
                     style="color: rgba(255,255,255,0.55); flex: 1 1 6rem;" />
                 </div>
               }
             </div>
 
-            <!-- Eliminar (visible en hover) -->
+            <!-- Eliminar: siempre visible en móvil, hover en desktop -->
             <button (click)="quitarEjercicio(si, ej.id)"
-              class="w-9 flex-shrink-0 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity text-sm"
+              class="w-9 flex-shrink-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/card:opacity-100 transition-opacity text-sm"
               style="color: rgba(255,255,255,0.35); border-left: 1px solid rgba(255,255,255,0.07);"
               onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='rgba(255,255,255,0.35)'">✕</button>
           </div>
