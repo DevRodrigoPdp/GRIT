@@ -441,14 +441,16 @@
   </div>
 
   <!-- Body: sidebar sesiones + panel ejercicios -->
-  <div class="flex-1 min-h-0 overflow-y-auto md:overflow-hidden md:flex">
+  <div class="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
 
-    <!-- Sidebar: lista de sesiones -->
-    <div class="md:flex-shrink-0 md:flex md:flex-col md:w-48 border-b md:border-b-0 md:border-r"
+    <!-- Sesiones: chips horizontales en móvil, sidebar vertical en desktop -->
+    <div class="flex-shrink-0
+                flex flex-row gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b
+                md:flex-col md:gap-0 md:p-0 md:overflow-x-hidden md:overflow-y-auto md:w-48 md:border-b-0 md:border-r"
       style="border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
 
-      <!-- Header sidebar -->
-      <div class="px-4 py-3 flex items-center justify-between flex-shrink-0"
+      <!-- Header desktop: SESIONES / +NUEVA -->
+      <div class="hidden md:flex px-4 py-3 items-center justify-between flex-shrink-0"
         style="border-bottom: 1px solid rgba(255,255,255,0.09);">
         <span class="text-[9px] font-bold tracking-[0.4em] uppercase" style="color: rgba(255,255,255,0.5);">SESIONES</span>
         <button (click)="agregarSesion()"
@@ -459,10 +461,19 @@
         </button>
       </div>
 
-      <!-- Sesiones lista -->
-      <div class="md:flex-1 md:overflow-y-auto">
-        @for (sesion of sesiones(); track sesion.id; let si = $index) {
-        <div class="group/sesion flex items-stretch cursor-pointer transition-colors"
+      @for (sesion of sesiones(); track sesion.id; let si = $index) {
+
+        <!-- Chip móvil -->
+        <button class="md:hidden flex-shrink-0 px-3 py-2 text-[11px] font-black uppercase tracking-tight transition-all"
+          [style]="sesionActivaIdx() === si
+            ? 'background: rgba(46,211,141,0.12); border: 1px solid rgba(46,211,141,0.4); color: #2ED38D;'
+            : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);'"
+          (click)="sesionActivaIdx.set(si); editandoNombreSesion.set(false)">
+          {{ sesion.nombre }}
+        </button>
+
+        <!-- Fila desktop -->
+        <div class="hidden md:flex group/sesion items-stretch cursor-pointer transition-colors"
           [style]="sesionActivaIdx() === si
             ? 'background: rgba(46,211,141,0.09); border-left: 2px solid #2ED38D;'
             : 'border-left: 2px solid transparent;'"
@@ -480,9 +491,7 @@
                 autofocus />
             } @else {
               <p class="text-xs font-black uppercase tracking-tight truncate leading-tight"
-                [style.color]="sesionActivaIdx() === si ? 'white' : 'rgba(255,255,255,0.62)'">
-                {{ sesion.nombre }}
-              </p>
+                [style.color]="sesionActivaIdx() === si ? 'white' : 'rgba(255,255,255,0.62)'">{{ sesion.nombre }}</p>
               <p class="text-[10px] font-medium mt-0.5 leading-none"
                 [style.color]="sesionActivaIdx() === si ? '#2ED38D' : 'rgba(255,255,255,0.38)'">
                 {{ sesion.ejercicios.length === 0 ? 'vacía' : sesion.ejercicios.length + ' ejerc.' }}
@@ -504,15 +513,21 @@
             </div>
           }
         </div>
-        }
-      </div>
+      }
+
+      <!-- + NUEVA: solo móvil (al final del strip) -->
+      <button class="md:hidden flex-shrink-0 px-3 py-2 text-[11px] font-black uppercase tracking-tight transition-colors"
+        style="border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.45);"
+        (click)="agregarSesion()">
+        + NUEVA
+      </button>
 
     </div>
 
     <!-- Panel ejercicios -->
     @let sesion = sesionActiva();
     @if (sesion) {
-    <div class="md:flex-1 md:min-h-0 md:flex md:flex-col md:overflow-hidden">
+    <div class="flex-1 min-h-0 flex flex-col md:overflow-hidden">
 
       <!-- Nombre sesión activa (editable) -->
       <div class="px-6 py-3 flex items-center gap-3 flex-shrink-0"
@@ -532,7 +547,7 @@
             <span class="text-sm font-black uppercase tracking-tight text-white">{{ sesion.nombre }}</span>
             <span class="rename-icon text-[11px] transition-opacity" style="color: rgba(255,255,255,0.5); opacity: 0.5;">✎</span>
           </button>
-          <span class="ml-auto text-[9px] font-bold tracking-widest uppercase" style="color: rgba(255,255,255,0.4);">
+          <span class="hidden md:block ml-auto text-[9px] font-bold tracking-widest uppercase" style="color: rgba(255,255,255,0.4);">
             VISIBLE PARA EL ATLETA
           </span>
         }
