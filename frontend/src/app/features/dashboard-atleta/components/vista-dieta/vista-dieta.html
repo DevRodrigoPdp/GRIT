@@ -81,32 +81,53 @@
         <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.5)">COMIDAS DEL DÍA</p>
         <span class="text-[10px] font-black text-[#2ED38D]">{{ plan()!.comidas.length }}</span>
       </div>
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-4">
         @for (comida of plan()!.comidas; track $index) {
-          <div style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
-            <div class="px-5 py-3.5 flex items-center justify-between"
-              style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.04);">
-              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ comida.nombre }}</p>
-              <span class="text-xs font-black text-[#2ED38D]">{{ totalKcalComida(comida.alimentos) }} kcal</span>
+          <div class="overflow-hidden" style="border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);">
+
+            <!-- Top accent line -->
+            <div class="h-px w-full" style="background: linear-gradient(90deg, #2ED38D 0%, rgba(46,211,141,0.2) 60%, transparent 100%)"></div>
+
+            <!-- Cabecera -->
+            <div class="px-5 py-4 flex items-center justify-between"
+              style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+              <p class="text-sm font-black tracking-[0.15em] uppercase text-white">{{ comida.nombre }}</p>
+              <div class="text-right">
+                <span class="text-xl font-black text-white leading-none">{{ totalKcalComida(comida.alimentos) }}</span>
+                <span class="text-[10px] font-bold ml-1" style="color: rgba(255,255,255,0.4)">kcal</span>
+              </div>
             </div>
-            <div class="px-5">
+
+            <!-- Alimentos -->
+            <div>
               @for (alimento of comida.alimentos; track $index; let last = $last) {
-                <div class="flex items-center justify-between py-3 gap-4"
-                  [style]="last ? '' : 'border-bottom: 1px solid rgba(255,255,255,0.05);'">
-                  <span class="text-sm text-white font-light flex-1 min-w-0 truncate">{{ alimento.nombre }}</span>
+                <div class="flex items-center justify-between px-5 py-3 gap-4 transition-colors"
+                  [style]="last ? '' : 'border-bottom: 1px solid rgba(255,255,255,0.04);'"
+                  onmouseenter="this.style.background='rgba(255,255,255,0.03)'"
+                  onmouseleave="this.style.background=''">
+                  <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255,255,255,0.25)"></div>
+                    <span class="text-sm text-white font-light truncate">{{ alimento.nombre }}</span>
+                  </div>
                   <div class="flex items-center gap-3 flex-shrink-0">
-                    <span class="text-xs font-bold" style="color: rgba(255,255,255,0.4)">{{ alimento.cantidadG }}g</span>
+                    <span class="text-xs font-bold tabular-nums" style="color: rgba(255,255,255,0.35)">{{ alimento.cantidadG }}g</span>
                     @if (alimento.kcal) {
-                      <span class="text-[10px] font-black px-2 py-0.5" style="background: rgba(46,211,141,0.08); color: #2ED38D;">{{ alimento.kcal }} kcal</span>
+                      <span class="text-[11px] font-black tabular-nums" style="color: #2ED38D; min-width: 3.5rem; text-align: right;">{{ alimento.kcal }} kcal</span>
+                    } @else {
+                      <span class="min-w-[3.5rem]"></span>
                     }
                   </div>
                 </div>
               }
             </div>
+
             @if (comida.notas) {
-              <div class="px-5 py-3.5" style="border-top: 1px solid rgba(255,255,255,0.06); background: rgba(46,211,141,0.03);">
-                <p class="text-[9px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1.5">NOTA</p>
-                <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.5)">{{ comida.notas }}</p>
+              <div class="px-5 py-4 flex gap-3" style="border-top: 1px solid rgba(255,255,255,0.06); background: rgba(46,211,141,0.03);">
+                <div class="w-0.5 flex-shrink-0 self-stretch bg-[#2ED38D] opacity-40 rounded-full"></div>
+                <div>
+                  <p class="text-[9px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">NOTA</p>
+                  <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.5)">{{ comida.notas }}</p>
+                </div>
               </div>
             }
           </div>
