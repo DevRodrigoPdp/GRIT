@@ -11,9 +11,12 @@
       onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
       onmouseleave="this.style.background=''">
       <p class="text-xs font-black tracking-[0.2em] uppercase text-white">CAMBIAR CONTRASEÑA</p>
-      <span class="text-[10px] font-bold tracking-widest" style="color: rgba(255,255,255,0.45)">{{ passAbierto() ? '▲' : '▼' }}</span>
+      <svg class="w-4 h-4 flex-shrink-0 transition-transform duration-300" [class.rotate-180]="passAbierto()" style="color: rgba(255,255,255,0.4);" viewBox="0 0 16 16" fill="none">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+      </svg>
     </button>
-    @if (passAbierto()) {
+    <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" [style.gridTemplateRows]="passAbierto() ? '1fr' : '0fr'">
+      <div class="overflow-hidden">
       <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
         @if (passCambiada()) {
           <div class="px-5 py-4 mt-4 mb-2" role="status" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.25);">
@@ -121,7 +124,8 @@
           </button>
         </div>
       </div>
-    }
+      </div>
+    </div>
   </div>
 
   <!-- Editar perfil deportivo -->
@@ -132,9 +136,12 @@
       onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
       onmouseleave="this.style.background=''">
       <p class="text-xs font-black tracking-[0.2em] uppercase text-white">EDITAR PERFIL</p>
-      <span class="text-[10px] font-bold tracking-widest" style="color: rgba(255,255,255,0.45)">{{ perfilAbierto() ? '▲' : '▼' }}</span>
+      <svg class="w-4 h-4 flex-shrink-0 transition-transform duration-300" [class.rotate-180]="perfilAbierto()" style="color: rgba(255,255,255,0.4);" viewBox="0 0 16 16" fill="none">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+      </svg>
     </button>
-    @if (perfilAbierto()) {
+    <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" [style.gridTemplateRows]="perfilAbierto() ? '1fr' : '0fr'">
+      <div class="overflow-hidden">
       <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
         @if (perfilGuardado()) {
           <div class="px-5 py-4 mt-4 mb-2" role="status" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.25);">
@@ -159,29 +166,68 @@
               <p class="text-[10px] text-red-400 mt-1">{{ deporteError() }}</p>
             }
           </div>
-          <div>
+          <!-- NIVEL dropdown custom -->
+          <div class="relative">
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">NIVEL</label>
-            <select [value]="editNivel()" (change)="editNivel.set($any($event.target).value)"
-              class="w-full px-4 py-2.5 text-sm focus:outline-none cursor-pointer"
-              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; color-scheme: dark;"
-              onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
-              onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
-              @for (n of niveles; track n.value) {
-                <option [value]="n.value">{{ n.label }}</option>
-              }
-            </select>
+            <button type="button"
+              (click)="nivelDropdownOpen.set(!nivelDropdownOpen()); objetivoDropdownOpen.set(false)"
+              class="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors"
+              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;"
+              [style.borderColor]="nivelDropdownOpen() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'">
+              <span>{{ labelNivel() }}</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform" style="color: rgba(255,255,255,0.4);"
+                [class.rotate-180]="nivelDropdownOpen()"
+                viewBox="0 0 16 16" fill="none">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+              </svg>
+            </button>
+            @if (nivelDropdownOpen()) {
+              <div class="absolute z-20 w-full mt-0.5" style="background: #16161F; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
+                @for (n of niveles; track n.value) {
+                  <button type="button"
+                    (click)="editNivel.set(n.value); nivelDropdownOpen.set(false)"
+                    class="w-full px-4 py-2.5 text-sm text-left transition-colors"
+                    [style.color]="editNivel() === n.value ? '#2ED38D' : 'rgba(255,255,255,0.75)'"
+                    [style.background]="editNivel() === n.value ? 'rgba(46,211,141,0.08)' : 'transparent'"
+                    onmouseenter="this.style.background='rgba(255,255,255,0.06)'"
+                    onmouseleave="this.style.background= this.getAttribute('data-active') === 'true' ? 'rgba(46,211,141,0.08)' : 'transparent'"
+                    [attr.data-active]="editNivel() === n.value"
+                  >{{ n.label }}</button>
+                }
+              </div>
+            }
           </div>
-          <div>
+
+          <!-- OBJETIVO dropdown custom -->
+          <div class="relative">
             <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">OBJETIVO</label>
-            <select [value]="editObjetivo() ?? ''" (change)="editObjetivo.set($any($event.target).value || null)"
-              class="w-full px-4 py-2.5 text-sm focus:outline-none cursor-pointer"
-              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; color-scheme: dark;"
-              onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
-              onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
-              @for (o of objetivos; track o.label) {
-                <option [value]="o.value ?? ''">{{ o.label }}</option>
-              }
-            </select>
+            <button type="button"
+              (click)="objetivoDropdownOpen.set(!objetivoDropdownOpen()); nivelDropdownOpen.set(false)"
+              class="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors"
+              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;"
+              [style.borderColor]="objetivoDropdownOpen() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'">
+              <span>{{ labelObjetivoEdit() }}</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform" style="color: rgba(255,255,255,0.4);"
+                [class.rotate-180]="objetivoDropdownOpen()"
+                viewBox="0 0 16 16" fill="none">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+              </svg>
+            </button>
+            @if (objetivoDropdownOpen()) {
+              <div class="absolute z-20 w-full mt-0.5" style="background: #16161F; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
+                @for (o of objetivos; track o.label) {
+                  <button type="button"
+                    (click)="editObjetivo.set(o.value); objetivoDropdownOpen.set(false)"
+                    class="w-full px-4 py-2.5 text-sm text-left transition-colors"
+                    [style.color]="editObjetivo() === o.value ? '#2ED38D' : 'rgba(255,255,255,0.75)'"
+                    [style.background]="editObjetivo() === o.value ? 'rgba(46,211,141,0.08)' : 'transparent'"
+                    onmouseenter="this.style.background='rgba(255,255,255,0.06)'"
+                    onmouseleave="this.style.background= this.getAttribute('data-active') === 'true' ? 'rgba(46,211,141,0.08)' : 'transparent'"
+                    [attr.data-active]="editObjetivo() === o.value"
+                  >{{ o.label }}</button>
+                }
+              </div>
+            }
           </div>
           <div class="flex gap-4">
             <div class="flex-1">
@@ -292,7 +338,8 @@
           }
         </div>
       </div>
-    }
+      </div>
+    </div>
   </div>
 
   <!-- Tema -->
@@ -318,9 +365,12 @@
       onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
       onmouseleave="this.style.background=''">
       <p class="text-xs font-black tracking-[0.2em] uppercase text-red-400">ELIMINAR CUENTA</p>
-      <span class="text-[10px] font-bold tracking-widest" style="color: rgba(255,255,255,0.45)">{{ bajaAbierta() ? '▲' : '▼' }}</span>
+      <svg class="w-4 h-4 flex-shrink-0 transition-transform duration-300" [class.rotate-180]="bajaAbierta()" style="color: rgba(255,255,255,0.4);" viewBox="0 0 16 16" fill="none">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+      </svg>
     </button>
-    @if (bajaAbierta()) {
+    <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" [style.gridTemplateRows]="bajaAbierta() ? '1fr' : '0fr'">
+      <div class="overflow-hidden">
       <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
         @if (!confirmarBaja()) {
           <div class="mt-4">
@@ -361,6 +411,7 @@
           </div>
         }
       </div>
-    }
+      </div>
+    </div>
   </div>
 </div>

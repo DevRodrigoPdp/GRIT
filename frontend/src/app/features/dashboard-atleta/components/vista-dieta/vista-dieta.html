@@ -14,114 +14,152 @@
   </div>
 } @else {
 
-  <div class="mb-10 pb-8" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-    <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-2">PLAN NUTRICIONAL ACTIVO</p>
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-      <div>
-        <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{{ plan()!.nombre }}</h2>
-        <p class="text-sm font-light mt-1 max-w-lg" style="color: rgba(255,255,255,0.45)">{{ plan()!.descripcion }}</p>
-      </div>
-      <div class="flex items-center gap-6 flex-shrink-0">
-        <div>
-          <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.45)">KCAL / DÍA</span>
-          <span class="text-lg font-black text-white leading-none">{{ plan()!.kcalDiarias }}</span>
-        </div>
-        @if (plan()!.proteinas) {
-          <div>
-            <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.45)">PROTEÍNA</span>
-            <span class="text-lg font-black text-white leading-none">{{ plan()!.proteinas }}<span class="text-xs" style="color: rgba(255,255,255,0.45)">g</span></span>
-          </div>
-        }
-        @if (plan()!.carbos) {
-          <div>
-            <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.45)">CARBOS</span>
-            <span class="text-lg font-black text-white leading-none">{{ plan()!.carbos }}<span class="text-xs" style="color: rgba(255,255,255,0.45)">g</span></span>
-          </div>
-        }
-        @if (plan()!.grasas) {
-          <div>
-            <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.45)">GRASAS</span>
-            <span class="text-lg font-black text-white leading-none">{{ plan()!.grasas }}<span class="text-xs" style="color: rgba(255,255,255,0.45)">g</span></span>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-
-  @if (notas().length > 0) {
-    <div class="mb-10">
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-5" style="color: rgba(255,255,255,0.4)">NOTAS DE TU NUTRICIONISTA</p>
-      <div class="flex flex-col gap-3">
-        @for (nota of notas(); track nota.id) {
-          <div class="border-l-2 border-[#2ED38D] pl-4 py-1">
-            <p class="text-sm text-white font-light leading-relaxed">{{ nota.texto }}</p>
-            <p class="text-[10px] mt-1.5" style="color: rgba(255,255,255,0.45)">{{ formatFecha(nota.fecha) }}</p>
-          </div>
-        }
-      </div>
-    </div>
-  }
-
+  <!-- ── Cabecera del plan ───────────────────────────────────────────────── -->
   <div class="mb-10">
-    <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-5" style="color: rgba(255,255,255,0.4)">COMIDAS DEL DÍA</p>
-    <div class="flex flex-col gap-4">
-      @for (comida of plan()!.comidas; track $index) {
-        <div style="border: 1px solid rgba(255,255,255,0.08);">
-          <div class="px-5 py-4 flex items-center justify-between bg-black">
-            <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ comida.nombre }}</p>
-            <span class="text-[10px] font-bold text-[#2ED38D]">{{ totalKcalComida(comida.alimentos) }} kcal</span>
-          </div>
-          <div class="px-5 py-3 flex flex-col">
-            @for (alimento of comida.alimentos; track $index) {
-              <div class="flex items-center justify-between py-2.5 gap-4" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-                <span class="text-sm text-white font-light">{{ alimento.nombre }}</span>
-                <div class="flex items-center gap-4 flex-shrink-0">
-                  <span class="text-xs" style="color: rgba(255,255,255,0.45)">{{ alimento.cantidadG }}g</span>
-                  @if (alimento.kcal) {
-                    <span class="text-[10px] font-black w-14 text-right" style="color: rgba(255,255,255,0.45)">{{ alimento.kcal }} kcal</span>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-          @if (comida.notas) {
-            <div class="px-5 py-4" style="border-top: 1px solid rgba(255,255,255,0.08);">
-              <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-2">NOTA DE TU NUTRICIONISTA</p>
-              <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.5)">{{ comida.notas }}</p>
-            </div>
-          }
+    <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-3">PLAN NUTRICIONAL ACTIVO</p>
+    <div class="flex items-start justify-between gap-6 mb-6">
+      <div class="min-w-0">
+        <h2 class="text-3xl font-black uppercase tracking-tighter text-white leading-tight">{{ plan()!.nombre }}</h2>
+        @if (plan()!.descripcion) {
+          <p class="text-sm font-light mt-1.5 max-w-lg" style="color: rgba(255,255,255,0.45)">{{ plan()!.descripcion }}</p>
+        }
+      </div>
+      <div class="flex-shrink-0 text-right">
+        <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-1 text-[#2ED38D]">KCAL / DÍA</span>
+        <span class="text-4xl font-black text-white leading-none">{{ plan()!.kcalDiarias }}</span>
+      </div>
+    </div>
+
+    <!-- Macro cards -->
+    <div class="grid grid-cols-3 gap-3">
+      @if (plan()!.proteinas) {
+        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(255,255,255,0.4)">PROTEÍNA</span>
+          <span class="text-2xl font-black text-white leading-none">{{ plan()!.proteinas }}<span class="text-sm font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
+        </div>
+      }
+      @if (plan()!.carbos) {
+        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(255,255,255,0.4)">CARBOS</span>
+          <span class="text-2xl font-black text-white leading-none">{{ plan()!.carbos }}<span class="text-sm font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
+        </div>
+      }
+      @if (plan()!.grasas) {
+        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(255,255,255,0.4)">GRASAS</span>
+          <span class="text-2xl font-black text-white leading-none">{{ plan()!.grasas }}<span class="text-sm font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
         </div>
       }
     </div>
   </div>
 
-  @if (listaCompra().length > 0) {
-    <div>
-      <div class="flex items-center justify-between mb-5">
-        <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.4)">LISTA DE LA COMPRA</p>
-        <span class="text-[10px]" style="color: rgba(255,255,255,0.45)">{{ itemsCompraChecked().length }}/{{ listaCompra().length }}</span>
+  <!-- ── Notas del nutricionista ─────────────────────────────────────────── -->
+  @if (notas().length > 0) {
+    <div class="mb-10">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-4 h-px bg-[#2ED38D]"></div>
+        <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D]">NOTAS DE TU NUTRICIONISTA</p>
       </div>
-      <div style="border: 1px solid rgba(255,255,255,0.08);">
-        @for (item of listaCompra(); track $index) {
-          @let checked = itemsCompraChecked().includes(item.nombre);
-          <button type="button" (click)="toggleItemCompra(item.nombre)"
-            [attr.aria-label]="(checked ? 'Desmarcar' : 'Marcar') + ' ' + item.nombre"
-            class="w-full flex items-center gap-4 px-5 py-3 text-left transition-colors"
-            style="border-bottom: 1px solid rgba(255,255,255,0.05);"
-            onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
-            onmouseleave="this.style.background=''"
-          >
-            <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center transition-colors"
-              [class]="checked ? 'bg-black border-black border' : ''"
-              [style]="checked ? '' : 'border: 1px solid rgba(255,255,255,0.2);'">
-              @if (checked) { <span class="text-white text-[9px] font-black leading-none">✓</span> }
-            </div>
-            <span class="flex-1 text-sm font-light transition-colors"
-              [style]="checked ? 'color: rgba(255,255,255,0.25); text-decoration: line-through;' : ''"
-              [class]="checked ? '' : 'text-white'">{{ item.nombre }}</span>
-          </button>
+      <div class="flex flex-col gap-3">
+        @for (nota of notas(); track nota.id) {
+          <div class="px-4 py-3" style="border-left: 2px solid rgba(46,211,141,0.4); background: rgba(46,211,141,0.04);">
+            <p class="text-sm text-white font-light leading-relaxed">{{ nota.texto }}</p>
+            <p class="text-[10px] mt-2" style="color: rgba(255,255,255,0.35)">{{ formatFecha(nota.fecha) }}</p>
+          </div>
         }
       </div>
     </div>
   }
+
+  <!-- ── Comidas + Lista de la compra ─────────────────────────────────── -->
+  <div class="flex flex-col lg:flex-row gap-6 items-start">
+
+    <!-- Comidas del día (izquierda) -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-4 h-px bg-[#2ED38D]"></div>
+        <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.5)">COMIDAS DEL DÍA</p>
+        <span class="text-[10px] font-black text-[#2ED38D]">{{ plan()!.comidas.length }}</span>
+      </div>
+      <div class="flex flex-col gap-3">
+        @for (comida of plan()!.comidas; track $index) {
+          <div style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
+            <div class="px-5 py-3.5 flex items-center justify-between"
+              style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.04);">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ comida.nombre }}</p>
+              <span class="text-xs font-black text-[#2ED38D]">{{ totalKcalComida(comida.alimentos) }} kcal</span>
+            </div>
+            <div class="px-5">
+              @for (alimento of comida.alimentos; track $index; let last = $last) {
+                <div class="flex items-center justify-between py-3 gap-4"
+                  [style]="last ? '' : 'border-bottom: 1px solid rgba(255,255,255,0.05);'">
+                  <span class="text-sm text-white font-light flex-1 min-w-0 truncate">{{ alimento.nombre }}</span>
+                  <div class="flex items-center gap-3 flex-shrink-0">
+                    <span class="text-xs font-bold" style="color: rgba(255,255,255,0.4)">{{ alimento.cantidadG }}g</span>
+                    @if (alimento.kcal) {
+                      <span class="text-[10px] font-black px-2 py-0.5" style="background: rgba(46,211,141,0.08); color: #2ED38D;">{{ alimento.kcal }} kcal</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            @if (comida.notas) {
+              <div class="px-5 py-3.5" style="border-top: 1px solid rgba(255,255,255,0.06); background: rgba(46,211,141,0.03);">
+                <p class="text-[9px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1.5">NOTA</p>
+                <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.5)">{{ comida.notas }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Lista de la compra (derecha) -->
+    @if (listaCompra().length > 0) {
+      <div class="w-full lg:w-72 flex-shrink-0">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-4 h-px bg-[#2ED38D]"></div>
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.5)">LISTA DE LA COMPRA</p>
+        </div>
+        <!-- Progreso -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex-1 h-px" style="background: rgba(255,255,255,0.08);">
+            <div class="h-px bg-[#2ED38D] transition-all duration-500"
+              [style.width]="(itemsCompraChecked().length / listaCompra().length * 100) + '%'"></div>
+          </div>
+          <span class="text-[10px] font-black flex-shrink-0" style="color: rgba(255,255,255,0.4)">
+            {{ itemsCompraChecked().length }}<span style="color: rgba(255,255,255,0.25)">/{{ listaCompra().length }}</span>
+          </span>
+        </div>
+        <div style="border: 1px solid rgba(255,255,255,0.08);">
+          @for (item of listaCompra(); track $index) {
+            @let checked = itemsCompraChecked().includes(item.nombre);
+            <button type="button" (click)="toggleItemCompra(item.nombre)"
+              [attr.aria-label]="(checked ? 'Desmarcar' : 'Marcar') + ' ' + item.nombre"
+              class="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
+              style="border-bottom: 1px solid rgba(255,255,255,0.05);"
+              onmouseenter="this.style.background='rgba(255,255,255,0.03)'"
+              onmouseleave="this.style.background=''"
+            >
+              <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center transition-all"
+                [style]="checked
+                  ? 'background: #2ED38D; border: 1px solid #2ED38D;'
+                  : 'background: transparent; border: 1px solid rgba(255,255,255,0.2);'">
+                @if (checked) {
+                  <svg class="w-2.5 h-2.5" viewBox="0 0 10 10" fill="none">
+                    <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="black" stroke-width="1.5" stroke-linecap="square"/>
+                  </svg>
+                }
+              </div>
+              <span class="flex-1 text-sm font-light"
+                [style]="checked ? 'color: rgba(255,255,255,0.2); text-decoration: line-through;' : 'color: white;'">
+                {{ item.nombre }}
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
 }

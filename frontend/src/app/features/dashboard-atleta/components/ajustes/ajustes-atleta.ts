@@ -7,6 +7,18 @@ import { AuthService } from '../../../../core/services/auth.service';
   standalone: true,
   imports: [],
   templateUrl: './ajustes-atleta.html',
+  styles: [`
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 30px #0F0F1A inset !important;
+      -webkit-text-fill-color: white !important;
+      caret-color: white;
+    }
+  `],
 })
 export class AjustesAtletaComponent {
   private atleta = inject(AtletaService);
@@ -57,6 +69,11 @@ export class AjustesAtletaComponent {
   readonly editDeporte      = signal('');
   readonly editNivel        = signal<PerfilAtleta['nivel']>('PRINCIPIANTE');
   readonly editObjetivo     = signal<PerfilAtleta['objetivo']>(null);
+  readonly nivelDropdownOpen    = signal(false);
+  readonly objetivoDropdownOpen = signal(false);
+
+  labelNivel()   { return this.niveles.find(n => n.value === this.editNivel())?.label   ?? ''; }
+  labelObjetivoEdit() { return this.objetivos.find(o => o.value === this.editObjetivo())?.label ?? ''; }
   readonly editPeso         = signal(0);
   readonly editAltura       = signal(0);
   readonly guardandoPerfil  = signal(false);
