@@ -441,10 +441,10 @@
   </div>
 
   <!-- Body: sidebar sesiones + panel ejercicios -->
-  <div class="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden">
+  <div class="flex-1 min-h-0 overflow-y-auto md:overflow-hidden md:flex">
 
     <!-- Sidebar: lista de sesiones -->
-    <div class="flex-shrink-0 flex flex-col max-h-44 md:max-h-none md:w-48 border-b md:border-b-0 md:border-r"
+    <div class="md:flex-shrink-0 md:flex md:flex-col md:w-48 border-b md:border-b-0 md:border-r"
       style="border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
 
       <!-- Header sidebar -->
@@ -460,7 +460,7 @@
       </div>
 
       <!-- Sesiones lista -->
-      <div class="flex-1 overflow-y-auto">
+      <div class="md:flex-1 md:overflow-y-auto">
         @for (sesion of sesiones(); track sesion.id; let si = $index) {
         <div class="group/sesion flex items-stretch cursor-pointer transition-colors"
           [style]="sesionActivaIdx() === si
@@ -512,7 +512,7 @@
     <!-- Panel ejercicios -->
     @let sesion = sesionActiva();
     @if (sesion) {
-    <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+    <div class="md:flex-1 md:min-h-0 md:flex md:flex-col md:overflow-hidden">
 
       <!-- Nombre sesión activa (editable) -->
       <div class="px-6 py-3 flex items-center gap-3 flex-shrink-0"
@@ -539,7 +539,7 @@
       </div>
 
       <!-- Lista ejercicios -->
-      <div class="flex-1 overflow-y-auto px-6 py-4">
+      <div class="md:flex-1 md:overflow-y-auto px-6 py-4">
 
         @if (sesion.ejercicios.length === 0) {
           <div class="flex flex-col items-center justify-center min-h-[200px]"
