@@ -15,6 +15,11 @@ import { AlimentoEnPlan } from '../../services/nutricion.service';
   standalone: true,
   imports: [FormsModule, DecimalPipe],
   templateUrl: './buscador-alimento.html',
+  styles: [`
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+  `],
 })
 export class BuscadorAlimentoComponent {
   private svc = inject(AlimentosService);
