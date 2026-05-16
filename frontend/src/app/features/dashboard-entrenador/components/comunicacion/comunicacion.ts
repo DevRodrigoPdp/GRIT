@@ -123,6 +123,7 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   historialPesos = signal<CheckInPeso[]>([]);
   checkInPendiente = signal(false);
   solicitando = signal(false);
+  historialExpandido = signal(false);
 
   readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
     const pesos = this.historialPesos();
@@ -348,7 +349,7 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
     const map: Record<CategoriaHilo, { borde: string; texto: string; fondo: string }> = {
       tecnica: { borde: '#2ED38D', texto: '#2ED38D', fondo: 'rgba(46,211,141,0.06)' },
       duda: { borde: '#F97316', texto: '#F97316', fondo: 'rgba(249,115,22,0.06)' },
-      apunte: { borde: '#000000', texto: '#000000', fondo: 'rgba(0,0,0,0.02)' },
+      apunte: { borde: 'rgba(255,255,255,0.3)', texto: 'rgba(255,255,255,0.6)', fondo: 'rgba(255,255,255,0.03)' },
     };
     return map[cat];
   }
