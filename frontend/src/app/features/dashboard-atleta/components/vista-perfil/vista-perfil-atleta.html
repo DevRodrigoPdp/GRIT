@@ -1,7 +1,7 @@
 <div>
   <div class="mb-8">
-    <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">MI PERFIL</h2>
-    <p class="text-sm font-light text-gray-400 mt-1">Tus datos registrados en GRIT.</p>
+    <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">MI PERFIL</h2>
+    <p class="text-sm font-light mt-1" style="color: rgba(255,255,255,0.45)">Tus datos registrados en GRIT.</p>
   </div>
 
   <!-- Foto de perfil -->
@@ -9,7 +9,7 @@
     <div class="relative group">
       @if (perfilAtleta()?.fotoUrl) {
         <img [src]="perfilAtleta()!.fotoUrl!" alt="Foto de perfil"
-          class="w-20 h-20 object-cover border border-[#E5E7EB]" />
+          class="w-20 h-20 object-cover" style="border: 1px solid rgba(255,255,255,0.08);" />
       } @else {
         <div class="w-20 h-20 bg-black flex items-center justify-center">
           <span class="text-2xl font-black text-[#2ED38D] uppercase select-none">
@@ -27,8 +27,8 @@
       </button>
     </div>
     <div>
-      <p class="text-sm font-black text-black uppercase tracking-tight">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</p>
-      <p class="text-xs text-gray-400 font-light mt-0.5">Haz clic en la foto para cambiarla</p>
+      <p class="text-sm font-black text-white uppercase tracking-tight">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</p>
+      <p class="text-xs font-light mt-0.5" style="color: rgba(255,255,255,0.45)">Haz clic en la foto para cambiarla</p>
     </div>
     <input #fileInputFoto type="file" accept="image/*" class="hidden"
       (change)="seleccionarFotoPerfil($event)" />
@@ -39,45 +39,45 @@
 
     <!-- Datos personales (siempre solo lectura) -->
     <div class="mb-8">
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS PERSONALES</p>
-      <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
-        <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Nombre</span>
-          <span class="text-sm text-black font-light">{{ p.nombre }}</span>
+      <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(255,255,255,0.45)">DATOS PERSONALES</p>
+      <div style="border: 1px solid rgba(255,255,255,0.08);">
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Nombre</span>
+          <span class="text-sm text-white font-light">{{ p.nombre }}</span>
+        </div>
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Correo</span>
+          <span class="text-sm text-white font-light">{{ p.email }}</span>
+        </div>
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Fecha de nacimiento</span>
+          <span class="text-sm text-white font-light">{{ formatFecha(p.fechaNac) }}</span>
         </div>
         <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Correo</span>
-          <span class="text-sm text-black font-light">{{ p.email }}</span>
-        </div>
-        <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Fecha de nacimiento</span>
-          <span class="text-sm text-black font-light">{{ formatFecha(p.fechaNac) }}</span>
-        </div>
-        <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Género</span>
-          <span class="text-sm text-black font-light">{{ labelGenero(p.genero) }}</span>
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Género</span>
+          <span class="text-sm text-white font-light">{{ labelGenero(p.genero) }}</span>
         </div>
       </div>
     </div>
 
     <!-- Datos deportivos -->
     <div class="mb-8">
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS DEPORTIVOS</p>
-      <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+      <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(255,255,255,0.45)">DATOS DEPORTIVOS</p>
+      <div style="border: 1px solid rgba(255,255,255,0.08);">
 
-        <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Deporte</span>
-          <span class="text-sm text-black font-light">{{ p.deporte }}</span>
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Deporte</span>
+          <span class="text-sm text-white font-light">{{ p.deporte }}</span>
+        </div>
+
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Nivel</span>
+          <span class="text-sm text-white font-light">{{ labelNivel(p.nivel) }}</span>
         </div>
 
         <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Nivel</span>
-          <span class="text-sm text-black font-light">{{ labelNivel(p.nivel) }}</span>
-        </div>
-
-        <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Objetivo</span>
-          <span class="text-sm text-black font-light">{{ labelObjetivo(p.objetivo) }}</span>
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Objetivo</span>
+          <span class="text-sm text-white font-light">{{ labelObjetivo(p.objetivo) }}</span>
         </div>
 
       </div>
@@ -85,17 +85,17 @@
 
     <!-- Datos físicos -->
     <div class="mb-8">
-      <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">DATOS FÍSICOS</p>
-      <div class="border border-[#E5E7EB] divide-y divide-[#F3F4F6]">
+      <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(255,255,255,0.45)">DATOS FÍSICOS</p>
+      <div style="border: 1px solid rgba(255,255,255,0.08);">
 
-        <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Peso</span>
-          <span class="text-sm text-black font-light">{{ p.peso }} kg</span>
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Peso</span>
+          <span class="text-sm text-white font-light">{{ p.peso }} kg</span>
         </div>
 
         <div class="px-5 py-3.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-gray-400 tracking-wide">Altura</span>
-          <span class="text-sm text-black font-light">{{ p.altura }} cm</span>
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(255,255,255,0.45)">Altura</span>
+          <span class="text-sm text-white font-light">{{ p.altura }} cm</span>
         </div>
 
       </div>

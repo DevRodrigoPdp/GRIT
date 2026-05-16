@@ -3,11 +3,11 @@
     <div class="flex items-start justify-between gap-4 mb-4">
       <div>
         <p class="text-[10px] font-black tracking-[0.25em] uppercase text-[#2ED38D] mb-1">● REGISTRO DE PESO SOLICITADO</p>
-        <p class="text-sm text-gray-500 font-light">
-          Tu entrenador <span class="font-bold text-black">{{ solicitudCheckIn()!.solicitadoPor }}</span> solicita que registres tu peso actual.
+        <p class="text-sm font-light" style="color: rgba(255,255,255,0.5)">
+          Tu entrenador <span class="font-bold text-white">{{ solicitudCheckIn()!.solicitadoPor }}</span> solicita que registres tu peso actual.
         </p>
       </div>
-      <span class="text-[10px] text-gray-400 flex-shrink-0">{{ formatFecha(solicitudCheckIn()!.fecha) }}</span>
+      <span class="text-[10px] flex-shrink-0" style="color: rgba(255,255,255,0.45)">{{ formatFecha(solicitudCheckIn()!.fecha) }}</span>
     </div>
     <div class="flex items-center gap-3">
       <input
@@ -15,9 +15,10 @@
         [value]="pesoInputValor()"
         (input)="pesoInputValor.set($any($event.target).value)"
         aria-label="Tu peso en kilogramos"
-        class="border border-[#E5E7EB] px-3 py-2 text-sm text-black placeholder:text-gray-300 w-28 focus:outline-none focus:border-black font-mono bg-white transition-colors"
+        class="px-3 py-2 text-sm text-white w-28 focus:outline-none font-mono transition-colors"
+        style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); placeholder-color: rgba(255,255,255,0.3);"
       />
-      <span class="text-sm text-gray-400">kg</span>
+      <span class="text-sm" style="color: rgba(255,255,255,0.45)">kg</span>
       <button
         (click)="registrarPeso()"
         [disabled]="!pesoInputValido() || enviandoPeso()"
@@ -37,43 +38,43 @@
       <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">ENTRENAMIENTO</span>
       <div class="w-5 h-px bg-[#2ED38D]"></div>
     </div>
-    <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4">
+    <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white leading-[0.9] mb-4">
       TU PLAN DE<br>ENTRENAMIENTO
     </h2>
-    <p class="text-sm font-light text-gray-400 max-w-sm">
+    <p class="text-sm font-light max-w-sm" style="color: rgba(255,255,255,0.45)">
       Tu entrenador aún no ha creado tu plan. Aparecerá aquí en cuanto esté listo.
     </p>
   </div>
 } @else {
 
-  <div class="mb-10 pb-8 border-b border-[#E5E7EB]">
+  <div class="mb-10 pb-8" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
     <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-2">PLAN ACTIVO</p>
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">{{ plan()!.nombre }}</h2>
-        <p class="text-sm font-light text-gray-400 mt-1 max-w-lg">{{ plan()!.descripcion }}</p>
+        <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{{ plan()!.nombre }}</h2>
+        <p class="text-sm font-light mt-1 max-w-lg" style="color: rgba(255,255,255,0.45)">{{ plan()!.descripcion }}</p>
       </div>
       <div class="flex items-center gap-6 flex-shrink-0">
         <div>
-          <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SEMANA</span>
-          <span class="text-lg font-black text-black leading-none">
-            {{ plan()!.semanaActual ?? '—' }}<span class="text-gray-300 text-sm font-bold">/{{ plan()!.semanas ?? '—' }}</span>
+          <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.45)">SEMANA</span>
+          <span class="text-lg font-black text-white leading-none">
+            {{ plan()!.semanaActual ?? '—' }}<span class="text-sm font-bold" style="color: rgba(255,255,255,0.3)">/{{ plan()!.semanas ?? '—' }}</span>
           </span>
         </div>
         <div>
-          <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">SESIONES</span>
-          <span class="text-lg font-black text-black leading-none">{{ plan()!.sesiones.length }}</span>
+          <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.45)">SESIONES</span>
+          <span class="text-lg font-black text-white leading-none">{{ plan()!.sesiones.length }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <div class="mb-12">
-    <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-5">SESIONES DE LA SEMANA</p>
+    <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-5" style="color: rgba(255,255,255,0.4)">SESIONES DE LA SEMANA</p>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       @for (sesion of plan()!.sesiones; track $index) {
-        <div class="border border-[#E5E7EB] p-5 bg-white">
-          <p class="text-xs font-black tracking-[0.2em] uppercase text-black mb-4 pb-3 border-b border-[#E5E7EB]">{{ sesion.nombre }}</p>
+        <div class="p-5" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+          <p class="text-xs font-black tracking-[0.2em] uppercase text-white mb-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08);">{{ sesion.nombre }}</p>
           <div class="flex flex-col gap-1">
             @for (ej of sesion.ejercicios; track $index) {
               @let activo = ejercicioActivo()?.sesion === sesion.nombre && ejercicioActivo()?.nombre === ej.nombre;
@@ -82,23 +83,26 @@
                   type="button"
                   (click)="toggleEjercicio(sesion.nombre, ej.nombre)"
                   class="w-full flex items-start justify-between gap-3 px-3 py-2.5 -mx-3 text-left transition-colors"
-                  [class]="activo ? 'bg-black' : (ej.notas ? 'hover:bg-[#F9FAFB] cursor-pointer' : 'cursor-default')"
+                  [class]="activo ? 'bg-black' : (ej.notas ? 'cursor-pointer' : 'cursor-default')"
+                  [style]="(!activo && ej.notas) ? '' : ''"
+                  onmouseenter="if(!this.classList.contains('bg-black') && this.classList.contains('cursor-pointer')) this.style.background='rgba(255,255,255,0.04)'"
+                  onmouseleave="if(!this.classList.contains('bg-black')) this.style.background=''"
                 >
                   <div class="min-w-0">
-                    <span class="text-sm leading-tight block" [class]="activo ? 'text-white font-bold' : 'text-black'">{{ ej.nombre }}</span>
+                    <span class="text-sm leading-tight block" [class]="activo ? 'text-white font-bold' : ''" [style]="activo ? '' : 'color: rgba(255,255,255,0.85)'">{{ ej.nombre }}</span>
                     @if (ej.notas && !activo) {
                       <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-[#2ED38D]">● nota</span>
                     }
                   </div>
                   <div class="flex-shrink-0 text-right">
-                    <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : 'text-black'">{{ ej.series }}×{{ ej.reps }}</span>
-                    @if (ej.descanso) { <span class="text-[10px] text-gray-400">{{ ej.descanso }}</span> }
+                    <span class="text-[10px] font-black tracking-[0.05em] uppercase block" [class]="activo ? 'text-[#2ED38D]' : ''" [style]="activo ? '' : 'color: rgba(255,255,255,0.85)'">{{ ej.series }}×{{ ej.reps }}</span>
+                    @if (ej.descanso) { <span class="text-[10px]" style="color: rgba(255,255,255,0.45)">{{ ej.descanso }}</span> }
                   </div>
                 </button>
                 @if (activo && ej.notas) {
                   <div class="ml-1 mt-1 mb-1 pl-3 py-2 border-l-2 border-[#2ED38D]">
                     <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">NOTA DEL ENTRENADOR</p>
-                    <p class="text-sm text-gray-600 font-light leading-relaxed">{{ ej.notas }}</p>
+                    <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.55)">{{ ej.notas }}</p>
                   </div>
                 }
               </div>

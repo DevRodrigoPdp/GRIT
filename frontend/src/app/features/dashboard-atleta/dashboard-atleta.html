@@ -1,9 +1,10 @@
-<div class="h-screen bg-[#F9FAFB] flex flex-col overflow-hidden">
+<div class="h-screen flex flex-col overflow-hidden"
+  style="background: linear-gradient(135deg, #0C0C14 0%, #12121C 50%, #0E0E18 100%);">
 
   <!-- ── Spinner de carga ── -->
   @if (cargando()) {
-    <div class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center gap-8">
-      <span class="font-black tracking-tighter text-2xl text-black uppercase select-none">GRIT</span>
+    <div class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center gap-8">
+      <span class="font-black tracking-tighter text-2xl text-white uppercase select-none">GRIT</span>
       <div class="relative w-8 h-8">
         <svg class="w-8 h-8 animate-spin" viewBox="0 0 40 40" fill="none">
           <circle cx="20" cy="20" r="17" stroke="#E5E7EB" stroke-width="2.5"/>
@@ -14,18 +15,21 @@
   }
 
   <!-- ── Top bar ── -->
-  <header class="border-b border-[#E5E7EB] px-6 h-14 flex items-center justify-between flex-shrink-0 bg-white z-10">
-    <span class="font-black tracking-tighter text-lg text-black uppercase select-none">GRIT</span>
-    <span class="text-sm font-black uppercase tracking-tight text-black">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</span>
+  <header class="border-b px-6 h-14 flex items-center justify-between flex-shrink-0 z-10"
+    style="background: linear-gradient(90deg, #08080E 0%, #0F0F18 50%, #08080E 100%); border-color: rgba(255,255,255,0.06);">
+    <span class="font-black tracking-tighter text-lg text-white uppercase select-none">GRIT</span>
+    <span class="text-sm font-black uppercase tracking-tight text-white">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</span>
   </header>
 
   <div class="flex-1 min-h-0 flex overflow-hidden">
 
     <!-- ── Aside lateral ── -->
-    <aside class="flex-shrink-0 w-14 lg:w-56 border-r border-[#E5E7EB] flex flex-col bg-white">
+    <aside class="flex-shrink-0 w-14 lg:w-56 flex flex-col"
+      style="background: linear-gradient(180deg, #08080E 0%, #0F0F1A 100%); border-right: 1px solid rgba(255,255,255,0.05);">
 
       <!-- Identidad del atleta -->
-      <div class="border-b border-[#E5E7EB] px-4 lg:px-5 py-4 flex items-center gap-3">
+      <div class="px-4 lg:px-5 py-4 flex items-center gap-3"
+        style="border-bottom: 1px solid rgba(255,255,255,0.06);">
         @if (perfilAtleta()?.fotoUrl) {
           <img [src]="perfilAtleta()!.fotoUrl!" alt="Foto de perfil"
             class="w-8 h-8 object-cover flex-shrink-0" />
@@ -37,7 +41,7 @@
           </div>
         }
         <div class="hidden lg:block min-w-0">
-          <p class="text-xs font-black uppercase tracking-tight text-black leading-none truncate">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</p>
+          <p class="text-xs font-black uppercase tracking-tight text-white leading-none truncate">{{ perfilAtleta()?.nombre ?? auth.nombre() }}</p>
           <p class="text-[10px] text-[#2ED38D] font-bold mt-0.5">
             @switch (auth.servicio()) {
               @case ('ENTRENAMIENTO') { Entrenamiento }
@@ -49,15 +53,16 @@
       </div>
 
       <!-- Navegación -->
-      <nav class="py-2 flex-1" aria-label="Navegación principal">
+      <nav class="py-2 flex-1 px-2" aria-label="Navegación principal">
         @for (item of navItems(); track item.id) {
           <button
             (click)="navegarA(item.id)"
             [attr.aria-label]="item.label"
             [attr.aria-current]="vistaActual() === item.id ? 'page' : null"
-            [class]="vistaActual() === item.id
-              ? 'flex items-center gap-3 px-4 lg:px-5 py-3.5 text-black bg-[#F9FAFB] border-r-2 border-black w-full'
-              : 'flex items-center gap-3 px-4 lg:px-5 py-3.5 text-gray-400 hover:text-black hover:bg-[#F9FAFB] transition-colors w-full'"
+            class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
+            [style]="vistaActual() === item.id
+              ? 'background: linear-gradient(90deg, rgba(46,211,141,0.18) 0%, rgba(46,211,141,0.06) 100%); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D;'
+              : 'color: rgba(255,255,255,0.50); border: 1px solid transparent;'"
           >
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
               @if (item.id === 'entrenamiento') {
@@ -89,11 +94,14 @@
       </nav>
 
       <!-- Cerrar sesión -->
-      <div class="border-t border-[#E5E7EB] pt-2 pb-3">
+      <div class="pt-2 pb-3 px-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
         <button
           (click)="auth.logout()"
           aria-label="Cerrar sesión"
-          class="flex items-center gap-3 px-4 lg:px-5 py-3.5 text-gray-300 hover:text-black transition-colors w-full"
+          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
+          style="color: rgba(255,255,255,0.4); border: 1px solid transparent;"
+          onmouseenter="this.style.color='rgba(255,255,255,0.8)'"
+          onmouseleave="this.style.color='rgba(255,255,255,0.4)'"
         >
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="square"/>
@@ -104,7 +112,7 @@
     </aside>
 
     <!-- ── Contenido principal ── -->
-    <main class="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col bg-[#F9FAFB]">
+    <main class="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col">
 
       @if (vistaActual() === 'entrenamiento') {
         <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10">
@@ -131,42 +139,44 @@
         <div class="flex-1 overflow-y-auto px-6 md:px-10 py-10">
 
           @if (auth.servicio() === 'AMBOS') {
-            <div class="flex border-b border-[#E5E7EB] mb-8" role="tablist">
+            <div class="flex mb-8" role="tablist"
+              style="border-bottom: 1px solid rgba(255,255,255,0.07);">
               <button type="button" role="tab"
                 (click)="contextoChat.set('ENTRENAMIENTO')"
                 [attr.aria-selected]="contextoChat() === 'ENTRENAMIENTO'"
                 class="py-3 px-5 text-xs font-black tracking-[0.2em] uppercase transition-colors relative"
-                [class.text-black]="contextoChat() === 'ENTRENAMIENTO'"
-                [class.text-gray-400]="contextoChat() !== 'ENTRENAMIENTO'">
+                [class.text-white]="contextoChat() === 'ENTRENAMIENTO'"
+                [style]="contextoChat() !== 'ENTRENAMIENTO' ? 'color: rgba(255,255,255,0.45)' : ''">
                 ENTRENADOR
                 @if (contextoChat() === 'ENTRENAMIENTO') {
-                  <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></span>
+                  <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
                 }
               </button>
               <button type="button" role="tab"
                 (click)="contextoChat.set('NUTRICION')"
                 [attr.aria-selected]="contextoChat() === 'NUTRICION'"
                 class="py-3 px-5 text-xs font-black tracking-[0.2em] uppercase transition-colors relative"
-                [class.text-black]="contextoChat() === 'NUTRICION'"
-                [class.text-gray-400]="contextoChat() !== 'NUTRICION'">
+                [class.text-white]="contextoChat() === 'NUTRICION'"
+                [style]="contextoChat() !== 'NUTRICION' ? 'color: rgba(255,255,255,0.45)' : ''">
                 NUTRICIONISTA
                 @if (contextoChat() === 'NUTRICION') {
-                  <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></span>
+                  <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
                 }
               </button>
             </div>
           }
 
           @if (solicitudCheckIn()) {
-            <div class="border border-[#2ED38D] p-5 mb-8">
+            <div class="p-5 mb-8"
+              style="background: rgba(46,211,141,0.05); border: 1px solid rgba(46,211,141,0.2); border-left: 2px solid #2ED38D;">
               <div class="flex items-center gap-3 mb-3">
                 <div class="w-4 h-px bg-[#2ED38D]"></div>
                 <span class="text-[10px] font-black tracking-[0.3em] uppercase text-[#2ED38D]">CHECK-IN DE PESO</span>
               </div>
-              <p class="text-sm text-gray-500 mb-1">
-                Solicitado por <span class="font-black text-black">{{ solicitudCheckIn()!.solicitadoPor }}</span>
+              <p class="text-sm mb-1" style="color: rgba(255,255,255,0.5);">
+                Solicitado por <span class="font-black text-white">{{ solicitudCheckIn()!.solicitadoPor }}</span>
               </p>
-              <p class="text-[11px] text-gray-400 mb-5">{{ solicitudCheckIn()!.fecha }}</p>
+              <p class="text-[11px] mb-5" style="color: rgba(255,255,255,0.4);">{{ solicitudCheckIn()!.fecha }}</p>
               <div class="flex gap-3 items-center">
                 <input
                   [ngModel]="pesoInputValor()"
@@ -174,9 +184,12 @@
                   type="number" min="30" max="300" step="0.1"
                   placeholder="79.5"
                   aria-label="Peso en kilogramos"
-                  class="w-28 border border-[#E5E7EB] px-3 py-2 text-sm font-mono text-black placeholder:text-gray-300 focus:outline-none focus:border-black transition-colors bg-white"
+                  class="w-28 px-3 py-2 text-sm font-mono focus:outline-none transition-colors"
+                  style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: white;"
+                  onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+                  onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                 />
-                <span class="text-sm text-gray-400">kg</span>
+                <span class="text-sm" style="color: rgba(255,255,255,0.45);">kg</span>
                 <button
                   (click)="registrarPeso()"
                   [disabled]="!pesoInputValido() || enviandoPeso()"
@@ -219,18 +232,18 @@
                 <div class="w-4 h-px bg-[#2ED38D]"></div>
                 <span class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D]">EVOLUCIÓN DEL PESO</span>
               </div>
-              <div class="border border-[#E5E7EB] p-5 bg-white">
+              <div class="p-5" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
                 <div class="flex items-center gap-8 mb-5">
                   <div>
-                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">INICIAL</span>
-                    <span class="text-xl font-black text-black">{{ historialPesos()[0].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.4);">INICIAL</span>
+                    <span class="text-xl font-black text-white">{{ historialPesos()[0].pesoKg }}<span class="text-xs ml-0.5" style="color: rgba(255,255,255,0.4);">kg</span></span>
                   </div>
                   <div>
-                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">ACTUAL</span>
-                    <span class="text-xl font-black text-black">{{ historialPesos()[historialPesos().length - 1].pesoKg }}<span class="text-xs text-gray-400 ml-0.5">kg</span></span>
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.4);">ACTUAL</span>
+                    <span class="text-xl font-black text-white">{{ historialPesos()[historialPesos().length - 1].pesoKg }}<span class="text-xs ml-0.5" style="color: rgba(255,255,255,0.4);">kg</span></span>
                   </div>
                   <div>
-                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-0.5">DIFERENCIA</span>
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.4);">DIFERENCIA</span>
                     @let diff = historialPesos()[historialPesos().length - 1].pesoKg - historialPesos()[0].pesoKg;
                     <span class="text-xl font-black" [class]="diff <= 0 ? 'text-[#2ED38D]' : 'text-red-500'">
                       {{ diff > 0 ? '+' : '' }}{{ diff.toFixed(1) }}<span class="text-xs ml-0.5">kg</span>
@@ -241,15 +254,16 @@
                   <svg viewBox="0 0 500 76" class="w-full mb-4" preserveAspectRatio="none" aria-hidden="true">
                     <polyline [attr.points]="chartData()!.polyline" stroke="#2ED38D" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
                     @for (pt of chartData()!.points; track $index; let last = $last) {
-                      <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="last ? 5 : 3" [attr.fill]="last ? '#000' : '#2ED38D'"/>
+                      <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="last ? 5 : 3" [attr.fill]="last ? '#2ED38D' : '#2ED38D'"/>
                     }
                   </svg>
                 }
-                <div class="flex flex-col divide-y divide-[#F3F4F6]">
+                <div class="flex flex-col">
                   @for (entrada of historialPesos(); track $index; let last = $last) {
-                    <div class="flex items-center justify-between py-2.5">
-                      <span class="text-xs text-gray-400">{{ formatFecha(entrada.fecha) }}</span>
-                      <span class="text-sm font-black" [class]="last ? 'text-black' : 'text-gray-400'">{{ entrada.pesoKg }} kg</span>
+                    <div class="flex items-center justify-between py-2.5"
+                      style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                      <span class="text-xs" style="color: rgba(255,255,255,0.4);">{{ formatFecha(entrada.fecha) }}</span>
+                      <span class="text-sm font-black" [style]="last ? 'color: white' : 'color: rgba(255,255,255,0.4)'">{{ entrada.pesoKg }} kg</span>
                     </div>
                   }
                 </div>

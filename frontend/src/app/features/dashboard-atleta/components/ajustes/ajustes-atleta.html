@@ -1,38 +1,46 @@
 <div>
   <div class="mb-8">
-    <h2 class="text-2xl font-black uppercase tracking-tighter text-black leading-tight">AJUSTES</h2>
+    <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">AJUSTES</h2>
   </div>
 
   <!-- Cambiar contraseña -->
-  <div class="mb-6 border border-[#E5E7EB]">
+  <div class="mb-6" style="border: 1px solid rgba(255,255,255,0.08);">
     <button type="button" (click)="passAbierto.set(!passAbierto())"
       [attr.aria-expanded]="passAbierto()"
-      class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
-      <p class="text-xs font-black tracking-[0.2em] uppercase text-black">CAMBIAR CONTRASEÑA</p>
-      <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ passAbierto() ? '▲' : '▼' }}</span>
+      class="w-full px-5 py-4 flex items-center justify-between transition-colors"
+      onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
+      onmouseleave="this.style.background=''">
+      <p class="text-xs font-black tracking-[0.2em] uppercase text-white">CAMBIAR CONTRASEÑA</p>
+      <span class="text-[10px] font-bold tracking-widest" style="color: rgba(255,255,255,0.45)">{{ passAbierto() ? '▲' : '▼' }}</span>
     </button>
     @if (passAbierto()) {
-      <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+      <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
         @if (passCambiada()) {
-          <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2" role="status">
+          <div class="px-5 py-4 mt-4 mb-2" role="status" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.25);">
             <p class="text-sm font-bold text-[#2ED38D]">Contraseña actualizada correctamente.</p>
           </div>
         }
         @if (passError()) {
-          <div class="border border-red-300 px-5 py-4 mt-4 mb-2" role="alert">
+          <div class="px-5 py-4 mt-4 mb-2" role="alert" style="background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.25);">
             <p class="text-sm text-red-500 font-light">{{ passError() }}</p>
           </div>
         }
         <div class="flex flex-col gap-4 mt-4">
           <div>
-            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONTRASEÑA ACTUAL</label>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">CONTRASEÑA ACTUAL</label>
             <div class="relative">
               <input [type]="showPassActual() ? 'text' : 'password'" [value]="passActual()"
                 (input)="passActual.set($any($event.target).value)"
                 autocomplete="current-password"
-                class="w-full border border-[#E5E7EB] px-4 py-2.5 pr-10 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+                class="w-full px-4 py-2.5 pr-10 text-sm focus:outline-none"
+                style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;"
+                onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
               <button type="button" (click)="showPassActual.update(v => !v)"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors" tabindex="-1">
+                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" tabindex="-1"
+                style="color: rgba(255,255,255,0.3);"
+                onmouseenter="this.style.color='white'"
+                onmouseleave="this.style.color='rgba(255,255,255,0.3)'">
                 @if (showPassActual()) {
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
                 } @else {
@@ -42,14 +50,20 @@
             </div>
           </div>
           <div>
-            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NUEVA CONTRASEÑA</label>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">NUEVA CONTRASEÑA</label>
             <div class="relative">
               <input [type]="showPassNueva() ? 'text' : 'password'" [value]="passNueva()"
                 (input)="passNueva.set($any($event.target).value)"
                 autocomplete="new-password"
-                class="w-full border border-[#E5E7EB] px-4 py-2.5 pr-10 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white" />
+                class="w-full px-4 py-2.5 pr-10 text-sm focus:outline-none"
+                style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;"
+                onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
               <button type="button" (click)="showPassNueva.update(v => !v)"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors" tabindex="-1">
+                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" tabindex="-1"
+                style="color: rgba(255,255,255,0.3);"
+                onmouseenter="this.style.color='white'"
+                onmouseleave="this.style.color='rgba(255,255,255,0.3)'">
                 @if (showPassNueva()) {
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
                 } @else {
@@ -60,7 +74,9 @@
             @if (passNueva()) {
               <ul class="mt-2 flex flex-col gap-1">
                 @for (r of passReglas(); track r.label) {
-                  <li class="flex items-center gap-1.5 text-[10px]" [class]="r.ok ? 'text-[#2ED38D]' : 'text-gray-300'">
+                  <li class="flex items-center gap-1.5 text-[10px]"
+                    [class]="r.ok ? 'text-[#2ED38D]' : ''"
+                    [style]="!r.ok ? 'color: rgba(255,255,255,0.3)' : ''">
                     <span>{{ r.ok ? '✓' : '○' }}</span>
                     <span>{{ r.label }}</span>
                   </li>
@@ -69,15 +85,20 @@
             }
           </div>
           <div>
-            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">CONFIRMAR NUEVA CONTRASEÑA</label>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">CONFIRMAR NUEVA CONTRASEÑA</label>
             <div class="relative">
               <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
                 (input)="passConfirm.set($any($event.target).value)"
                 autocomplete="new-password"
-                class="w-full border px-4 py-2.5 pr-10 text-sm text-black focus:outline-none transition-colors bg-white"
-                [class]="passConfirmError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
+                class="w-full px-4 py-2.5 pr-10 text-sm focus:outline-none"
+                [style]="passConfirmError() ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;' : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'"
+                onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
               <button type="button" (click)="showPassConfirm.update(v => !v)"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors" tabindex="-1">
+                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" tabindex="-1"
+                style="color: rgba(255,255,255,0.3);"
+                onmouseenter="this.style.color='white'"
+                onmouseleave="this.style.color='rgba(255,255,255,0.3)'">
                 @if (showPassConfirm()) {
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="square"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square"/></svg>
                 } @else {
@@ -94,7 +115,8 @@
             class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             [class]="passActual() && passNueva() && passConfirm() && !passConfirmError() && !cambiandoPass()
               ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black'
-              : 'bg-[#F3F4F6] text-gray-400'">
+              : ''"
+            [style]="!(passActual() && passNueva() && passConfirm() && !passConfirmError() && !cambiandoPass()) ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);' : ''">
             {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
           </button>
         </div>
@@ -103,49 +125,59 @@
   </div>
 
   <!-- Editar perfil deportivo -->
-  <div class="mb-6 border border-[#E5E7EB]">
+  <div class="mb-6" style="border: 1px solid rgba(255,255,255,0.08);">
     <button type="button" (click)="abrirEditarPerfil()"
       [attr.aria-expanded]="perfilAbierto()"
-      class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
-      <p class="text-xs font-black tracking-[0.2em] uppercase text-black">EDITAR PERFIL</p>
-      <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ perfilAbierto() ? '▲' : '▼' }}</span>
+      class="w-full px-5 py-4 flex items-center justify-between transition-colors"
+      onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
+      onmouseleave="this.style.background=''">
+      <p class="text-xs font-black tracking-[0.2em] uppercase text-white">EDITAR PERFIL</p>
+      <span class="text-[10px] font-bold tracking-widest" style="color: rgba(255,255,255,0.45)">{{ perfilAbierto() ? '▲' : '▼' }}</span>
     </button>
     @if (perfilAbierto()) {
-      <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+      <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
         @if (perfilGuardado()) {
-          <div class="border border-[#2ED38D] px-5 py-4 mt-4 mb-2" role="status">
+          <div class="px-5 py-4 mt-4 mb-2" role="status" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.25);">
             <p class="text-sm font-bold text-[#2ED38D]">Perfil actualizado correctamente.</p>
           </div>
         }
         @if (perfilError()) {
-          <div class="border border-red-300 px-5 py-4 mt-4 mb-2" role="alert">
+          <div class="px-5 py-4 mt-4 mb-2" role="alert" style="background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.25);">
             <p class="text-sm text-red-500 font-light">{{ perfilError() }}</p>
           </div>
         }
         <div class="flex flex-col gap-4 mt-4">
           <div>
-            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">DEPORTE</label>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">DEPORTE</label>
             <input type="text" [value]="editDeporte()"
               (input)="editDeporte.set($any($event.target).value)"
-              class="w-full border px-4 py-2.5 text-sm text-black focus:outline-none transition-colors bg-white"
-              [class]="deporteError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
+              class="w-full px-4 py-2.5 text-sm focus:outline-none"
+              [style]="deporteError() ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;' : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'"
+              onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+              onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
             @if (deporteError()) {
               <p class="text-[10px] text-red-400 mt-1">{{ deporteError() }}</p>
             }
           </div>
           <div>
-            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">NIVEL</label>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">NIVEL</label>
             <select [value]="editNivel()" (change)="editNivel.set($any($event.target).value)"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white cursor-pointer">
+              class="w-full px-4 py-2.5 text-sm focus:outline-none cursor-pointer"
+              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; color-scheme: dark;"
+              onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+              onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
               @for (n of niveles; track n.value) {
                 <option [value]="n.value">{{ n.label }}</option>
               }
             </select>
           </div>
           <div>
-            <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">OBJETIVO</label>
+            <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">OBJETIVO</label>
             <select [value]="editObjetivo() ?? ''" (change)="editObjetivo.set($any($event.target).value || null)"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black transition-colors bg-white cursor-pointer">
+              class="w-full px-4 py-2.5 text-sm focus:outline-none cursor-pointer"
+              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; color-scheme: dark;"
+              onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+              onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
               @for (o of objetivos; track o.label) {
                 <option [value]="o.value ?? ''">{{ o.label }}</option>
               }
@@ -153,28 +185,32 @@
           </div>
           <div class="flex gap-4">
             <div class="flex-1">
-              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">PESO</label>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">PESO</label>
               <div class="flex items-center gap-2">
                 <input type="number" [value]="editPeso()"
                   (input)="editPeso.set(+$any($event.target).value)"
                   min="30" max="300" step="0.1"
-                  class="flex-1 min-w-0 border px-4 py-2.5 text-sm text-black focus:outline-none transition-colors bg-white"
-                  [class]="pesoError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
-                <span class="text-xs text-gray-400 shrink-0">kg</span>
+                  class="flex-1 min-w-0 px-4 py-2.5 text-sm focus:outline-none"
+                  [style]="pesoError() ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;' : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'"
+                  onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+                  onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
+                <span class="text-xs shrink-0" style="color: rgba(255,255,255,0.4);">kg</span>
               </div>
               @if (pesoError()) {
                 <p class="text-[10px] text-red-400 mt-1">{{ pesoError() }}</p>
               }
             </div>
             <div class="flex-1">
-              <label class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-1.5">ALTURA</label>
+              <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45)">ALTURA</label>
               <div class="flex items-center gap-2">
                 <input type="number" [value]="editAltura()"
                   (input)="editAltura.set(+$any($event.target).value)"
                   min="100" max="250" step="1"
-                  class="flex-1 min-w-0 border px-4 py-2.5 text-sm text-black focus:outline-none transition-colors bg-white"
-                  [class]="alturaError() ? 'border-red-400 focus:border-red-400' : 'border-[#E5E7EB] focus:border-black'" />
-                <span class="text-xs text-gray-400 shrink-0">cm</span>
+                  class="flex-1 min-w-0 px-4 py-2.5 text-sm focus:outline-none"
+                  [style]="alturaError() ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;' : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'"
+                  onfocus="this.style.borderColor='rgba(255,255,255,0.3)'"
+                  onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
+                <span class="text-xs shrink-0" style="color: rgba(255,255,255,0.4);">cm</span>
               </div>
               @if (alturaError()) {
                 <p class="text-[10px] text-red-400 mt-1">{{ alturaError() }}</p>
@@ -184,32 +220,38 @@
           <button type="button" (click)="guardarPerfil()"
             [disabled]="guardandoPerfil()"
             class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            [class]="!guardandoPerfil() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
+            [class]="!guardandoPerfil() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : ''"
+            [style]="guardandoPerfil() ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);' : ''">
             {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
           </button>
 
           @if (auth.servicio() === 'NUTRICION' || auth.servicio() === 'AMBOS') {
-            <div class="pt-4 border-t border-[#E5E7EB]">
-              <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">ALERGIAS E INTOLERANCIAS</p>
+            <div class="pt-4" style="border-top: 1px solid rgba(255,255,255,0.08);">
+              <p class="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style="color: rgba(255,255,255,0.45)">ALERGIAS E INTOLERANCIAS</p>
               <div class="flex flex-wrap gap-2 mb-3">
                 @for (alergia of perfilAtleta()!.alergias; track $index; let i = $index) {
-                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
-                    <span class="text-xs font-medium text-black">{{ alergia }}</span>
+                  <div class="flex items-center gap-1.5 px-3 py-1.5" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);">
+                    <span class="text-xs font-medium text-white">{{ alergia }}</span>
                     <button (click)="eliminarAlergia(i)" [attr.aria-label]="'Eliminar ' + alergia"
-                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                      class="hover:text-red-400 transition-colors text-xs leading-none"
+                      style="color: rgba(255,255,255,0.3);">✕</button>
                   </div>
                 }
                 @if (perfilAtleta()!.alergias.length === 0) {
-                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                  <p class="text-sm font-light" style="color: rgba(255,255,255,0.3)">Ninguna registrada.</p>
                 }
               </div>
               <div class="flex gap-2">
                 <input [value]="nuevaAlergia()" (input)="nuevaAlergia.set($any($event.target).value)"
                   (keydown.enter)="agregarAlergia()" placeholder="Añadir alergia o intolerancia..."
-                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent" />
+                  class="flex-1 py-2 text-sm font-light outline-none focus:outline-none bg-transparent"
+                  style="border-bottom: 1px solid rgba(255,255,255,0.08); color: white;"
+                  onfocus="this.style.borderBottomColor='rgba(255,255,255,0.3)'"
+                  onblur="this.style.borderBottomColor='rgba(255,255,255,0.08)'" />
                 <button (click)="agregarAlergia()" [disabled]="!nuevaAlergia().trim()"
                   class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  [class]="nuevaAlergia().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
+                  [class]="nuevaAlergia().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : ''"
+                  [style]="!nuevaAlergia().trim() ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);' : ''">
                   AÑADIR
                 </button>
               </div>
@@ -217,27 +259,32 @@
           }
 
           @if (auth.servicio() === 'ENTRENAMIENTO' || auth.servicio() === 'AMBOS') {
-            <div class="pt-4 border-t border-[#E5E7EB]">
-              <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">LESIONES PREVIAS</p>
+            <div class="pt-4" style="border-top: 1px solid rgba(255,255,255,0.08);">
+              <p class="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style="color: rgba(255,255,255,0.45)">LESIONES PREVIAS</p>
               <div class="flex flex-wrap gap-2 mb-3">
                 @for (lesion of perfilAtleta()!.lesiones; track $index; let i = $index) {
-                  <div class="flex items-center gap-1.5 border border-[#E5E7EB] px-3 py-1.5">
-                    <span class="text-xs font-medium text-black">{{ lesion }}</span>
+                  <div class="flex items-center gap-1.5 px-3 py-1.5" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);">
+                    <span class="text-xs font-medium text-white">{{ lesion }}</span>
                     <button (click)="eliminarLesion(i)" [attr.aria-label]="'Eliminar ' + lesion"
-                      class="text-gray-300 hover:text-red-400 transition-colors text-xs leading-none">✕</button>
+                      class="hover:text-red-400 transition-colors text-xs leading-none"
+                      style="color: rgba(255,255,255,0.3);">✕</button>
                   </div>
                 }
                 @if (perfilAtleta()!.lesiones.length === 0) {
-                  <p class="text-sm font-light text-gray-300">Ninguna registrada.</p>
+                  <p class="text-sm font-light" style="color: rgba(255,255,255,0.3)">Ninguna registrada.</p>
                 }
               </div>
               <div class="flex gap-2">
                 <input [value]="nuevaLesion()" (input)="nuevaLesion.set($any($event.target).value)"
                   (keydown.enter)="agregarLesion()" placeholder="Añadir lesión previa..."
-                  class="flex-1 border-b border-[#E5E7EB] py-2 text-sm font-light text-black placeholder:text-gray-300 outline-none focus:border-black transition-colors bg-transparent" />
+                  class="flex-1 py-2 text-sm font-light outline-none focus:outline-none bg-transparent"
+                  style="border-bottom: 1px solid rgba(255,255,255,0.08); color: white;"
+                  onfocus="this.style.borderBottomColor='rgba(255,255,255,0.3)'"
+                  onblur="this.style.borderBottomColor='rgba(255,255,255,0.08)'" />
                 <button (click)="agregarLesion()" [disabled]="!nuevaLesion().trim()"
                   class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  [class]="nuevaLesion().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : 'bg-[#F3F4F6] text-gray-400'">
+                  [class]="nuevaLesion().trim() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : ''"
+                  [style]="!nuevaLesion().trim() ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);' : ''">
                   AÑADIR
                 </button>
               </div>
@@ -249,29 +296,35 @@
   </div>
 
   <!-- Tema -->
-  <div class="mb-6 border border-[#E5E7EB]">
+  <div class="mb-6" style="border: 1px solid rgba(255,255,255,0.08);">
     <div class="px-5 py-4 flex items-center justify-between">
-      <p class="text-xs font-black tracking-[0.2em] uppercase text-black">TEMA</p>
+      <p class="text-xs font-black tracking-[0.2em] uppercase text-white">TEMA</p>
       <div class="flex gap-2">
         <button type="button" class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase bg-black text-white">CLARO</button>
-        <button type="button" class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase border border-[#E5E7EB] text-gray-400 hover:border-black hover:text-black transition-colors">OSCURO</button>
+        <button type="button"
+          class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+          style="border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.4);"
+          onmouseenter="this.style.borderColor='white'; this.style.color='white';"
+          onmouseleave="this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.4)';">OSCURO</button>
       </div>
     </div>
   </div>
 
   <!-- Eliminar cuenta -->
-  <div class="border border-[#E5E7EB]">
+  <div style="border: 1px solid rgba(255,255,255,0.08);">
     <button type="button" (click)="bajaAbierta.set(!bajaAbierta())"
       [attr.aria-expanded]="bajaAbierta()"
-      class="w-full px-5 py-4 flex items-center justify-between transition-colors hover:bg-[#F9FAFB]">
+      class="w-full px-5 py-4 flex items-center justify-between transition-colors"
+      onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
+      onmouseleave="this.style.background=''">
       <p class="text-xs font-black tracking-[0.2em] uppercase text-red-400">ELIMINAR CUENTA</p>
-      <span class="text-[10px] font-bold tracking-widest text-gray-400">{{ bajaAbierta() ? '▲' : '▼' }}</span>
+      <span class="text-[10px] font-bold tracking-widest" style="color: rgba(255,255,255,0.45)">{{ bajaAbierta() ? '▲' : '▼' }}</span>
     </button>
     @if (bajaAbierta()) {
-      <div class="px-5 pb-5 border-t border-[#E5E7EB]">
+      <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
         @if (!confirmarBaja()) {
           <div class="mt-4">
-            <p class="text-sm font-light text-gray-500 mb-4">Al eliminar tu cuenta se borrarán todos tus datos de forma permanente. Esta acción no se puede deshacer.</p>
+            <p class="text-sm font-light mb-4" style="color: rgba(255,255,255,0.5)">Al eliminar tu cuenta se borrarán todos tus datos de forma permanente. Esta acción no se puede deshacer.</p>
             <button type="button" (click)="confirmarBaja.set(true)"
               class="px-6 py-3 text-xs font-black tracking-[0.2em] uppercase border border-red-300 text-red-400 hover:bg-red-50 transition-colors">
               QUIERO DARME DE BAJA
@@ -279,16 +332,20 @@
           </div>
         } @else {
           <div class="mt-4">
-            <p class="text-sm font-bold text-black mb-1">¿Estás seguro?</p>
-            <p class="text-sm font-light text-gray-400 mb-4">Escribe <span class="font-mono font-bold text-black">ELIMINAR</span> para confirmar.</p>
+            <p class="text-sm font-bold text-white mb-1">¿Estás seguro?</p>
+            <p class="text-sm font-light mb-4" style="color: rgba(255,255,255,0.45)">Escribe <span class="font-mono font-bold text-white">ELIMINAR</span> para confirmar.</p>
             <input type="text" [value]="textoConfirmaBaja()"
               (input)="textoConfirmaBaja.set($any($event.target).value)"
               placeholder="ELIMINAR"
               aria-label="Escribe ELIMINAR para confirmar la baja"
-              class="w-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-mono text-black placeholder:text-gray-300 focus:outline-none focus:border-red-400 mb-4 bg-white transition-colors" />
+              class="w-full px-4 py-2.5 text-sm font-mono focus:outline-none mb-4"
+              style="background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;" />
             <div class="flex gap-3">
               <button type="button" (click)="confirmarBaja.set(false); textoConfirmaBaja.set('')"
-                class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase border border-[#E5E7EB] text-gray-400 hover:border-black hover:text-black transition-colors">
+                class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors"
+                style="border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4);"
+                onmouseenter="this.style.borderColor='white'; this.style.color='white';"
+                onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.4)';">
                 CANCELAR
               </button>
               <button type="button" (click)="eliminarCuenta()"
@@ -296,7 +353,8 @@
                 class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors"
                 [class]="textoConfirmaBaja() === 'ELIMINAR' && !eliminandoCuenta()
                   ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-[#F3F4F6] text-gray-400 opacity-40 cursor-not-allowed'">
+                  : ''"
+                [style]="!(textoConfirmaBaja() === 'ELIMINAR' && !eliminandoCuenta()) ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); opacity: 0.4; cursor: not-allowed;' : ''">
                 {{ eliminandoCuenta() ? 'ELIMINANDO...' : 'CONFIRMAR BAJA' }}
               </button>
             </div>
