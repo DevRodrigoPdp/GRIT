@@ -27,10 +27,9 @@ out/
 # 2. SEGURIDAD Y VARIABLES DE ENTORNO (CRÍTICO)
 # =================================================================
 # Jamás subir secretos al repositorio [cite: 25]
-.env
+backend/.env
 .env.local
 .env.*.local
-backend/.env
 *.pem
 *.key
 
@@ -53,7 +52,9 @@ backend/.venv/
 
 # Datos persistentes de contenedores
 backend/docker/postgres-data/
-docker/postgres-data
+backend/docker/minio-data/
+docker/postgres-data/
+**/postgres-data/
 
 # =================================================================
 # 4. FRONTEND (React / Angular / Node)

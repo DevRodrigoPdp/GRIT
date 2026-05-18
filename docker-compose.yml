@@ -9,11 +9,11 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./docker/postgres-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
       # Inyección del script de inicialización
       - ./docker/init-db:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,43 +21,93 @@ services:
       - backend-network
     restart: unless-stopped
 
-  backend-app:
-      build:
-        context: ./backend
-        dockerfile: Dockerfile
-      container_name: grit-backend
-      ports:
-        - "9090:8080"
-      environment:
-        - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/grit_db
-        - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-        - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-        - SPRING_JPA_HIBERNATE_DDL_AUTO=validate # Flyway gestionará la estructura
-        - APPLICATION_SECURITY_JWT_SECRET_KEY="${JWT_SECRET_KEY}"
-        - APPLICATION_SECURITY_JWT_PEPPER="${SECURITY_PEPPER_PROD}"
-        - APPLICATION_SECURITY_JWT_EXPIRATION=900000
-      depends_on:
-        postgres-db:
-          condition: service_healthy
-      networks:
-        - backend-network
-
-  frontend-app:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: grit-frontend
+  grit-minio:
+    image: minio/minio
+    container_name: grit-minio
     ports:
-      - "3000:80"
-    environment:
-      - BACKEND_URL=http://grit-backend:8080
-      - PORT=80
-    depends_on:
-      - backend-app
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      # Usamos curl (que viene en la imagen de minio) para tocar el endpoint de salud
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 10s    # Revisa cada 10 segundos
+      timeout: 5s     # Si tarda más de 5s, cuenta como fallo
+      retries: 5      # Intenta 5 veces antes de marcarlo como "unhealthy"
+      start_period: 10s # Dale 10 segundos iniciales para arrancar antes de empezar a chequear
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
     networks:
       - backend-network
-    restart: unless-stopped
+
+  backend-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grit-backend
+    ports:
+      - "9090:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/grit_db
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate # Flyway gestionará la estructura
+      - APPLICATION_SECURITY_JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - APPLICATION_SECURITY_JWT_PEPPER=${SECURITY_PEPPER_PROD}
+      - APPLICATION_SECURITY_JWT_EXPIRATION=900000
+      - APPLICATION_STORAGE_ENDPOINT=http://grit-minio:9000
+      - APPLICATION_STORAGE_BUCKET_NAME=grit-certificaciones-entrenadores
+      - STORAGE_ACCESS_KEY=${STORAGE_ACCESS_KEY}
+      - STORAGE_SECRET_KEY=${STORAGE_SECRET_KEY}
+      - MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED=true
+      - MANAGEMENT_HEALTH_LIVENESSSTATE_ENABLED=true
+      - MANAGEMENT_HEALTH_READINESSSTATE_ENABLED=true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/management/health/liveness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      grit-minio:
+        condition: service_healthy
+    networks:
+      - backend-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: grit-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090" # Puerto 9091 para no chocar si tienes otro Prometheus
+    networks:
+      - backend-network
+    depends_on:
+      - backend-app
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grit-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin # Cambia esto en producción
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - backend-network
+    depends_on:
+      - prometheus
+
 networks:
   backend-network:
     name: grit-postgres-net
     driver: bridge
+
+# DECLARACIÓN DE TODOS LOS VOLÚMENES
+volumes:
+  db-data:         # Datos de Postgres
+  minio-data:      # Archivos de Minio
+  grafana-storage: # Configuración de Grafana

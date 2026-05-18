@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    # IMPORTANTE: Dejamos esto vacío o con valores genéricos.
+    # El AbstractIntegrationTest sobrescribirá estos valores dinámicamente.
+    url: jdbc:postgresql://localhost:5432/unused
+    driver-class-name: org.postgresql.Driver
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      # Hibernate crea las tablas según tus @Entity en cada ejecución de test
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        # Usamos el dialecto real de Postgres, no el de H2
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  # Si usas Flyway, es mejor tenerlo activo para probar que tus scripts SQL funcionan
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+# CONFIGURACIÓN DE SEGURIDAD PARA TESTS
+application:
+  security:
+    pepper: ${SECURITY_PEPPER_PROD:pepper_dev_local_secret_2026}
+    jwt:
+      expiration: 900000
+      refresh-token:
+          expiration: 604800000
+          # Clave de desarrollo (puede ser conocida por el equipo)
+      secret-key: ${JWT_SECRET_KEY:clave_de_desarrollo_muy_larga_y_segura_1234567890}
+    cookie:
+      secure: false
+  storage:
+    # Configuración personalizada para nuestro Service
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+    access-key: ${STORAGE_ACCESS_KEY:minioadmin}
+    secret-key: ${STORAGE_SECRET_KEY:minioadmin}
+    bucket-name: grit-certificaciones-entrenadores
+logging:
+  level:
+    org.testcontainers: INFO
+    com.github.dockerjava: WARN
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

@@ -34,10 +34,21 @@ logging:
     org.springframework.security: WARN
 
 application:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   security:
     pepper: ${SECURITY_PEPPER_PROD}
     jwt:
       secret-key: ${JWT_SECRET_KEY}
+    cookie:
+      secure: true
+  storage:
+    # Configuración personalizada para nuestro Service
+    # No hay localhost, usamos el endpoint real de AWS S3
+    endpoint: https://s3.amazonaws.com
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    bucket-name: grit-production-storage
 
 management:
   endpoints:
