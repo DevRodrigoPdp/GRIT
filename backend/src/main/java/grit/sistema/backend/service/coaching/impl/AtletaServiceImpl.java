@@ -78,6 +78,8 @@ public class AtletaServiceImpl implements AtletaService {
         atleta.setAlturaCm(request.altura());
         atleta.setObjetivo(Objetivo.valueOf(request.objetivo()));
         atleta.setPesoKg(BigDecimal.valueOf(request.peso()));
+        atleta.setRestriccionesFisicas(request.restriccionesFisicas());
+        atleta.setRestriccionesDieteticas(request.restriccionesDieteticas());
 
         Atleta atletaActual = atletaRepository.save(atleta);
         return atletaMapper.toPerfilDTO(atletaActual);
