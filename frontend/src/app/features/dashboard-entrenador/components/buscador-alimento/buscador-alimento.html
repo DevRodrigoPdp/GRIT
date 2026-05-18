@@ -1,0 +1,165 @@
+<!-- Overlay backdrop -->
+<div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-end md:items-center justify-center">
+
+  <!-- Panel -->
+  <div class="w-full max-w-lg max-h-[90vh] flex flex-col z-50"
+    style="background: linear-gradient(135deg, #111118 0%, #0E0E16 100%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 80px rgba(0,0,0,0.7);">
+
+    <!-- Top accent line -->
+    <div class="h-px w-full flex-shrink-0" style="background: linear-gradient(90deg, transparent, rgba(46,211,141,0.4), transparent)"></div>
+
+    <!-- Cabecera -->
+    <div class="flex items-center justify-between px-5 py-4 flex-shrink-0"
+      style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+      <span class="text-xs font-black tracking-[0.25em] uppercase text-white">BUSCAR ALIMENTO</span>
+      <button (click)="cancelado.emit()" class="transition-colors" style="color: rgba(255,255,255,0.4);"
+        onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">
+        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
+          <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Input búsqueda -->
+    <div class="px-5 py-3 flex-shrink-0" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+      <input
+        [value]="query()"
+        (input)="onQueryChange($any($event.target).value)"
+        placeholder="Ej: pechuga de pollo..."
+        class="w-full text-sm font-light text-white placeholder:text-white/30 outline-none border-b border-white/20 pb-1 focus:border-[#2ED38D] transition-colors bg-transparent"
+      />
+    </div>
+
+    <!-- Resultados / Estado -->
+    <div class="flex-1 overflow-y-auto">
+
+      @if (cargando()) {
+        <div class="flex items-center justify-center py-10">
+          <span class="text-xs font-bold tracking-[0.2em] uppercase text-[#2ED38D] animate-pulse">BUSCANDO...</span>
+        </div>
+      }
+
+      @if (!cargando() && error()) {
+        <div class="px-5 py-6 text-center">
+          <p class="text-sm font-light" style="color: rgba(255,255,255,0.5);">{{ error() }}</p>
+        </div>
+      }
+
+      @if (!cargando() && !error() && resultados().length === 0 && query().length > 0) {
+        <div class="px-5 py-6 text-center">
+          <p class="text-sm font-light" style="color: rgba(255,255,255,0.5);">Escribe para buscar...</p>
+        </div>
+      }
+
+      @if (!seleccion()) {
+        @for (alimento of resultados(); track alimento.codigo) {
+          <button
+            (click)="elegir(alimento)"
+            class="w-full px-5 py-3 text-left transition-colors"
+            style="border-bottom: 1px solid rgba(255,255,255,0.05);"
+            onmouseenter="this.style.background='rgba(255,255,255,0.04)'"
+            onmouseleave="this.style.background=''"
+          >
+            <p class="text-xs font-bold uppercase tracking-tight text-white">{{ alimento.nombre }}</p>
+            @if (alimento.marca) {
+              <p class="text-sm font-light mt-0.5" style="color: rgba(255,255,255,0.5);">{{ alimento.marca }}</p>
+            }
+            <div class="flex gap-3 mt-1.5 text-xs font-bold" style="color: rgba(255,255,255,0.45);">
+              <span>{{ alimento.kcalPor100g | number:'1.0-0' }} kcal</span>
+              <span>P {{ alimento.proteinasPor100g | number:'1.0-1' }}g</span>
+              <span>C {{ alimento.carbsPor100g | number:'1.0-1' }}g</span>
+              <span>G {{ alimento.grasasPor100g | number:'1.0-1' }}g</span>
+              <span style="color: rgba(255,255,255,0.28);">/ 100g</span>
+            </div>
+          </button>
+        }
+      }
+
+      <!-- Detalle + cantidad cuando hay selección -->
+      @if (seleccion(); as al) {
+        <div class="px-5 py-5">
+          <div class="mb-4">
+            <p class="text-sm font-black uppercase tracking-tight text-white">{{ al.nombre }}</p>
+            @if (al.marca) {
+              <p class="text-sm font-light mt-0.5" style="color: rgba(255,255,255,0.5);">{{ al.marca }}</p>
+            }
+          </div>
+
+          <!-- Macros por 100g -->
+          <div class="grid grid-cols-4 gap-2 mb-5">
+            <div class="p-2 text-center" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+              <p class="text-xs font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.45);">Kcal</p>
+              <p class="text-sm font-black text-white">{{ al.kcalPor100g | number:'1.0-0' }}</p>
+            </div>
+            <div class="p-2 text-center" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+              <p class="text-xs font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.45);">Prot</p>
+              <p class="text-sm font-black text-white">{{ al.proteinasPor100g | number:'1.0-1' }}g</p>
+            </div>
+            <div class="p-2 text-center" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+              <p class="text-xs font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.45);">Carbs</p>
+              <p class="text-sm font-black text-white">{{ al.carbsPor100g | number:'1.0-1' }}g</p>
+            </div>
+            <div class="p-2 text-center" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+              <p class="text-xs font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.45);">Grasa</p>
+              <p class="text-sm font-black text-white">{{ al.grasasPor100g | number:'1.0-1' }}g</p>
+            </div>
+          </div>
+
+          <!-- Input cantidad -->
+          <div class="mb-5">
+            <label class="text-xs font-bold tracking-[0.2em] uppercase block mb-2" style="color: rgba(255,255,255,0.5);">CANTIDAD (g)</label>
+            <div class="flex items-center gap-4">
+              <div class="flex items-stretch" style="border: 1px solid rgba(255,255,255,0.15);">
+                <button type="button"
+                  (click)="cantidadG.set(cantidadG() > 10 ? cantidadG() - 10 : 1)"
+                  class="w-9 flex items-center justify-center text-lg font-light transition-colors flex-shrink-0"
+                  style="color: rgba(255,255,255,0.5); border-right: 1px solid rgba(255,255,255,0.1);"
+                  onmouseenter="this.style.background='rgba(255,255,255,0.06)'; this.style.color='white'"
+                  onmouseleave="this.style.background=''; this.style.color='rgba(255,255,255,0.5)'">−</button>
+                <input
+                  type="number"
+                  min="1"
+                  max="2000"
+                  [value]="cantidadG()"
+                  (input)="cantidadG.set(+$any($event.target).value)"
+                  class="w-16 text-sm font-black text-white outline-none text-center bg-transparent"
+                  style="-webkit-appearance: textfield; appearance: textfield;"
+                />
+                <button type="button"
+                  (click)="cantidadG.set(cantidadG() < 1990 ? cantidadG() + 10 : 2000)"
+                  class="w-9 flex items-center justify-center text-lg font-light transition-colors flex-shrink-0"
+                  style="color: rgba(255,255,255,0.5); border-left: 1px solid rgba(255,255,255,0.1);"
+                  onmouseenter="this.style.background='rgba(255,255,255,0.06)'; this.style.color='white'"
+                  onmouseleave="this.style.background=''; this.style.color='rgba(255,255,255,0.5)'">+</button>
+              </div>
+              <span class="text-sm font-light" style="color: rgba(255,255,255,0.5);">
+                = <strong class="text-white font-black">{{ kcalParaCantidad() | number:'1.0-0' }} kcal</strong>
+              </span>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="flex gap-2">
+            <button
+              (click)="seleccion.set(null)"
+              class="flex-1 py-2.5 text-xs font-bold tracking-[0.2em] uppercase transition-colors"
+              style="border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.55);"
+              onmouseenter="this.style.borderColor='rgba(255,255,255,0.3)'; this.style.color='white'"
+              onmouseleave="this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.55)'"
+            >
+              VOLVER
+            </button>
+            <button
+              (click)="confirmar()"
+              class="flex-1 py-2.5 text-sm font-black tracking-[0.15em] uppercase text-black transition-colors"
+              style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); box-shadow: 0 4px 16px rgba(46,211,141,0.25);"
+            >
+              AÑADIR
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

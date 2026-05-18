@@ -1,0 +1,1257 @@
+<!-- ── MODAL: Añadir ejercicio ────────────────────────────────────────────── -->
+@if (modalAbierto()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+  >
+    @let sesion = sesionActiva();
+    <div
+      class="w-full max-w-4xl max-h-[90vh] flex flex-col"
+      (click)="$event.stopPropagation()"
+      style="
+        background: linear-gradient(135deg, #111118 0%, #0e0e16 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+      "
+    >
+      <!-- Top accent -->
+      <div
+        class="h-px flex-shrink-0"
+        style="
+          background: linear-gradient(90deg, transparent, rgba(46, 211, 141, 0.4), transparent);
+        "
+      ></div>
+
+      <!-- Header -->
+      <div
+        class="px-5 md:px-8 py-4 md:py-5 flex items-center justify-between flex-shrink-0"
+        style="
+          background: linear-gradient(180deg, rgba(7, 7, 13, 0.9) 0%, rgba(10, 10, 18, 0.7) 100%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        "
+      >
+        <div>
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase text-[#2ED38D] mb-0.5">
+            {{ sesion?.nombre }}
+          </p>
+          <div class="flex items-center gap-3">
+            <span class="text-base md:text-lg font-black uppercase tracking-tighter text-white"
+              >AÑADIR EJERCICIOS</span
+            >
+            @if ((sesion?.ejercicios?.length ?? 0) > 0) {
+              <span class="md:hidden text-xs font-black text-[#2ED38D]"
+                >{{ sesion?.ejercicios?.length }} añadidos</span
+              >
+            }
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="cerrarModal()"
+          class="text-xl leading-none transition-colors"
+          style="color: rgba(255, 255, 255, 0.4)"
+          onmouseenter="this.style.color = 'white'"
+          onmouseleave="this.style.color = 'rgba(255,255,255,0.4)'"
+        >
+          ✕
+        </button>
+      </div>
+
+      @let esDescanso = nuevoNombre().toLowerCase().includes('descanso');
+
+      <!-- Body: dos columnas (una en móvil) -->
+      <div class="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
+        <!-- Columna izquierda: oculta en móvil -->
+        <div
+          class="hidden md:flex w-2/5 flex-col"
+          style="border-right: 1px solid rgba(255, 255, 255, 0.06)"
+        >
+          <div
+            class="px-6 py-4 flex items-center justify-between flex-shrink-0"
+            style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+          >
+            <span
+              class="text-[10px] font-bold tracking-[0.3em] uppercase"
+              style="color: rgba(255, 255, 255, 0.4)"
+              >AÑADIDOS</span
+            >
+            <span class="text-xs font-black text-white">{{ sesion?.ejercicios?.length ?? 0 }}</span>
+          </div>
+          <div class="flex-1 overflow-y-auto">
+            @if (!sesion?.ejercicios?.length) {
+              <div class="flex flex-col items-center justify-center h-full text-center px-6">
+                <p
+                  class="text-xs font-black tracking-[0.15em] uppercase mb-1"
+                  style="color: rgba(255, 255, 255, 0.25)"
+                >
+                  SIN EJERCICIOS
+                </p>
+                <p class="text-xs font-light" style="color: rgba(255, 255, 255, 0.35)">
+                  Añade el primero desde el formulario.
+                </p>
+              </div>
+            }
+            @for (ej of sesion?.ejercicios ?? []; track ej.id; let i = $index) {
+              @let ejDescanso = ej.nombre.toLowerCase().includes('descanso');
+              <div
+                class="px-6 py-3 flex items-start gap-3 group/item transition-colors"
+                style="border-bottom: 1px solid rgba(255, 255, 255, 0.04)"
+                onmouseenter="this.style.background = 'rgba(255,255,255,0.03)'"
+                onmouseleave="this.style.background = ''"
+              >
+                <span
+                  class="text-[10px] font-black w-4 flex-shrink-0 mt-0.5"
+                  style="color: rgba(255, 255, 255, 0.25)"
+                  >{{ i + 1 }}</span
+                >
+                <div class="flex-1 min-w-0">
+                  <p
+                    class="text-xs font-black uppercase tracking-tight leading-tight"
+                    [style.color]="ejDescanso ? 'rgba(255,255,255,0.4)' : 'white'"
+                  >
+                    {{ ej.nombre }}
+                  </p>
+                  @if (!ejDescanso) {
+                    <p
+                      class="text-[11px] font-light mt-0.5"
+                      style="color: rgba(255, 255, 255, 0.4)"
+                    >
+                      {{ ej.series }} × {{ ej.reps }}
+                    </p>
+                  }
+                  @if (ej.notas) {
+                    <p
+                      class="text-[11px] font-light mt-0.5 truncate"
+                      style="color: rgba(255, 255, 255, 0.3)"
+                    >
+                      {{ ej.notas }}
+                    </p>
+                  }
+                </div>
+                <button
+                  type="button"
+                  (click)="quitarEjercicio(sesionActivaIdx(), ej.id)"
+                  class="flex-shrink-0 text-sm mt-0.5 transition-colors"
+                  style="color: rgba(255, 255, 255, 0.3)"
+                  onmouseenter="this.style.color = '#f87171'"
+                  onmouseleave="this.style.color = 'rgba(255,255,255,0.3)'"
+                >
+                  ✕
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Columna derecha: formulario (full width en móvil) -->
+        <div class="flex-1 flex flex-col overflow-y-auto px-5 md:px-8 py-5 md:py-6 gap-5 md:gap-6">
+          <!-- Nombre -->
+          @if (!esDescanso) {
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-[10px] font-bold tracking-[0.3em] uppercase"
+                style="color: rgba(255, 255, 255, 0.4)"
+                >NOMBRE DEL EJERCICIO <span class="text-[#2ED38D]">*</span></label
+              >
+              <input
+                [value]="nuevoNombre()"
+                (input)="
+                  nuevoNombre.set($any($event.target).value);
+                  entrenamiento.buscarEjercicios($any($event.target).value);
+                  mostrarSugerencias.set(true)
+                "
+                (focus)="
+                  entrenamiento.buscarEjercicios(nuevoNombre()); mostrarSugerencias.set(true)
+                "
+                (keydown.enter)="agregarEjercicio(); mostrarSugerencias.set(false)"
+                (keydown.escape)="mostrarSugerencias.set(false)"
+                placeholder="Ej. Press de banca, Sentadilla..."
+                autofocus
+                class="border-b-2 border-white/20 bg-transparent py-3 text-xl font-black uppercase tracking-tight text-white placeholder:text-white/25 outline-none focus:border-[#2ED38D] transition-colors"
+              />
+              @if (mostrarSugerencias()) {
+                @let sugs = entrenamiento.sugerenciasCache();
+                @if (sugs.length > 0) {
+                  <div
+                    class="flex flex-col mt-1 max-h-64 overflow-y-auto"
+                    style="
+                      background: linear-gradient(135deg, #111118 0%, #0e0e16 100%);
+                      border: 1px solid rgba(255, 255, 255, 0.1);
+                    "
+                  >
+                    @if (!nuevoNombre().trim()) {
+                      <p
+                        class="text-[9px] font-bold tracking-[0.2em] uppercase px-3 pt-2 pb-1"
+                        style="color: rgba(255, 255, 255, 0.3)"
+                      >
+                        USADOS RECIENTEMENTE
+                      </p>
+                    }
+                    @for (sug of sugs; track sug.id) {
+                      <button
+                        type="button"
+                        (mousedown)="seleccionarSugerencia(sug)"
+                        class="text-left px-3 py-2.5 flex items-center justify-between gap-4 flex-shrink-0 transition-colors"
+                        style="border-top: 1px solid rgba(255, 255, 255, 0.04)"
+                        onmouseenter="this.style.background = 'rgba(46,211,141,0.07)'"
+                        onmouseleave="this.style.background = ''"
+                      >
+                        <span class="text-sm font-bold uppercase tracking-tight text-white">{{
+                          sug.nombre
+                        }}</span>
+                        @if (sug.grupoMuscular) {
+                          <span
+                            class="text-[10px] font-medium tracking-widest uppercase flex-shrink-0"
+                            style="color: rgba(255, 255, 255, 0.35)"
+                            >{{ sug.grupoMuscular }}</span
+                          >
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+          @if (esDescanso) {
+            <div
+              class="flex items-center gap-3 py-3"
+              style="border-bottom: 1px solid rgba(255, 255, 255, 0.08)"
+            >
+              <span
+                class="text-xl font-black uppercase tracking-tight"
+                style="color: rgba(255, 255, 255, 0.4)"
+                >DESCANSO</span
+              >
+            </div>
+          }
+
+          <!-- Series × Reps — solo si NO es descanso -->
+          @if (!esDescanso) {
+            <div class="grid grid-cols-2 gap-6">
+              <div class="flex flex-col gap-3">
+                <label
+                  class="text-[10px] font-bold tracking-[0.3em] uppercase"
+                  style="color: rgba(255, 255, 255, 0.4)"
+                  >SERIES</label
+                >
+                <div class="flex items-center gap-3">
+                  <button
+                    type="button"
+                    (click)="nuevoSeries.set(nuevoSeries() > 1 ? nuevoSeries() - 1 : 1)"
+                    class="w-10 h-10 text-base flex items-center justify-center transition-colors"
+                    style="
+                      border: 1px solid rgba(255, 255, 255, 0.12);
+                      color: rgba(255, 255, 255, 0.5);
+                    "
+                    onmouseenter="
+                      this.style.borderColor = 'rgba(255,255,255,0.3)';
+                      this.style.color = 'white';
+                    "
+                    onmouseleave="
+                      this.style.borderColor = 'rgba(255,255,255,0.12)';
+                      this.style.color = 'rgba(255,255,255,0.5)';
+                    "
+                  >
+                    −
+                  </button>
+                  <span class="text-4xl font-black w-12 text-center leading-none text-white">{{
+                    nuevoSeries()
+                  }}</span>
+                  <button
+                    type="button"
+                    (click)="nuevoSeries.set(nuevoSeries() + 1)"
+                    class="w-10 h-10 text-base flex items-center justify-center transition-colors"
+                    style="
+                      border: 1px solid rgba(255, 255, 255, 0.12);
+                      color: rgba(255, 255, 255, 0.5);
+                    "
+                    onmouseenter="
+                      this.style.borderColor = 'rgba(255,255,255,0.3)';
+                      this.style.color = 'white';
+                    "
+                    onmouseleave="
+                      this.style.borderColor = 'rgba(255,255,255,0.12)';
+                      this.style.color = 'rgba(255,255,255,0.5)';
+                    "
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3">
+                <label
+                  class="text-[10px] font-bold tracking-[0.3em] uppercase"
+                  style="color: rgba(255, 255, 255, 0.4)"
+                  >REPS / DURACIÓN</label
+                >
+                <input
+                  [value]="nuevoReps()"
+                  (input)="nuevoReps.set($any($event.target).value)"
+                  placeholder="10, 8-12, 30s..."
+                  class="border-b-2 border-white/20 bg-transparent py-3 text-4xl font-black text-white placeholder:text-white/25 outline-none focus:border-[#2ED38D] transition-colors text-center"
+                />
+              </div>
+            </div>
+          }
+
+          <!-- Notas -->
+          <div class="flex flex-col gap-2">
+            <label
+              class="text-[10px] font-bold tracking-[0.3em] uppercase"
+              style="color: rgba(255, 255, 255, 0.4)"
+            >
+              NOTAS
+              <span
+                class="font-light normal-case tracking-normal"
+                style="color: rgba(255, 255, 255, 0.3)"
+                >(opcional)</span
+              >
+            </label>
+            <textarea
+              [value]="nuevoNotas()"
+              (input)="nuevoNotas.set($any($event.target).value)"
+              [placeholder]="
+                esDescanso
+                  ? 'Ej. Foam roller, paseo suave, estiramientos...'
+                  : 'Indicaciones técnicas, tempo, descanso entre series...'
+              "
+              rows="3"
+              class="p-4 text-sm font-light text-white placeholder:text-white/25 outline-none transition-colors resize-none bg-transparent"
+              style="border: 1px solid rgba(255, 255, 255, 0.08)"
+              onfocus="this.style.borderColor = 'rgba(46,211,141,0.4)'"
+              onblur="this.style.borderColor = 'rgba(255,255,255,0.08)'"
+            ></textarea>
+          </div>
+
+          <!-- Botón añadir -->
+          <button
+            type="button"
+            (click)="agregarEjercicio()"
+            [disabled]="!nuevoNombre().trim()"
+            class="w-full py-3 text-[11px] font-black tracking-[0.2em] uppercase transition-all"
+            [style]="
+              nuevoNombre().trim()
+                ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black; box-shadow: 0 4px 16px rgba(46,211,141,0.25);'
+                : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: not-allowed;'
+            "
+          >
+            {{ esDescanso ? '+ AÑADIR DESCANSO' : '+ AÑADIR EJERCICIO' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="px-8 py-5 flex items-center justify-between flex-shrink-0"
+        style="border-top: 1px solid rgba(255, 255, 255, 0.06)"
+      >
+        <span class="text-xs font-light" style="color: rgba(255, 255, 255, 0.4)">
+          {{ sesion?.ejercicios?.length ?? 0 }} ejercicio{{
+            (sesion?.ejercicios?.length ?? 0) !== 1 ? 's' : ''
+          }}
+          en esta sesión
+        </span>
+        <button
+          type="button"
+          (click)="cerrarModal()"
+          class="px-12 py-3 text-[11px] font-black tracking-[0.15em] uppercase text-black transition-all"
+          style="
+            background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
+            box-shadow: 0 4px 16px rgba(46, 211, 141, 0.2);
+          "
+        >
+          LISTO
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── LISTA DE RUTINAS ───────────────────────────────────────────────────── -->
+@if (vista() === 'lista') {
+  <div class="flex-1 overflow-y-auto py-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <p
+          class="text-[10px] font-bold tracking-[0.3em] uppercase mb-1"
+          style="color: rgba(255, 255, 255, 0.4)"
+        >
+          {{ rutinas().length }} rutina{{ rutinas().length !== 1 ? 's' : '' }} ·
+          {{
+            rutinas().length > 0
+              ? rutinas()[0].activa
+                ? '1 activa'
+                : 'ninguna activa'
+              : 'ninguna activa'
+          }}
+        </p>
+        <h2 class="text-2xl font-black uppercase tracking-tighter text-white">
+          RUTINAS DE ENTRENAMIENTO
+        </h2>
+      </div>
+      <button
+        (click)="iniciarCreacion()"
+        class="text-sm font-black tracking-[0.15em] uppercase px-4 py-2.5 flex items-center gap-2 transition-all text-black"
+        style="
+          background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
+          box-shadow: 0 4px 16px rgba(46, 211, 141, 0.2);
+        "
+        onmouseenter="this.style.boxShadow = '0 6px 24px rgba(46,211,141,0.35)'"
+        onmouseleave="this.style.boxShadow = '0 4px 16px rgba(46,211,141,0.2)'"
+      >
+        <span>+</span><span>NUEVA RUTINA</span>
+      </button>
+    </div>
+
+    @if (rutinas().length === 0) {
+      <div class="p-10 text-center" style="border: 1px dashed rgba(255, 255, 255, 0.1)">
+        <div class="w-1.5 h-1.5 mx-auto mb-3" style="background: rgba(255, 255, 255, 0.15)"></div>
+        <p
+          class="text-sm font-black tracking-[0.15em] uppercase mb-1"
+          style="color: rgba(255, 255, 255, 0.25)"
+        >
+          SIN RUTINAS
+        </p>
+        <p class="text-sm font-light mb-4" style="color: rgba(255, 255, 255, 0.4)">
+          Este atleta aún no tiene ninguna rutina asignada.
+        </p>
+        <button
+          (click)="iniciarCreacion()"
+          class="text-xs font-black tracking-[0.2em] uppercase px-5 py-2.5 transition-colors text-white"
+          style="border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.04)"
+          onmouseenter="
+            this.style.borderColor = 'rgba(46,211,141,0.4)';
+            this.style.background = 'rgba(46,211,141,0.07)';
+            this.style.color = '#2ED38D';
+          "
+          onmouseleave="
+            this.style.borderColor = 'rgba(255,255,255,0.15)';
+            this.style.background = 'rgba(255,255,255,0.04)';
+            this.style.color = 'white';
+          "
+        >
+          CREAR PRIMERA RUTINA
+        </button>
+      </div>
+    }
+
+    @for (rutina of rutinas(); track rutina.id) {
+      <div
+        class="mb-3 cursor-pointer flex overflow-hidden transition-all group"
+        [style]="
+          rutina.activa
+            ? 'background: rgba(46,211,141,0.04); border: 1px solid rgba(46,211,141,0.3);'
+            : 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);'
+        "
+        (click)="abrirDetalle(rutina)"
+        onmouseenter="
+          if (!this.classList.contains('active-rutina')) {
+            this.style.borderColor = 'rgba(255,255,255,0.2)';
+            this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+          }
+        "
+        onmouseleave="
+          if (!this.classList.contains('active-rutina')) {
+            this.style.borderColor = 'rgba(255,255,255,0.08)';
+            this.style.boxShadow = 'none';
+          }
+        "
+      >
+        <div
+          class="w-1 flex-shrink-0"
+          [style.background]="rutina.activa ? '#2ED38D' : 'transparent'"
+        ></div>
+        <div class="flex-1 min-w-0">
+          <div class="p-5 pb-4">
+            <div class="flex items-start justify-between">
+              <div class="flex-1 min-w-0 mr-4">
+                <p class="text-sm font-black uppercase tracking-tight text-white">
+                  {{ rutina.nombre }}
+                </p>
+                @if (rutina.descripcion) {
+                  <p class="text-sm font-light mt-0.5" style="color: rgba(255, 255, 255, 0.5)">
+                    {{ rutina.descripcion }}
+                  </p>
+                }
+              </div>
+              <div class="flex items-center gap-3 flex-shrink-0">
+                @if (rutina.activa) {
+                  <span
+                    class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D] opacity-0 group-hover:opacity-100"
+                    >● ACTIVA</span
+                  >
+                  <button
+                    (click)="$event.stopPropagation(); desactivarRutina(rutina.id)"
+                    class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
+                    style="color: rgba(255, 255, 255, 0.3)"
+                    onmouseenter="this.style.color = '#fb923c'"
+                    onmouseleave="this.style.color = 'rgba(255,255,255,0.3)'"
+                  >
+                    DESACTIVAR
+                  </button>
+                } @else {
+                  <button
+                    (click)="$event.stopPropagation(); activarRutina(rutina.id)"
+                    class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
+                    style="color: rgba(255, 255, 255, 0.4)"
+                    onmouseenter="this.style.color = '#2ED38D'"
+                    onmouseleave="this.style.color = 'rgba(255,255,255,0.4)'"
+                  >
+                    ACTIVAR
+                  </button>
+                }
+                <button
+                  (click)="$event.stopPropagation(); editarRutina(rutina)"
+                  class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
+                  style="color: rgba(255, 255, 255, 0.3)"
+                  onmouseenter="this.style.color = '#fb923c'"
+                  onmouseleave="this.style.color = 'rgba(255,255,255,0.3)'"
+                >
+                  MODIFICAR
+                </button>
+                <button
+                  (click)="$event.stopPropagation(); eliminarRutina(rutina.id)"
+                  class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
+                  style="color: rgba(255, 255, 255, 0.25)"
+                  onmouseenter="this.style.color = '#f87171'"
+                  onmouseleave="this.style.color = 'rgba(255,255,255,0.25)'"
+                >
+                  ELIMINAR
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sesiones chips -->
+          <div class="px-5 pb-5 flex flex-wrap items-end gap-2">
+            @for (sesion of rutina.sesiones; track sesion.id) {
+              <div class="px-3 py-2" style="border: 1px solid rgba(255, 255, 255, 0.08)">
+                <p class="text-xs font-black uppercase tracking-tight text-white leading-none">
+                  {{ sesion.nombre }}
+                </p>
+                <p class="text-[11px] font-light mt-0.5" style="color: rgba(255, 255, 255, 0.4)">
+                  {{ sesion.ejercicios.length }} ejerc.
+                </p>
+              </div>
+            }
+            <div class="ml-auto text-right">
+              <p class="text-sm font-light" style="color: rgba(255, 255, 255, 0.4)">
+                {{ entrenamiento.totalEjercicios(rutina) }} ejerc.
+              </p>
+              <p class="text-[11px] font-light" style="color: rgba(255, 255, 255, 0.3)">
+                {{ rutina.creadoEn | date: 'dd/MM/yy' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- ── DETALLE RUTINA ──────────────────────────────────────────────────────── -->
+@if (vista() === 'detalle') {
+  @let rutina = rutinaDetalle();
+  @if (rutina) {
+    <div class="flex-1 min-h-0 flex flex-col">
+      <!-- Cabecera -->
+      <div class="flex items-start gap-4 pt-6 pb-4 flex-shrink-0">
+        <div class="flex-1">
+          <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">
+            {{ rutina.nombre }}
+          </h2>
+          @if (rutina.descripcion) {
+            <p class="text-sm font-light mt-1" style="color: rgba(255, 255, 255, 0.5)">
+              {{ rutina.descripcion }}
+            </p>
+          }
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0 mt-1">
+          <button
+            (click)="editarRutina(rutina); vista.set('crear')"
+            class="text-xs font-bold tracking-[0.2em] uppercase transition-colors"
+            style="color: rgba(255, 255, 255, 0.4)"
+            onmouseenter="this.style.color = 'white'"
+            onmouseleave="this.style.color = 'rgba(255,255,255,0.4)'"
+          >
+            MODIFICAR
+          </button>
+          <button
+            (click)="vista.set('lista')"
+            class="text-xs font-bold tracking-[0.2em] uppercase transition-colors"
+            style="color: rgba(255, 255, 255, 0.4)"
+            onmouseenter="this.style.color = 'white'"
+            onmouseleave="this.style.color = 'rgba(255,255,255,0.4)'"
+          >
+            ← VOLVER
+          </button>
+        </div>
+      </div>
+
+      <!-- Toggle activar rutina -->
+      <div
+        class="flex-shrink-0 pb-3 mb-1"
+        style="border-bottom: 1px solid rgba(255, 255, 255, 0.08)"
+      >
+        <button
+          type="button"
+          (click)="rutina.activa ? desactivarRutina(rutina.id) : activarRutina(rutina.id)"
+          class="flex items-center gap-3"
+        >
+          <div
+            class="w-10 h-5 rounded-full transition-colors flex-shrink-0 relative"
+            [style.background]="rutina.activa ? '#2ED38D' : 'rgba(255,255,255,0.15)'"
+          >
+            <div
+              class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+              [class]="rutina.activa ? 'translate-x-5' : 'translate-x-0.5'"
+            ></div>
+          </div>
+          <div class="text-left">
+            <p
+              class="text-xs font-black tracking-[0.15em] uppercase"
+              [style.color]="rutina.activa ? 'white' : 'rgba(255,255,255,0.4)'"
+            >
+              {{ rutina.activa ? 'RUTINA ACTIVA' : 'RUTINA INACTIVA' }}
+            </p>
+            <p class="text-[11px] font-light mt-0.5" style="color: rgba(255, 255, 255, 0.4)">
+              {{
+                rutina.activa
+                  ? 'El atleta ve esta rutina como su plan actual'
+                  : 'Se guardará pero no será la rutina en curso'
+              }}
+            </p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Tabs sesiones -->
+      <div
+        class="flex items-end gap-0 flex-shrink-0 flex-wrap"
+        style="border-bottom: 1px solid rgba(255, 255, 255, 0.08)"
+      >
+        @for (sesion of rutina.sesiones; track sesion.id; let si = $index) {
+          <button
+            (click)="sesionDetalleIdx.set(si)"
+            class="relative py-3 px-5 text-xs font-black tracking-[0.15em] uppercase whitespace-nowrap flex-shrink-0 transition-colors"
+            [style.color]="sesionDetalleIdx() === si ? 'white' : 'rgba(255,255,255,0.4)'"
+          >
+            {{ sesion.nombre }}
+            @if (sesion.tipo === 'entrenamiento' && sesion.ejercicios.length > 0) {
+              <span class="ml-1.5 text-[9px] font-black text-[#2ED38D]">{{
+                sesion.ejercicios.length
+              }}</span>
+            }
+            @if (sesionDetalleIdx() === si) {
+              <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Contenido sesión -->
+      @let sesion = sesionDetalleActiva();
+      @if (sesion) {
+        <div class="flex-1 min-h-0 overflow-y-auto pb-4 pt-4">
+          @if (sesion.ejercicios.length === 0) {
+            <div class="p-8 text-center" style="border: 1px dashed rgba(255, 255, 255, 0.1)">
+              <p
+                class="text-sm font-black tracking-[0.15em] uppercase"
+                style="color: rgba(255, 255, 255, 0.25)"
+              >
+                SIN EJERCICIOS
+              </p>
+            </div>
+          }
+          @for (ej of sesion.ejercicios; track ej.id; let ei = $index) {
+            <div class="mb-2 px-5 py-3" style="border: 1px solid rgba(255, 255, 255, 0.08)">
+              <div class="flex items-start gap-3">
+                <span
+                  class="text-[10px] font-black w-4 flex-shrink-0 mt-0.5"
+                  style="color: rgba(255, 255, 255, 0.25)"
+                  >{{ ei + 1 }}</span
+                >
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-black uppercase tracking-tight text-white">
+                    {{ ej.nombre }}
+                  </p>
+                  <div class="flex items-center gap-3 mt-1 flex-wrap">
+                    <span class="text-xs font-black text-white">{{ ej.series }} series</span>
+                    <span class="text-xs" style="color: rgba(255, 255, 255, 0.3)">×</span>
+                    <span class="text-xs font-black text-white">{{ ej.reps }} reps</span>
+                    @if (ej.notas) {
+                      <span class="text-xs font-light" style="color: rgba(255, 255, 255, 0.45)"
+                        >— {{ ej.notas }}</span
+                      >
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Footer info -->
+      <div
+        class="flex-shrink-0 py-4 flex items-center gap-6"
+        style="border-top: 1px solid rgba(255, 255, 255, 0.08)"
+      >
+        <div>
+          <p class="text-[11px] font-light uppercase" style="color: rgba(255, 255, 255, 0.4)">
+            Sesiones
+          </p>
+          <p class="text-xl font-black text-white leading-none">{{ rutina.sesiones.length }}</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-light uppercase" style="color: rgba(255, 255, 255, 0.4)">
+            Ejercicios
+          </p>
+          <p class="text-xl font-black text-white leading-none">
+            {{ entrenamiento.totalEjercicios(rutina) }}
+          </p>
+        </div>
+        <div>
+          <p class="text-[11px] font-light uppercase" style="color: rgba(255, 255, 255, 0.4)">
+            Creada
+          </p>
+          <p class="text-sm font-black text-white leading-none">
+            {{ rutina.creadoEn | date: 'dd/MM/yy' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+<!-- ── CREAR RUTINA ────────────────────────────────────────────────────────── -->
+@if (vista() === 'crear') {
+  <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+    <!-- Header: nombre + descripción -->
+    <div class="flex-shrink-0 pt-7 pb-5" style="border-bottom: 1px solid rgba(255, 255, 255, 0.12)">
+      <div class="flex items-center justify-between mb-4">
+        <span
+          class="text-[9px] font-bold tracking-[0.4em] uppercase"
+          style="color: rgba(255, 255, 255, 0.5)"
+        >
+          {{ rutinaEditandoId() ? 'MODIFICAR RUTINA' : 'NUEVA RUTINA' }}
+        </span>
+        <button
+          (click)="vista.set('lista')"
+          class="text-[10px] font-bold tracking-[0.2em] uppercase transition-colors flex items-center gap-1.5"
+          style="color: rgba(255, 255, 255, 0.55)"
+          onmouseenter="this.style.color = 'white'"
+          onmouseleave="this.style.color = 'rgba(255,255,255,0.55)'"
+        >
+          <svg
+            class="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 16 16"
+          >
+            <path d="M10 4L6 8l4 4" stroke-linecap="square" />
+          </svg>
+          RUTINAS
+        </button>
+      </div>
+      <input
+        [value]="nombreRutina()"
+        (input)="nombreRutina.set($any($event.target).value)"
+        placeholder="NOMBRE DE LA RUTINA..."
+        autofocus
+        class="w-full text-3xl font-black uppercase tracking-tighter placeholder:text-white/25 outline-none bg-transparent text-white mb-2.5 border-b-2 pb-1.5 transition-colors"
+        [class]="
+          nombreRutina().trim() ? 'border-[#2ED38D]' : 'border-white/20 focus:border-white/40'
+        "
+      />
+      <input
+        [value]="descripcionRutina()"
+        (input)="descripcionRutina.set($any($event.target).value)"
+        placeholder="Descripción — objetivo, semanas, contexto..."
+        class="w-full text-sm font-light placeholder:text-white/30 outline-none bg-transparent pb-0.5 transition-colors"
+        style="color: rgba(255, 255, 255, 0.65); border-bottom: 1px solid rgba(255, 255, 255, 0.12)"
+        onfocus="this.style.borderColor = 'rgba(255,255,255,0.3)'"
+        onblur="this.style.borderColor = 'rgba(255,255,255,0.12)'"
+      />
+    </div>
+
+    <!-- Body: sidebar sesiones + panel ejercicios -->
+    <div class="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
+      <!-- Sesiones: chips horizontales en móvil, sidebar vertical en desktop -->
+      <div
+        class="flex-shrink-0 flex flex-row gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b md:flex-col md:gap-0 md:p-0 md:overflow-x-hidden md:overflow-y-auto md:w-48 md:border-b-0 md:border-r"
+        style="border-color: rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02)"
+      >
+        <!-- Header desktop: SESIONES / +NUEVA -->
+        <div
+          class="hidden md:flex px-4 py-3 items-center justify-between flex-shrink-0"
+          style="border-bottom: 1px solid rgba(255, 255, 255, 0.09)"
+        >
+          <span
+            class="text-[9px] font-bold tracking-[0.4em] uppercase"
+            style="color: rgba(255, 255, 255, 0.5)"
+            >SESIONES</span
+          >
+          <button
+            (click)="agregarSesion()"
+            class="text-[10px] font-black tracking-[0.1em] uppercase transition-colors flex items-center gap-1"
+            style="color: rgba(255, 255, 255, 0.6)"
+            onmouseenter="this.style.color = '#2ED38D'"
+            onmouseleave="this.style.color = 'rgba(255,255,255,0.6)'"
+          >
+            <span>+</span> NUEVA
+          </button>
+        </div>
+
+        @for (sesion of sesiones(); track sesion.id; let si = $index) {
+          <!-- Chip móvil -->
+          <button
+            class="md:hidden flex-shrink-0 px-3 py-2 text-[11px] font-black uppercase tracking-tight transition-all"
+            [style]="
+              sesionActivaIdx() === si
+                ? 'background: rgba(46,211,141,0.12); border: 1px solid rgba(46,211,141,0.4); color: #2ED38D;'
+                : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);'
+            "
+            (click)="sesionActivaIdx.set(si); editandoNombreSesion.set(false)"
+          >
+            {{ sesion.nombre }}
+          </button>
+
+          <!-- Fila desktop -->
+          <div
+            class="hidden md:flex group/sesion items-stretch cursor-pointer transition-colors"
+            [style]="
+              sesionActivaIdx() === si
+                ? 'background: rgba(46,211,141,0.09); border-left: 2px solid #2ED38D;'
+                : 'border-left: 2px solid transparent;'
+            "
+            onmouseenter="
+              if (this.style.borderLeftColor !== 'rgb(46, 211, 141)')
+                this.style.background = 'rgba(255,255,255,0.04)';
+            "
+            onmouseleave="
+              if (this.style.borderLeftColor !== 'rgb(46, 211, 141)') this.style.background = '';
+            "
+            (click)="sesionActivaIdx.set(si); editandoNombreSesion.set(false)"
+          >
+            <div class="flex-1 px-4 py-3 min-w-0">
+              @if (editandoNombreSesion() && sesionActivaIdx() === si) {
+                <input
+                  [value]="sesion.nombre"
+                  (input)="renombrarSesion(si, $any($event.target).value)"
+                  (blur)="editandoNombreSesion.set(false)"
+                  (keydown.enter)="editandoNombreSesion.set(false)"
+                  (click)="$event.stopPropagation()"
+                  class="w-full text-xs font-black uppercase tracking-tight outline-none bg-transparent text-white border-b border-[#2ED38D] pb-0.5"
+                  autofocus
+                />
+              } @else {
+                <p
+                  class="text-xs font-black uppercase tracking-tight truncate leading-tight"
+                  [style.color]="sesionActivaIdx() === si ? 'white' : 'rgba(255,255,255,0.62)'"
+                >
+                  {{ sesion.nombre }}
+                </p>
+                <p
+                  class="text-[10px] font-medium mt-0.5 leading-none"
+                  [style.color]="sesionActivaIdx() === si ? '#2ED38D' : 'rgba(255,255,255,0.38)'"
+                >
+                  {{
+                    sesion.ejercicios.length === 0 ? 'vacía' : sesion.ejercicios.length + ' ejerc.'
+                  }}
+                </p>
+              }
+            </div>
+            @if (sesionActivaIdx() === si && !editandoNombreSesion()) {
+              <div
+                class="flex items-center opacity-0 group-hover/sesion:opacity-100 transition-opacity"
+              >
+                <button
+                  (click)="$event.stopPropagation(); editandoNombreSesion.set(true)"
+                  class="w-8 flex items-center justify-center text-[11px] h-full transition-colors"
+                  style="color: rgba(255, 255, 255, 0.45)"
+                  onmouseenter="this.style.color = 'white'"
+                  onmouseleave="this.style.color = 'rgba(255,255,255,0.45)'"
+                >
+                  ✎
+                </button>
+                @if (sesiones().length > 1) {
+                  <button
+                    (click)="$event.stopPropagation(); eliminarSesion(si)"
+                    class="w-7 flex items-center justify-center text-[11px] h-full transition-colors"
+                    style="
+                      color: rgba(255, 255, 255, 0.35);
+                      border-left: 1px solid rgba(255, 255, 255, 0.08);
+                    "
+                    onmouseenter="this.style.color = '#f87171'"
+                    onmouseleave="this.style.color = 'rgba(255,255,255,0.35)'"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- + NUEVA: solo móvil (al final del strip) -->
+        <button
+          class="md:hidden flex-shrink-0 px-3 py-2 text-[11px] font-black uppercase tracking-tight transition-colors"
+          style="border: 1px dashed rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.45)"
+          (click)="agregarSesion()"
+        >
+          + NUEVA
+        </button>
+      </div>
+
+      <!-- Panel ejercicios -->
+      @let sesion = sesionActiva();
+      @if (sesion) {
+        <div class="flex-1 min-h-0 flex flex-col md:overflow-hidden">
+          <!-- Nombre sesión activa (editable) -->
+          <div
+            class="px-6 py-3 flex items-center gap-3 flex-shrink-0"
+            style="
+              border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+              background: rgba(255, 255, 255, 0.02);
+            "
+          >
+            @if (editandoNombreSesion()) {
+              <input
+                [value]="sesion.nombre"
+                (input)="renombrarSesion(sesionActivaIdx(), $any($event.target).value)"
+                (blur)="editandoNombreSesion.set(false)"
+                (keydown.enter)="editandoNombreSesion.set(false)"
+                class="flex-1 text-sm font-black uppercase tracking-tight outline-none bg-transparent text-white border-b border-[#2ED38D] pb-0.5"
+                autofocus
+              />
+            } @else {
+              <button
+                (click)="editandoNombreSesion.set(true)"
+                class="flex items-center gap-2 transition-colors"
+                onmouseenter="this.querySelector('.rename-icon').style.opacity = '1'"
+                onmouseleave="this.querySelector('.rename-icon').style.opacity = '0.5'"
+              >
+                <span class="text-sm font-black uppercase tracking-tight text-white">{{
+                  sesion.nombre
+                }}</span>
+                <span
+                  class="rename-icon text-[11px] transition-opacity"
+                  style="color: rgba(255, 255, 255, 0.5); opacity: 0.5"
+                  >✎</span
+                >
+              </button>
+              <span
+                class="hidden md:block ml-auto text-[9px] font-bold tracking-widest uppercase"
+                style="color: rgba(255, 255, 255, 0.4)"
+              >
+                VISIBLE PARA EL ATLETA
+              </span>
+            }
+          </div>
+
+          <!-- Lista ejercicios -->
+          <div class="md:flex-1 md:overflow-y-auto px-6 py-4">
+            @if (sesion.ejercicios.length === 0) {
+              <div
+                class="flex flex-col items-center justify-center min-h-[200px]"
+                style="border: 1px dashed rgba(255, 255, 255, 0.15)"
+              >
+                <p
+                  class="text-[9px] font-bold tracking-[0.4em] uppercase mb-2"
+                  style="color: rgba(255, 255, 255, 0.35)"
+                >
+                  SIN EJERCICIOS
+                </p>
+                <p
+                  class="text-xs font-light mb-6 text-center px-8"
+                  style="color: rgba(255, 255, 255, 0.55)"
+                >
+                  Añade ejercicios, cardio, descanso activo o cualquier actividad.
+                </p>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    (click)="abrirModal()"
+                    class="text-xs font-black tracking-[0.2em] uppercase px-6 py-2.5 text-black transition-all"
+                    style="
+                      background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
+                      box-shadow: 0 4px 14px rgba(46, 211, 141, 0.25);
+                    "
+                  >
+                    + EJERCICIO
+                  </button>
+                  <button
+                    type="button"
+                    (click)="abrirModal('Descanso')"
+                    class="text-xs font-black tracking-[0.2em] uppercase px-5 py-2.5 transition-colors text-white"
+                    style="
+                      border: 1px solid rgba(255, 255, 255, 0.18);
+                      background: rgba(255, 255, 255, 0.05);
+                    "
+                    onmouseenter="this.style.borderColor = 'rgba(255,255,255,0.35)'"
+                    onmouseleave="this.style.borderColor = 'rgba(255,255,255,0.18)'"
+                  >
+                    + DESCANSO
+                  </button>
+                </div>
+              </div>
+            } @else {
+              @for (ej of sesion.ejercicios; track ej.id; let ei = $index) {
+                @let si = sesionActivaIdx();
+                @let ejDescanso = ej.nombre.toLowerCase().includes('descanso');
+                <div
+                  class="mb-1 flex items-stretch group/card transition-all"
+                  [style]="
+                    ejDescanso
+                      ? 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09);'
+                      : 'background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.12);'
+                  "
+                >
+                  <!-- Número -->
+                  <div
+                    class="w-9 flex-shrink-0 flex items-center justify-center"
+                    style="border-right: 1px solid rgba(255, 255, 255, 0.08)"
+                  >
+                    <span
+                      class="text-[10px] font-black tabular-nums"
+                      style="color: rgba(255, 255, 255, 0.38)"
+                      >{{ ei + 1 }}</span
+                    >
+                  </div>
+
+                  <!-- Contenido -->
+                  <div class="flex-1 px-4 py-2.5 min-w-0">
+                    @if (ejDescanso) {
+                      <p
+                        class="text-[10px] font-black uppercase tracking-widest mb-1"
+                        style="color: rgba(255, 255, 255, 0.5)"
+                      >
+                        DESCANSO
+                      </p>
+                      <input
+                        [value]="ej.notas"
+                        (change)="
+                          actualizarEjercicio(si, ej.id, 'notas', $any($event.target).value)
+                        "
+                        placeholder="Actividad de recuperación..."
+                        class="w-full text-xs font-light placeholder:text-white/25 outline-none border-b border-transparent focus:border-white/20 transition-colors bg-transparent"
+                        style="color: rgba(255, 255, 255, 0.55)"
+                      />
+                    } @else {
+                      <div class="flex items-center gap-4 flex-wrap">
+                        <!-- Nombre ejercicio -->
+                        <input
+                          [value]="ej.nombre"
+                          (change)="
+                            actualizarEjercicio(si, ej.id, 'nombre', $any($event.target).value)
+                          "
+                          class="text-sm font-black uppercase tracking-tight text-white outline-none bg-transparent border-b border-transparent focus:border-white/25 transition-colors pb-0.5 min-w-0"
+                          style="flex: 1 1 8rem"
+                        />
+                        <!-- Series × reps -->
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            (click)="
+                              actualizarEjercicio(
+                                si,
+                                ej.id,
+                                'series',
+                                ej.series > 1 ? ej.series - 1 : 1
+                              )
+                            "
+                            class="w-5 h-5 text-xs flex items-center justify-center transition-colors"
+                            style="
+                              border: 1px solid rgba(255, 255, 255, 0.18);
+                              color: rgba(255, 255, 255, 0.55);
+                            "
+                            onmouseenter="
+                              this.style.borderColor = 'rgba(255,255,255,0.4)';
+                              this.style.color = 'white';
+                            "
+                            onmouseleave="
+                              this.style.borderColor = 'rgba(255,255,255,0.18)';
+                              this.style.color = 'rgba(255,255,255,0.55)';
+                            "
+                          >
+                            −
+                          </button>
+                          <span
+                            class="text-xs font-black w-5 text-center text-white tabular-nums"
+                            >{{ ej.series }}</span
+                          >
+                          <button
+                            (click)="actualizarEjercicio(si, ej.id, 'series', ej.series + 1)"
+                            class="w-5 h-5 text-xs flex items-center justify-center transition-colors"
+                            style="
+                              border: 1px solid rgba(255, 255, 255, 0.18);
+                              color: rgba(255, 255, 255, 0.55);
+                            "
+                            onmouseenter="
+                              this.style.borderColor = 'rgba(255,255,255,0.4)';
+                              this.style.color = 'white';
+                            "
+                            onmouseleave="
+                              this.style.borderColor = 'rgba(255,255,255,0.18)';
+                              this.style.color = 'rgba(255,255,255,0.55)';
+                            "
+                          >
+                            +
+                          </button>
+                          <span
+                            class="text-[10px] font-medium mx-1"
+                            style="color: rgba(255, 255, 255, 0.45)"
+                            >×</span
+                          >
+                          <input
+                            [value]="ej.reps"
+                            (change)="
+                              actualizarEjercicio(si, ej.id, 'reps', $any($event.target).value)
+                            "
+                            class="w-11 text-xs font-black text-white text-center outline-none bg-transparent border-b border-white/25 focus:border-white/50 transition-colors pb-0.5"
+                          />
+                          <span
+                            class="text-[10px] font-medium ml-0.5"
+                            style="color: rgba(255, 255, 255, 0.45)"
+                            >reps</span
+                          >
+                        </div>
+                        <!-- Notas: ocultas en móvil -->
+                        <input
+                          [value]="ej.notas"
+                          (change)="
+                            actualizarEjercicio(si, ej.id, 'notas', $any($event.target).value)
+                          "
+                          placeholder="Notas..."
+                          class="hidden md:inline-block text-xs font-light placeholder:text-white/25 outline-none border-b border-transparent focus:border-white/20 transition-colors bg-transparent min-w-0"
+                          style="color: rgba(255, 255, 255, 0.55); flex: 1 1 6rem"
+                        />
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Eliminar: siempre visible en móvil, hover en desktop -->
+                  <button
+                    (click)="quitarEjercicio(si, ej.id)"
+                    class="w-9 flex-shrink-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/card:opacity-100 transition-opacity text-sm"
+                    style="
+                      color: rgba(255, 255, 255, 0.35);
+                      border-left: 1px solid rgba(255, 255, 255, 0.07);
+                    "
+                    onmouseenter="this.style.color = '#f87171'"
+                    onmouseleave="this.style.color = 'rgba(255,255,255,0.35)'"
+                  >
+                    ✕
+                  </button>
+                </div>
+              }
+
+              <!-- Botones añadir más -->
+              <div class="mt-3 flex items-center gap-1.5">
+                <button
+                  type="button"
+                  (click)="abrirModal()"
+                  class="flex-1 py-2.5 text-[10px] font-black tracking-[0.2em] uppercase transition-colors"
+                  style="
+                    border: 1px dashed rgba(255, 255, 255, 0.15);
+                    color: rgba(255, 255, 255, 0.55);
+                  "
+                  onmouseenter="
+                    this.style.borderColor = 'rgba(46,211,141,0.45)';
+                    this.style.color = '#2ED38D';
+                    this.style.background = 'rgba(46,211,141,0.04)';
+                  "
+                  onmouseleave="
+                    this.style.borderColor = 'rgba(255,255,255,0.15)';
+                    this.style.color = 'rgba(255,255,255,0.55)';
+                    this.style.background = '';
+                  "
+                >
+                  + EJERCICIO
+                </button>
+                <button
+                  type="button"
+                  (click)="abrirModal('Descanso')"
+                  class="px-5 py-2.5 text-[10px] font-black tracking-[0.2em] uppercase transition-colors whitespace-nowrap"
+                  style="
+                    border: 1px dashed rgba(255, 255, 255, 0.15);
+                    color: rgba(255, 255, 255, 0.45);
+                  "
+                  onmouseenter="
+                    this.style.borderColor = 'rgba(255,255,255,0.3)';
+                    this.style.color = 'white';
+                  "
+                  onmouseleave="
+                    this.style.borderColor = 'rgba(255,255,255,0.15)';
+                    this.style.color = 'rgba(255,255,255,0.45)';
+                  "
+                >
+                  + DESCANSO
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="flex-shrink-0 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+      style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
+    >
+      <div class="flex items-center gap-5 flex-wrap">
+        <div>
+          <p
+            class="text-[9px] font-bold tracking-[0.35em] uppercase"
+            style="color: rgba(255, 255, 255, 0.5)"
+          >
+            SESIONES
+          </p>
+          <p class="text-xl font-black text-white leading-tight">{{ sesiones().length }}</p>
+        </div>
+        <div class="h-6 w-px" style="background: rgba(255, 255, 255, 0.12)"></div>
+        <div>
+          <p
+            class="text-[9px] font-bold tracking-[0.35em] uppercase"
+            style="color: rgba(255, 255, 255, 0.5)"
+          >
+            EJERCICIOS
+          </p>
+          <p class="text-xl font-black text-white leading-tight">{{ totalEjerciciosBorrador() }}</p>
+        </div>
+        @if (!nombreRutina().trim()) {
+          <p
+            class="text-xs font-light pl-5"
+            style="
+              border-left: 1px solid rgba(255, 255, 255, 0.1);
+              color: rgba(255, 255, 255, 0.45);
+            "
+          >
+            Escribe un nombre para poder guardar
+          </p>
+        }
+      </div>
+      @if (errorGuardando()) {
+        <p class="text-xs font-bold text-red-400 mr-4">{{ errorGuardando() }}</p>
+      }
+      <button
+        (click)="guardarRutina()"
+        [disabled]="!nombreRutina().trim() || guardando()"
+        class="w-full sm:w-auto text-sm font-black tracking-[0.15em] uppercase px-8 py-3 transition-all"
+        [style]="
+          nombreRutina().trim() && !guardando()
+            ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black; box-shadow: 0 4px 16px rgba(46,211,141,0.2);'
+            : 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: not-allowed;'
+        "
+      >
+        @if (guardando()) {
+          GUARDANDO...
+        } @else {
+          {{ rutinaEditandoId() ? 'ACTUALIZAR RUTINA' : 'GUARDAR RUTINA' }}
+        }
+      </button>
+    </div>
+  </div>
+}

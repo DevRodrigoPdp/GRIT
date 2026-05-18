@@ -1,0 +1,194 @@
+<div class="min-h-screen flex flex-col font-sans"
+  style="background: linear-gradient(135deg, #0C0C14 0%, #12121C 50%, #0E0E18 100%);">
+
+  <!-- Top bar -->
+  <header class="border-b px-6 h-14 flex items-center justify-between flex-shrink-0"
+    style="background: linear-gradient(90deg, #08080E 0%, #0F0F18 50%, #08080E 100%); border-color: rgba(255,255,255,0.06);">
+    <div class="flex items-center gap-4">
+      <span class="font-black tracking-tighter text-lg text-white uppercase select-none">GRIT</span>
+      <div class="h-4 w-px hidden sm:block" style="background: rgba(255,255,255,0.1)"></div>
+      <span class="text-[10px] font-black tracking-[0.3em] uppercase hidden sm:block"
+        style="color: rgba(255,255,255,0.4)">ESTADO DE CUENTA</span>
+    </div>
+    <button (click)="auth.logout()"
+      class="text-[10px] font-black tracking-[0.2em] uppercase transition-colors hover:text-white"
+      style="color: rgba(255,255,255,0.55)">
+      CERRAR SESIÓN
+    </button>
+  </header>
+
+  <!-- Main -->
+  <div class="flex-1 flex items-center justify-center px-6 py-16">
+    <div class="w-full max-w-lg">
+
+      @if (auth.estadoRevision() === 'RECHAZADO') {
+
+        <!-- ── RECHAZADO ─────────────────────────────────────────────── -->
+
+        <!-- Status badge -->
+        <div class="flex items-center gap-3 mb-10">
+          <div class="w-8 h-8 flex items-center justify-center flex-shrink-0"
+            style="background: rgba(220,38,38,0.12); border: 1px solid rgba(220,38,38,0.3);">
+            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="square"/>
+            </svg>
+          </div>
+          <span class="text-[10px] font-black tracking-[0.4em] uppercase text-red-500">SOLICITUD RECHAZADA</span>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="text-6xl lg:text-8xl font-black uppercase tracking-tighter text-white leading-[0.85] mb-12">
+          ACCESO<br><span style="color: rgba(255,255,255,0.25)">DENEGADO</span>
+        </h1>
+
+        <!-- Nombre -->
+        @if (auth.nombre()) {
+        <div class="flex items-center gap-4 mb-8 p-4"
+          style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+          <div class="w-9 h-9 flex items-center justify-center flex-shrink-0 text-xs font-black"
+            style="background: rgba(220,38,38,0.12); border: 1px solid rgba(220,38,38,0.25); color: #f87171;">
+            {{ auth.nombre()!.slice(0,2).toUpperCase() }}
+          </div>
+          <div>
+            <p class="text-[9px] font-black tracking-[0.3em] uppercase mb-0.5" style="color: rgba(255,255,255,0.4)">CUENTA</p>
+            <p class="text-sm font-black uppercase tracking-tight text-white">{{ auth.nombre() }}</p>
+          </div>
+        </div>
+        }
+
+        <!-- Explanation -->
+        <div class="p-5 mb-10"
+          style="background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.18); border-left: 3px solid rgba(220,38,38,0.6);">
+          <p class="text-[10px] font-black tracking-[0.3em] uppercase text-red-500 mb-3">¿QUÉ HA PASADO?</p>
+          <p class="text-sm leading-relaxed" style="color: rgba(255,255,255,0.62); font-weight: 400;">
+            Tu documentación no ha superado el proceso de verificación de credenciales.
+            Si crees que es un error o quieres aportar nueva documentación, contacta con soporte.
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <a href="mailto:soporte@grit.app"
+          class="flex items-center justify-center gap-3 w-full py-5 text-xs font-black tracking-[0.3em] uppercase mb-3 no-underline transition-all duration-300 text-white"
+          style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); box-shadow: 0 4px 20px rgba(220,38,38,0.25);">
+          CONTACTAR CON SOPORTE
+          <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+          </svg>
+        </a>
+        <button (click)="auth.logout()"
+          class="w-full py-3 text-[11px] font-black tracking-[0.2em] uppercase transition-all hover:text-white"
+          style="color: rgba(255,255,255,0.4);">
+          CERRAR SESIÓN
+        </button>
+
+      } @else {
+
+        <!-- ── PENDIENTE_REVISION ─────────────────────────────────────── -->
+
+        <!-- Status badge -->
+        <div class="flex items-center gap-3 mb-10">
+          <div class="relative w-8 h-8 flex items-center justify-center flex-shrink-0"
+            style="background: rgba(46,211,141,0.1); border: 1px solid rgba(46,211,141,0.3);">
+            <span class="w-2 h-2 rounded-full bg-[#2ED38D] animate-pulse"
+              style="box-shadow: 0 0 8px rgba(46,211,141,0.6);"></span>
+          </div>
+          <span class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D]">EN REVISIÓN</span>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="text-6xl lg:text-8xl font-black uppercase tracking-tighter text-white leading-[0.85] mb-12">
+          CUENTA<br><span class="text-[#2ED38D]">PENDIENTE</span>
+        </h1>
+
+        <!-- Nombre -->
+        @if (auth.nombre()) {
+        <div class="flex items-center gap-4 mb-8 p-4"
+          style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+          <div class="w-9 h-9 flex items-center justify-center flex-shrink-0 text-xs font-black text-black"
+            style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%);">
+            {{ auth.nombre()!.slice(0,2).toUpperCase() }}
+          </div>
+          <div>
+            <p class="text-[9px] font-black tracking-[0.3em] uppercase mb-0.5" style="color: rgba(255,255,255,0.4)">CONECTADO COMO</p>
+            <p class="text-sm font-black uppercase tracking-tight text-white">{{ auth.nombre() }}</p>
+          </div>
+        </div>
+        }
+
+        <!-- Steps -->
+        <div class="flex flex-col gap-2 mb-10">
+
+          <!-- Step 1 — completado -->
+          <div class="flex items-start gap-4 p-5"
+            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+            <div class="w-7 h-7 flex items-center justify-center flex-shrink-0 mt-0.5"
+              style="background: rgba(46,211,141,0.15); border: 1px solid rgba(46,211,141,0.3);">
+              <svg class="w-3.5 h-3.5 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M5 13l4 4L19 7" stroke-linecap="square"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-[11px] font-black tracking-[0.2em] uppercase text-white mb-1">DOCUMENTACIÓN RECIBIDA</p>
+              <p class="text-xs" style="color: rgba(255,255,255,0.5); font-weight: 400;">
+                Hemos recibido tu documentación y credenciales.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 2 — activo -->
+          <div class="flex items-start gap-4 p-5 relative overflow-hidden"
+            style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.25); border-left: 3px solid #2ED38D;">
+            <div class="w-7 h-7 flex items-center justify-center flex-shrink-0 mt-0.5"
+              style="background: rgba(46,211,141,0.2); border: 1px solid rgba(46,211,141,0.4);">
+              <span class="w-2 h-2 rounded-full bg-[#2ED38D] animate-pulse"
+                style="box-shadow: 0 0 6px rgba(46,211,141,0.5);"></span>
+            </div>
+            <div>
+              <p class="text-[11px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">VERIFICACIÓN EN CURSO</p>
+              <p class="text-xs" style="color: rgba(255,255,255,0.6); font-weight: 400;">
+                Nuestro equipo está revisando tus credenciales. Puede tardar hasta
+                <strong class="font-black text-white">48 horas</strong>.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3 — pendiente -->
+          <div class="flex items-start gap-4 p-5"
+            style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.05); opacity: 0.45;">
+            <div class="w-7 h-7 flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-black"
+              style="border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5);">
+              3
+            </div>
+            <div>
+              <p class="text-[11px] font-black tracking-[0.2em] uppercase text-white mb-1">ACCESO ACTIVADO</p>
+              <p class="text-xs" style="color: rgba(255,255,255,0.5); font-weight: 400;">
+                Recibirás un email cuando tu cuenta esté activa.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <a href="mailto:soporte@grit.app"
+          class="flex items-center justify-center gap-3 w-full py-5 text-xs font-black tracking-[0.3em] uppercase mb-3 no-underline transition-all duration-300"
+          style="border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.8);"
+          onmouseenter="this.style.borderColor='rgba(46,211,141,0.4)'; this.style.background='rgba(46,211,141,0.07)'; this.style.color='#2ED38D'"
+          onmouseleave="this.style.borderColor='rgba(255,255,255,0.12)'; this.style.background='rgba(255,255,255,0.04)'; this.style.color='rgba(255,255,255,0.8)'">
+          CONTACTAR CON SOPORTE
+          <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+          </svg>
+        </a>
+        <button (click)="auth.logout()"
+          class="w-full py-3 text-[11px] font-black tracking-[0.2em] uppercase transition-all hover:text-white"
+          style="color: rgba(255,255,255,0.4);">
+          CERRAR SESIÓN
+        </button>
+
+      }
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,66 @@
+<footer class="border-t border-[#E5E7EB] bg-white">
+
+  <!-- CTA Band -->
+  <div class="relative border-b border-[#E5E7EB] overflow-hidden min-h-[250px]">
+    <!-- Video background -->
+    <video
+      #bgVideo
+      src="/video.mp4"
+      autoplay
+      loop
+      [muted]="true"
+      playsinline
+      preload="none"
+      class="absolute inset-0 w-full h-full object-cover object-[center_25%]"
+    ></video>
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/80"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+      <div>
+        <h3 class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white leading-[0.9] mb-4">
+          ¿ENTRENADOR<br>
+          O <span class="text-[#2ED38D]">ATLETA</span>?
+        </h3>
+        <p class="text-sm font-light text-gray-400 max-w-md">
+          Únete a GRIT. Conecta con atletas comprometidos o encuentra tu entrenador certificado.
+        </p>
+      </div>
+      <a
+        routerLink="/registro"
+        class="flex-shrink-0 inline-flex items-center gap-3 bg-[#2ED38D] text-black px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline"
+      >
+        Empezar ahora
+        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer Links -->
+  <div class="max-w-7xl mx-auto px-6 py-10">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+
+      <!-- Logo -->
+      <div class="flex items-center">
+        <span class="font-black tracking-tighter text-xl text-black uppercase">GRIT</span>
+      </div>
+
+      <!-- Links -->
+      <div class="flex flex-wrap gap-8 text-xs font-bold tracking-[0.2em] uppercase text-gray-400">
+        <a href="#como-funciona" class="hover:text-black transition-colors no-underline">Cómo funciona</a>
+        <a href="#para-quien" class="hover:text-black transition-colors no-underline">Para quién</a>
+        <a href="#precios" class="hover:text-black transition-colors no-underline">Precios</a>
+        <a href="#" class="hover:text-black transition-colors no-underline">Privacidad</a>
+        <a href="#" class="hover:text-black transition-colors no-underline">Términos</a>
+      </div>
+
+      <!-- Copyright -->
+      <div class="text-xs font-bold tracking-[0.15em] uppercase text-gray-300">
+        © {{ year }} GRIT. TODOS LOS DERECHOS RESERVADOS.
+      </div>
+    </div>
+  </div>
+
+</footer>

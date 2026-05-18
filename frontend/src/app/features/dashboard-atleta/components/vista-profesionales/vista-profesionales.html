@@ -1,0 +1,108 @@
+<div>
+  <div class="mb-8">
+    <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">MIS PROFESIONALES</h2>
+    <p class="text-sm font-light mt-1" style="color: rgba(255,255,255,0.45)">Conecta con tu entrenador y nutricionista.
+    </p>
+  </div>
+
+  <!-- Conectar con código -->
+  <div class="mb-10">
+    <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(255,255,255,0.45)">CONECTAR CON
+      PROFESIONAL</p>
+    <div class="p-5" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+      <p class="text-sm font-light mb-4" style="color: rgba(255,255,255,0.45)">Si tu entrenador o nutricionista te ha
+        dado un código, introdúcelo aquí para conectar.</p>
+
+      @if (auth.servicio() === 'AMBOS') {
+      <div class="flex mb-4 w-fit" style="border: 1px solid rgba(255,255,255,0.08);">
+        <button type="button" (click)="rolConectar.set('ENTRENAMIENTO')"
+          class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors text-white hover:text-white"
+          [class]="rolConectar() === 'ENTRENAMIENTO' ? 'bg-black text-white' : ''"
+          [style]="rolConectar() !== 'ENTRENAMIENTO' ? 'color: rgba(255,255,255,0.4);' : ''">
+          ENTRENADOR
+        </button>
+        <button type="button" (click)="rolConectar.set('NUTRICION')"
+          class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors text-white hover:text-white"
+          style="border-left: 1px solid rgba(255,255,255,0.08);"
+          [class]="rolConectar() === 'NUTRICION' ? 'bg-black text-white' : ''"
+          [style]="rolConectar() !== 'NUTRICION' ? 'border-left: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.4);' : 'border-left: 1px solid rgba(255,255,255,0.08);'">
+          NUTRICIONISTA
+        </button>
+      </div>
+      }
+
+      <div class="flex gap-2">
+        <input [value]="codigoEntrenador()"
+          (input)="codigoEntrenador.set($any($event.target).value.toUpperCase()); codigoError.set(''); codigoExito.set(false)"
+          (keydown.enter)="conectarConCodigo()"
+          [placeholder]="auth.servicio() === 'AMBOS' ? (rolConectar() === 'ENTRENAMIENTO' ? 'Código de tu entrenador' : 'Código de tu nutricionista') : 'Ej. GRIT-A1B2C3'"
+          aria-label="Código del profesional"
+          class="flex-1 py-2 text-sm font-mono font-medium placeholder:font-light placeholder:text-[rgba(255,255,255,0.3)] outline-none focus:outline-none bg-transparent uppercase"
+          style="border-bottom: 1px solid rgba(255,255,255,0.08); color: white;"
+          onfocus="this.style.borderBottomColor='rgba(255,255,255,0.3)'"
+          onblur="this.style.borderBottomColor='rgba(255,255,255,0.08)'" />
+        <button (click)="conectarConCodigo()" [disabled]="!codigoEntrenador().trim() || enviandoCodigo()"
+          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+          [class]="codigoEntrenador().trim() && !enviandoCodigo() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : ''"
+          [style]="!(codigoEntrenador().trim() && !enviandoCodigo()) ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);' : ''">
+          @if (enviandoCodigo()) { CONECTANDO... } @else { CONECTAR }
+        </button>
+      </div>
+      @if (codigoError()) {
+      <p class="text-xs font-bold text-red-400 mt-2" role="alert">{{ codigoError() }}</p>
+      }
+      @if (codigoExito()) {
+      <p class="text-xs font-bold text-[#2ED38D] mt-2" role="status">● Conectado correctamente</p>
+      }
+    </div>
+  </div>
+
+  <!-- Lista de profesionales asignados -->
+  @if (profesionales().length > 0) {
+  <div>
+    <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(255,255,255,0.45)">TUS
+      PROFESIONALES</p>
+    <div class="flex flex-col gap-4">
+      @for (prof of profesionales(); track prof.id) {
+      <div class="p-5" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-black flex items-center justify-center flex-shrink-0">
+            <span class="text-xs font-black text-white">{{ prof.nombre[0] }}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3 flex-wrap mb-0.5">
+              <span class="text-sm font-black uppercase tracking-tight text-white">{{ prof.nombre }}</span>
+              <span class="text-[9px] font-black tracking-[0.2em] uppercase px-2 py-0.5"
+                [class]="prof.rol === 'ENTRENADOR' ? 'bg-black text-white' : 'bg-[#2ED38D] text-black'">
+                {{ prof.rol }}
+              </span>
+            </div>
+            <p class="text-[10px] font-light" style="color: rgba(255,255,255,0.45)">{{ prof.titulacion }}</p>
+            @if (prof.anosExperiencia) {
+            <span class="text-[10px] font-bold" style="color: rgba(255,255,255,0.45)">{{ prof.anosExperiencia }} años de
+              experiencia</span>
+            }
+            @if (prof.sobreMi) {
+            <p class="text-sm font-light leading-relaxed mt-2" style="color: rgba(255,255,255,0.5)">{{ prof.sobreMi }}
+            </p>
+            }
+          </div>
+          <button (click)="desconectar(prof.id)" [disabled]="desconectandoId() === prof.id"
+            [attr.aria-label]="'Darse de baja de ' + prof.nombre" class="flex-shrink-0 text-[10px] font-black tracking-[0.1em] uppercase px-3 py-2 
+            border 1px solid rgba(220,38,38,0.3) text-red-400 hover:border-red-300 hover:text-red-300 transition-colors 
+            disabled:opacity-40 disabled:cursor-not-allowed">
+            {{ desconectandoId() === prof.id ? '...' : 'DARSE DE BAJA' }}
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  } @else {
+  <div class="py-12 text-center">
+    <p class="text-sm font-light" style="color: rgba(255,255,255,0.45)">Aún no tienes ningún profesional asignado.</p>
+    <p class="text-xs mt-1" style="color: rgba(255,255,255,0.3)">Conecta usando el código que te facilite tu entrenador
+      o nutricionista.</p>
+  </div>
+  }
+</div>

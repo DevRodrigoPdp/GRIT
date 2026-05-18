@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SplashComponent } from './components/splash/splash';
+import { SplashComponent } from './shared/splash/splash';
 
 @Component({
   selector: 'app-root',

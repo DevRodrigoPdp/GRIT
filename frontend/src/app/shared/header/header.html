@@ -1,0 +1,87 @@
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#E5E7EB]">
+  <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="#" (click)="navegar($event, 'inicio')" class="flex items-center gap-2 no-underline">
+      <span class="font-black tracking-tighter text-2xl text-black uppercase select-none">GRIT</span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <div class="hidden md:flex items-center gap-8">
+      @for (link of navLinks; track link.label) {
+        <a
+          href="#"
+          (click)="navegar($event, link.href)"
+          class="relative pb-1 text-xs font-semibold tracking-widest uppercase transition-colors duration-200 no-underline"
+          [class.text-black]="vistaActual() === link.href"
+          [class.text-gray-400]="vistaActual() !== link.href"
+        >
+          {{ link.label }}
+          <span
+            class="absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300 ease-out origin-left"
+            [class.w-full]="vistaActual() === link.href"
+            [class.w-0]="vistaActual() !== link.href"
+          ></span>
+        </a>
+      }
+    </div>
+
+    <!-- CTA + Mobile Toggle -->
+    <div class="flex items-center gap-4">
+      <a
+        routerLink="/login"
+        class="hidden md:inline-flex items-center text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-black transition-colors duration-200 no-underline"
+      >
+        Iniciar sesión
+      </a>
+      <a
+        routerLink="/registro"
+        class="hidden md:inline-flex items-center bg-[#2ED38D] text-black px-6 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-black hover:text-white transition-all duration-200 no-underline"
+      >
+        Empezar gratis
+      </a>
+
+      <!-- Mobile menu button -->
+      <button
+        class="md:hidden flex flex-col gap-1.5 p-1"
+        (click)="toggleMenu()"
+        aria-label="Toggle menu"
+      >
+        <span class="block w-6 h-px bg-black transition-all duration-200" [class.rotate-45]="isMenuOpen()" [class.translate-y-2]="isMenuOpen()"></span>
+        <span class="block w-6 h-px bg-black transition-all duration-200" [class.opacity-0]="isMenuOpen()"></span>
+        <span class="block w-6 h-px bg-black transition-all duration-200" [class.-rotate-45]="isMenuOpen()" [class.-translate-y-2]="isMenuOpen()"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  @if (isMenuOpen()) {
+    <div class="md:hidden border-t border-[#E5E7EB] bg-white px-6 py-6 flex flex-col gap-5">
+      @for (link of navLinks; track link.label) {
+        <a
+          href="#"
+          class="text-xs font-semibold tracking-widest uppercase transition-colors no-underline"
+          [class.text-black]="vistaActual() === link.href"
+          [class.text-gray-400]="vistaActual() !== link.href"
+          (click)="navegar($event, link.href)"
+        >
+          {{ link.label }}
+        </a>
+      }
+      <a
+        routerLink="/login"
+        class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-black transition-colors no-underline"
+        (click)="toggleMenu()"
+      >
+        Iniciar sesión
+      </a>
+      <a
+        routerLink="/registro"
+        class="inline-flex items-center justify-center bg-[#2ED38D] text-black px-6 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-black hover:text-white transition-all duration-200 no-underline w-fit"
+        (click)="toggleMenu()"
+      >
+        Empezar gratis
+      </a>
+    </div>
+  }
+</header>

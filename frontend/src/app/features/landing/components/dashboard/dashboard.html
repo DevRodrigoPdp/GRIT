@@ -1,0 +1,110 @@
+<section class="flex flex-col lg:flex-row" style="height: calc(100vh - 4rem)">
+
+  <!-- ── Panel Atleta ── -->
+  <div class="group relative flex-1 min-h-[50vh] lg:min-h-0 flex flex-col justify-end overflow-hidden cursor-pointer">
+    <div
+      class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
+      style="background-image: url('https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1200&q=80')"
+    ></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10 group-hover:via-black/40 transition-all duration-500"></div>
+    <div class="absolute top-6 left-6 lg:top-8 lg:left-8">
+      <span class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D] border border-[#2ED38D]/40 px-3 py-1 rounded-full">
+        Para atletas
+      </span>
+    </div>
+
+    <div class="relative z-10 p-6 lg:p-10 xl:p-14 flex flex-col gap-4 lg:gap-5">
+      <div>
+        <h2 class="text-5xl lg:text-6xl xl:text-8xl font-black uppercase tracking-tighter text-white leading-[0.85] mb-3">
+          VE MÁS<br>LEJOS.
+        </h2>
+        <div class="w-10 h-0.5 bg-[#2ED38D]"></div>
+      </div>
+
+      <ul class="flex flex-col gap-2 lg:gap-2.5">
+        @for (item of atletaFeatures; track item) {
+          <li class="flex items-center gap-3">
+            <svg class="w-3.5 h-3.5 text-[#2ED38D] flex-shrink-0" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            </svg>
+            <span class="text-sm font-light text-gray-200 leading-relaxed">{{ item }}</span>
+          </li>
+        }
+      </ul>
+
+      <a
+        routerLink="/registro/atleta"
+        class="inline-flex items-center gap-3 bg-[#2ED38D] text-black px-7 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline group/btn w-fit mt-1"
+      >
+        Empieza gratis
+        <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:translate-x-1" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Divisor vertical -->
+  <div class="hidden lg:block w-px bg-white/10 flex-shrink-0"></div>
+
+  <!-- ── Panel Profesional ── -->
+  <div class="group relative flex-1 min-h-[50vh] lg:min-h-0 flex flex-col justify-end overflow-hidden cursor-pointer">
+    <div
+      class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
+      style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=80')"
+    ></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/15 group-hover:via-black/40 transition-all duration-500"></div>
+    <div class="absolute top-6 right-6 lg:top-8 lg:right-8 flex items-center gap-2">
+      <span class="text-[10px] font-black tracking-[0.3em] uppercase text-[#2ED38D] border border-[#2ED38D]/40 px-3 py-1 rounded-full">
+        Entrenadores
+      </span>
+      <span class="text-white/30 text-xs">+</span>
+      <span class="text-[10px] font-black tracking-[0.3em] uppercase text-[#2ED38D] border border-[#2ED38D]/40 px-3 py-1 rounded-full">
+        Nutricionistas
+      </span>
+    </div>
+
+    <div class="relative z-10 p-6 lg:p-10 xl:p-14 flex flex-col gap-4 lg:gap-5">
+      <div>
+        <h2 class="text-5xl lg:text-6xl xl:text-8xl font-black uppercase tracking-tighter text-white leading-[0.85] mb-3">
+          MARCA LA<br>DIFERENCIA.
+        </h2>
+        <div class="w-10 h-0.5 bg-[#2ED38D]"></div>
+      </div>
+
+      <!-- Tabs entrenador / nutricionista -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-white/8 border border-white/15 rounded-full px-3 py-1.5">
+          <div class="w-1.5 h-1.5 rounded-full bg-[#2ED38D]"></div>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-white">Entrenador</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white/8 border border-white/15 rounded-full px-3 py-1.5">
+          <div class="w-1.5 h-1.5 rounded-full bg-[#2ED38D]"></div>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-white">Nutricionista</span>
+        </div>
+      </div>
+
+      <ul class="flex flex-col gap-2 lg:gap-2.5">
+        @for (item of entrenadorFeatures; track item) {
+          <li class="flex items-center gap-3">
+            <svg class="w-3.5 h-3.5 text-[#2ED38D] flex-shrink-0" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            </svg>
+            <span class="text-sm font-light text-gray-200 leading-relaxed">{{ item }}</span>
+          </li>
+        }
+      </ul>
+
+      <a
+        routerLink="/para-profesionales"
+        class="inline-flex items-center gap-3 bg-white text-black px-7 py-3 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-[#2ED38D] transition-all duration-300 no-underline group/btn w-fit mt-1"
+      >
+        Ver más
+        <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:translate-x-1" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+</section>
