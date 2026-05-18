@@ -1,10 +1,13 @@
-import {
-  Component, inject, signal, computed, input, OnInit
-} from '@angular/core';
+import { Component, inject, signal, computed, input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, DatePipe } from '@angular/common';
 
-import { NutricionService, PlanNutricion, Comida, AlimentoEnPlan } from '../../services/nutricion.service';
+import {
+  NutricionService,
+  PlanNutricion,
+  Comida,
+  AlimentoEnPlan,
+} from '../../services/nutricion.service';
 import { AlimentoOFF } from '../../services/alimentos.service';
 import { BuscadorAlimentoComponent } from '../buscador-alimento/buscador-alimento';
 
@@ -19,23 +22,23 @@ type Vista = 'lista' | 'crear' | 'detalle';
 export class GestionNutricionComponent implements OnInit {
   readonly nutricion = inject(NutricionService);
 
-  readonly atletaId      = input<string | null>(null);
-  readonly alergias      = input<string[]>([]);
+  readonly atletaId = input<string | null>(null);
+  readonly alergias = input<string[]>([]);
   readonly intolerancias = input<string[]>([]);
 
   // ── Estado principal ──────────────────────────────────────────────────────
-  vista        = signal<Vista>('lista');
-  planes       = signal<PlanNutricion[]>([]);
-  guardando      = signal(false);
+  vista = signal<Vista>('lista');
+  planes = signal<PlanNutricion[]>([]);
+  guardando = signal(false);
   errorGuardando = signal('');
-  planDetalle    = signal<PlanNutricion | null>(null);
+  planDetalle = signal<PlanNutricion | null>(null);
 
   // ── Formulario plan ───────────────────────────────────────────────────────
-  nombrePlan      = signal('');
+  nombrePlan = signal('');
   descripcionPlan = signal('');
-  planActivo      = signal(false);
-  planEditandoId  = signal<string | null>(null);
-  comidas         = signal<Comida[]>([{ nombre: 'Comida 1', alimentos: [] }]);
+  planActivo = signal(false);
+  planEditandoId = signal<string | null>(null);
+  comidas = signal<Comida[]>([{ nombre: 'Comida 1', alimentos: [] }]);
 
   /** Índice de la comida con el buscador de alimentos abierto */
   buscadorEnComida = signal<number | null>(null);
@@ -44,7 +47,7 @@ export class GestionNutricionComponent implements OnInit {
 
   ngOnInit() {
     const id = this.atletaId();
-    if (id) this.nutricion.getPlanes(id).subscribe(p => this.planes.set(p));
+    if (id) this.nutricion.getPlanes(id).subscribe((p) => this.planes.set(p));
   }
 
   // ── Gestión de comidas ────────────────────────────────────────────────────
@@ -68,20 +71,22 @@ export class GestionNutricionComponent implements OnInit {
     this.descripcionPlan.set(plan.descripcion ?? '');
     this.planActivo.set(plan.activo);
     this.planEditandoId.set(plan.id);
-    this.comidas.set(plan.comidas.length > 0 ? plan.comidas : [{ nombre: 'Comida 1', alimentos: [] }]);
+    this.comidas.set(
+      plan.comidas.length > 0 ? plan.comidas : [{ nombre: 'Comida 1', alimentos: [] }],
+    );
     this.vista.set('crear');
   }
 
   agregarComida() {
-    this.comidas.update(l => [...l, { nombre: `Comida ${l.length + 1}`, alimentos: [] }]);
+    this.comidas.update((l) => [...l, { nombre: `Comida ${l.length + 1}`, alimentos: [] }]);
   }
 
   eliminarComida(idx: number) {
-    this.comidas.update(l => l.filter((_, i) => i !== idx));
+    this.comidas.update((l) => l.filter((_, i) => i !== idx));
   }
 
   actualizarNombreComida(idx: number, nombre: string) {
-    this.comidas.update(l => {
+    this.comidas.update((l) => {
       const n = [...l];
       n[idx] = { ...n[idx], nombre };
       return n;
@@ -89,7 +94,7 @@ export class GestionNutricionComponent implements OnInit {
   }
 
   actualizarNotasComida(idx: number, notas: string) {
-    this.comidas.update(l => {
+    this.comidas.update((l) => {
       const n = [...l];
       n[idx] = { ...n[idx], notas };
       return n;
@@ -100,7 +105,7 @@ export class GestionNutricionComponent implements OnInit {
 
   agregarAlimento(comidaIdx: number, item: AlimentoEnPlan) {
     const comidaNombre = this.comidas()[comidaIdx]?.nombre ?? '';
-    this.comidas.update(l => {
+    this.comidas.update((l) => {
       const n = [...l];
       n[comidaIdx] = { ...n[comidaIdx], alimentos: [...n[comidaIdx].alimentos, item] };
       return n;
@@ -114,31 +119,37 @@ export class GestionNutricionComponent implements OnInit {
   }
 
   quitarAlimento(comidaIdx: number, alimentoIdx: number) {
-    this.comidas.update(l => {
+    this.comidas.update((l) => {
       const n = [...l];
-      n[comidaIdx] = { ...n[comidaIdx], alimentos: n[comidaIdx].alimentos.filter((_, i) => i !== alimentoIdx) };
+      n[comidaIdx] = {
+        ...n[comidaIdx],
+        alimentos: n[comidaIdx].alimentos.filter((_, i) => i !== alimentoIdx),
+      };
       return n;
     });
   }
 
   yaEnComida(comidaIdx: number, codigo: string): boolean {
-    return this.comidas()[comidaIdx].alimentos.some(a => a.alimento.codigo === codigo);
+    return this.comidas()[comidaIdx].alimentos.some((a) => a.alimento.codigo === codigo);
   }
 
   // ── Guardar / eliminar plan ───────────────────────────────────────────────
 
   guardarPlan() {
-    const atletaId    = this.atletaId();
-    const editandoId  = this.planEditandoId();
+    const atletaId = this.atletaId();
+    const editandoId = this.planEditandoId();
+    const macros = this.totales(); 
     if (!atletaId || !this.nombrePlan().trim()) return;
 
     if (this.comidas().length === 0) {
       this.errorGuardando.set('El plan debe tener al menos una comida.');
       return;
     }
-    const comidaSinAlimentos = this.comidas().find(c => c.alimentos.length === 0);
+    const comidaSinAlimentos = this.comidas().find((c) => c.alimentos.length === 0);
     if (comidaSinAlimentos) {
-      this.errorGuardando.set(`"${comidaSinAlimentos.nombre}" no tiene alimentos. Añade al menos uno o elimina la comida.`);
+      this.errorGuardando.set(
+        `"${comidaSinAlimentos.nombre}" no tiene alimentos. Añade al menos uno o elimina la comida.`,
+      );
       return;
     }
 
@@ -147,38 +158,69 @@ export class GestionNutricionComponent implements OnInit {
 
     if (editandoId) {
       this.nutricion
-        .actualizarPlan(editandoId, atletaId, this.nombrePlan(), this.descripcionPlan(), this.comidas(), this.planActivo())
+        .actualizarPlan(
+          editandoId,
+          atletaId,
+          this.nombrePlan(),
+          this.descripcionPlan(),
+          this.comidas(),
+          this.planActivo(),
+          Math.round(macros.kcal),
+          Math.round(macros.prot * 10) / 10,
+          Math.round(macros.carbs * 10) / 10,
+          Math.round(macros.grasa * 10) / 10,
+        )
         .subscribe({
           next: () => {
-            this.planes.update(p => p.map(x => x.id === editandoId
-              ? { ...x, nombre: this.nombrePlan(), descripcion: this.descripcionPlan(), comidas: this.comidas() }
-              : x
-            ));
+            this.planes.update((p) =>
+              p.map((x) =>
+                x.id === editandoId
+                  ? {
+                      ...x,
+                      nombre: this.nombrePlan(),
+                      descripcion: this.descripcionPlan(),
+                      comidas: this.comidas(),
+                    }
+                  : x,
+              ),
+            );
             this.guardando.set(false);
             this.vista.set('lista');
           },
           error: (err) => {
             this.guardando.set(false);
-            const msg = err?.error?.errors?.[0]?.defaultMessage
-              ?? err?.error?.message
-              ?? `Error ${err?.status ?? ''}`;
+            const msg =
+              err?.error?.errors?.[0]?.defaultMessage ??
+              err?.error?.message ??
+              `Error ${err?.status ?? ''}`;
             this.errorGuardando.set(msg);
           },
         });
     } else {
       this.nutricion
-        .crearPlan(atletaId, this.nombrePlan(), this.descripcionPlan(), this.comidas(), this.planActivo())
+        .crearPlan(
+          atletaId,
+          this.nombrePlan(),
+          this.descripcionPlan(),
+          this.comidas(),
+          this.planActivo(),
+          Math.round(macros.kcal),
+          Math.round(macros.prot * 10) / 10,
+          Math.round(macros.carbs * 10) / 10,
+          Math.round(macros.grasa * 10) / 10,
+        )
         .subscribe({
-          next: plan => {
-            this.planes.update(p => [...p, plan]);
+          next: (plan) => {
+            this.planes.update((p) => [...p, plan]);
             this.guardando.set(false);
             this.vista.set('lista');
           },
           error: (err) => {
             this.guardando.set(false);
-            const msg = err?.error?.errors?.[0]?.defaultMessage
-              ?? err?.error?.message
-              ?? `Error ${err?.status ?? ''}`;
+            const msg =
+              err?.error?.errors?.[0]?.defaultMessage ??
+              err?.error?.message ??
+              `Error ${err?.status ?? ''}`;
             this.errorGuardando.set(msg);
           },
         });
@@ -189,8 +231,9 @@ export class GestionNutricionComponent implements OnInit {
     const id = this.atletaId();
     if (!id) return;
     this.nutricion.activarPlan(id, planId).subscribe(() => {
-      this.planes.update(p => p.map(x => ({ ...x, activo: x.id === planId })));
-      if (this.planDetalle()?.id === planId) this.planDetalle.update(p => p ? { ...p, activo: true } : p);
+      this.planes.update((p) => p.map((x) => ({ ...x, activo: x.id === planId })));
+      if (this.planDetalle()?.id === planId)
+        this.planDetalle.update((p) => (p ? { ...p, activo: true } : p));
     });
   }
 
@@ -198,8 +241,9 @@ export class GestionNutricionComponent implements OnInit {
     const id = this.atletaId();
     if (!id) return;
     this.nutricion.desactivarPlan(id, planId).subscribe(() => {
-      this.planes.update(p => p.map(x => x.id === planId ? { ...x, activo: false } : x));
-      if (this.planDetalle()?.id === planId) this.planDetalle.update(p => p ? { ...p, activo: false } : p);
+      this.planes.update((p) => p.map((x) => (x.id === planId ? { ...x, activo: false } : x)));
+      if (this.planDetalle()?.id === planId)
+        this.planDetalle.update((p) => (p ? { ...p, activo: false } : p));
     });
   }
 
@@ -207,7 +251,7 @@ export class GestionNutricionComponent implements OnInit {
     const id = this.atletaId();
     if (!id) return;
     this.nutricion.eliminarPlan(id, planId).subscribe(() => {
-      this.planes.update(p => p.filter(x => x.id !== planId));
+      this.planes.update((p) => p.filter((x) => x.id !== planId));
     });
   }
 
@@ -220,5 +264,4 @@ export class GestionNutricionComponent implements OnInit {
   totalAlimentos(comida: Comida): number {
     return comida.alimentos.reduce((s, a) => s + a.cantidadG, 0);
   }
-
 }
