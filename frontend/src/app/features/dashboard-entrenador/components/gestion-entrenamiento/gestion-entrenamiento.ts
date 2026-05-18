@@ -63,11 +63,13 @@ export class GestionEntrenamientoComponent implements OnInit {
 
   abrirModal(nombreInicial = ''): void {
     this.limpiarForm();
+    this.mostrarSugerencias.set(false);
     if (nombreInicial) this.nuevoNombre.set(nombreInicial);
     this.modalAbierto.set(true);
   }
 
   cerrarModal(): void {
+     this.mostrarSugerencias.set(false); 
     this.modalAbierto.set(false);
   }
 
@@ -211,7 +213,10 @@ export class GestionEntrenamientoComponent implements OnInit {
     this.nuevoReps.set('10');
     this.nuevoNotas.set('');
     this.ejercicioSeleccionado.set(null);
+    this.mostrarSugerencias.set(false);
+    this.entrenamiento.limpiarSugerencias();
   }
+
 
   // ── Guardar / eliminar ────────────────────────────────────────────────────
 
