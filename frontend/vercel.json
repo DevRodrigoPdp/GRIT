@@ -1,4 +1,10 @@
 {
+  "experimentalServices": {
+    "web": {
+      "routePrefix": "/",
+      "framework": "angular"
+    }
+  },
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://grit-production-11bc.up.railway.app/api/:path*" }
   ]
