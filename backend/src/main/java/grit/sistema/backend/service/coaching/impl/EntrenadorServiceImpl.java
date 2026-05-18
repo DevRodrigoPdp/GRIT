@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +45,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     private final EntrenadorMapper entrenadorMapper;
     private final UsuarioService usuarioService;
     private final PwnedPasswordClient pwnedClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -150,6 +152,8 @@ public class EntrenadorServiceImpl implements EntrenadorService {
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
         asignacionRepository.desactivarAsignacionesPorEntrenador(entrenador.getId());
+
+        applicationEventPublisher.publishEvent(new EntrenadorBajaEventDTO(entrenadorId));
 
         usuarioService.suspenderUsuario(entrenadorId);
     }

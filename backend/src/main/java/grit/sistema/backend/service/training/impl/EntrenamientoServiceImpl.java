@@ -1,6 +1,7 @@
 package grit.sistema.backend.service.training.impl;
 
 import grit.sistema.backend.dto.coaching.AtletaBajaEventDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorBajaEventDTO;
 import grit.sistema.backend.dto.training.EjercicioRequestDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
@@ -213,6 +214,12 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     public void onAtletaBaja(AtletaBajaEventDTO event) {
         rutinaRepository.desactivarRutinasActivas(event.atletaId());
         evictPlanActivo(event.atletaId());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void onEntrenadorBaja(EntrenadorBajaEventDTO event) {
+        rutinaRepository.desactivarRutinasPorEntrenador(event.entrenadorId());
     }
 
     private void validarPropiedad(UUID entrenadorId, Rutina rutina) {

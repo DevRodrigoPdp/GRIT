@@ -1,6 +1,7 @@
 package grit.sistema.backend.service.nutrition.impl;
 
 import grit.sistema.backend.dto.coaching.AtletaBajaEventDTO;
+import grit.sistema.backend.dto.coaching.EntrenadorBajaEventDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
@@ -180,6 +181,14 @@ public class NutricionServiceImpl implements NutricionService {
     public void onAtletaBaja(AtletaBajaEventDTO event) {
         planRepository.desactivarPlanesActivos(event.atletaId());
         evictPlanActivo(event.atletaId());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void onEntrenadorBaja(EntrenadorBajaEventDTO event) {
+        log.info("Fase BEFORE_COMMIT: Desactivando todos los planes de nutrición del entrenador {}", event.entrenadorId());
+
+        planRepository.desactivarPlanesPorEntrenador(event.entrenadorId());
     }
 
     private void validarPropiedad(UUID entrenadorId, PlanNutricion plan) {

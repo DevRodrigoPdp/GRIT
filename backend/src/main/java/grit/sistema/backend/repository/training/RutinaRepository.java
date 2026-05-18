@@ -26,5 +26,9 @@ public interface RutinaRepository extends JpaRepository<Rutina, UUID> {
     @Query("UPDATE Rutina r SET r.activo = false WHERE r.entrenador.id = :entrenadorId AND r.atleta.id = :atletaId AND r.activo = true")
     void desactivarRutinasActivas(@Param("entrenadorId") UUID entrenadorId, @Param("atletaId") UUID atletaId);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Rutina r SET r.activo = false WHERE r.entrenador.id = :entrenadorId AND r.activo = true")
+    void desactivarRutinasPorEntrenador(@Param("entrenadorId") UUID entrenadorId);
+
     Optional<Rutina> findByAtletaIdAndActivoTrue(UUID atletaId);
 }
