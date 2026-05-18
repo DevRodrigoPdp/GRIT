@@ -7,7 +7,8 @@
     <div class="flex items-center gap-4">
       <span class="font-black tracking-tighter text-lg text-white uppercase select-none">GRIT</span>
       <div class="h-4 w-px hidden md:block" style="background: rgba(255,255,255,0.1)"></div>
-      <span class="text-[10px] font-black tracking-[0.2em] uppercase hidden md:block" style="color: rgba(255,255,255,0.58)">ADMIN</span>
+      <span class="text-[10px] font-black tracking-[0.2em] uppercase hidden md:block"
+        style="color: rgba(255,255,255,0.58)">ADMIN</span>
       <div class="h-4 w-px hidden md:block" style="background: rgba(255,255,255,0.06)"></div>
       <span class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] hidden md:block">
         {{ seccionActual() === 'SOLICITUDES' ? 'GESTIÓN DE SOLICITUDES' : 'GESTIÓN DE USUARIOS' }}
@@ -33,29 +34,30 @@
     <aside class="w-14 lg:w-60 flex flex-col py-8 flex-shrink-0"
       style="background: linear-gradient(180deg, #08080E 0%, #0F0F1A 100%); border-right: 1px solid rgba(255,255,255,0.05);">
       <div class="px-4 mb-8 hidden lg:block">
-        <span class="text-[9px] font-black tracking-[0.4em] uppercase" style="color: rgba(255,255,255,0.50)">PANEL DE CONTROL</span>
+        <span class="text-[9px] font-black tracking-[0.4em] uppercase" style="color: rgba(255,255,255,0.50)">PANEL DE
+          CONTROL</span>
       </div>
       <nav class="flex flex-col gap-1 px-2">
         <button (click)="cambiarSeccion('SOLICITUDES')"
           [class]="seccionActual() === 'SOLICITUDES' ? 'sidebar-active' : 'sidebar-inactive'"
-          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200 relative"
-          [style]="seccionActual() === 'SOLICITUDES'
+          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200 relative" [style]="seccionActual() === 'SOLICITUDES'
             ? 'background: linear-gradient(90deg, rgba(46,211,141,0.18) 0%, rgba(46,211,141,0.06) 100%); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D; box-shadow: 0 0 20px rgba(46,211,141,0.08);'
             : 'color: rgba(255,255,255,0.60); border: 1px solid transparent;'">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            <path
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               stroke-linecap="square" />
           </svg>
           <span class="hidden lg:block text-[11px] font-black tracking-[0.2em] uppercase">SOLICITUDES</span>
         </button>
         <button (click)="cambiarSeccion('USUARIOS')"
           [class]="seccionActual() === 'USUARIOS' ? 'sidebar-active' : 'sidebar-inactive'"
-          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200 relative"
-          [style]="seccionActual() === 'USUARIOS'
+          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200 relative" [style]="seccionActual() === 'USUARIOS'
             ? 'background: linear-gradient(90deg, rgba(46,211,141,0.18) 0%, rgba(46,211,141,0.06) 100%); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D; box-shadow: 0 0 20px rgba(46,211,141,0.08);'
             : 'color: rgba(255,255,255,0.60); border: 1px solid transparent;'">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            <path
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
               stroke-linecap="square" />
           </svg>
           <span class="hidden lg:block text-[11px] font-black tracking-[0.2em] uppercase">USUARIOS</span>
@@ -68,14 +70,14 @@
 
       @if (seccionActual() === 'SOLICITUDES') {
       <!-- ── SOLICITUDES ────────────────────────────────────────────────── -->
-      <section class="flex-1 flex flex-col overflow-hidden"
-        style="border-right: 1px solid rgba(255,255,255,0.05);">
+      <section class="flex-1 flex flex-col overflow-hidden" style="border-right: 1px solid rgba(255,255,255,0.05);">
 
         <div class="p-8 lg:p-12 pb-6"
           style="border-bottom: 1px solid rgba(255,255,255,0.05); background: linear-gradient(180deg, rgba(8,8,14,0.8) 0%, transparent 100%);">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-6 h-px bg-[#2ED38D]"></div>
-            <span class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D]">REVISIÓN DE CREDENCIALES</span>
+            <span class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D]">REVISIÓN DE
+              CREDENCIALES</span>
           </div>
           <h1 class="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none mb-10">
             SOLICITUDES<br>PENDIENTES
@@ -101,11 +103,13 @@
           @if (loadingSolicitudes() && solicitudes().length === 0) {
           <div class="py-20 text-center">
             <div class="w-10 h-10 border-2 border-[#2ED38D] border-t-transparent animate-spin mx-auto mb-4"></div>
-            <p class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.58)">CARGANDO...</p>
+            <p class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.58)">
+              CARGANDO...</p>
           </div>
           } @else if (solicitudesFiltradas().length === 0) {
           <div class="py-20 text-center" style="border: 1px dashed rgba(255,255,255,0.08);">
-            <p class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.42)">SIN SOLICITUDES</p>
+            <p class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.42)">SIN
+              SOLICITUDES</p>
           </div>
           } @else {
           <div class="flex flex-col gap-3">
@@ -116,8 +120,7 @@
                 ? 'background: linear-gradient(135deg, rgba(46,211,141,0.1) 0%, rgba(46,211,141,0.04) 100%); border: 1px solid rgba(46,211,141,0.3); transform: translateX(4px); box-shadow: 0 4px 24px rgba(46,211,141,0.08), inset 0 1px 0 rgba(46,211,141,0.1);'
                 : 'background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(255,255,255,0.07);'">
 
-              <div class="absolute top-0 left-0 w-0.5 h-full"
-                [class]="s.titulacionEntrenamiento && s.titulacionNutricion
+              <div class="absolute top-0 left-0 w-0.5 h-full" [class]="s.titulacionEntrenamiento && s.titulacionNutricion
                   ? 'bg-gradient-to-b from-white to-[#2ED38D]'
                   : (s.titulacionNutricion ? 'bg-[#2ED38D]' : 'bg-white/30')">
               </div>
@@ -128,10 +131,12 @@
                 </span>
               </div>
 
-              <h3 class="text-xl font-black uppercase tracking-tight text-white mb-1 group-hover:text-[#2ED38D] transition-colors">
+              <h3
+                class="text-xl font-black uppercase tracking-tight text-white mb-1 group-hover:text-[#2ED38D] transition-colors">
                 {{ s.nombre }}
               </h3>
-              <p class="text-xs font-bold tracking-tight lowercase mb-4" style="color: rgba(255,255,255,0.62)">{{ s.correo }}</p>
+              <p class="text-xs font-bold tracking-tight lowercase mb-4" style="color: rgba(255,255,255,0.62)">{{
+                s.correo }}</p>
 
               <div class="flex items-center gap-2">
                 @if (s.titulacionEntrenamiento) {
@@ -139,7 +144,8 @@
                   style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.12)">ENTRENAMIENTO</span>
                 }
                 @if (s.titulacionNutricion) {
-                <span class="text-[9px] font-black tracking-widest uppercase bg-[#2ED38D] text-black px-2 py-1">NUTRICIÓN</span>
+                <span
+                  class="text-[9px] font-black tracking-widest uppercase bg-[#2ED38D] text-black px-2 py-1">NUTRICIÓN</span>
                 }
               </div>
             </button>
@@ -178,17 +184,22 @@
               </h4>
               <div class="grid grid-cols-1 gap-6">
                 <div>
-                  <p class="text-[10px] font-black tracking-[0.2em] uppercase mb-2" style="color: rgba(255,255,255,0.62)">CÓDIGO PROFESIONAL</p>
-                  <p class="text-lg font-black tracking-tight text-white">{{ e.codigoProfesional || 'NO PROPORCIONADO' }}</p>
+                  <p class="text-[10px] font-black tracking-[0.2em] uppercase mb-2"
+                    style="color: rgba(255,255,255,0.62)">CÓDIGO PROFESIONAL</p>
+                  <p class="text-lg font-black tracking-tight text-white">{{ e.codigoProfesional || 'NO PROPORCIONADO'
+                    }}</p>
                 </div>
                 <div>
-                  <p class="text-[10px] font-black tracking-[0.2em] uppercase mb-2" style="color: rgba(255,255,255,0.62)">TITULACIÓN RECLAMADA</p>
+                  <p class="text-[10px] font-black tracking-[0.2em] uppercase mb-2"
+                    style="color: rgba(255,255,255,0.62)">TITULACIÓN RECLAMADA</p>
                   <div class="flex flex-col gap-2">
                     @if (e.titulacionEntrenamiento) {
-                    <p class="text-sm font-black uppercase text-white">● {{ e.titulacionEntrenamiento.replace('_',' ') }}</p>
+                    <p class="text-sm font-black uppercase text-white">● {{ e.titulacionEntrenamiento.replace('_',' ')
+                      }}</p>
                     }
                     @if (e.titulacionNutricion) {
-                    <p class="text-sm font-black uppercase text-[#2ED38D]">● {{ e.titulacionNutricion.replace('_',' ') }}</p>
+                    <p class="text-sm font-black uppercase text-[#2ED38D]">● {{ e.titulacionNutricion.replace('_',' ')
+                      }}</p>
                     }
                   </div>
                 </div>
@@ -211,12 +222,16 @@
                   <div class="flex items-center gap-4">
                     <svg class="w-5 h-5 transition-colors group-hover:text-[#2ED38D]" fill="none" stroke="currentColor"
                       stroke-width="2" viewBox="0 0 24 24" style="color: rgba(255,255,255,0.52)">
-                      <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                      <path
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                         stroke-linecap="square" />
                     </svg>
-                    <span class="text-[11px] font-black tracking-widest uppercase text-white truncate max-w-[200px]">{{ doc.nombreArchivo }}</span>
+                    <span class="text-[11px] font-black tracking-widest uppercase text-white truncate max-w-[200px]">{{
+                      doc.nombreArchivo }}</span>
                   </div>
-                  <span class="text-[10px] font-black text-[#2ED38D] opacity-0 group-hover:opacity-100 transition-opacity">VER →</span>
+                  <span
+                    class="text-[10px] font-black text-[#2ED38D] opacity-0 group-hover:opacity-100 transition-opacity">VER
+                    →</span>
                 </a>
                 }
               </div>
@@ -250,7 +265,9 @@
             style="border: 1px solid rgba(255,255,255,0.07);">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"
               style="color: rgba(255,255,255,0.38)">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="square"/>
+              <path
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                stroke-linecap="square" />
             </svg>
           </div>
           <p class="text-[10px] font-black tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.40)">
@@ -267,7 +284,8 @@
           style="border-bottom: 1px solid rgba(255,255,255,0.06); background: linear-gradient(180deg, rgba(8,8,14,0.9) 0%, transparent 100%);">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-6 h-px" style="background: rgba(255,255,255,0.3)"></div>
-            <span class="text-[10px] font-black tracking-[0.4em] uppercase" style="color: rgba(255,255,255,0.65)">GESTIÓN COMUNIDAD</span>
+            <span class="text-[10px] font-black tracking-[0.4em] uppercase"
+              style="color: rgba(255,255,255,0.65)">GESTIÓN COMUNIDAD</span>
           </div>
           <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <h1 class="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none">
@@ -276,7 +294,8 @@
 
             <div class="flex flex-col sm:flex-row gap-4">
               <!-- Role Filter -->
-              <div class="flex p-1" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+              <div class="flex p-1"
+                style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
                 @for (opt of ['TODOS','ATLETA','ENTRENADOR']; track opt) {
                 <button (click)="cambiarFiltroRol($any(opt))"
                   class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-all duration-200"
@@ -326,48 +345,63 @@
                   </div>
                   <div>
                     <p class="text-sm font-black uppercase tracking-tight text-white mb-0.5">{{ u.nombre }}</p>
-                    <p class="text-[11px] font-medium lowercase" style="color: rgba(255,255,255,0.62)">{{ u.correo }}</p>
+                    <p class="text-[11px] font-medium lowercase" style="color: rgba(255,255,255,0.62)">{{ u.correo }}
+                    </p>
                   </div>
                 </div>
                 <div>
-                  <span class="text-[9px] font-black tracking-[0.15em] uppercase px-2 py-0.5"
-                    [style]="u.rol === 'ATLETA'
+                  <span class="text-[9px] font-black tracking-[0.15em] uppercase px-2 py-0.5" [style]="u.rol === 'ATLETA'
                       ? 'background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1);'
                       : 'background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.25);'">
                     {{ u.rol }}
                   </span>
                 </div>
                 <div>
-                  <span class="flex items-center gap-2 text-[10px] font-black tracking-[0.1em] uppercase"
-                    [class]="u.estado === 'ACTIVO' ? 'text-[#2ED38D]' : ''"
-                    [style]="u.estado !== 'ACTIVO' ? 'color: rgba(255,255,255,0.50)' : ''">
-                    <span class="w-1.5 h-1.5 rounded-full"
-                      [style]="u.estado === 'ACTIVO' ? 'background: #2ED38D; box-shadow: 0 0 6px rgba(46,211,141,0.6)' : 'background: rgba(255,255,255,0.2)'"></span>
+                  <span 
+                  class="flex items-center gap-2 text-[10px] font-black tracking-[0.1em] uppercase" 
+                  [class]="u.estado === 'ACTIVO'? 'text-[#2ED38D]'
+                  : u.estado === 'BLOQUEADO'
+                  ? 'text-amber-400'
+                  : ''" [style]="u.estado === 'ACTIVO'
+                  ? ''
+                  : u.estado === 'BLOQUEADO'
+                  ? 'color: #F59E0B'
+                  : 'color: rgba(255,255,255,0.50)'">
+                    <span class="w-1.5 h-1.5 rounded-full" [style]="u.estado === 'ACTIVO'
+                    ? 'background: #2ED38D; box-shadow: 0 0 6px rgba(46,211,141,0.6)'
+                    : u.estado === 'BLOQUEADO'
+                    ? 'background: #F59E0B; box-shadow: 0 0 6px rgba(245,158,11,0.5)'
+                    : 'background: rgba(255,255,255,0.2)'"></span>
                     {{ u.estado }}
                   </span>
                 </div>
                 <div class="text-xs font-bold" style="color: rgba(255,255,255,0.65)">
                   {{ u.fechaRegistro ? (u.fechaRegistro | date:'dd/MM/yyyy') : '—' }}
                 </div>
-                <div class="flex justify-center gap-4 transition-colors"
-                  style="color: rgba(255,255,255,0.42)">
+                <div class="flex justify-center gap-4 transition-colors" style="color: rgba(255,255,255,0.42)">
                   <button (click)="pedirConfirmacionBloqueo(u)"
                     [title]="u.estado === 'BLOQUEADO' ? 'Desbloquear usuario' : 'Bloquear usuario'"
                     [class]="u.estado === 'BLOQUEADO' ? 'text-amber-400 hover:text-amber-300' : 'hover:text-amber-400'"
                     class="transition-colors">
                     @if (u.estado === 'BLOQUEADO') {
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" stroke-linecap="square" />
+                    <svg class="w-4 h-4 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path
+                        d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                        stroke-linecap="square" />
                     </svg>
                     } @else {
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4" stroke-linecap="square" />
+                    <svg class="w-4 h-4 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4"
+                        stroke-linecap="square" />
                     </svg>
                     }
                   </button>
                   <button (click)="pedirConfirmacionEliminacion(u)" class="hover:text-red-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="square" />
+                    <svg class="w-4 h-4 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        stroke-linecap="square" />
                     </svg>
                   </button>
                 </div>
@@ -385,12 +419,12 @@
   <!-- Modal: Confirmar Aprobación -->
   @if (mostrarModalConfirmacion()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md"
-    style="background: rgba(6,6,10,0.85);"
-    (click)="mostrarModalConfirmacion.set(false)">
+    style="background: rgba(6,6,10,0.85);" (click)="mostrarModalConfirmacion.set(false)">
     <div class="w-full max-w-md p-10 relative overflow-hidden"
       style="background: linear-gradient(135deg, #111118 0%, #0E0E16 100%); border: 1px solid rgba(46,211,141,0.2); box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(46,211,141,0.06);"
       (click)="$event.stopPropagation()">
-      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent"></div>
+      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent">
+      </div>
       <div class="w-12 h-12 flex items-center justify-center mb-8"
         style="background: linear-gradient(135deg, rgba(46,211,141,0.2) 0%, rgba(46,211,141,0.08) 100%); border: 1px solid rgba(46,211,141,0.3);">
         <svg class="w-6 h-6 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -399,7 +433,8 @@
       </div>
       <h3 class="text-3xl font-black uppercase tracking-tighter text-white mb-3">¿APROBAR CUENTA?</h3>
       @if (entrenadorSeleccionado(); as e) {
-      <p class="text-sm font-bold tracking-tight mb-2" style="color: rgba(255,255,255,0.62)">Vas a activar la cuenta de:</p>
+      <p class="text-sm font-bold tracking-tight mb-2" style="color: rgba(255,255,255,0.62)">Vas a activar la cuenta de:
+      </p>
       <p class="text-lg font-black uppercase tracking-tight text-white mb-8">{{ e.nombre }}</p>
       }
       <p class="text-xs uppercase tracking-[0.15em] font-bold mb-10" style="color: rgba(255,255,255,0.58)">
@@ -427,7 +462,8 @@
     style="background: rgba(6,6,10,0.85);">
     <div class="w-full max-w-sm p-12 relative overflow-hidden text-center"
       style="background: linear-gradient(135deg, #0A0A12 0%, #111118 100%); border: 1px solid rgba(46,211,141,0.2); box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 60px rgba(46,211,141,0.08);">
-      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent"></div>
+      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent">
+      </div>
       <div class="w-20 h-20 flex items-center justify-center mx-auto mb-8"
         style="border: 1px solid rgba(46,211,141,0.3); background: rgba(46,211,141,0.06);">
         <svg class="w-10 h-10 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -435,7 +471,8 @@
         </svg>
       </div>
       <p class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D] mb-4">CUENTA ACTIVADA</p>
-      <h3 class="text-3xl font-black uppercase tracking-tighter leading-none text-white mb-4">{{ nombreAprobado() }}</h3>
+      <h3 class="text-3xl font-black uppercase tracking-tighter leading-none text-white mb-4">{{ nombreAprobado() }}
+      </h3>
       <p class="text-xs font-bold tracking-[0.1em] uppercase mb-12" style="color: rgba(255,255,255,0.58)">
         Ya puede acceder a la plataforma GRIT como entrenador.
       </p>
@@ -453,8 +490,7 @@
   <!-- Modal: Confirmar Eliminación Permanente -->
   @if (mostrarModalEliminacion()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md"
-    style="background: rgba(6,6,10,0.92);"
-    (click)="mostrarModalEliminacion.set(false)">
+    style="background: rgba(6,6,10,0.92);" (click)="mostrarModalEliminacion.set(false)">
     <div class="w-full max-w-md p-10 relative overflow-hidden"
       style="background: linear-gradient(135deg, #12090A 0%, #110A0B 100%); border: 1px solid rgba(220,38,38,0.2); box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 40px rgba(220,38,38,0.06);"
       (click)="$event.stopPropagation()">
@@ -463,22 +499,26 @@
       <div class="w-16 h-16 flex items-center justify-center mb-8 mx-auto"
         style="border: 1px solid rgba(220,38,38,0.25); background: rgba(220,38,38,0.08);">
         <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          <path
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             stroke-linecap="square" />
         </svg>
       </div>
 
-      <h3 class="text-3xl font-black uppercase tracking-tighter text-center text-white mb-4 leading-none">AVISO CRÍTICO</h3>
+      <h3 class="text-3xl font-black uppercase tracking-tighter text-center text-white mb-4 leading-none">AVISO CRÍTICO
+      </h3>
 
       @if (usuarioSeleccionado(); as u) {
       <div class="p-4 mb-8" style="border-left: 2px solid rgba(220,38,38,0.6); background: rgba(220,38,38,0.06);">
-        <p class="text-[9px] font-black tracking-widest uppercase mb-1" style="color: rgba(255,255,255,0.58)">CUENTA A ELIMINAR</p>
+        <p class="text-[9px] font-black tracking-widest uppercase mb-1" style="color: rgba(255,255,255,0.58)">CUENTA A
+          ELIMINAR</p>
         <p class="text-base font-black uppercase text-white">{{ u.nombre }}</p>
         <p class="text-[11px] font-bold lowercase" style="color: rgba(255,255,255,0.62)">{{ u.correo }}</p>
       </div>
       }
 
-      <p class="text-[11px] font-bold uppercase tracking-widest text-center mb-10 leading-relaxed" style="color: rgba(255,255,255,0.62)">
+      <p class="text-[11px] font-bold uppercase tracking-widest text-center mb-10 leading-relaxed"
+        style="color: rgba(255,255,255,0.62)">
         ESTA OPERACIÓN ES IRREVERSIBLE.<br>SE ELIMINARÁ TODO EL HISTORIAL DE ENTRENAMIENTOS, DIETAS Y CHATS.
       </p>
 
@@ -501,8 +541,7 @@
   <!-- Modal: Rechazar Solicitud -->
   @if (mostrarModalRechazo()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md"
-    style="background: rgba(6,6,10,0.85);"
-    (click)="mostrarModalRechazo.set(false)">
+    style="background: rgba(6,6,10,0.85);" (click)="mostrarModalRechazo.set(false)">
     <div class="w-full max-w-md p-10 relative overflow-hidden"
       style="background: linear-gradient(135deg, #111118 0%, #0E0E16 100%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 80px rgba(0,0,0,0.6);"
       (click)="$event.stopPropagation()">
@@ -515,12 +554,14 @@
       </div>
       <h3 class="text-3xl font-black uppercase tracking-tighter text-white mb-3">¿RECHAZAR SOLICITUD?</h3>
       @if (entrenadorSeleccionado(); as e) {
-      <p class="text-sm font-bold tracking-tight mb-2" style="color: rgba(255,255,255,0.62)">Vas a rechazar y eliminar la cuenta de:</p>
+      <p class="text-sm font-bold tracking-tight mb-2" style="color: rgba(255,255,255,0.62)">Vas a rechazar y eliminar
+        la cuenta de:</p>
       <p class="text-lg font-black uppercase tracking-tight text-white mb-8">{{ e.nombre }}</p>
       }
 
       <div class="mb-6">
-        <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-3" style="color: rgba(255,255,255,0.62)">
+        <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-3"
+          style="color: rgba(255,255,255,0.62)">
           MOTIVO DEL RECHAZO (REQUERIDO)
         </label>
         <textarea [ngModel]="motivoRechazo()" (ngModelChange)="motivoRechazo.set($event)"
@@ -554,30 +595,29 @@
   @let u = usuarioSeleccionado();
   @let esBloqueado = u?.estado === 'BLOQUEADO';
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md"
-    style="background: rgba(6,6,10,0.92);"
-    (click)="mostrarModalBloqueo.set(false)">
+    style="background: rgba(6,6,10,0.92);" (click)="mostrarModalBloqueo.set(false)">
     <div class="w-full max-w-md p-10 relative overflow-hidden"
       [style]="esBloqueado
         ? 'background: linear-gradient(135deg, #0A1210 0%, #0E1614 100%); border: 1px solid rgba(46,211,141,0.2); box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(46,211,141,0.04);'
         : 'background: linear-gradient(135deg, #12100A 0%, #16140C 100%); border: 1px solid rgba(245,158,11,0.2); box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(245,158,11,0.04);'"
       (click)="$event.stopPropagation()">
-      <div class="absolute top-0 left-0 w-full h-px"
-        [style]="esBloqueado
+      <div class="absolute top-0 left-0 w-full h-px" [style]="esBloqueado
           ? 'background: linear-gradient(90deg, transparent, #2ED38D, transparent)'
           : 'background: linear-gradient(90deg, transparent, #F59E0B, transparent)'"></div>
 
-      <div class="w-16 h-16 flex items-center justify-center mb-8 mx-auto"
-        [style]="esBloqueado
+      <div class="w-16 h-16 flex items-center justify-center mb-8 mx-auto" [style]="esBloqueado
           ? 'border: 1px solid rgba(46,211,141,0.25); background: rgba(46,211,141,0.08);'
           : 'border: 1px solid rgba(245,158,11,0.25); background: rgba(245,158,11,0.08);'">
         @if (esBloqueado) {
-          <svg class="w-8 h-8 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" stroke-linecap="square"/>
-          </svg>
+        <svg class="w-8 h-8 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+            stroke-linecap="square" />
+        </svg>
         } @else {
-          <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4" stroke-linecap="square"/>
-          </svg>
+        <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4"
+            stroke-linecap="square" />
+        </svg>
         }
       </div>
 
@@ -586,21 +626,22 @@
       </h3>
 
       @if (u) {
-      <div class="p-4 mb-8"
-        [style]="esBloqueado
+      <div class="p-4 mb-8" [style]="esBloqueado
           ? 'border-left: 2px solid rgba(46,211,141,0.5); background: rgba(46,211,141,0.06);'
           : 'border-left: 2px solid rgba(245,158,11,0.5); background: rgba(245,158,11,0.06);'">
-        <p class="text-[9px] font-black tracking-widest uppercase mb-1" style="color: rgba(255,255,255,0.58)">CUENTA AFECTADA</p>
+        <p class="text-[9px] font-black tracking-widest uppercase mb-1" style="color: rgba(255,255,255,0.58)">CUENTA
+          AFECTADA</p>
         <p class="text-base font-black uppercase text-white">{{ u.nombre }}</p>
         <p class="text-[11px] font-bold lowercase" style="color: rgba(255,255,255,0.62)">{{ u.correo }}</p>
       </div>
       }
 
-      <p class="text-[11px] font-bold uppercase tracking-widest text-center mb-10 leading-relaxed" style="color: rgba(255,255,255,0.62)">
+      <p class="text-[11px] font-bold uppercase tracking-widest text-center mb-10 leading-relaxed"
+        style="color: rgba(255,255,255,0.62)">
         @if (esBloqueado) {
-          EL USUARIO RECUPERARÁ EL ACCESO<br>A LA PLATAFORMA DE FORMA INMEDIATA.
+        EL USUARIO RECUPERARÁ EL ACCESO<br>A LA PLATAFORMA DE FORMA INMEDIATA.
         } @else {
-          EL USUARIO NO PODRÁ ACCEDER<br>A LA PLATAFORMA HASTA SER DESBLOQUEADO.
+        EL USUARIO NO PODRÁ ACCEDER<br>A LA PLATAFORMA HASTA SER DESBLOQUEADO.
         }
       </p>
 
@@ -625,42 +666,45 @@
   <!-- Modal: Editar Usuario -->
   @if (mostrarModalEdicion()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md"
-    style="background: rgba(6,6,10,0.85);"
-    (click)="mostrarModalEdicion.set(false)">
+    style="background: rgba(6,6,10,0.85);" (click)="mostrarModalEdicion.set(false)">
     <div class="w-full max-w-md p-10 relative overflow-hidden"
       style="background: linear-gradient(135deg, #111118 0%, #0E0E16 100%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 80px rgba(0,0,0,0.6);"
       (click)="$event.stopPropagation()">
-      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent"></div>
+      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent">
+      </div>
       <div class="w-12 h-12 flex items-center justify-center mb-8"
         style="border: 1px solid rgba(46,211,141,0.25); background: rgba(46,211,141,0.08);">
         <svg class="w-6 h-6 text-[#2ED38D]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          <path
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
             stroke-linecap="square" />
         </svg>
       </div>
       <h3 class="text-3xl font-black uppercase tracking-tighter text-white mb-3">EDITAR USUARIO</h3>
       @if (usuarioSeleccionado(); as u) {
-      <p class="text-sm font-bold tracking-tight mb-6" style="color: rgba(255,255,255,0.62)">{{ u.nombre }} ({{ u.rol }})</p>
+      <p class="text-sm font-bold tracking-tight mb-6" style="color: rgba(255,255,255,0.62)">{{ u.nombre }} ({{ u.rol
+        }})</p>
       }
 
       @if (usuarioEnEdicion(); as edicion) {
       <div class="space-y-4 mb-8">
         <div>
-          <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-2" style="color: rgba(255,255,255,0.62)">NOMBRE</label>
+          <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-2"
+            style="color: rgba(255,255,255,0.62)">NOMBRE</label>
           <input [ngModel]="edicion.nombre" (ngModelChange)="usuarioEnEdicion.set({...edicion, nombre: $event})"
-            type="text"
-            class="w-full px-4 py-3 text-sm font-medium text-white outline-none transition-all"
+            type="text" class="w-full px-4 py-3 text-sm font-medium text-white outline-none transition-all"
             style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);" />
         </div>
         <div>
-          <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-2" style="color: rgba(255,255,255,0.62)">CORREO</label>
+          <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-2"
+            style="color: rgba(255,255,255,0.62)">CORREO</label>
           <input [ngModel]="edicion.correo" (ngModelChange)="usuarioEnEdicion.set({...edicion, correo: $event})"
-            type="email"
-            class="w-full px-4 py-3 text-sm font-medium text-white outline-none transition-all"
+            type="email" class="w-full px-4 py-3 text-sm font-medium text-white outline-none transition-all"
             style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);" />
         </div>
         <div>
-          <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-2" style="color: rgba(255,255,255,0.62)">ESTADO</label>
+          <label class="text-[10px] font-black tracking-[0.2em] uppercase block mb-2"
+            style="color: rgba(255,255,255,0.62)">ESTADO</label>
           <select [ngModel]="edicion.estado" (ngModelChange)="usuarioEnEdicion.set({...edicion, estado: $event})"
             class="w-full px-4 py-3 text-sm font-medium text-white outline-none transition-all"
             style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
@@ -689,6 +733,3 @@
   }
 
 </div>
-
-
-

@@ -98,6 +98,15 @@ export class AdminService {
       `${this.API}/usuarios/${id}`,
       data,
       { withCredentials: true }
+    ).pipe(
+      map((u: any) => ({
+        id: u.idPublico,
+        nombre: u.nombre,
+        correo: u.email,
+        rol: u.rol,
+        estado: u.estado,
+        fechaRegistro: u.registro ?? u.fechaRegistro ?? u.createdAt ?? null,
+      }))
     );
   }
 
