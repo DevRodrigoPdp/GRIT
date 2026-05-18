@@ -116,23 +116,29 @@ export class EntrenamientoService {
   }
 
   getRutinas(atletaId: string): Observable<Rutina[]> {
-    return this.http
-      .get<ApiResponse<any[]>>(`${this.API}/rutinas`, { params: { atletaId } })
-      .pipe(map(r => r.data.map((x: any) => ({
-        ...x,
-        creadoEn: new Date(x.creadoEn),
-        sesiones: (x.sesiones ?? []).map((s: any) => ({
-          ...s,
-          ejercicios: (s.ejercicios ?? []).map((e: any) => ({
-            id:     e.ejercicio?.id ?? e.ejercicioId ?? e.id,
-            nombre: e.ejercicio?.nombre ?? e.ejercicioNombre ?? e.nombre ?? '',
-            series: e.series ?? 0,
-            reps:   String(e.reps ?? ''),
-            notas:  e.notas ?? '',
-          })),
+  return this.http
+    .get<ApiResponse<any[]>>(`${this.API}/rutinas`, { params: { atletaId } })
+    .pipe(map(r => r.data.map((x: any) => ({
+      id: x.id,
+      atletaId: x.atletaId,
+      nombre: x.nombre,
+      descripcion: x.descripcion,
+      activa: x.activo,
+      creadoEn: new Date(x.creadoEn),
+      sesiones: (x.sesiones ?? []).map((s: any) => ({
+        id: s.id,
+        nombre: s.nombre,
+        tipo: 'entrenamiento',
+        ejercicios: (s.ejercicios ?? []).map((e: any) => ({
+          id:     e.ejercicio?.id ?? e.ejercicioId ?? e.id,
+          nombre: e.ejercicio?.nombre ?? e.ejercicioNombre ?? e.nombre ?? '',
+          series: e.series ?? 0,
+          reps:   String(e.reps ?? ''),
+          notas:  e.notas ?? '',
         })),
-      }))));
-  }
+      })),
+    }))));
+}
 
   crearRutina(atletaId: string, nombre: string, descripcion: string, sesiones: Sesion[]): Observable<Rutina> {
     const payload = {
