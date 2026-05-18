@@ -24,5 +24,9 @@ public interface PlanNutricionRepository extends JpaRepository<PlanNutricion, UU
     @Query("UPDATE PlanNutricion p SET p.activo = false WHERE p.atleta.id = :atletaId AND p.activo = true")
     void desactivarPlanesActivos(@Param("atletaId") UUID atletaId);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE PlanNutricion p SET p.activo = false WHERE p.entrenador.id = :entrenadorId AND p.atleta.id = :atletaId AND p.activo = true")
+    void desactivarPlanesNutricionActivos(@Param("entrenadorId") UUID entrenadorId, @Param("atletaId") UUID atletaId);
+
     Optional<PlanNutricion> findByAtletaIdAndActivoTrue(UUID atletaId);
 }

@@ -1,5 +1,6 @@
 package grit.sistema.backend.service.training.impl;
 
+import grit.sistema.backend.dto.coaching.AtletaBajaEventDTO;
 import grit.sistema.backend.dto.training.EjercicioRequestDTO;
 import grit.sistema.backend.dto.training.RutinaDTO;
 import grit.sistema.backend.dto.training.RutinaRequestDTO;
@@ -19,11 +20,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -203,6 +206,13 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
         evictPlanActivo(rutina.getAtleta().getId());
 
         log.info("Rutina {} desactivada por el entrenador {}", rutinaId, entrenadorId);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void onAtletaBaja(AtletaBajaEventDTO event) {
+        rutinaRepository.desactivarRutinasActivas(event.atletaId());
+        evictPlanActivo(event.atletaId());
     }
 
     private void validarPropiedad(UUID entrenadorId, Rutina rutina) {

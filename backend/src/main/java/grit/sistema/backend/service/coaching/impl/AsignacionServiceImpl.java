@@ -5,10 +5,13 @@ import grit.sistema.backend.entity.coaching.Asignacion;
 import grit.sistema.backend.entity.coaching.Atleta;
 import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
+import grit.sistema.backend.entity.coaching.enums.TipoServicio;
 import grit.sistema.backend.exception.business.BusinessException;
 import grit.sistema.backend.repository.coaching.AsignacionRepository;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
+import grit.sistema.backend.repository.nutrition.PlanNutricionRepository;
+import grit.sistema.backend.repository.training.RutinaRepository;
 import grit.sistema.backend.service.coaching.AsignacionService;
 import grit.sistema.backend.validator.strategy.ValidacionServicioStrategy;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +29,8 @@ import java.util.UUID;
 public class AsignacionServiceImpl implements AsignacionService {
     private final EntrenadorRepository entrenadorRepo;
     private final AsignacionRepository asignacionRepo;
+    private final PlanNutricionRepository planNutricionRepo;
+    private final RutinaRepository rutinaRepo;
     private final AtletaRepository atletaRepository;
     private final List<ValidacionServicioStrategy> estrategias;
 
@@ -93,5 +98,15 @@ public class AsignacionServiceImpl implements AsignacionService {
         asignacion.setActiva(false);
 
         asignacionRepo.save(asignacion);
+
+        TipoServicio servicio = asignacion.getTipoServicio();
+
+        if (servicio == TipoServicio.ENTRENAMIENTO || servicio == TipoServicio.AMBOS) {
+            rutinaRepo.desactivarRutinasActivas(entrenadorId, atletaId);
+        }
+
+        if (servicio == TipoServicio.NUTRICION || servicio == TipoServicio.AMBOS) {
+            planNutricionRepo.desactivarPlanesNutricionActivos(entrenadorId, atletaId);
+        }
     }
 }

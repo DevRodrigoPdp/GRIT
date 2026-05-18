@@ -1,10 +1,10 @@
 package grit.sistema.backend.service.nutrition.impl;
 
+import grit.sistema.backend.dto.coaching.AtletaBajaEventDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionActivoResponseDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionRequestDTO;
 import grit.sistema.backend.dto.nutrition.PlanNutricionResponseDTO;
 import grit.sistema.backend.entity.nutrition.PlanNutricion;
-import grit.sistema.backend.entity.training.Rutina;
 import grit.sistema.backend.exception.security.AccesoDenegadoException;
 import grit.sistema.backend.mapper.nutrition.NutricionMapper;
 import grit.sistema.backend.repository.coaching.AtletaRepository;
@@ -15,11 +15,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.Optional;
@@ -171,6 +173,13 @@ public class NutricionServiceImpl implements NutricionService {
         planRepository.delete(plan);
 
         evictPlanActivo(atletaId);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void onAtletaBaja(AtletaBajaEventDTO event) {
+        planRepository.desactivarPlanesActivos(event.atletaId());
+        evictPlanActivo(event.atletaId());
     }
 
     private void validarPropiedad(UUID entrenadorId, PlanNutricion plan) {

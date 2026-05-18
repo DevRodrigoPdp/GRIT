@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +43,7 @@ public class AtletaServiceImpl implements AtletaService {
     private final StorageService storageService;
     private final AtletaMapper atletaMapper;
     private final AtletaPersistenceService persistenceService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @CacheEvict(value = "perfilAtleta", key = "#dto.email")
@@ -120,6 +122,8 @@ public class AtletaServiceImpl implements AtletaService {
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
 
         asignacionRepository.desactivarAsignacionesPorAtleta(atleta.getId());
+
+        applicationEventPublisher.publishEvent(new AtletaBajaEventDTO(atletaId));
 
         usuarioService.suspenderUsuario(atletaId);
     }
