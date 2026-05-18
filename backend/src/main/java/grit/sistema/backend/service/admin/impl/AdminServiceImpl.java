@@ -12,6 +12,7 @@ import grit.sistema.backend.entity.coaching.Entrenador;
 import grit.sistema.backend.entity.coaching.enums.DocStatus;
 import grit.sistema.backend.entity.coaching.enums.EstadoRevision;
 import grit.sistema.backend.entity.common.enums.EstadoUsuario;
+import grit.sistema.backend.exception.business.IllegalEstadoUsuarioException;
 import grit.sistema.backend.mapper.user.UsuarioMapper;
 import grit.sistema.backend.repository.coaching.EntrenadorRepository;
 import grit.sistema.backend.repository.user.UsuarioRepository;
@@ -136,15 +137,20 @@ public class AdminServiceImpl implements AdminService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
 
-        if (usuario.getEstado() == EstadoUsuario.BLOQUEADO) {
-            usuario.setEstado(EstadoUsuario.ACTIVO);
-        } else if (usuario.getEstado() == EstadoUsuario.ACTIVO) {
-            usuario.setEstado(EstadoUsuario.BLOQUEADO);
+        EstadoUsuario estadoActual = usuario.getEstado();
+
+        switch (estadoActual) {
+            case ACTIVO -> usuario.setEstado(EstadoUsuario.BLOQUEADO);
+            case BLOQUEADO -> usuario.setEstado(EstadoUsuario.ACTIVO);
+            case SUSPENDIDO -> throw new IllegalEstadoUsuarioException(
+                    String.format("Operación inválida: No se puede bloquear o activar un usuario con estado: %s", estadoActual)
+            );
+            default -> throw new IllegalArgumentException("Estado de usuario desconocido: " + estadoActual);
         }
 
         usuarioRepository.save(usuario);
 
-       return usuarioMapper.toResponseDTO(usuario);
+        return usuarioMapper.toResponseDTO(usuario);
     }
 
     // --- MÉTODOS PRIVADOS DE APOYO (ENCAPSULAMIENTO) ---

@@ -1,9 +1,6 @@
 package grit.sistema.backend.exception;
 
-import grit.sistema.backend.exception.business.BusinessException;
-import grit.sistema.backend.exception.business.SesionActivaException;
-import grit.sistema.backend.exception.business.TituloFaltanteException;
-import grit.sistema.backend.exception.business.UsuarioExistenteException;
+import grit.sistema.backend.exception.business.*;
 import grit.sistema.backend.exception.infrastructure.FileStorageException;
 import grit.sistema.backend.exception.infrastructure.RateLimitException;
 import grit.sistema.backend.exception.infrastructure.ResourceNotFoundException;
@@ -163,6 +160,46 @@ public class GlobalExceptionHandler {
                 detail,
                 "parameter-type-mismatch",
                 request);
+    }
+
+    @ExceptionHandler(IllegalEstadoUsuarioException.class)
+    public ProblemDetail handleIllegalUserState(IllegalEstadoUsuarioException ex, HttpServletRequest request) {
+        log.warn("Violación de estado de usuario en {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Transición de Estado Inválida",
+                ex.getMessage(),
+                "invalid-user-state",
+                request
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        log.warn("Argumento ilegal detectado en {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Argumento de Petición Inválido",
+                ex.getMessage(),
+                "illegal-argument",
+                request
+        );
+    }
+
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ProblemDetail handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
+        log.warn("Estado ilegal detectado en la aplicación {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Operación No Permitida en el Estado Actual",
+                ex.getMessage(),
+                "illegal-state",
+                request
+        );
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
