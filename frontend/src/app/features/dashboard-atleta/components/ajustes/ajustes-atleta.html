@@ -572,6 +572,49 @@
                 }
               </div>
             </div>
+
+            @if (auth.servicio() === 'NUTRICION' || auth.servicio() === 'AMBOS') {
+              <div class="mt-4">
+                <label
+                  class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
+                  style="color: rgba(255, 255, 255, 0.45)"
+                  >RESTRICCIONES DIETÉTICAS</label
+                >
+                <textarea
+                  rows="3"
+                  [value]="editRestriccionesDieteticas()"
+                  (input)="editRestriccionesDieteticas.set($any($event.target).value)"
+                  class="w-full px-4 py-3 text-sm focus:outline-none"
+                  style="
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: white;
+                  "
+                ></textarea>
+              </div>
+            }
+
+            @if (auth.servicio() === 'ENTRENAMIENTO' || auth.servicio() === 'AMBOS') {
+              <div class="mt-4">
+                <label
+                  class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
+                  style="color: rgba(255, 255, 255, 0.45)"
+                  >RESTRICCIONES FÍSICAS</label
+                >
+                <textarea
+                  rows="3"
+                  [value]="editRestriccionesFisicas()"
+                  (input)="editRestriccionesFisicas.set($any($event.target).value)"
+                  class="w-full px-4 py-3 text-sm focus:outline-none"
+                  style="
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: white;
+                  "
+                ></textarea>
+              </div>
+            }
+
             <button
               type="button"
               (click)="guardarPerfil()"
@@ -588,47 +631,6 @@
             >
               {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
             </button>
-
-            @if (auth.servicio() === 'NUTRICION' || auth.servicio() === 'AMBOS') {
-              <div style="border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 1.5rem">
-                <div class="px-5 py-3.5">
-                  <p
-                    class="text-[10px] font-bold tracking-[0.2em] uppercase mb-3"
-                    style="color: rgba(255, 255, 255, 0.45)"
-                  >
-                    RESTRICCIONES DIETÉTICAS
-                  </p>
-                  @if (perfilAtleta()?.restriccionesDieteticas) {
-                    <p class="text-sm text-white font-light">
-                      {{ perfilAtleta()!.restriccionesDieteticas }}
-                    </p>
-                  } @else {
-                    <p class="text-sm font-light" style="color: rgba(255, 255, 255, 0.4)">—</p>
-                  }
-                </div>
-              </div>
-            }
-
-            @if (auth.servicio() === 'ENTRENAMIENTO' || auth.servicio() === 'AMBOS') {
-              <!-- Restricciones físicas (read-only) -->
-              <div style="border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 1.5rem">
-                <div class="px-5 py-3.5">
-                  <p
-                    class="text-[10px] font-bold tracking-[0.2em] uppercase mb-3"
-                    style="color: rgba(255, 255, 255, 0.45)"
-                  >
-                    RESTRICCIONES FÍSICAS
-                  </p>
-                  @if (perfilAtleta()?.restriccionesFisicas) {
-                    <p class="text-sm text-white font-light">
-                      {{ perfilAtleta()!.restriccionesFisicas }}
-                    </p>
-                  } @else {
-                    <p class="text-sm font-light" style="color: rgba(255, 255, 255, 0.4)">—</p>
-                  }
-                </div>
-              </div>
-            }
           </div>
         </div>
       </div>

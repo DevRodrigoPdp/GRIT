@@ -24,8 +24,8 @@ export interface PerfilAtleta {
   nivel: 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE';
   servicio: 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
   objetivo: 'RENDIMIENTO' | 'MASA_MUSCULAR' | 'PERDER_PESO' | 'SALUD' | 'RESISTENCIA' | null;
-  restriccionesDieteticas: string | null;
-  restriccionesFisicas: string | null;
+  restriccionesDieteticas: string;
+  restriccionesFisicas: string;
   fotoUrl: string | null;
 }
 
@@ -322,7 +322,15 @@ export class AtletaService {
       .pipe(map(() => undefined));
   }
 
-  actualizarPerfil(datos: { deporte?: string; nivel?: string; objetivo?: string | null; peso?: number; altura?: number }): Observable<PerfilAtleta> {
+  actualizarPerfil(datos: { 
+    deporte?: string;
+    nivel?: string;
+    objetivo?: string | null;
+    peso?: number; 
+    altura?: number;
+    restriccionesDieteticas?: string;
+    restriccionesFisicas?: string; 
+  }): Observable<PerfilAtleta> {
     return this.http.put<ApiResponseDTO<PerfilAtleta>>(`${this.API}/perfil`, datos, { withCredentials: true })
       .pipe(map(r => r.data));
   }

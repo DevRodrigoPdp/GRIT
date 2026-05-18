@@ -64,6 +64,8 @@ export class AjustesAtletaComponent {
   readonly perfilAbierto    = signal(false);
   readonly perfilIntentado  = signal(false);
   readonly editDeporte      = signal('');
+  readonly editRestriccionesDieteticas = signal('');
+  readonly editRestriccionesFisicas    = signal('');
   readonly editNivel        = signal<PerfilAtleta['nivel']>('PRINCIPIANTE');
   readonly editObjetivo     = signal<PerfilAtleta['objetivo']>(null);
   readonly nivelDropdownOpen    = signal(false);
@@ -123,6 +125,9 @@ export class AjustesAtletaComponent {
       this.editObjetivo.set(p.objetivo);
       this.editPeso.set(p.peso);
       this.editAltura.set(p.altura);
+      this.editRestriccionesDieteticas.set(p.restriccionesDieteticas);
+      this.editRestriccionesFisicas.set(p.restriccionesFisicas);
+      this.editAltura.set(p.altura);
       this.perfilGuardado.set(false);
       this.perfilError.set('');
       this.perfilIntentado.set(false);
@@ -145,6 +150,8 @@ export class AjustesAtletaComponent {
       objetivo: this.editObjetivo(),
       peso:     this.editPeso(),
       altura:   this.editAltura(),
+      restriccionesDieteticas: this.editRestriccionesDieteticas(),
+      restriccionesFisicas: this.editRestriccionesFisicas(),
     }).subscribe({
       next: (p) => {
         this.perfilActualizado.emit(p);
