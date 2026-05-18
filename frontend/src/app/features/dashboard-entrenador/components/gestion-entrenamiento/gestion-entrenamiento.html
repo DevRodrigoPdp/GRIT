@@ -252,7 +252,7 @@
         </div>
         <div class="flex items-center gap-3 flex-shrink-0">
           @if (rutina.activa) {
-            <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D]">● ACTIVA</span>
+            <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-[#2ED38D] opacity-0 group-hover:opacity-100">● ACTIVA</span>
             <button (click)="$event.stopPropagation(); desactivarRutina(rutina.id)"
               class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
               style="color: rgba(255,255,255,0.3);"
@@ -264,9 +264,9 @@
               onmouseenter="this.style.color='#2ED38D'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">ACTIVAR</button>
           }
           <button (click)="$event.stopPropagation(); editarRutina(rutina)"
-            class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors"
-            style="color: rgba(255,255,255,0.4);"
-            onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">MODIFICAR</button>
+            class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
+            style="color: rgba(255,255,255,0.3);"
+            onmouseenter="this.style.color='#fb923c'" onmouseleave="this.style.color='rgba(255,255,255,0.3)'">MODIFICAR</button>
           <button (click)="$event.stopPropagation(); eliminarRutina(rutina.id)"
             class="text-[11px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
             style="color: rgba(255,255,255,0.25);"
