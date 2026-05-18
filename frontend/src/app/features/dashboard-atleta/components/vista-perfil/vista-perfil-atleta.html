@@ -175,7 +175,10 @@
           <span class="text-sm text-white font-light">{{ p.peso }} kg</span>
         </div>
 
-        <div class="px-5 py-3.5 flex items-center justify-between">
+        <div
+          class="px-5 py-3.5 flex items-center justify-between"
+          style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+        >
           <span
             class="text-xs font-bold uppercase tracking-wide"
             style="color: rgba(255, 255, 255, 0.45)"
@@ -183,42 +186,38 @@
           >
           <span class="text-sm text-white font-light">{{ p.altura }} cm</span>
         </div>
-      </div>
-    </div>
 
-    <!-- Restricciones dietéticas -->
-    <div class="mb-8">
-      <p
-        class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4"
-        style="color: rgba(255, 255, 255, 0.45)"
-      >
-        RESTRICCIONES DIETÉTICAS
-      </p>
-      <div style="border: 1px solid rgba(255, 255, 255, 0.08)">
-        <div class="px-5 py-3.5">
+        <div
+          class="px-5 py-3.5 flex items-center justify-between"
+          style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+        >
+          <span
+            class="text-xs font-bold uppercase tracking-wide"
+            style="color: rgba(255, 255, 255, 0.45)"
+            >Restricciones Dietéticas</span
+          >
+
           @if (p.restriccionesDieteticas) {
-            <p class="text-sm text-white font-light">{{ p.restriccionesDieteticas }}</p>
+            <span class="text-sm text-white font-light">{{ p.restriccionesDieteticas }}</span>
           } @else {
-            <p class="text-sm font-light" style="color: rgba(255, 255, 255, 0.4)">—</p>
+            <span class="text-sm font-light" style="color: rgba(255, 255, 255, 0.4)">—</span>
           }
         </div>
-      </div>
-    </div>
 
-    <!-- Restricciones físicas -->
-    <div class="mb-8">
-      <p
-        class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4"
-        style="color: rgba(255, 255, 255, 0.45)"
-      >
-        RESTRICCIONES FÍSICAS
-      </p>
-      <div style="border: 1px solid rgba(255, 255, 255, 0.08)">
-        <div class="px-5 py-3.5">
+        <div
+          class="px-5 py-3.5 flex items-center justify-between"
+          style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+        >
+          <span
+            class="text-xs font-bold uppercase tracking-wide"
+            style="color: rgba(255, 255, 255, 0.45)"
+          >
+            Restricciones Físicas</span
+          >
           @if (p.restriccionesFisicas) {
-            <p class="text-sm text-white font-light">{{ p.restriccionesFisicas }}</p>
+            <span class="text-sm text-white font-light">{{ p.restriccionesFisicas }}</span>
           } @else {
-            <p class="text-sm font-light" style="color: rgba(255, 255, 255, 0.4)">—</p>
+            <span class="text-sm font-light" style="color: rgba(255, 255, 255, 0.4)">—</span>
           }
         </div>
       </div>
