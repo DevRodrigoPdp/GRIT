@@ -24,8 +24,8 @@ export interface PerfilAtleta {
   nivel: 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO' | 'ELITE';
   servicio: 'ENTRENAMIENTO' | 'NUTRICION' | 'AMBOS';
   objetivo: 'RENDIMIENTO' | 'MASA_MUSCULAR' | 'PERDER_PESO' | 'SALUD' | 'RESISTENCIA' | null;
-  alergias: string[];
-  lesiones: string[];
+  restriccionesDieteticas: string | null;
+  restriccionesFisicas: string | null;
   fotoUrl: string | null;
 }
 
@@ -178,13 +178,9 @@ export class AtletaService {
   private readonly API = '/api/v1/atleta';
 
   getPerfil(): Observable<PerfilAtleta> {
-    return this.http.get<ApiResponseDTO<PerfilAtleta>>(`${this.API}/perfil`, { withCredentials: true })
-      .pipe(map(r => ({
-        ...r.data,
-        alergias: r.data.alergias ?? [],
-        lesiones: r.data.lesiones ?? [],
-      })));
-  }
+  return this.http.get<ApiResponseDTO<PerfilAtleta>>(`${this.API}/perfil`, { withCredentials: true })
+    .pipe(map(r => r.data));
+}
 
   getProfesionalesAsignados(): Observable<ProfesionalAsignado[]> {
     return this.http.get<ApiResponseDTO<ProfesionalAsignado[]>>(`${this.API}/profesionales`, { withCredentials: true })

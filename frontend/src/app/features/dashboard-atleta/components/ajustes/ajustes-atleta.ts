@@ -61,9 +61,6 @@ export class AjustesAtletaComponent {
     return c !== this.passNueva() ? 'Las contraseñas no coinciden' : '';
   });
 
-  readonly nuevaAlergia    = signal('');
-  readonly nuevaLesion     = signal('');
-
   readonly perfilAbierto    = signal(false);
   readonly perfilIntentado  = signal(false);
   readonly editDeporte      = signal('');
@@ -160,35 +157,7 @@ export class AjustesAtletaComponent {
       },
     });
   }
-
-  agregarAlergia(): void {
-    const texto = this.nuevaAlergia().trim();
-    const p = this.perfilAtleta();
-    if (!texto || !p) return;
-    this.perfilActualizado.emit({ ...p, alergias: [...p.alergias, texto] });
-    this.nuevaAlergia.set('');
-  }
-
-  eliminarAlergia(idx: number): void {
-    const p = this.perfilAtleta();
-    if (!p) return;
-    this.perfilActualizado.emit({ ...p, alergias: p.alergias.filter((_, i) => i !== idx) });
-  }
-
-  agregarLesion(): void {
-    const texto = this.nuevaLesion().trim();
-    const p = this.perfilAtleta();
-    if (!texto || !p) return;
-    this.perfilActualizado.emit({ ...p, lesiones: [...p.lesiones, texto] });
-    this.nuevaLesion.set('');
-  }
-
-  eliminarLesion(idx: number): void {
-    const p = this.perfilAtleta();
-    if (!p) return;
-    this.perfilActualizado.emit({ ...p, lesiones: p.lesiones.filter((_, i) => i !== idx) });
-  }
-
+  
   cambiarPassword(): void {
     this.passError.set('');
     if (this.passNueva() !== this.passConfirm()) { this.passError.set('Las contraseñas nuevas no coinciden.'); return; }
