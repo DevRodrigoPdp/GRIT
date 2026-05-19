@@ -56,7 +56,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (usuarioRepository.count() == 0) {
+        if (usuarioRepository.count() <= 3) {
             log.info(">>>> [SEED] Base de datos vacía. Iniciando creación de usuarios para entorno: {}",
                     System.getProperty("spring.profiles.active"));
 
