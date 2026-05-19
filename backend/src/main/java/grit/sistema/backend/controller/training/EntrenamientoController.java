@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/entrenamiento")
@@ -57,7 +59,9 @@ public class EntrenamientoController {
             @RequestParam(required = false) UUID atletaId
     ) {
         List<RutinaResponseDTO> rutinas = entrenamientoService.listarRutinas(principal.getId(), atletaId);
-        return ResponseEntity.ok(ApiResponseDTO.success(rutinas, "Rutinas encontradas"));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .body(ApiResponseDTO.success(rutinas, "Rutinas encontradas"));
     }
 
     @Operation(summary = "Actualizar plan de entrenamiento")
