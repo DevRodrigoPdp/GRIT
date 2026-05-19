@@ -114,7 +114,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(Collections.singletonList("https://frontend-rho-two-49.vercel.app/"));
+        config.setAllowedOrigins(List.of("https://frontend-rho-two-49.vercel.app/", "http://localhost:4200"));
 
         // Métodos permitidos
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
