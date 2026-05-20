@@ -1,24 +1,36 @@
-<div class="h-screen flex flex-col overflow-hidden font-sans"
-  style="background: linear-gradient(135deg, #0C0C14 0%, #12121C 50%, #0E0E18 100%);">
+﻿<div class="dashboard-root h-screen flex flex-col overflow-hidden font-sans"
+  style="background: var(--c-bg);">
 
   <!-- ── Top bar ──────────────────────────────────────────────────────────── -->
   <header class="border-b px-6 h-14 flex items-center justify-between flex-shrink-0 z-50"
-    style="background: linear-gradient(90deg, #08080E 0%, #0F0F18 50%, #08080E 100%); border-color: rgba(255,255,255,0.06);">
+    style="background: var(--c-header); border-color: rgba(var(--_bw),0.10);">
     <div class="flex items-center gap-4">
       <span class="font-black tracking-tighter text-lg text-white uppercase select-none">GRIT</span>
-      <div class="h-4 w-px hidden md:block" style="background: rgba(255,255,255,0.1)"></div>
+      <div class="h-4 w-px hidden md:block" style="background: rgba(var(--_bw),0.18)"></div>
       <span class="text-[10px] font-black tracking-[0.25em] uppercase hidden md:block"
-        style="color: rgba(255,255,255,0.4)">
+        style="color: rgba(var(--_tw),0.60)">
         {{ vistaActual() === 'atletas' ? 'MIS ATLETAS' : vistaActual() === 'perfil' ? 'MI PERFIL' : 'AJUSTES' }}
       </span>
     </div>
     <div class="flex items-center gap-3">
       @if (auth.nombre()) {
       <span class="hidden md:block text-[11px] font-black tracking-[0.15em] uppercase"
-        style="color: rgba(255,255,255,0.55)">{{ auth.nombre() }}</span>
+        style="color: rgba(var(--_tw),0.65)">{{ auth.nombre() }}</span>
       }
+      <button (click)="theme.toggle()" class="w-8 h-8 flex items-center justify-center transition-colors"
+        style="color: rgba(var(--_tw),0.55)" [attr.title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'">
+        @if (theme.isDark()) {
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-linecap="square"/>
+          </svg>
+        } @else {
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 0010 9.79z"/>
+          </svg>
+        }
+      </button>
       <button class="md:hidden w-8 h-8 flex items-center justify-center transition-colors"
-        style="color: rgba(255,255,255,0.6)" (click)="mobileMenuOpen.set(!mobileMenuOpen())"
+        style="color: rgba(var(--_tw),0.70)" (click)="mobileMenuOpen.set(!mobileMenuOpen())"
         [attr.aria-label]="mobileMenuOpen() ? 'Cerrar menú' : 'Abrir menú'">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
           @if (mobileMenuOpen()) {
@@ -35,7 +47,7 @@
 
     <!-- Backdrop móvil -->
     @if (mobileMenuOpen()) {
-    <div class="fixed inset-0 z-30 md:hidden" style="background: rgba(0,0,0,0.6)" (click)="mobileMenuOpen.set(false)">
+    <div class="fixed inset-0 z-30 md:hidden" style="background: var(--c-overlay)" (click)="mobileMenuOpen.set(false)">
     </div>
     }
 
@@ -45,16 +57,16 @@
                   md:static md:flex-shrink-0 md:translate-x-0"
       [ngClass]="mobileMenuOpen() ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
       [style.width]="sidebarOpen() ? '14rem' : '3.5rem'"
-      style="background: linear-gradient(180deg, #08080E 0%, #0F0F1A 100%); border-right: 1px solid rgba(255,255,255,0.05);"
+      style="background: var(--c-sidebar); border-right: 1px solid rgba(var(--_bw),0.08);"
       (mouseenter)="sidebarHovered.set(true)" (mouseleave)="sidebarHovered.set(false)">
 
       @if (sidebarOpen()) {
       <div class="px-4 mb-6 flex items-center justify-between">
         <span class="text-[9px] font-black tracking-[0.4em] uppercase"
-          style="color: rgba(255,255,255,0.2)">ENTRENADOR</span>
+          style="color: rgba(var(--_tw),0.35)">ENTRENADOR</span>
         <button (click)="sidebarPinned.set(!sidebarPinned())"
           class="w-5 h-5 flex items-center justify-center transition-colors"
-          [style.color]="sidebarPinned() ? '#2ED38D' : 'rgba(255,255,255,0.3)'"
+          [style.color]="sidebarPinned() ? '#2ED38D' : 'rgba(var(--_tw),0.50)'"
           [attr.title]="sidebarPinned() ? 'Desanclar sidebar' : 'Anclar sidebar'">
           <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
             @if (sidebarPinned()) {
@@ -74,7 +86,7 @@
         <button (click)="navegarA(item.id)" class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
           [style]="vistaActual() === item.id
               ? 'background: linear-gradient(90deg, rgba(46,211,141,0.18) 0%, rgba(46,211,141,0.06) 100%); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D; box-shadow: 0 0 20px rgba(46,211,141,0.08);'
-              : 'color: rgba(255,255,255,0.50); border: 1px solid transparent;'">
+              : 'color: rgba(var(--_tw),0.65); border: 1px solid transparent;'">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             @if (item.id === 'atletas') {
             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="square" />
@@ -98,11 +110,11 @@
         }
       </nav>
 
-      <div class="mt-auto px-2" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+      <div class="mt-auto px-2" style="border-top: 1px solid rgba(var(--_bw),0.10); padding-top: 12px;">
         <button (click)="auth.logout()" class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
-          style="color: rgba(255,255,255,0.40); border: 1px solid transparent;"
-          onmouseenter="this.style.color='rgba(255,255,255,0.8)'"
-          onmouseleave="this.style.color='rgba(255,255,255,0.40)'">
+          style="color: rgba(var(--_tw),0.60); border: 1px solid transparent;"
+          onmouseenter="this.style.color='rgba(var(--_tw),0.85)'"
+          onmouseleave="this.style.color='rgba(var(--_tw),0.60)'">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="square" />
           </svg>
@@ -135,7 +147,7 @@
             @if (atletas().length > 0) {
             <div class="mb-2 text-right">
               <span class="text-3xl font-black text-white leading-none">{{ atletas().length }}</span>
-              <p class="text-[10px] font-bold tracking-[0.2em] uppercase mt-0.5" style="color: rgba(255,255,255,0.4)">{{
+              <p class="text-[10px] font-bold tracking-[0.2em] uppercase mt-0.5" style="color: rgba(var(--_tw),0.60)">{{
                 atletas().length === 1 ? 'ATLETA' : 'ATLETAS' }}</p>
             </div>
             }
@@ -143,20 +155,20 @@
         </div>
 
         <!-- Filtros -->
-        <div class="flex flex-col sm:flex-row gap-3 mb-8 pb-8" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+        <div class="flex flex-col sm:flex-row gap-3 mb-8 pb-8" style="border-bottom: 1px solid rgba(var(--_bw),0.10);">
           <div class="relative flex-1">
             <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5" fill="none" stroke="currentColor"
-              stroke-width="2" viewBox="0 0 24 24" style="color: rgba(255,255,255,0.3)">
+              stroke-width="2" viewBox="0 0 24 24" style="color: rgba(var(--_tw),0.50)">
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" stroke-linecap="square" />
             </svg>
             <input [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" placeholder="Buscar atleta..."
               class="w-full pl-10 pr-4 py-2.5 text-sm font-medium text-white placeholder:text-white/30 outline-none transition-all"
-              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);" />
+              style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.14);" />
             @if (busqueda()) {
             <button (click)="busqueda.set('')"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-xs transition-colors hover:text-white"
-              style="color: rgba(255,255,255,0.4)">✕</button>
+              style="color: rgba(var(--_tw),0.60)">✕</button>
             }
           </div>
           @if (auth.tituloEntrenamiento() && auth.tituloNutricion()) {
@@ -166,9 +178,9 @@
               class="px-4 py-2.5 text-[11px] font-black tracking-[0.15em] uppercase transition-all duration-150"
               [style]="filtroServicio() === opcion[0]
                         ? (opcion[0] === 'NUTRICION'
-                            ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'
+                            ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
                             : 'background: #fff; color: #000;')
-                        : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);'">
+                        : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.65);'">
               {{ opcion[1] }}
             </button>
             }
@@ -178,24 +190,24 @@
 
         <!-- Estado vacío -->
         @if (atletas().length === 0) {
-        <div class="py-16 text-center" style="border: 1px dashed rgba(255,255,255,0.08);">
+        <div class="py-16 text-center" style="border: 1px dashed rgba(var(--_bw),0.14);">
           <div class="w-12 h-12 flex items-center justify-center mx-auto mb-4"
-            style="border: 1px solid rgba(255,255,255,0.08);">
+            style="border: 1px solid rgba(var(--_bw),0.14);">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"
-              style="color: rgba(255,255,255,0.2)">
+              style="color: rgba(var(--_tw),0.35)">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="square" />
               <circle cx="9" cy="7" r="4" />
             </svg>
           </div>
-          <p class="text-xs font-black tracking-[0.25em] uppercase mb-2" style="color: rgba(255,255,255,0.3)">SIN
+          <p class="text-xs font-black tracking-[0.25em] uppercase mb-2" style="color: rgba(var(--_tw),0.50)">SIN
             ATLETAS</p>
-          <p class="text-sm" style="color: rgba(255,255,255,0.4)">Comparte tu código de invitación para que los atletas
+          <p class="text-sm" style="color: rgba(var(--_tw),0.60)">Comparte tu código de invitación para que los atletas
             se conecten contigo.</p>
         </div>
         }
         @if (atletas().length > 0 && atletasFiltrados().length === 0) {
-        <div class="py-12 text-center" style="border: 1px dashed rgba(255,255,255,0.08);">
-          <p class="text-sm" style="color: rgba(255,255,255,0.4)">Sin resultados para los filtros aplicados.</p>
+        <div class="py-12 text-center" style="border: 1px dashed rgba(var(--_bw),0.14);">
+          <p class="text-sm" style="color: rgba(var(--_tw),0.60)">Sin resultados para los filtros aplicados.</p>
         </div>
         }
 
@@ -204,9 +216,9 @@
           @for (atleta of atletasFiltrados(); track atleta.id) {
           <button (click)="seleccionarAtleta(atleta)"
             class="text-left transition-all duration-200 group relative overflow-hidden"
-            style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(255,255,255,0.08);"
-            onmouseenter="this.style.borderColor='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.4)'"
-            onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            style="background: linear-gradient(135deg, rgba(var(--_bw),0.05) 0%, rgba(var(--_bw),0.02) 100%); border: 1px solid rgba(var(--_bw),0.14);"
+            onmouseenter="this.style.borderColor='rgba(var(--_tw),0.45)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.4)'"
+            onmouseleave="this.style.borderColor='rgba(var(--_bw),0.14)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <!-- Barra color -->
             <div class="h-[3px]" [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D]' :
                              atleta.servicio === 'ENTRENAMIENTO' ? 'bg-white' :
@@ -216,16 +228,16 @@
               <div class="flex items-center gap-3 mb-4">
                 <div class="w-11 h-11 flex-shrink-0 flex items-center justify-center font-black text-sm"
                   [style]="atleta.servicio === 'NUTRICION'
-                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'
+                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
                           : atleta.servicio === 'ENTRENAMIENTO'
-                            ? 'background: rgba(255,255,255,0.12); color:#fff; border: 1px solid rgba(255,255,255,0.15);'
-                            : 'background: rgba(255,255,255,0.08); color:#2ED38D; border: 1px solid rgba(46,211,141,0.2);'">
+                            ? 'background: rgba(var(--_bw),0.20); color:#fff; border: 1px solid rgba(var(--_tw),0.28);'
+                            : 'background: rgba(var(--_bw),0.14); color:#2ED38D; border: 1px solid rgba(46,211,141,0.2);'">
                   {{ iniciales(atleta.nombre) }}
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-black uppercase tracking-tight text-white leading-none mb-1 truncate">{{
                     atleta.nombre }}</p>
-                  <p class="text-xs font-medium truncate" style="color: rgba(255,255,255,0.45)">{{ atleta.deporte }} ·
+                  <p class="text-xs font-medium truncate" style="color: rgba(var(--_tw),0.60)">{{ atleta.deporte }} ·
                     {{ nivelLabel(atleta.nivel) }}</p>
                 </div>
               </div>
@@ -233,7 +245,7 @@
                 <div class="flex gap-1.5">
                   @if (incluyeEntrenamiento(atleta.servicio)) {
                   <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2 py-0.5"
-                    style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.12)">ENTR</span>
+                    style="background: rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.85); border: 1px solid rgba(var(--_bw),0.20)">ENTR</span>
                   }
                   @if (incluyeNutricion(atleta.servicio)) {
                   <span
@@ -249,9 +261,9 @@
                   </span>
                   } @else {
                   <span class="text-[10px] font-bold tracking-[0.1em] uppercase"
-                    style="color: rgba(255,255,255,0.25)">SIN PLAN</span>
+                    style="color: rgba(var(--_tw),0.45)">SIN PLAN</span>
                   }
-                  <span class="text-sm transition-colors" style="color: rgba(255,255,255,0.2)">→</span>
+                  <span class="text-sm transition-colors" style="color: rgba(var(--_tw),0.35)">→</span>
                 </div>
               </div>
             </div>
@@ -266,15 +278,14 @@
       @if (atletaActivo(); as atleta) {
       <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
 
-        <!-- Barra de contexto -->
-        <div class="flex-shrink-0"
-          style="background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.07);">
+        <!-- ── Cabecera del atleta ─────────────────────────────────────────── -->
+        <div class="flex-shrink-0" style="background: var(--c-header); border-bottom: 1px solid rgba(var(--_bw),0.10);">
 
-          <!-- Fila navegación -->
-          <div class="px-6 md:px-10 pt-3 pb-2 flex items-center justify-between">
+          <!-- Fila superior: breadcrumb + acciones -->
+          <div class="px-6 md:px-10 pt-4 flex items-center justify-between gap-4">
             <button (click)="volver()"
-              class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.25em] uppercase transition-colors hover:text-white"
-              style="color: rgba(255,255,255,0.4)">
+              class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.28em] uppercase transition-opacity opacity-60 hover:opacity-100"
+              style="color: rgba(var(--_tw),0.65)">
               <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
                 <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
               </svg>
@@ -283,79 +294,81 @@
 
             <div class="flex items-center gap-2 flex-shrink-0">
               @if (confirmandoDesconectar() === atleta.id) {
-              <span class="text-[10px]" style="color: rgba(255,255,255,0.4)">¿Confirmar baja?</span>
-              <button (click)="desconectarAtleta(atleta.id)" [disabled]="desconectando()"
-                class="py-1 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
-                [style]="!desconectando()
-        ? 'background: linear-gradient(135deg,#DC2626,#B91C1C); color:#fff;'
-        : 'background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3);'">
-                {{ desconectando() ? '...' : 'CONFIRMAR' }}
-              </button>
-              <button (click)="confirmandoDesconectar.set(null)"
-                class="py-1 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors hover:text-white"
-                style="border: 1px solid rgba(220,38,38,0.3); color: rgba(255,255,255,0.4);"
-                onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.3)'">CANCELAR</button>
+                <span class="text-[10px]" style="color: rgba(var(--_tw),0.55)">¿Confirmar?</span>
+                <button (click)="desconectarAtleta(atleta.id)" [disabled]="desconectando()"
+                  class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
+                  style="background: #DC2626; color: #fff;">
+                  {{ desconectando() ? '...' : 'CONFIRMAR' }}
+                </button>
+                <button (click)="confirmandoDesconectar.set(null)"
+                  class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors"
+                  style="border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.55);">CANCELAR</button>
               } @else {
-              <button (click)="desconectarAtleta(atleta.id)"
-                class="py-1 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors text-red-400 hover:text-red-300"
-                style="border: 1px solid rgba(220,38,38,0.3);">DAR DE BAJA</button>
+                <button (click)="confirmandoDesconectar.set(atleta.id)"
+                  class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors text-red-400 hover:text-red-300"
+                  style="border: 1px solid rgba(220,38,38,0.25);">DAR DE BAJA</button>
               }
             </div>
           </div>
 
-          <!-- Fila atleta -->
-          <div class="px-6 md:px-10 pb-4 flex items-center gap-4">
-            <div class="w-11 h-11 flex items-center justify-center font-black text-sm flex-shrink-0" [style]="atleta.servicio === 'NUTRICION'
-                    ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'
-                    : atleta.servicio === 'ENTRENAMIENTO'
-                      ? 'background: rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.15);'
-                      : 'background: rgba(255,255,255,0.08); color:#2ED38D; border:1px solid rgba(46,211,141,0.2);'">
+          <!-- Fila info: avatar + nombre + deporte + badges -->
+          <div class="px-6 md:px-10 pt-3 pb-5 flex items-center gap-4">
+            <!-- Avatar -->
+            <div class="w-12 h-12 flex items-center justify-center font-black text-sm flex-shrink-0"
+              [style]="atleta.servicio === 'NUTRICION'
+                ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: #000;'
+                : atleta.servicio === 'ENTRENAMIENTO'
+                  ? 'background: rgba(var(--_bw),0.12); color: rgba(var(--_tw),0.85); border: 1px solid rgba(var(--_bw),0.22);'
+                  : 'background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.25);'">
               {{ iniciales(atleta.nombre) }}
             </div>
+
+            <!-- Nombre + deporte -->
             <div class="min-w-0 flex-1">
-              <p class="text-base font-black uppercase tracking-tight text-white leading-none truncate">{{ atleta.nombre
-                }}</p>
-              <p class="text-[11px] mt-1" style="color: rgba(255,255,255,0.4)">{{ atleta.deporte }} · {{
-                nivelLabel(atleta.nivel) }}</p>
-            </div>
-            <div class="flex gap-1.5 flex-shrink-0">
-              @if (incluyeEntrenamiento(atleta.servicio)) {
-              <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2.5 py-1"
-                style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.12)">ENTR</span>
-              }
-              @if (incluyeNutricion(atleta.servicio)) {
-              <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2.5 py-1"
-                style="background: rgba(46,211,141,0.15); color:#2ED38D; border:1px solid rgba(46,211,141,0.3)">NUTR</span>
-              }
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 class="text-lg font-black uppercase tracking-tight text-white leading-none">{{ atleta.nombre }}</h2>
+                @if (incluyeEntrenamiento(atleta.servicio)) {
+                  <span class="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
+                    style="background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.70); border: 1px solid rgba(var(--_bw),0.18);">ENTR</span>
+                }
+                @if (incluyeNutricion(atleta.servicio)) {
+                  <span class="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
+                    style="background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.28);">NUTR</span>
+                }
+              </div>
+              <p class="text-xs mt-1.5" style="color: rgba(var(--_tw),0.55)">
+                {{ atleta.deporte }} · {{ nivelLabel(atleta.nivel) }}
+              </p>
             </div>
           </div>
 
         </div>
 
-        <!-- Tabs -->
-        <div class="flex-shrink-0 px-6 md:px-10 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style="border-bottom: 1px solid rgba(255,255,255,0.07); background: rgba(0,0,0,0.15);">
-          <div class="flex gap-0 min-w-max">
+        <!-- ── Tabs ──────────────────────────────────────────────────────── -->
+        <div class="flex-shrink-0 px-6 md:px-10 overflow-x-auto no-scrollbar"
+          style="border-bottom: 1px solid rgba(var(--_bw),0.10); background: var(--c-header);">
+          <div class="flex min-w-max">
             @for (tab of tabsDisponibles(); track tab) {
-            <button (click)="tabActiva.set(tab)" class="relative flex items-center gap-2 px-5 py-4 transition-colors"
-              [style]="tabActiva() === tab ? 'color: #fff;' : 'color: rgba(255,255,255,0.4);'">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+            <button (click)="tabActiva.set(tab)"
+              class="relative flex items-center gap-2 px-4 py-3.5 transition-colors"
+              [style]="tabActiva() === tab ? 'color: #2ED38D;' : 'color: rgba(var(--_tw),0.50);'">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5"
                 viewBox="0 0 24 24">
                 @if (tab === 'ENTRENAMIENTO') {
-                <path d="M6 5v14M18 5v14M6 12h12M3 8h3M18 8h3M3 16h3M18 16h3" stroke-linecap="square" />
+                  <path d="M6 5v14M18 5v14M6 12h12M3 8h3M18 8h3M3 16h3M18 16h3" stroke-linecap="square" />
                 } @else if (tab === 'NUTRICION') {
-                <path d="M12 2C8 2 4 6 4 10c0 5 4 8 8 12 4-4 8-7 8-12 0-4-4-8-8-8z" />
+                  <path d="M12 2C8 2 4 6 4 10c0 5 4 8 8 12 4-4 8-7 8-12 0-4-4-8-8-8z" />
                 } @else {
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="square" />
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="square" />
                 }
               </svg>
-              <span class="text-xs font-black tracking-[0.15em] uppercase">
+              <span class="text-[11px] font-black tracking-[0.18em] uppercase">
                 @if (tab === 'ENTRENAMIENTO') { ENTRENAMIENTO }
                 @else if (tab === 'NUTRICION') { NUTRICIÓN }
                 @else { COMUNICACIÓN }
               </span>
               @if (tabActiva() === tab) {
-              <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+                <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
               }
             </button>
             }
@@ -395,9 +408,9 @@
 
         <div class="mb-10">
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-5 h-px" style="background: rgba(255,255,255,0.4)"></div>
+            <div class="w-5 h-px" style="background: rgba(var(--_tw),0.60)"></div>
             <span class="text-[10px] font-black tracking-[0.35em] uppercase"
-              style="color: rgba(255,255,255,0.4)">CONFIGURACIÓN</span>
+              style="color: rgba(var(--_tw),0.60)">CONFIGURACIÓN</span>
           </div>
           <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-white leading-[0.88]">AJUSTES</h1>
         </div>
@@ -405,22 +418,22 @@
         <div class="flex flex-col gap-2">
 
           <!-- Editar perfil -->
-          <div style="border: 1px solid rgba(255,255,255,0.08);">
+          <div style="border: 1px solid rgba(var(--_bw),0.14);">
             <button type="button" (click)="editarPerfilAbierto() ? editarPerfilAbierto.set(false) : abrirEditarPerfil()"
               class="w-full px-5 py-4 flex items-center justify-between transition-colors"
-              style="background: rgba(255,255,255,0.03);" onmouseenter="this.style.background='rgba(255,255,255,0.05)'"
-              onmouseleave="this.style.background='rgba(255,255,255,0.03)'">
+              style="background: rgba(var(--_bw),0.05);" onmouseenter="this.style.background='rgba(var(--_bw),0.08)'"
+              onmouseleave="this.style.background='rgba(var(--_bw),0.05)'">
               <p class="text-xs font-black tracking-[0.2em] uppercase text-white">EDITAR PERFIL</p>
               <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
                 [style.transform]="editarPerfilAbierto() ? 'rotate(180deg)' : 'rotate(0deg)'" fill="none"
-                stroke="currentColor" stroke-width="2" viewBox="0 0 16 16" style="color: rgba(255,255,255,0.35)">
+                stroke="currentColor" stroke-width="2" viewBox="0 0 16 16" style="color: rgba(var(--_tw),0.50)">
                 <path d="M4 6l4 4 4-4" stroke-linecap="square" />
               </svg>
             </button>
             <div class="grid" style="transition: grid-template-rows 0.3s ease;"
               [style.grid-template-rows]="editarPerfilAbierto() ? '1fr' : '0fr'">
               <div class="overflow-hidden">
-                <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.10);">
                   @if (perfilGuardado()) {
                   <div class="px-4 py-3 mt-4 mb-3"
                     style="border-left: 2px solid #2ED38D; background: rgba(46,211,141,0.06);">
@@ -436,59 +449,59 @@
                   <div class="flex flex-col gap-5 mt-4">
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
-                        style="color: rgba(255,255,255,0.4)">NOMBRE</label>
+                        style="color: rgba(var(--_tw),0.60)">NOMBRE</label>
                       <input type="text" [value]="editNombre()" (input)="editNombre.set($any($event.target).value)"
                         class="w-full px-4 py-2.5 text-sm font-medium text-white outline-none transition-colors"
-                        style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);"
-                        onfocus="this.style.borderColor='rgba(255,255,255,0.22)'"
-                        onblur="this.style.borderColor='rgba(255,255,255,0.09)'" />
+                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                     </div>
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
-                        style="color: rgba(255,255,255,0.4)">SOBRE MÍ</label>
+                        style="color: rgba(var(--_tw),0.60)">SOBRE MÍ</label>
                       <textarea [value]="editDescripcion()" (input)="editDescripcion.set($any($event.target).value)"
                         rows="3" placeholder="Describe tu experiencia, metodología..."
                         class="w-full px-4 py-2.5 text-sm text-white placeholder:text-white/20 outline-none resize-none transition-colors"
-                        style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);"
-                        onfocus="this.style.borderColor='rgba(255,255,255,0.22)'"
-                        onblur="this.style.borderColor='rgba(255,255,255,0.09)'"></textarea>
+                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'"></textarea>
                     </div>
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
-                        style="color: rgba(255,255,255,0.4)">AÑOS DE EXPERIENCIA</label>
+                        style="color: rgba(var(--_tw),0.60)">AÑOS DE EXPERIENCIA</label>
                       <input type="number" min="0" max="60" [value]="editExperiencia()"
                         (input)="editExperiencia.set(+$any($event.target).value)"
                         class="w-28 px-4 py-2.5 text-sm text-white outline-none transition-colors"
-                        style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);"
-                        onfocus="this.style.borderColor='rgba(255,255,255,0.22)'"
-                        onblur="this.style.borderColor='rgba(255,255,255,0.09)'" />
+                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                     </div>
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
-                        style="color: rgba(255,255,255,0.4)">FORMACIÓN ADICIONAL</label>
+                        style="color: rgba(var(--_tw),0.60)">FORMACIÓN ADICIONAL</label>
                       <div class="flex flex-wrap gap-2 mb-3">
                         @for (master of editMasters(); track $index; let i = $index) {
                         <div class="flex items-center gap-1.5 px-3 py-1.5"
-                          style="border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);">
+                          style="border: 1px solid rgba(var(--_bw),0.20); background: rgba(var(--_bw),0.06);">
                           <span class="text-xs font-medium text-white">{{ master }}</span>
                           <button (click)="eliminarMaster(i)"
                             class="hover:text-red-400 transition-colors text-xs leading-none"
-                            style="color: rgba(255,255,255,0.3)">✕</button>
+                            style="color: rgba(var(--_tw),0.50)">✕</button>
                         </div>
                         }
                         @if (editMasters().length === 0) {
-                        <p class="text-sm" style="color: rgba(255,255,255,0.25)">Ninguno añadido.</p>
+                        <p class="text-sm" style="color: rgba(var(--_tw),0.45)">Ninguno añadido.</p>
                         }
                       </div>
                       <div class="flex items-stretch"
-                        style="border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.03);">
+                        style="border: 1px solid rgba(var(--_bw),0.15); background: rgba(var(--_bw),0.05);">
                         <input [value]="nuevoMaster()" (input)="nuevoMaster.set($any($event.target).value)"
                           (keydown.enter)="agregarMaster()" placeholder="Ej. Máster en Alto Rendimiento..."
                           class="flex-1 px-4 py-2.5 text-sm text-white placeholder:text-white/25 outline-none bg-transparent transition-colors" />
-                        <div class="w-px flex-shrink-0" style="background: rgba(255,255,255,0.08);"></div>
+                        <div class="w-px flex-shrink-0" style="background: rgba(var(--_bw),0.14);"></div>
                         <button (click)="agregarMaster()" [disabled]="!nuevoMaster().trim()"
                           class="text-[11px] font-black tracking-[0.15em] uppercase px-5 transition-all flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                          [style]="nuevoMaster().trim() ? 'color: #2ED38D;' : 'color: rgba(255,255,255,0.2);'">
+                          [style]="nuevoMaster().trim() ? 'color: #2ED38D;' : 'color: rgba(var(--_tw),0.35);'">
                           AÑADIR
                         </button>
                       </div>
@@ -497,8 +510,8 @@
                       [disabled]="!editNombre().trim() || guardandoPerfil()"
                       class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                       [style]="editNombre().trim() && !guardandoPerfil()
-                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'
-                          : 'background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3);'">
+                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
+                          : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
                       {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR PERFIL' }}
                     </button>
                   </div>
@@ -508,22 +521,22 @@
           </div>
 
           <!-- Cambiar contraseña -->
-          <div style="border: 1px solid rgba(255,255,255,0.08);">
+          <div style="border: 1px solid rgba(var(--_bw),0.14);">
             <button type="button" (click)="passAbierto.set(!passAbierto())"
               class="w-full px-5 py-4 flex items-center justify-between transition-colors"
-              style="background: rgba(255,255,255,0.03);" onmouseenter="this.style.background='rgba(255,255,255,0.05)'"
-              onmouseleave="this.style.background='rgba(255,255,255,0.03)'">
+              style="background: rgba(var(--_bw),0.05);" onmouseenter="this.style.background='rgba(var(--_bw),0.08)'"
+              onmouseleave="this.style.background='rgba(var(--_bw),0.05)'">
               <p class="text-xs font-black tracking-[0.2em] uppercase text-white">CAMBIAR CONTRASEÑA</p>
               <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
                 [style.transform]="passAbierto() ? 'rotate(180deg)' : 'rotate(0deg)'" fill="none" stroke="currentColor"
-                stroke-width="2" viewBox="0 0 16 16" style="color: rgba(255,255,255,0.35)">
+                stroke-width="2" viewBox="0 0 16 16" style="color: rgba(var(--_tw),0.50)">
                 <path d="M4 6l4 4 4-4" stroke-linecap="square" />
               </svg>
             </button>
             <div class="grid" style="transition: grid-template-rows 0.3s ease;"
               [style.grid-template-rows]="passAbierto() ? '1fr' : '0fr'">
               <div class="overflow-hidden">
-                <div class="px-5 pb-5" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.10);">
                   @if (passCambiada()) {
                   <div class="px-4 py-3 mt-4 mb-3"
                     style="border-left: 2px solid #2ED38D; background: rgba(46,211,141,0.06);">
@@ -542,18 +555,18 @@
                     'passConfirm', 'showPassConfirm', 'new-password']]; track campo[0]) {
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
-                        style="color: rgba(255,255,255,0.4)">{{ campo[0] }}</label>
+                        style="color: rgba(var(--_tw),0.60)">{{ campo[0] }}</label>
                       <div class="relative">
                         @if (campo[1] === 'passActual') {
                         <input [type]="showPassActual() ? 'text' : 'password'" [value]="passActual()"
                           (input)="passActual.set($any($event.target).value)" autocomplete="current-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);"
-                          onfocus="this.style.borderColor='rgba(255,255,255,0.22)'"
-                          onblur="this.style.borderColor='rgba(255,255,255,0.09)'" />
+                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassActual.update(v=>!v)"
                           class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
-                          style="color: rgba(255,255,255,0.3)" tabindex="-1">
+                          style="color: rgba(var(--_tw),0.50)" tabindex="-1">
                           @if (showPassActual()) { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="1.5">
                             <path
@@ -572,12 +585,12 @@
                         <input [type]="showPassNueva() ? 'text' : 'password'" [value]="passNueva()"
                           (input)="passNueva.set($any($event.target).value)" autocomplete="new-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);"
-                          onfocus="this.style.borderColor='rgba(255,255,255,0.22)'"
-                          onblur="this.style.borderColor='rgba(255,255,255,0.09)'" />
+                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassNueva.update(v=>!v)"
                           class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
-                          style="color: rgba(255,255,255,0.3)" tabindex="-1">
+                          style="color: rgba(var(--_tw),0.50)" tabindex="-1">
                           @if (showPassNueva()) { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="1.5">
                             <path
@@ -595,7 +608,7 @@
                         <ul class="mt-2 flex flex-col gap-1">
                           @for (r of passReglas(); track r.label) {
                           <li class="flex items-center gap-1.5 text-[10px]" [class]="r.ok ? 'text-[#2ED38D]' : ''"
-                            [style]="!r.ok ? 'color: rgba(255,255,255,0.3)' : ''">
+                            [style]="!r.ok ? 'color: rgba(var(--_tw),0.50)' : ''">
                             <span>{{ r.ok ? '✓' : '○' }}</span><span>{{ r.label }}</span>
                           </li>
                           }
@@ -606,12 +619,12 @@
                         <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
                           (input)="passConfirm.set($any($event.target).value)" autocomplete="new-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);"
-                          onfocus="this.style.borderColor='rgba(255,255,255,0.22)'"
-                          onblur="this.style.borderColor='rgba(255,255,255,0.09)'" />
+                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassConfirm.update(v=>!v)"
                           class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
-                          style="color: rgba(255,255,255,0.3)" tabindex="-1">
+                          style="color: rgba(var(--_tw),0.50)" tabindex="-1">
                           @if (showPassConfirm()) { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="1.5">
                             <path
@@ -633,8 +646,8 @@
                       [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
                       class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                       [style]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
-                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'
-                          : 'background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3);'">
+                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
+                          : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
                       {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
                     </button>
                   </div>
@@ -647,8 +660,8 @@
           <div style="border: 1px solid rgba(220,38,38,0.15);">
             <button type="button" (click)="bajaAbierta.set(!bajaAbierta())"
               class="w-full px-5 py-4 flex items-center justify-between transition-colors"
-              style="background: rgba(255,255,255,0.03);" onmouseenter="this.style.background='rgba(220,38,38,0.05)'"
-              onmouseleave="this.style.background='rgba(255,255,255,0.03)'">
+              style="background: rgba(var(--_bw),0.05);" onmouseenter="this.style.background='rgba(220,38,38,0.05)'"
+              onmouseleave="this.style.background='rgba(var(--_bw),0.05)'">
               <p class="text-xs font-black tracking-[0.2em] uppercase text-red-400">ELIMINAR CUENTA</p>
               <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
                 [style.transform]="bajaAbierta() ? 'rotate(180deg)' : 'rotate(0deg)'" fill="none" stroke="currentColor"
@@ -662,7 +675,7 @@
                 <div class="px-5 pb-5" style="border-top: 1px solid rgba(220,38,38,0.12);">
                   @if (!confirmarBaja()) {
                   <div class="mt-4">
-                    <p class="text-sm mb-4" style="color: rgba(255,255,255,0.5)">Al eliminar tu cuenta se borrarán todos
+                    <p class="text-sm mb-4" style="color: rgba(var(--_tw),0.65)">Al eliminar tu cuenta se borrarán todos
                       tus datos de forma permanente. Esta acción no se puede deshacer.</p>
                     <button type="button" (click)="confirmarBaja.set(true)"
                       class="px-6 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors text-red-400 hover:text-red-300"
@@ -673,7 +686,7 @@
                   } @else {
                   <div class="mt-4">
                     <p class="text-sm font-bold text-white mb-1">¿Estás seguro?</p>
-                    <p class="text-sm mb-4" style="color: rgba(255,255,255,0.4)">Escribe <span
+                    <p class="text-sm mb-4" style="color: rgba(var(--_tw),0.60)">Escribe <span
                         class="font-mono font-bold text-white">ELIMINAR</span> para confirmar.</p>
                     <input type="text" [value]="textoConfirmaBaja()"
                       (input)="textoConfirmaBaja.set($any($event.target).value)" placeholder="ELIMINAR"
@@ -684,13 +697,13 @@
                     <div class="flex gap-3">
                       <button type="button" (click)="confirmarBaja.set(false); textoConfirmaBaja.set('')"
                         class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors hover:text-white"
-                        style="border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4);">CANCELAR</button>
+                        style="border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.60);">CANCELAR</button>
                       <button type="button" (click)="eliminarCuenta()"
                         [disabled]="textoConfirmaBaja() !== 'ELIMINAR' || eliminandoCuenta()"
                         class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         [style]="textoConfirmaBaja() === 'ELIMINAR' && !eliminandoCuenta()
                             ? 'background: linear-gradient(135deg,#DC2626,#B91C1C); color:#fff;'
-                            : 'background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3);'">
+                            : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
                         {{ eliminandoCuenta() ? 'ELIMINANDO...' : 'CONFIRMAR BAJA' }}
                       </button>
                     </div>

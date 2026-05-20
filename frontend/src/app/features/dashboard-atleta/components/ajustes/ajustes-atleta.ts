@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, input, output } from '@angular/core';
 import { AtletaService, PerfilAtleta } from '../../services/atleta.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-ajustes-atleta',
@@ -23,6 +24,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class AjustesAtletaComponent {
   private atleta = inject(AtletaService);
   readonly auth   = inject(AuthService);
+  readonly theme  = inject(ThemeService);
 
   readonly perfilAtleta      = input<PerfilAtleta | null>(null);
   readonly perfilActualizado = output<PerfilAtleta>();

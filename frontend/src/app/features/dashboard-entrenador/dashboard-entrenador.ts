@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { EntrenadorService, AtletaAsignado, PerfilEntrenador } from './services/entrenador.service';
 import { GestionNutricionComponent } from './components/gestion-nutricion/gestion-nutricion';
 import { GestionEntrenamientoComponent } from './components/gestion-entrenamiento/gestion-entrenamiento';
@@ -21,6 +22,7 @@ type Vista  = 'atletas' | 'perfil' | 'ajustes';
 export class DashboardEntrenadorPage implements OnInit {
   readonly auth      = inject(AuthService);
   readonly entrenador = inject(EntrenadorService);
+  readonly theme     = inject(ThemeService);
 
   atletas       = signal<AtletaAsignado[]>([]);
   atletaActivo  = signal<AtletaAsignado | null>(null);

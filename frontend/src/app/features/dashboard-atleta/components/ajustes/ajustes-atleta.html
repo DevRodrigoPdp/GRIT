@@ -1,23 +1,23 @@
-<div>
+﻿<div>
   <div class="mb-8">
     <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">AJUSTES</h2>
   </div>
 
   <!-- Cambiar contraseña -->
-  <div class="mb-6" style="border: 1px solid rgba(255, 255, 255, 0.08)">
+  <div class="mb-6" style="border: 1px solid rgba(var(--_bw),0.14)">
     <button
       type="button"
       (click)="passAbierto.set(!passAbierto())"
       [attr.aria-expanded]="passAbierto()"
       class="w-full px-5 py-4 flex items-center justify-between transition-colors"
-      onmouseenter="this.style.background = 'rgba(255,255,255,0.04)'"
+      onmouseenter="this.style.background = 'rgba(var(--_bw),0.06)'"
       onmouseleave="this.style.background = ''"
     >
       <p class="text-xs font-black tracking-[0.2em] uppercase text-white">CAMBIAR CONTRASEÑA</p>
       <svg
         class="w-4 h-4 flex-shrink-0 transition-transform duration-300"
         [class.rotate-180]="passAbierto()"
-        style="color: rgba(255, 255, 255, 0.4)"
+        style="color: rgba(var(--_tw),0.60)"
         viewBox="0 0 16 16"
         fill="none"
       >
@@ -29,7 +29,7 @@
       [style.gridTemplateRows]="passAbierto() ? '1fr' : '0fr'"
     >
       <div class="overflow-hidden">
-        <div class="px-5 pb-5" style="border-top: 1px solid rgba(255, 255, 255, 0.08)">
+        <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.14)">
           @if (passCambiada()) {
             <div
               class="px-5 py-4 mt-4 mb-2"
@@ -55,7 +55,7 @@
             <div>
               <label
                 class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                style="color: rgba(255, 255, 255, 0.45)"
+                style="color: rgba(var(--_tw),0.60)"
                 >CONTRASEÑA ACTUAL</label
               >
               <div class="relative">
@@ -66,21 +66,21 @@
                   autocomplete="current-password"
                   class="w-full px-4 py-2.5 pr-10 text-sm focus:outline-none"
                   style="
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    color: white;
+                    background: rgba(var(--_bw),0.06);
+                    border: 1px solid rgba(var(--_bw),0.18);
+                    color: var(--c-text-1);
                   "
-                  onfocus="this.style.borderColor = 'rgba(255,255,255,0.3)'"
-                  onblur="this.style.borderColor = 'rgba(255,255,255,0.1)'"
+                  onfocus="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+                  onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
                 />
                 <button
                   type="button"
                   (click)="showPassActual.update(v => !v)"
                   class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
                   tabindex="-1"
-                  style="color: rgba(255, 255, 255, 0.3)"
-                  onmouseenter="this.style.color = 'white'"
-                  onmouseleave="this.style.color = 'rgba(255,255,255,0.3)'"
+                  style="color: rgba(var(--_tw),0.50)"
+                  onmouseenter="this.style.color = '#1E1B4B'"
+                  onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
                 >
                   @if (showPassActual()) {
                     <svg
@@ -117,7 +117,7 @@
             <div>
               <label
                 class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                style="color: rgba(255, 255, 255, 0.45)"
+                style="color: rgba(var(--_tw),0.60)"
                 >NUEVA CONTRASEÑA</label
               >
               <div class="relative">
@@ -128,21 +128,21 @@
                   autocomplete="new-password"
                   class="w-full px-4 py-2.5 pr-10 text-sm focus:outline-none"
                   style="
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    color: white;
+                    background: rgba(var(--_bw),0.06);
+                    border: 1px solid rgba(var(--_bw),0.18);
+                    color: var(--c-text-1);
                   "
-                  onfocus="this.style.borderColor = 'rgba(255,255,255,0.3)'"
-                  onblur="this.style.borderColor = 'rgba(255,255,255,0.1)'"
+                  onfocus="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+                  onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
                 />
                 <button
                   type="button"
                   (click)="showPassNueva.update(v => !v)"
                   class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
                   tabindex="-1"
-                  style="color: rgba(255, 255, 255, 0.3)"
-                  onmouseenter="this.style.color = 'white'"
-                  onmouseleave="this.style.color = 'rgba(255,255,255,0.3)'"
+                  style="color: rgba(var(--_tw),0.50)"
+                  onmouseenter="this.style.color = '#1E1B4B'"
+                  onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
                 >
                   @if (showPassNueva()) {
                     <svg
@@ -181,7 +181,7 @@
                     <li
                       class="flex items-center gap-1.5 text-[10px]"
                       [class]="r.ok ? 'text-[#2ED38D]' : ''"
-                      [style]="!r.ok ? 'color: rgba(255,255,255,0.3)' : ''"
+                      [style]="!r.ok ? 'color: rgba(var(--_tw),0.50)' : ''"
                     >
                       <span>{{ r.ok ? '✓' : '○' }}</span>
                       <span>{{ r.label }}</span>
@@ -193,7 +193,7 @@
             <div>
               <label
                 class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                style="color: rgba(255, 255, 255, 0.45)"
+                style="color: rgba(var(--_tw),0.60)"
                 >CONFIRMAR NUEVA CONTRASEÑA</label
               >
               <div class="relative">
@@ -205,20 +205,20 @@
                   class="w-full px-4 py-2.5 pr-10 text-sm focus:outline-none"
                   [style]="
                     passConfirmError()
-                      ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;'
-                      : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'
+                      ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: var(--c-text-1);'
+                      : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);'
                   "
-                  onfocus="this.style.borderColor = 'rgba(255,255,255,0.3)'"
-                  onblur="this.style.borderColor = 'rgba(255,255,255,0.1)'"
+                  onfocus="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+                  onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
                 />
                 <button
                   type="button"
                   (click)="showPassConfirm.update(v => !v)"
                   class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
                   tabindex="-1"
-                  style="color: rgba(255, 255, 255, 0.3)"
-                  onmouseenter="this.style.color = 'white'"
-                  onmouseleave="this.style.color = 'rgba(255,255,255,0.3)'"
+                  style="color: rgba(var(--_tw),0.50)"
+                  onmouseenter="this.style.color = '#1E1B4B'"
+                  onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
                 >
                   @if (showPassConfirm()) {
                     <svg
@@ -283,7 +283,7 @@
                   !passConfirmError() &&
                   !cambiandoPass()
                 )
-                  ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);'
+                  ? 'background: rgba(var(--_bw),0.08); color: rgba(var(--_tw),0.60);'
                   : ''
               "
             >
@@ -296,20 +296,20 @@
   </div>
 
   <!-- Editar perfil deportivo -->
-  <div class="mb-6" style="border: 1px solid rgba(255, 255, 255, 0.08)">
+  <div class="mb-6" style="border: 1px solid rgba(var(--_bw),0.14)">
     <button
       type="button"
       (click)="abrirEditarPerfil()"
       [attr.aria-expanded]="perfilAbierto()"
       class="w-full px-5 py-4 flex items-center justify-between transition-colors"
-      onmouseenter="this.style.background = 'rgba(255,255,255,0.04)'"
+      onmouseenter="this.style.background = 'rgba(var(--_bw),0.06)'"
       onmouseleave="this.style.background = ''"
     >
       <p class="text-xs font-black tracking-[0.2em] uppercase text-white">EDITAR PERFIL</p>
       <svg
         class="w-4 h-4 flex-shrink-0 transition-transform duration-300"
         [class.rotate-180]="perfilAbierto()"
-        style="color: rgba(255, 255, 255, 0.4)"
+        style="color: rgba(var(--_tw),0.60)"
         viewBox="0 0 16 16"
         fill="none"
       >
@@ -321,7 +321,7 @@
       [style.gridTemplateRows]="perfilAbierto() ? '1fr' : '0fr'"
     >
       <div class="overflow-hidden">
-        <div class="px-5 pb-5" style="border-top: 1px solid rgba(255, 255, 255, 0.08)">
+        <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.14)">
           @if (perfilGuardado()) {
             <div
               class="px-5 py-4 mt-4 mb-2"
@@ -347,7 +347,7 @@
             <div>
               <label
                 class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                style="color: rgba(255, 255, 255, 0.45)"
+                style="color: rgba(var(--_tw),0.60)"
                 >DEPORTE</label
               >
               <input
@@ -357,11 +357,11 @@
                 class="w-full px-4 py-2.5 text-sm focus:outline-none"
                 [style]="
                   deporteError()
-                    ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;'
-                    : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'
+                    ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: var(--c-text-1);'
+                    : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);'
                 "
-                onfocus="this.style.borderColor = 'rgba(255,255,255,0.3)'"
-                onblur="this.style.borderColor = 'rgba(255,255,255,0.1)'"
+                onfocus="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+                onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
               />
               @if (deporteError()) {
                 <p class="text-[10px] text-red-400 mt-1">{{ deporteError() }}</p>
@@ -371,7 +371,7 @@
             <div class="relative">
               <label
                 class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                style="color: rgba(255, 255, 255, 0.45)"
+                style="color: rgba(var(--_tw),0.60)"
                 >NIVEL</label
               >
               <button
@@ -381,18 +381,18 @@
                 "
                 class="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors"
                 style="
-                  background: rgba(255, 255, 255, 0.04);
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  color: white;
+                  background: rgba(var(--_bw),0.06);
+                  border: 1px solid rgba(var(--_bw),0.18);
+                  color: var(--c-text-1);
                 "
                 [style.borderColor]="
-                  nivelDropdownOpen() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'
+                  nivelDropdownOpen() ? 'rgba(var(--_tw),0.50)' : 'rgba(var(--_bw),0.18)'
                 "
               >
                 <span>{{ labelNivel() }}</span>
                 <svg
                   class="w-3.5 h-3.5 flex-shrink-0 transition-transform"
-                  style="color: rgba(255, 255, 255, 0.4)"
+                  style="color: rgba(var(--_tw),0.60)"
                   [class.rotate-180]="nivelDropdownOpen()"
                   viewBox="0 0 16 16"
                   fill="none"
@@ -409,8 +409,8 @@
                 <div
                   class="absolute z-20 w-full mt-0.5"
                   style="
-                    background: #16161f;
-                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    background: var(--c-dropdown);
+                    border: 1px solid rgba(var(--_tw),0.28);
                     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
                   "
                 >
@@ -419,11 +419,11 @@
                       type="button"
                       (click)="editNivel.set(n.value); nivelDropdownOpen.set(false)"
                       class="w-full px-4 py-2.5 text-sm text-left transition-colors"
-                      [style.color]="editNivel() === n.value ? '#2ED38D' : 'rgba(255,255,255,0.75)'"
+                      [style.color]="editNivel() === n.value ? '#2ED38D' : 'rgba(var(--_tw),0.80)'"
                       [style.background]="
                         editNivel() === n.value ? 'rgba(46,211,141,0.08)' : 'transparent'
                       "
-                      onmouseenter="this.style.background = 'rgba(255,255,255,0.06)'"
+                      onmouseenter="this.style.background = 'rgba(var(--_bw),0.10)'"
                       onmouseleave="
                         this.style.background =
                           this.getAttribute('data-active') === 'true'
@@ -443,7 +443,7 @@
             <div class="relative">
               <label
                 class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                style="color: rgba(255, 255, 255, 0.45)"
+                style="color: rgba(var(--_tw),0.60)"
                 >OBJETIVO</label
               >
               <button
@@ -453,18 +453,18 @@
                 "
                 class="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors"
                 style="
-                  background: rgba(255, 255, 255, 0.04);
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  color: white;
+                  background: rgba(var(--_bw),0.06);
+                  border: 1px solid rgba(var(--_bw),0.18);
+                  color: var(--c-text-1);
                 "
                 [style.borderColor]="
-                  objetivoDropdownOpen() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'
+                  objetivoDropdownOpen() ? 'rgba(var(--_tw),0.50)' : 'rgba(var(--_bw),0.18)'
                 "
               >
                 <span>{{ labelObjetivoEdit() }}</span>
                 <svg
                   class="w-3.5 h-3.5 flex-shrink-0 transition-transform"
-                  style="color: rgba(255, 255, 255, 0.4)"
+                  style="color: rgba(var(--_tw),0.60)"
                   [class.rotate-180]="objetivoDropdownOpen()"
                   viewBox="0 0 16 16"
                   fill="none"
@@ -481,8 +481,8 @@
                 <div
                   class="absolute z-20 w-full mt-0.5"
                   style="
-                    background: #16161f;
-                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    background: var(--c-dropdown);
+                    border: 1px solid rgba(var(--_tw),0.28);
                     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
                   "
                 >
@@ -492,12 +492,12 @@
                       (click)="editObjetivo.set(o.value); objetivoDropdownOpen.set(false)"
                       class="w-full px-4 py-2.5 text-sm text-left transition-colors"
                       [style.color]="
-                        editObjetivo() === o.value ? '#2ED38D' : 'rgba(255,255,255,0.75)'
+                        editObjetivo() === o.value ? '#2ED38D' : 'rgba(var(--_tw),0.80)'
                       "
                       [style.background]="
                         editObjetivo() === o.value ? 'rgba(46,211,141,0.08)' : 'transparent'
                       "
-                      onmouseenter="this.style.background = 'rgba(255,255,255,0.06)'"
+                      onmouseenter="this.style.background = 'rgba(var(--_bw),0.10)'"
                       onmouseleave="
                         this.style.background =
                           this.getAttribute('data-active') === 'true'
@@ -516,7 +516,7 @@
               <div class="flex-1">
                 <label
                   class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                  style="color: rgba(255, 255, 255, 0.45)"
+                  style="color: rgba(var(--_tw),0.60)"
                   >PESO</label
                 >
                 <div class="flex items-center gap-2">
@@ -530,13 +530,13 @@
                     class="flex-1 min-w-0 px-4 py-2.5 text-sm focus:outline-none"
                     [style]="
                       pesoError()
-                        ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;'
-                        : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'
+                        ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: var(--c-text-1);'
+                        : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);'
                     "
-                    onfocus="this.style.borderColor = 'rgba(255,255,255,0.3)'"
-                    onblur="this.style.borderColor = 'rgba(255,255,255,0.1)'"
+                    onfocus="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+                    onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
                   />
-                  <span class="text-xs shrink-0" style="color: rgba(255, 255, 255, 0.4)">kg</span>
+                  <span class="text-xs shrink-0" style="color: rgba(var(--_tw),0.60)">kg</span>
                 </div>
                 @if (pesoError()) {
                   <p class="text-[10px] text-red-400 mt-1">{{ pesoError() }}</p>
@@ -545,7 +545,7 @@
               <div class="flex-1">
                 <label
                   class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                  style="color: rgba(255, 255, 255, 0.45)"
+                  style="color: rgba(var(--_tw),0.60)"
                   >ALTURA</label
                 >
                 <div class="flex items-center gap-2">
@@ -559,13 +559,13 @@
                     class="flex-1 min-w-0 px-4 py-2.5 text-sm focus:outline-none"
                     [style]="
                       alturaError()
-                        ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: white;'
-                        : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white;'
+                        ? 'background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25); color: var(--c-text-1);'
+                        : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);'
                     "
-                    onfocus="this.style.borderColor = 'rgba(255,255,255,0.3)'"
-                    onblur="this.style.borderColor = 'rgba(255,255,255,0.1)'"
+                    onfocus="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+                    onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
                   />
-                  <span class="text-xs shrink-0" style="color: rgba(255, 255, 255, 0.4)">cm</span>
+                  <span class="text-xs shrink-0" style="color: rgba(var(--_tw),0.60)">cm</span>
                 </div>
                 @if (alturaError()) {
                   <p class="text-[10px] text-red-400 mt-1">{{ alturaError() }}</p>
@@ -577,7 +577,7 @@
               <div class="mt-4">
                 <label
                   class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                  style="color: rgba(255, 255, 255, 0.45)"
+                  style="color: rgba(var(--_tw),0.60)"
                   >RESTRICCIONES DIETÉTICAS</label
                 >
                 <textarea
@@ -586,9 +586,9 @@
                   (input)="editRestriccionesDieteticas.set($any($event.target).value)"
                   class="w-full px-4 py-3 text-sm focus:outline-none"
                   style="
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    color: white;
+                    background: rgba(var(--_bw),0.06);
+                    border: 1px solid rgba(var(--_bw),0.18);
+                    color: var(--c-text-1);
                   "
                 ></textarea>
               </div>
@@ -598,7 +598,7 @@
               <div class="mt-4">
                 <label
                   class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5"
-                  style="color: rgba(255, 255, 255, 0.45)"
+                  style="color: rgba(var(--_tw),0.60)"
                   >RESTRICCIONES FÍSICAS</label
                 >
                 <textarea
@@ -607,9 +607,9 @@
                   (input)="editRestriccionesFisicas.set($any($event.target).value)"
                   class="w-full px-4 py-3 text-sm focus:outline-none"
                   style="
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    color: white;
+                    background: rgba(var(--_bw),0.06);
+                    border: 1px solid rgba(var(--_bw),0.18);
+                    color: var(--c-text-1);
                   "
                 ></textarea>
               </div>
@@ -625,7 +625,7 @@
               "
               [style]="
                 guardandoPerfil()
-                  ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);'
+                  ? 'background: rgba(var(--_bw),0.08); color: rgba(var(--_tw),0.60);'
                   : ''
               "
             >
@@ -638,28 +638,27 @@
   </div>
 
   <!-- Tema -->
-  <div class="mb-6" style="border: 1px solid rgba(255, 255, 255, 0.08)">
+  <div class="mb-6" style="border: 1px solid rgba(var(--_bw),0.14)">
     <div class="px-5 py-4 flex items-center justify-between">
       <p class="text-xs font-black tracking-[0.2em] uppercase text-white">TEMA</p>
       <div class="flex gap-2">
         <button
           type="button"
-          class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase bg-black text-white"
+          (click)="theme.set(false)"
+          class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+          [style]="!theme.isDark()
+            ? 'background: #2ED38D; color: #000;'
+            : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
         >
           CLARO
         </button>
         <button
           type="button"
+          (click)="theme.set(true)"
           class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
-          style="border: 1px solid rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.4)"
-          onmouseenter="
-            this.style.borderColor = 'white';
-            this.style.color = 'white';
-          "
-          onmouseleave="
-            this.style.borderColor = 'rgba(255,255,255,0.12)';
-            this.style.color = 'rgba(255,255,255,0.4)';
-          "
+          [style]="theme.isDark()
+            ? 'background: #2ED38D; color: #000;'
+            : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
         >
           OSCURO
         </button>
@@ -668,20 +667,20 @@
   </div>
 
   <!-- Eliminar cuenta -->
-  <div style="border: 1px solid rgba(255, 255, 255, 0.08)">
+  <div style="border: 1px solid rgba(var(--_bw),0.14)">
     <button
       type="button"
       (click)="bajaAbierta.set(!bajaAbierta())"
       [attr.aria-expanded]="bajaAbierta()"
       class="w-full px-5 py-4 flex items-center justify-between transition-colors"
-      onmouseenter="this.style.background = 'rgba(255,255,255,0.04)'"
+      onmouseenter="this.style.background = 'rgba(var(--_bw),0.06)'"
       onmouseleave="this.style.background = ''"
     >
       <p class="text-xs font-black tracking-[0.2em] uppercase text-red-400">ELIMINAR CUENTA</p>
       <svg
         class="w-4 h-4 flex-shrink-0 transition-transform duration-300"
         [class.rotate-180]="bajaAbierta()"
-        style="color: rgba(255, 255, 255, 0.4)"
+        style="color: rgba(var(--_tw),0.60)"
         viewBox="0 0 16 16"
         fill="none"
       >
@@ -693,10 +692,10 @@
       [style.gridTemplateRows]="bajaAbierta() ? '1fr' : '0fr'"
     >
       <div class="overflow-hidden">
-        <div class="px-5 pb-5" style="border-top: 1px solid rgba(255, 255, 255, 0.08)">
+        <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.14)">
           @if (!confirmarBaja()) {
             <div class="mt-4">
-              <p class="text-sm font-light mb-4" style="color: rgba(255, 255, 255, 0.5)">
+              <p class="text-sm font-light mb-4" style="color: rgba(var(--_tw),0.65)">
                 Al eliminar tu cuenta se borrarán todos tus datos de forma permanente. Esta acción
                 no se puede deshacer.
               </p>
@@ -711,7 +710,7 @@
           } @else {
             <div class="mt-4">
               <p class="text-sm font-bold text-white mb-1">¿Estás seguro?</p>
-              <p class="text-sm font-light mb-4" style="color: rgba(255, 255, 255, 0.45)">
+              <p class="text-sm font-light mb-4" style="color: rgba(var(--_tw),0.60)">
                 Escribe <span class="font-mono font-bold text-white">ELIMINAR</span> para confirmar.
               </p>
               <input
@@ -724,7 +723,7 @@
                 style="
                   background: rgba(220, 38, 38, 0.04);
                   border: 1px solid rgba(220, 38, 38, 0.25);
-                  color: white;
+                  color: var(--c-text-1);
                 "
               />
               <div class="flex gap-3">
@@ -733,16 +732,16 @@
                   (click)="confirmarBaja.set(false); textoConfirmaBaja.set('')"
                   class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors"
                   style="
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    color: rgba(255, 255, 255, 0.4);
+                    border: 1px solid rgba(var(--_bw),0.18);
+                    color: rgba(var(--_tw),0.60);
                   "
                   onmouseenter="
-                    this.style.borderColor = 'white';
-                    this.style.color = 'white';
+                    this.style.borderColor = '#1E1B4B';
+                    this.style.color = '#1E1B4B';
                   "
                   onmouseleave="
-                    this.style.borderColor = 'rgba(255,255,255,0.1)';
-                    this.style.color = 'rgba(255,255,255,0.4)';
+                    this.style.borderColor = 'rgba(var(--_bw),0.18)';
+                    this.style.color = 'rgba(var(--_tw),0.60)';
                   "
                 >
                   CANCELAR
@@ -759,7 +758,7 @@
                   "
                   [style]="
                     !(textoConfirmaBaja() === 'ELIMINAR' && !eliminandoCuenta())
-                      ? 'background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); opacity: 0.4; cursor: not-allowed;'
+                      ? 'background: rgba(var(--_bw),0.08); color: rgba(var(--_tw),0.60); opacity: 0.4; cursor: not-allowed;'
                       : ''
                   "
                 >

@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet, NgClass } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import {
   AtletaService,
   PerfilAtleta,
@@ -42,6 +43,7 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
 export class DashboardAtletaPage implements OnInit {
   readonly auth   = inject(AuthService);
   readonly atleta = inject(AtletaService);
+  readonly theme  = inject(ThemeService);
 
   readonly cargando = signal(true);
 

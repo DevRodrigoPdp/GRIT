@@ -1,4 +1,4 @@
-@if (!plan()) {
+﻿@if (!plan()) {
   <div class="flex flex-col items-center justify-center min-h-[40vh] text-center">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-5 h-px bg-[#2ED38D]"></div>
@@ -8,7 +8,7 @@
     <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white leading-[0.9] mb-4">
       TU PLAN<br>NUTRICIONAL
     </h2>
-    <p class="text-sm font-light max-w-sm" style="color: rgba(255,255,255,0.45)">
+    <p class="text-sm font-light max-w-sm" style="color: rgba(var(--_tw),0.60)">
       Tu nutricionista aún no ha creado tu plan. Aparecerá aquí en cuanto esté listo.
     </p>
   </div>
@@ -21,7 +21,7 @@
       <div class="min-w-0">
         <h2 class="text-3xl font-black uppercase tracking-tighter text-white leading-tight">{{ plan()!.nombre }}</h2>
         @if (plan()!.descripcion) {
-          <p class="text-sm font-light mt-1.5 max-w-lg" style="color: rgba(255,255,255,0.45)">{{ plan()!.descripcion }}</p>
+          <p class="text-sm font-light mt-1.5 max-w-lg" style="color: rgba(var(--_tw),0.60)">{{ plan()!.descripcion }}</p>
         }
       </div>
       <div class="flex-shrink-0 text-right">
@@ -33,21 +33,21 @@
     <!-- Macro cards -->
     <div class="grid grid-cols-3 gap-3">
       @if (plan()!.proteinas) {
-        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(255,255,255,0.4)">PROTEÍNA</span>
-          <span class="text-2xl font-black text-white leading-none">{{ plan()!.proteinas }}<span class="text-sm font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
+        <div class="p-4" style="background: rgba(var(--_bw),0.05); border: 1px solid rgba(var(--_bw),0.14);">
+          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(var(--_tw),0.60)">PROTEÍNA</span>
+          <span class="text-2xl font-black text-white leading-none">{{ plan()!.proteinas }}<span class="text-sm font-light ml-0.5" style="color: rgba(var(--_tw),0.60)">g</span></span>
         </div>
       }
       @if (plan()!.carbos) {
-        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(255,255,255,0.4)">CARBOS</span>
-          <span class="text-2xl font-black text-white leading-none">{{ plan()!.carbos }}<span class="text-sm font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
+        <div class="p-4" style="background: rgba(var(--_bw),0.05); border: 1px solid rgba(var(--_bw),0.14);">
+          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(var(--_tw),0.60)">CARBOS</span>
+          <span class="text-2xl font-black text-white leading-none">{{ plan()!.carbos }}<span class="text-sm font-light ml-0.5" style="color: rgba(var(--_tw),0.60)">g</span></span>
         </div>
       }
       @if (plan()!.grasas) {
-        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(255,255,255,0.4)">GRASAS</span>
-          <span class="text-2xl font-black text-white leading-none">{{ plan()!.grasas }}<span class="text-sm font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
+        <div class="p-4" style="background: rgba(var(--_bw),0.05); border: 1px solid rgba(var(--_bw),0.14);">
+          <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-2" style="color: rgba(var(--_tw),0.60)">GRASAS</span>
+          <span class="text-2xl font-black text-white leading-none">{{ plan()!.grasas }}<span class="text-sm font-light ml-0.5" style="color: rgba(var(--_tw),0.60)">g</span></span>
         </div>
       }
     </div>
@@ -64,7 +64,7 @@
         @for (nota of notas(); track nota.id) {
           <div class="px-4 py-3" style="border-left: 2px solid rgba(46,211,141,0.4); background: rgba(46,211,141,0.04);">
             <p class="text-sm text-white font-light leading-relaxed">{{ nota.texto }}</p>
-            <p class="text-[10px] mt-2" style="color: rgba(255,255,255,0.35)">{{ formatFecha(nota.fecha) }}</p>
+            <p class="text-[10px] mt-2" style="color: rgba(var(--_tw),0.50)">{{ formatFecha(nota.fecha) }}</p>
           </div>
         }
       </div>
@@ -78,23 +78,23 @@
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-3 mb-5">
         <div class="w-4 h-px bg-[#2ED38D]"></div>
-        <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.5)">COMIDAS DEL DÍA</p>
+        <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.65)">COMIDAS DEL DÍA</p>
         <span class="text-[10px] font-black text-[#2ED38D]">{{ plan()!.comidas.length }}</span>
       </div>
       <div class="flex flex-col gap-4">
         @for (comida of plan()!.comidas; track $index) {
-          <div class="overflow-hidden" style="border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);">
+          <div class="overflow-hidden" style="border: 1px solid rgba(var(--_bw),0.18); background: linear-gradient(135deg, rgba(var(--_bw),0.04) 0%, rgba(var(--_bw),0.01) 100%);">
 
             <!-- Top accent line -->
             <div class="h-px w-full" style="background: linear-gradient(90deg, #2ED38D 0%, rgba(46,211,141,0.2) 60%, transparent 100%)"></div>
 
             <!-- Cabecera -->
             <div class="px-5 py-4 flex items-center justify-between"
-              style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+              style="border-bottom: 1px solid rgba(var(--_bw),0.10);">
               <p class="text-sm font-black tracking-[0.15em] uppercase text-white">{{ comida.nombre }}</p>
               <div class="text-right">
                 <span class="text-xl font-black text-white leading-none">{{ totalKcalComida(comida.alimentos) }}</span>
-                <span class="text-[10px] font-bold ml-1" style="color: rgba(255,255,255,0.4)">kcal</span>
+                <span class="text-[10px] font-bold ml-1" style="color: rgba(var(--_tw),0.60)">kcal</span>
               </div>
             </div>
 
@@ -102,15 +102,15 @@
             <div>
               @for (alimento of comida.alimentos; track $index; let last = $last) {
                 <div class="flex items-center justify-between px-5 py-3 gap-4 transition-colors"
-                  [style]="last ? '' : 'border-bottom: 1px solid rgba(255,255,255,0.04);'"
-                  onmouseenter="this.style.background='rgba(255,255,255,0.03)'"
+                  [style]="last ? '' : 'border-bottom: 1px solid rgba(var(--_bw),0.06);'"
+                  onmouseenter="this.style.background='rgba(var(--_bw),0.05)'"
                   onmouseleave="this.style.background=''">
                   <div class="flex items-center gap-3 flex-1 min-w-0">
-                    <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255,255,255,0.25)"></div>
+                    <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(var(--_tw),0.45)"></div>
                     <span class="text-sm text-white font-light truncate">{{ alimento.nombre }}</span>
                   </div>
                   <div class="flex items-center gap-3 flex-shrink-0">
-                    <span class="text-xs font-bold tabular-nums" style="color: rgba(255,255,255,0.35)">{{ alimento.cantidadG }}g</span>
+                    <span class="text-xs font-bold tabular-nums" style="color: rgba(var(--_tw),0.50)">{{ alimento.cantidadG }}g</span>
                     @if (alimento.kcal) {
                       <span class="text-[11px] font-black tabular-nums" style="color: #2ED38D; min-width: 3.5rem; text-align: right;">{{ alimento.kcal }} kcal</span>
                     } @else {
@@ -122,11 +122,11 @@
             </div>
 
             @if (comida.notas) {
-              <div class="px-5 py-4 flex gap-3" style="border-top: 1px solid rgba(255,255,255,0.06); background: rgba(46,211,141,0.03);">
+              <div class="px-5 py-4 flex gap-3" style="border-top: 1px solid rgba(var(--_bw),0.10); background: rgba(46,211,141,0.03);">
                 <div class="w-0.5 flex-shrink-0 self-stretch bg-[#2ED38D] opacity-40 rounded-full"></div>
                 <div>
                   <p class="text-[9px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">NOTA</p>
-                  <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.5)">{{ comida.notas }}</p>
+                  <p class="text-sm font-light leading-relaxed" style="color: rgba(var(--_tw),0.65)">{{ comida.notas }}</p>
                 </div>
               </div>
             }
@@ -140,32 +140,32 @@
       <div class="w-full lg:w-72 flex-shrink-0">
         <div class="flex items-center gap-3 mb-2">
           <div class="w-4 h-px bg-[#2ED38D]"></div>
-          <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.5)">LISTA DE LA COMPRA</p>
+          <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.65)">LISTA DE LA COMPRA</p>
         </div>
         <!-- Progreso -->
         <div class="flex items-center gap-3 mb-4">
-          <div class="flex-1 h-px" style="background: rgba(255,255,255,0.08);">
+          <div class="flex-1 h-px" style="background: rgba(var(--_bw),0.14);">
             <div class="h-px bg-[#2ED38D] transition-all duration-500"
               [style.width]="(itemsCompraChecked().length / listaCompra().length * 100) + '%'"></div>
           </div>
-          <span class="text-[10px] font-black flex-shrink-0" style="color: rgba(255,255,255,0.4)">
-            {{ itemsCompraChecked().length }}<span style="color: rgba(255,255,255,0.25)">/{{ listaCompra().length }}</span>
+          <span class="text-[10px] font-black flex-shrink-0" style="color: rgba(var(--_tw),0.60)">
+            {{ itemsCompraChecked().length }}<span style="color: rgba(var(--_tw),0.45)">/{{ listaCompra().length }}</span>
           </span>
         </div>
-        <div style="border: 1px solid rgba(255,255,255,0.08);">
+        <div style="border: 1px solid rgba(var(--_bw),0.14);">
           @for (item of listaCompra(); track $index) {
             @let checked = itemsCompraChecked().includes(item.nombre);
             <button type="button" (click)="toggleItemCompra(item.nombre)"
               [attr.aria-label]="(checked ? 'Desmarcar' : 'Marcar') + ' ' + item.nombre"
               class="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
-              style="border-bottom: 1px solid rgba(255,255,255,0.05);"
-              onmouseenter="this.style.background='rgba(255,255,255,0.03)'"
+              style="border-bottom: 1px solid rgba(var(--_bw),0.08);"
+              onmouseenter="this.style.background='rgba(var(--_bw),0.05)'"
               onmouseleave="this.style.background=''"
             >
               <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center transition-all"
                 [style]="checked
                   ? 'background: #2ED38D; border: 1px solid #2ED38D;'
-                  : 'background: transparent; border: 1px solid rgba(255,255,255,0.2);'">
+                  : 'background: transparent; border: 1px solid rgba(var(--_tw),0.35);'">
                 @if (checked) {
                   <svg class="w-2.5 h-2.5" viewBox="0 0 10 10" fill="none">
                     <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="black" stroke-width="1.5" stroke-linecap="square"/>
@@ -173,7 +173,7 @@
                 }
               </div>
               <span class="flex-1 text-sm font-light"
-                [style]="checked ? 'color: rgba(255,255,255,0.2); text-decoration: line-through;' : 'color: white;'">
+                [style]="checked ? 'color: rgba(var(--_tw),0.35); text-decoration: line-through;' : 'color: var(--c-text-1);'">
                 {{ item.nombre }}
               </span>
             </button>
