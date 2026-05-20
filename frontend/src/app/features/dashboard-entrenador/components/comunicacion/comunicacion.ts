@@ -132,6 +132,19 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   checkInPendiente = signal(false);
   solicitando = signal(false);
   historialExpandido = signal(false);
+  readonly hoverIdx = signal<number | null>(null);
+
+  readonly hoveredPoint = computed<{ x: number; y: number; peso: number; fecha: string; tooltipX: number } | null>(() => {
+    const idx = this.hoverIdx();
+    const chart = this.chartData();
+    if (idx === null || !chart || !chart.points[idx]) return null;
+    const pt = chart.points[idx];
+    const tooltipW = 108;
+    let tooltipX = pt.x - tooltipW / 2;
+    if (tooltipX < 2) tooltipX = 2;
+    if (tooltipX + tooltipW > 458) tooltipX = 458 - tooltipW;
+    return { ...pt, tooltipX };
+  });
 
   readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
     const pesos = this.historialPesos();

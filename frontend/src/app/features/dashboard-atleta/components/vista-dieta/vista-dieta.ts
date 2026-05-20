@@ -15,6 +15,8 @@ export class VistaDietaComponent {
 
   private readonly COMPRA_KEY  = 'grit_compra_checked';
   private readonly COMPRA_PLAN = 'grit_compra_plan_id';
+  readonly planExpandido = signal(false);
+
   readonly itemsCompraChecked  = signal<string[]>(
     JSON.parse(sessionStorage.getItem('grit_compra_checked') ?? '[]')
   );

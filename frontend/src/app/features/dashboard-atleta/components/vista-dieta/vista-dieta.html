@@ -12,7 +12,94 @@
       Tu nutricionista aún no ha creado tu plan. Aparecerá aquí en cuanto esté listo.
     </p>
   </div>
+} @else if (!planExpandido()) {
+
+  <!-- ── Card resumen del plan ─────────────────────────────────────────── -->
+  <div class="cursor-pointer overflow-hidden transition-all group"
+    (click)="planExpandido.set(true)"
+    style="border: 1px solid rgba(46,211,141,0.2); background: rgba(46,211,141,0.04);"
+    onmouseenter="this.style.boxShadow='0 4px 24px rgba(0,0,0,0.35)'"
+    onmouseleave="this.style.boxShadow='none'">
+
+    <!-- Accent line top -->
+    <div class="h-px w-full" style="background: linear-gradient(90deg, #2ED38D 0%, rgba(46,211,141,0.2) 60%, transparent 100%)"></div>
+
+    <div class="p-5">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:gap-6 mb-4">
+
+        <!-- Nombre + dot -->
+        <div class="min-w-0 flex-1 mb-3 lg:mb-0">
+          <div class="flex items-center gap-1.5 mb-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D]" style="box-shadow: 0 0 4px rgba(46,211,141,0.6)"></span>
+            <span class="text-[9px] font-black tracking-[0.3em] uppercase text-[#2ED38D]">PLAN ACTIVO</span>
+          </div>
+          <p class="text-base font-black uppercase tracking-tight text-white leading-tight">{{ plan()!.nombre }}</p>
+          @if (plan()!.descripcion) {
+            <p class="text-xs font-light mt-1 truncate" style="color: rgba(var(--_tw),0.60)">{{ plan()!.descripcion }}</p>
+          }
+        </div>
+
+        <!-- Macro chips -->
+        <div class="grid grid-cols-3 gap-2 lg:flex lg:gap-2 lg:flex-shrink-0">
+          @if (plan()!.proteinas) {
+            <div class="px-3 py-2 lg:min-w-[88px]" style="background: rgba(var(--_bw),0.05); border: 1px solid rgba(var(--_bw),0.12);">
+              <span class="text-[8px] font-black tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(var(--_tw),0.50)">PROT</span>
+              <span class="text-sm font-black text-white">{{ plan()!.proteinas }}<span class="text-[10px] font-light ml-0.5" style="color: rgba(var(--_tw),0.60)">g</span></span>
+            </div>
+          }
+          @if (plan()!.carbos) {
+            <div class="px-3 py-2 lg:min-w-[88px]" style="background: rgba(var(--_bw),0.05); border: 1px solid rgba(var(--_bw),0.12);">
+              <span class="text-[8px] font-black tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(var(--_tw),0.50)">CARBS</span>
+              <span class="text-sm font-black text-white">{{ plan()!.carbos }}<span class="text-[10px] font-light ml-0.5" style="color: rgba(var(--_tw),0.60)">g</span></span>
+            </div>
+          }
+          @if (plan()!.grasas) {
+            <div class="px-3 py-2 lg:min-w-[88px]" style="background: rgba(var(--_bw),0.05); border: 1px solid rgba(var(--_bw),0.12);">
+              <span class="text-[8px] font-black tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(var(--_tw),0.50)">GRASA</span>
+              <span class="text-sm font-black text-white">{{ plan()!.grasas }}<span class="text-[10px] font-light ml-0.5" style="color: rgba(var(--_tw),0.60)">g</span></span>
+            </div>
+          }
+        </div>
+
+        <!-- KCAL/DÍA: desktop -->
+        @if (plan()!.kcalDiarias) {
+          <div class="hidden lg:block flex-shrink-0 text-right min-w-[100px]">
+            <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-0.5 text-[#2ED38D]">KCAL/DÍA</span>
+            <span class="text-2xl font-black text-white leading-none">{{ plan()!.kcalDiarias }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- KCAL/DÍA: móvil -->
+      @if (plan()!.kcalDiarias) {
+        <div class="flex items-center justify-end mb-4 lg:hidden">
+          <div class="text-right">
+            <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-0.5 text-[#2ED38D]">KCAL/DÍA</span>
+            <span class="text-2xl font-black text-white leading-none">{{ plan()!.kcalDiarias }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Footer -->
+      <div class="flex items-center justify-between pt-3" style="border-top: 1px solid rgba(var(--_bw),0.10);">
+        <span class="text-[10px]" style="color: rgba(var(--_tw),0.50)">{{ plan()!.comidas.length }} comida{{ plan()!.comidas.length !== 1 ? 's' : '' }}</span>
+        <span class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] transition-opacity group-hover:opacity-70">VER PLAN COMPLETO →</span>
+      </div>
+    </div>
+  </div>
+
 } @else {
+
+  <!-- Volver a la card -->
+  <button type="button" (click)="planExpandido.set(false)"
+    class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.25em] uppercase mb-6 transition-colors"
+    style="color: rgba(var(--_tw),0.55);"
+    onmouseenter="this.style.color='#2ED38D'" onmouseleave="this.style.color='rgba(var(--_tw),0.55)'">
+    <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
+      <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+    </svg>
+    VOLVER
+  </button>
 
   <!-- ── Cabecera del plan ───────────────────────────────────────────────── -->
   <div class="mb-10">
