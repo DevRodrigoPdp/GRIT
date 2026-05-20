@@ -99,7 +99,7 @@
         </div>
 
         <!-- Scrollable List -->
-        <div class="flex-1 overflow-y-auto px-8 lg:px-12 py-8">
+        <div class="flex-1 overflow-y-auto px-8 lg:px-12 py-8" scrollIndicator>
           @if (loadingSolicitudes() && solicitudes().length === 0) {
           <div class="py-20 text-center">
             <div class="w-10 h-10 border-2 border-[#2ED38D] border-t-transparent animate-spin mx-auto mb-4"></div>
@@ -156,10 +156,9 @@
       </section>
 
       <!-- Detail Pane -->
+      @if (entrenadorSeleccionado(); as e) {
       <section class="hidden md:flex w-[450px] lg:w-[600px] flex-col overflow-hidden relative"
         style="background: linear-gradient(180deg, #0A0A12 0%, #0E0E18 100%); border-left: 1px solid rgba(255,255,255,0.05);">
-        @if (entrenadorSeleccionado(); as e) {
-
         <!-- Dark header -->
         <div class="px-10 lg:px-16 pt-12 pb-10 flex-shrink-0"
           style="background: linear-gradient(180deg, #07070D 0%, rgba(10,10,18,0.8) 100%); border-bottom: 1px solid rgba(255,255,255,0.06);">
@@ -259,23 +258,8 @@
           </button>
         </div>
 
-        } @else {
-        <div class="flex-1 flex flex-col items-center justify-center p-20 text-center">
-          <div class="w-16 h-16 flex items-center justify-center mb-6"
-            style="border: 1px solid rgba(255,255,255,0.07);">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"
-              style="color: rgba(255,255,255,0.38)">
-              <path
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                stroke-linecap="square" />
-            </svg>
-          </div>
-          <p class="text-[10px] font-black tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.40)">
-            SELECCIONA UNA SOLICITUD<br>PARA VER LOS DETALLES
-          </p>
-        </div>
-        }
       </section>
+      }
       } @else {
       <!-- ── USUARIOS ───────────────────────────────────────────────────── -->
       <section class="flex-1 flex flex-col overflow-hidden">
@@ -317,7 +301,7 @@
           </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto pb-20">
+        <div class="flex-1 overflow-y-auto pb-20" scrollIndicator>
           <div class="min-w-[800px]">
             <!-- Header Tabla -->
             <div class="grid grid-cols-6 px-12 py-5 text-[10px] font-black tracking-[0.3em] uppercase"

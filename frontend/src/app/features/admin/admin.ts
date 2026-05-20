@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, EntrenadorPendienteDTO, UsuarioDTO } from './services/admin.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ScrollIndicatorDirective],
   templateUrl: './admin.html',
 })
 export class AdminPage implements OnInit, OnDestroy {

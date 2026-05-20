@@ -11,6 +11,12 @@
 
 *, *::before, *::after {
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 html {
@@ -24,6 +30,37 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+}
+
+/* ─── SCROLL INDICATOR ──────────────────────────────────────────────────── */
+.scroll-indicator-hint {
+  position: sticky;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.65);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  animation: scroll-bounce 1.6s ease-in-out infinite;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+html.light .scroll-indicator-hint {
+  background: rgba(0,0,0,0.10);
+  color: rgba(0,0,0,0.45);
+}
+
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(5px); }
 }
 
 /* Progress bar animation */

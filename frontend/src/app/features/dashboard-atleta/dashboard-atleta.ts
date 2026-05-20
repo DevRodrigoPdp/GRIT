@@ -20,6 +20,7 @@ import { VistaDietaComponent } from './components/vista-dieta/vista-dieta';
 import { VistaPerfilAtletaComponent } from './components/vista-perfil/vista-perfil-atleta';
 import { AjustesAtletaComponent } from './components/ajustes/ajustes-atleta';
 import { VistaProfesionalesComponent } from './components/vista-profesionales/vista-profesionales';
+import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
 
 type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'profesionales' | 'perfil' | 'ajustes';
 
@@ -35,6 +36,7 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
     VistaPerfilAtletaComponent,
     AjustesAtletaComponent,
     VistaProfesionalesComponent,
+    ScrollIndicatorDirective,
     FormsModule,
     NgTemplateOutlet,
     NgClass,

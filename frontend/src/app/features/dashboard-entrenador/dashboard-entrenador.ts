@@ -9,6 +9,7 @@ import { GestionEntrenamientoComponent } from './components/gestion-entrenamient
 import { PerfilEntrenadorVistaComponent } from './components/perfil-entrenador/perfil-entrenador-vista';
 import { ComunicacionComponent } from './components/comunicacion/comunicacion';
 import { LucidePin } from '@lucide/angular';
+import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
 
 type Tab    = 'ENTRENAMIENTO' | 'NUTRICION' | 'COMUNICACION';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
@@ -17,7 +18,7 @@ type Vista  = 'atletas' | 'perfil' | 'ajustes';
 @Component({
   selector: 'app-dashboard-entrenador',
   standalone: true,
-  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule, PerfilEntrenadorVistaComponent, ComunicacionComponent, NgClass, LucidePin],
+  imports: [GestionNutricionComponent, GestionEntrenamientoComponent, FormsModule, PerfilEntrenadorVistaComponent, ComunicacionComponent, NgClass, LucidePin, ScrollIndicatorDirective],
   templateUrl: './dashboard-entrenador.html',
 })
 export class DashboardEntrenadorPage implements OnInit {

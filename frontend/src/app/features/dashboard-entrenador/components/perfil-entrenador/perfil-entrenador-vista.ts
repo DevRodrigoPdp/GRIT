@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
 import { EntrenadorService, PerfilEntrenador, TitulacionEntrenamiento, TitulacionNutricion } from '../../services/entrenador.service';
+import { ScrollIndicatorDirective } from '../../../../shared/directives/scroll-indicator.directive';
 
 const TITULACION_ENT_LABEL: Record<string, string> = {
   GRADO_CAFYD:   'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte',
@@ -20,7 +21,7 @@ interface ArchivoSubido { file: File; nombre: string; size: string; }
 @Component({
   selector: 'app-perfil-entrenador-vista',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ScrollIndicatorDirective],
   templateUrl: './perfil-entrenador-vista.html',
 })
 export class PerfilEntrenadorVistaComponent {
