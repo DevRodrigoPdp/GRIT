@@ -21,7 +21,8 @@ import java.util.UUID;
 @Builder
 public class Hilo {
     @Id
-    private UUID id; // Asignado manualmente o vía generador
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     private String titulo;
 
