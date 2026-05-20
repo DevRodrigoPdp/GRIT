@@ -8,8 +8,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/grit-landing/index.html"
+      "destination": "/index.html"
     }
   ]
-  
 }
