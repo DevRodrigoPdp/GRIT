@@ -14,6 +14,7 @@ import {
   ProfesionalAsignado,
 } from './services/atleta.service';
 import { ComunicacionAtletaComponent } from './components/comunicacion/comunicacion-atleta';
+import { LucidePin } from '@lucide/angular';
 import { VistaEntrenamientoComponent } from './components/vista-entrenamiento/vista-entrenamiento';
 import { VistaDietaComponent } from './components/vista-dieta/vista-dieta';
 import { VistaPerfilAtletaComponent } from './components/vista-perfil/vista-perfil-atleta';
@@ -37,6 +38,7 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
     FormsModule,
     NgTemplateOutlet,
     NgClass,
+    LucidePin,
   ],
   templateUrl: './dashboard-atleta.html',
 })

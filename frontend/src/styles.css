@@ -258,6 +258,9 @@ html.light {
   --c-overlay:     rgba(0, 0, 0, 0.4);
 }
 
+/* Chincheta rellena para estado anclado */
+.pin-filled path { fill: currentColor; stroke: none; }
+
 /* ─── THEME TRANSITION ──────────────────────────────────────────────── */
 html.theme-transitioning .dashboard-root,
 html.theme-transitioning .dashboard-root * {
