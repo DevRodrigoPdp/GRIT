@@ -67,8 +67,8 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // Permite lectura desde JS
-                        .csrfTokenRequestHandler(requestHandler) // Usamos nuestro handler configurado
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(requestHandler)
                         .ignoringRequestMatchers("/api/v1/diagnostic/**", "/management/**")
                         .ignoringRequestMatchers(SWAGGER_WHITELIST)
                 )
@@ -115,7 +115,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("https://frontend-rho-two-49.vercel.app/", "http://localhost:4200"));
+        config.setAllowedOrigins(List.of(allowedOrigins.split(",")));
 
         // Métodos permitidos
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
