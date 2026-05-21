@@ -103,7 +103,7 @@ public class AtletaController {
     public ResponseEntity<ApiResponseDTO<List<ProfesionalAsignadoDTO>>> getProfesionalesAsignados(@AuthenticationPrincipal UserPrincipal usuario) {
         List<ProfesionalAsignadoDTO> profesionales = atletaService.getProfesionalesAsignados(usuario.getId());
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
                 .body(new ApiResponseDTO<>(true, "Profesionales del atleta", profesionales));
     }
 

@@ -48,7 +48,7 @@ public class ComunicacionController {
     ) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
-                .body(hiloService.obtenerHilosPorAtleta(usuario.getId(), contexto, usuario.getId()));
+                .body(hiloService.obtenerHilosPorAtleta(usuario.getId(), contexto));
     }
 
     @PreAuthorize("hasRole('ENTRENADOR') and @asignacionService.esEntrenadorDeAtleta(authentication.principal.id, #atletaId)")

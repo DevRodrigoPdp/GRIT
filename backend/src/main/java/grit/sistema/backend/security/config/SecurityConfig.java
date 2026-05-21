@@ -79,7 +79,8 @@ public class SecurityConfig {
                     auth.requestMatchers(
                             "/api/v1/auth/**",
                             "/api/v1/diagnostic/**",
-                            "/management/**"
+                            "/management/**",
+                            "/error"
                     ).permitAll();
 
                     if (isDev) {

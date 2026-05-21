@@ -43,4 +43,6 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
     void desactivarAsignacionesPorAtleta(UUID atletaId);
 
     boolean existsByAtletaIdAndEntrenadorIdAndActivaTrue(UUID atletaId, UUID entrenadorId);
+
+    boolean existsByAtletaIdAndActivaTrueAndTipoServicio(UUID atletaId, TipoServicio servicioContexto);
 }

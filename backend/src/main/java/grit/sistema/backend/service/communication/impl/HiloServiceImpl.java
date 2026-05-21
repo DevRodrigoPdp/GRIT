@@ -10,6 +10,8 @@ import grit.sistema.backend.entity.communication.LecturaHilo;
 import grit.sistema.backend.entity.communication.LecturaHiloId;
 import grit.sistema.backend.entity.communication.Mensaje;
 import grit.sistema.backend.entity.communication.enums.ContextoHilo;
+import grit.sistema.backend.exception.business.BusinessException;
+import grit.sistema.backend.exception.business.UsuarioExistenteException;
 import grit.sistema.backend.exception.security.AccesoDenegadoException;
 import grit.sistema.backend.mapper.communication.HiloMapper;
 import grit.sistema.backend.mapper.communication.MensajeMapper;
@@ -30,7 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -78,14 +82,17 @@ public class HiloServiceImpl implements HiloService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto, UUID solicitanteId) {
-        boolean tieneAsignacionActiva = asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, solicitanteId);
+    public List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto) {
+        TipoServicio servicioContexto = TipoServicio.valueOf(contexto.name());
+
+        boolean tieneAsignacionActiva = asignacionRepository
+                .existsByAtletaIdAndActivaTrueAndTipoServicio(atletaId, servicioContexto);
 
         if (!tieneAsignacionActiva) {
-            throw new AccessDeniedException("Acceso denegado. No tienes una asignación activa.");
+            return Collections.emptyList();
         }
 
-        return hiloRepository.findResumenByAtletaAndContexto(atletaId, contexto, solicitanteId);
+        return hiloRepository.findResumenByAtletaAndContexto(atletaId, contexto, atletaId);
     }
 
     @Override
