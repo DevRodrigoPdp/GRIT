@@ -47,7 +47,7 @@ public class ComunicacionController {
             @AuthenticationPrincipal UserPrincipal usuario
     ) {
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
                 .body(hiloService.obtenerHilosPorAtleta(usuario.getId(), contexto, usuario.getId()));
     }
 
@@ -59,7 +59,7 @@ public class ComunicacionController {
             @AuthenticationPrincipal UserPrincipal entrenador
     ) {
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
                 .body(hiloService.obtenerHilosParaEntrenador(atletaId, entrenador.getId(), contexto));
     }
 

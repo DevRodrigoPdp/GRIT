@@ -60,7 +60,7 @@ public class EntrenamientoController {
     ) {
         List<RutinaResponseDTO> rutinas = entrenamientoService.listarRutinas(principal.getId(), atletaId);
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
                 .body(ApiResponseDTO.success(rutinas, "Rutinas encontradas"));
     }
 

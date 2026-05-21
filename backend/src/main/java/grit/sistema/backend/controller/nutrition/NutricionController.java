@@ -39,7 +39,7 @@ public class NutricionController {
     ) {
         List<PlanNutricionResponseDTO> planes = nutricionService.listarPlanes(principal.getId(), atletaId);
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
                 .body(ApiResponseDTO.success(planes, "Planes de nutrición encontrados"));
     }
 
