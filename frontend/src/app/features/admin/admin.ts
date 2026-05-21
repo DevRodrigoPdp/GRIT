@@ -96,10 +96,22 @@ export class AdminPage implements OnInit, OnDestroy {
   cargarUsuarios(pagina: number = 0) {
     this.loadingUsuarios.set(true);
     this.paginaUsuarios.set(pagina);
-    this.adminService.buscarUsuarios(this.busqueda(), pagina).subscribe(res => {
-      this.usuarios.set(res.usuarios);
-      this.totalPaginasUsuarios.set(res.totalPages);
-      this.loadingUsuarios.set(false);
+
+    this.adminService.buscarUsuarios(this.busqueda(), pagina).subscribe({
+      next: (res) => {
+        if (res.usuarios.length === 0 && pagina > 0) {
+          this.cargarUsuarios(pagina - 1);
+          return;
+        }
+
+        this.usuarios.set(res.usuarios);
+        this.totalPaginasUsuarios.set(res.totalPages);
+        this.loadingUsuarios.set(false);
+      },
+      error: (err) => {
+        this.error.set('Error al cargar la lista de usuarios.');
+        this.loadingUsuarios.set(false);
+      }
     });
   }
 
@@ -116,6 +128,8 @@ export class AdminPage implements OnInit, OnDestroy {
 
   cambiarFiltroRol(rol: 'TODOS' | 'ATLETA' | 'ENTRENADOR') {
     this.filtroRol.set(rol);
+    this.paginaUsuarios.set(0); 
+    this.cargarUsuarios(0);
   }
 
   cargarSolicitudes(pagina: number = 0) {
@@ -204,13 +218,12 @@ export class AdminPage implements OnInit, OnDestroy {
     this.loadingUsuarios.set(true);
     this.adminService.eliminarUsuario(u.id).subscribe({
       next: () => {
-        this.usuarios.update(list => list.filter(item => item.id !== u.id));
         this.usuarioSeleccionado.set(null);
         this.mostrarModalEliminacion.set(false);
-        this.loadingUsuarios.set(false);
+        
+        this.cargarUsuarios(this.paginaUsuarios());
       },
       error: (err) => {
-
         this.error.set('No se pudo eliminar el usuario.');
         this.loadingUsuarios.set(false);
       }
@@ -264,7 +277,8 @@ export class AdminPage implements OnInit, OnDestroy {
     const u = this.usuarioSeleccionado();
     if (!u) return;
     const nuevoEstado = u.estado === 'BLOQUEADO' ? 'ACTIVO' : 'BLOQUEADO';
-    this.adminService.bloquearUsuario(u.id, { estado: nuevoEstado }).subscribe({
+    this.adminService.bloquearUsuario(u.id, { estado: nuevoEstado })
+    .subscribe({
       next: (actualizado) => {
         this.usuarios.update(list => list.map(x => x.id === actualizado.id ? actualizado : x));
         this.mostrarModalBloqueo.set(false);
@@ -304,6 +318,20 @@ export class AdminPage implements OnInit, OnDestroy {
   irPagina(pagina: number) {
     if (pagina >= 0 && pagina < this.totalPaginasSolicitudes()) {
       this.cargarSolicitudes(pagina);
+    }
+  }
+
+  irPaginaAnteriorUsuarios() {
+    const pagina = this.paginaUsuarios();
+    if (pagina > 0) {
+      this.cargarUsuarios(pagina - 1);
+    }
+  }
+
+  irPaginaSiguienteUsuarios() {
+    const pagina = this.paginaUsuarios();
+    if (pagina < this.totalPaginasUsuarios() - 1) {
+      this.cargarUsuarios(pagina + 1);
     }
   }
 
