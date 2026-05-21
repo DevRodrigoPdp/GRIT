@@ -24,11 +24,9 @@ public interface UsuarioMapper {
     LoginData toLoginData(Usuario usuario);
 
     // 2. Mapeo a UsuarioDTO (Hacia el Frontend)
-    @Mapping(target = "idPublico", source = "id") // CORRECCIÓN: 'id' es el campo de la entidad
     @Mapping(target = "password", ignore = true)
     UsuarioDTO toDTO(Usuario usuario);
 
-    @Mapping(target = "idPublico", source = "id")
     @Mapping(target = "registro", source = "createdAt")
     @Mapping(target = "estado", expression = "java(usuario.getEstado().name())")
     UsuarioResponseDTO toResponseDTO(Usuario usuario);
