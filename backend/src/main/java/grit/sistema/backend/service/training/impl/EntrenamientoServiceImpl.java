@@ -68,7 +68,6 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
             throw new EntityNotFoundException("Error de integridad: Los siguientes IDs de ejercicios no existen en el catálogo: " + faltantes);
         }
 
-        // 3. Construcción Jerárquica usando el Mapper
         Rutina rutina = new Rutina();
         rutina.setNombre(request.nombre());
         rutina.setDescripcion(request.descripcion());
@@ -85,7 +84,6 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
                 Ejercicio maestro = catalogo.get(eDto.ejercicioId());
                 if (maestro == null) throw new EntityNotFoundException("Ejercicio no existe");
 
-                // LLAMADA AL MAPPER: Mezcla el DTO con el Maestro
                 EjercicioEnSesion detalle = mapper.toEjercicioEnSesion(eDto, maestro);
                 sesion.addEjercicio(detalle);
             }
@@ -100,7 +98,6 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Override
     @Transactional(readOnly = true)
     public List<RutinaResponseDTO> listarRutinas(UUID entrenadorId, UUID atletaId) {
-
         List<Rutina> rutinas = (atletaId == null)
                 ? rutinaRepository.findAllByEntrenadorIdOrderByCreadoEnDesc(entrenadorId)
                 : rutinaRepository.findAllByEntrenadorIdAndAtletaIdOrderByCreadoEnDesc(entrenadorId, atletaId);

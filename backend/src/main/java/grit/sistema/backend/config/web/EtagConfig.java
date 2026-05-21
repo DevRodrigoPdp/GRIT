@@ -24,7 +24,10 @@ public class EtagConfig {
                 "/api/v1/entrenador/atletas/*/peso/historial",
                 "/api/v1/entrenador/atletas",
                 "/api/v1/comunicacion/atleta/hilos",
-                "/api/v1/comunicacion/entrenador/atleta/*/hilos");
+                "/api/v1/comunicacion/entrenador/atleta/*/hilos",
+                "/api/v1/nutricion/planes",
+                "/api/v1/entrenamiento/rutinas"
+        );
         return filterBean;
     }
 }
