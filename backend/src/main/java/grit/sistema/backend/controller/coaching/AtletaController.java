@@ -50,7 +50,7 @@ public class AtletaController {
         AtletaPerfilDTO perfilDTO = atletaService.obtenerPerfil(usuario.getId());
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS)
+                .cacheControl(CacheControl.noCache()
                         .cachePrivate()
                         .mustRevalidate())
                 .body(new ApiResponseDTO<>(true, "Perfil del atleta", perfilDTO));

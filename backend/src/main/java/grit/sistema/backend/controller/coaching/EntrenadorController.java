@@ -45,7 +45,7 @@ public class EntrenadorController {
         EntrenadorPerfilDTO perfilDTO = entrenadorService.obtenerPerfil(usuario.getId());
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
                 .body(new ApiResponseDTO<>(true, "Perfil del Entrenador", perfilDTO));
     }
 
