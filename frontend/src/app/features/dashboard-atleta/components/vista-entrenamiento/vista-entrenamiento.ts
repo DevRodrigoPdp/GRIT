@@ -1,8 +1,6 @@
 import { Component, inject, signal, input, output } from '@angular/core';
 import { AtletaService, PlanEntrenamiento, SolicitudCheckIn, CheckInPeso } from '../../services/atleta.service';
 
-interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
-
 @Component({
   selector: 'app-vista-entrenamiento',
   standalone: true,
@@ -15,13 +13,20 @@ export class VistaEntrenamientoComponent {
   readonly plan             = input<PlanEntrenamiento | null>(null);
   readonly historialPesos   = input<CheckInPeso[]>([]);
   readonly solicitudCheckIn = input<SolicitudCheckIn | null>(null);
-  readonly chartData        = input<{ points: ChartPoint[]; polyline: string } | null>(null);
 
   readonly pesoRegistrado = output<CheckInPeso>();
 
   readonly ejercicioActivo = signal<{ sesion: string; nombre: string } | null>(null);
   readonly pesoInputValor  = signal('');
   readonly enviandoPeso    = signal(false);
+
+  readonly hoyFormateado = (() => {
+    const d = new Date();
+    const dias   = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+    const meses  = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    return `${dias[d.getDay()]} · ${d.getDate()} ${meses[d.getMonth()]}`;
+  })();
+
 
   toggleEjercicio(sesion: string, nombre: string): void {
     const actual = this.ejercicioActivo();

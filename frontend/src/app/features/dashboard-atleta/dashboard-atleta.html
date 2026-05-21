@@ -175,7 +175,6 @@
             [plan]="planEntrenamiento()"
             [historialPesos]="historialPesos()"
             [solicitudCheckIn]="solicitudCheckIn()"
-            [chartData]="chartData()"
             (pesoRegistrado)="onPesoRegistrado($event)"
           />
         </div>
@@ -305,15 +304,23 @@
                     </span>
                   </div>
                 </div>
-                @if (chartData()) {
-                  <svg viewBox="0 0 500 76" class="w-full mb-4" preserveAspectRatio="none" aria-hidden="true">
-                    <polyline [attr.points]="chartData()!.polyline" stroke="#2ED38D" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
-                    @for (pt of chartData()!.points; track $index; let last = $last) {
-                      <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="last ? 5 : 3" [attr.fill]="last ? '#2ED38D' : '#2ED38D'"/>
-                    }
-                  </svg>
+                @if (historialPesos().length >= 2) {
+                  <div class="px-2 pt-1 mb-2">
+                    <apx-chart
+                      [series]="chartOptions().series!"
+                      [chart]="chartOptions().chart!"
+                      [stroke]="chartOptions().stroke!"
+                      [fill]="chartOptions().fill!"
+                      [markers]="chartOptions().markers!"
+                      [xaxis]="chartOptions().xaxis!"
+                      [yaxis]="chartOptions().yaxis!"
+                      [grid]="chartOptions().grid!"
+                      [tooltip]="chartOptions().tooltip!"
+                      [dataLabels]="chartOptions().dataLabels!"
+                    />
+                  </div>
                 }
-                <div class="flex flex-col">
+                <div class="flex flex-col overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(var(--_bw),0.20)_transparent]" style="max-height: 220px;">
                   @for (entrada of historialPesos(); track $index; let last = $last) {
                     <div class="flex items-center justify-between py-2.5"
                       style="border-bottom: 1px solid rgba(var(--_bw),0.08);">

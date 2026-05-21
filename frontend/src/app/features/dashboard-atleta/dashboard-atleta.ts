@@ -21,10 +21,10 @@ import { VistaPerfilAtletaComponent } from './components/vista-perfil/vista-perf
 import { AjustesAtletaComponent } from './components/ajustes/ajustes-atleta';
 import { VistaProfesionalesComponent } from './components/vista-profesionales/vista-profesionales';
 import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
+import { NgApexchartsModule } from 'ng-apexcharts';
+import type { ApexOptions } from 'ng-apexcharts';
 
 type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'profesionales' | 'perfil' | 'ajustes';
-
-interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
 
 @Component({
   selector: 'app-dashboard-atleta',
@@ -37,6 +37,7 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
     AjustesAtletaComponent,
     VistaProfesionalesComponent,
     ScrollIndicatorDirective,
+    NgApexchartsModule,
     FormsModule,
     NgTemplateOutlet,
     NgClass,
@@ -96,19 +97,20 @@ export class DashboardAtletaPage implements OnInit {
   );
 
   // ── Computeds ─────────────────────────────────────────────────────────────
-  readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
+  readonly chartOptions = computed<ApexOptions>(() => {
     const pesos = this.historialPesos();
-    if (pesos.length < 2) return null;
-    const W = 460, H = 60, padX = 20, padY = 8;
-    const weights = pesos.map(p => p.pesoKg);
-    const minW = Math.min(...weights) - 1;
-    const maxW = Math.max(...weights) + 1;
-    const toX = (i: number) => padX + (i / (pesos.length - 1)) * (W - 2 * padX);
-    const toY = (w: number) => padY + H - ((w - minW) / (maxW - minW)) * H;
-    const points: ChartPoint[] = pesos.map((p, i) => ({
-      x: toX(i), y: toY(p.pesoKg), peso: p.pesoKg, fecha: p.fecha,
-    }));
-    return { points, polyline: points.map(p => `${p.x},${p.y}`).join(' ') };
+    return {
+      series: [{ name: 'Peso', data: pesos.map(p => p.pesoKg) }],
+      chart: { type: 'area', height: 180, toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: true, speed: 1200, animateGradually: { enabled: true, delay: 200 }, dynamicAnimation: { enabled: true, speed: 600 } }, background: 'transparent', foreColor: 'rgba(150,150,150,0.8)' },
+      stroke: { curve: 'smooth', width: 2, colors: ['#2ED38D'] },
+      fill: { type: 'gradient', gradient: { colorStops: [{ offset: 0, color: '#2ED38D', opacity: 0.25 }, { offset: 100, color: '#2ED38D', opacity: 0.02 }] } },
+      markers: { size: 4, colors: ['#2ED38D'], strokeColors: 'transparent', hover: { size: 6 } },
+      xaxis: { categories: pesos.map(p => p.fecha), labels: { style: { fontSize: '10px', colors: 'rgba(150,150,150,0.75)' } }, axisBorder: { show: false }, axisTicks: { show: false }, tooltip: { enabled: false } },
+      yaxis: { labels: { style: { fontSize: '10px', colors: 'rgba(150,150,150,0.75)' }, formatter: (v: number) => `${v} kg`, offsetX: -4 }, tickAmount: 3 },
+      grid: { borderColor: 'rgba(180,180,180,0.10)', strokeDashArray: 3, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } }, padding: { left: 10, right: 8 } },
+      tooltip: { theme: 'dark', x: { show: true }, y: { formatter: (v: number) => `${v} kg` } },
+      dataLabels: { enabled: false },
+    };
   });
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
