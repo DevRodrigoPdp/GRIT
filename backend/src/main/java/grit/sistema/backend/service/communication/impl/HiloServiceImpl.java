@@ -79,11 +79,10 @@ public class HiloServiceImpl implements HiloService {
     @Override
     @Transactional(readOnly = true)
     public List<HiloResumenDTO> obtenerHilosPorAtleta(UUID atletaId, ContextoHilo contexto, UUID solicitanteId) {
-        if (!atletaId.equals(solicitanteId)) {
-            boolean esSuEntrenador = asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, solicitanteId);
-            if (!esSuEntrenador) {
-                throw new AccessDeniedException("No tienes permiso para ver los hilos de este atleta.");
-            }
+        boolean tieneAsignacionActiva = asignacionRepository.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, solicitanteId);
+
+        if (!tieneAsignacionActiva) {
+            throw new AccessDeniedException("Acceso denegado. No tienes una asignación activa.");
         }
 
         return hiloRepository.findResumenByAtletaAndContexto(atletaId, contexto, solicitanteId);
