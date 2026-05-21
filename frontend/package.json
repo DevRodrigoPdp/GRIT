@@ -8,6 +8,9 @@
     "watch": "ng build --watch --configuration development"
   },
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "packageManager": "npm@10.9.2",
   "dependencies": {
     "@angular/animations": "^21.2.5",
