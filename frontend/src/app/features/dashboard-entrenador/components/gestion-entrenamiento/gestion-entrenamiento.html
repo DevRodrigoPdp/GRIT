@@ -12,10 +12,10 @@
 
       <!-- Header -->
       <div class="px-6 md:px-8 py-4 flex items-center justify-between flex-shrink-0"
-        style="background: var(--c-overlay); border-bottom: 1px solid rgba(var(--_bw),0.10);">
+        style="background: var(--c-surface); border-bottom: 1px solid rgba(var(--_bw),0.12);">
         <div class="flex items-center gap-4">
           <span class="text-[9px] font-black tracking-[0.25em] uppercase px-2.5 py-1"
-            style="background: rgba(46,211,141,0.10); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D;">
+            style="background: rgba(46,211,141,0.18); border: 1px solid rgba(46,211,141,0.40); color: #2ED38D;">
             {{ sesion?.nombre }}
           </span>
           <h2 class="text-base md:text-lg font-black uppercase tracking-tighter" style="color: var(--c-text-1)">AÑADIR EJERCICIOS</h2>
@@ -36,11 +36,11 @@
         <div class="hidden md:flex w-2/5 flex-col" style="border-right: 1px solid rgba(var(--_bw),0.10)">
           <div class="px-5 py-3 flex items-center justify-between flex-shrink-0"
             style="border-bottom: 1px solid rgba(var(--_bw),0.08); background: rgba(var(--_bw),0.03);">
-            <span class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.50)">AÑADIDOS</span>
+            <span class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.70)">AÑADIDOS</span>
             <span class="text-[10px] font-black px-2 py-0.5"
               [style]="(sesion?.ejercicios?.length ?? 0) > 0
                 ? 'background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.25);'
-                : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.45);'">
+                : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.65);'">
               {{ sesion?.ejercicios?.length ?? 0 }}
             </span>
           </div>
@@ -53,8 +53,8 @@
                     <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
                   </svg>
                 </div>
-                <p class="text-[10px] font-black tracking-[0.15em] uppercase" style="color: rgba(var(--_tw),0.40)">SIN EJERCICIOS</p>
-                <p class="text-xs font-light" style="color: rgba(var(--_tw),0.45)">Añade el primero.</p>
+                <p class="text-[10px] font-black tracking-[0.15em] uppercase" style="color: rgba(var(--_tw),0.60)">SIN EJERCICIOS</p>
+                <p class="text-xs font-light" style="color: rgba(var(--_tw),0.65)">Añade el primero.</p>
               </div>
             }
             @for (ej of sesion?.ejercicios ?? []; track ej.id; let i = $index) {
@@ -72,14 +72,14 @@
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-xs font-black uppercase tracking-tight leading-tight"
-                    [style.color]="ejDescanso ? 'rgba(var(--_tw),0.55)' : 'var(--c-text-1)'">{{ ej.nombre }}</p>
+                    [style.color]="ejDescanso ? 'rgba(var(--_tw),0.75)' : 'var(--c-text-1)'">{{ ej.nombre }}</p>
                   @if (!ejDescanso) {
-                    <p class="text-[10px] font-light mt-0.5 tabular-nums" style="color: rgba(var(--_tw),0.55)">
+                    <p class="text-[10px] font-light mt-0.5 tabular-nums" style="color: rgba(var(--_tw),0.70)">
                       {{ ej.series }} series × {{ ej.reps }} reps
                     </p>
                   }
                   @if (ej.notas) {
-                    <p class="text-[10px] font-light mt-0.5 truncate" style="color: rgba(var(--_tw),0.40)">{{ ej.notas }}</p>
+                    <p class="text-[10px] font-light mt-0.5 truncate" style="color: rgba(var(--_tw),0.60)">{{ ej.notas }}</p>
                   }
                 </div>
                 <button type="button" (click)="quitarEjercicio(sesionActivaIdx(), ej.id)"
@@ -98,7 +98,7 @@
           <!-- Nombre -->
           @if (!esDescanso) {
             <div class="flex flex-col gap-2">
-              <label class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.55)">
+              <label class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.75)">
                 NOMBRE DEL EJERCICIO <span style="color: #2ED38D">*</span>
               </label>
               <input
@@ -109,7 +109,10 @@
                 (keydown.escape)="mostrarSugerencias.set(false)"
                 placeholder="Ej. Press de banca, Sentadilla..."
                 autofocus
-                class="border-b-2 border-white/20 bg-transparent py-2.5 text-2xl font-black uppercase tracking-tight text-white placeholder:text-white/25 outline-none focus:border-[#2ED38D] transition-colors"
+                class="py-2.5 text-2xl font-black uppercase tracking-tight outline-none bg-transparent transition-colors"
+                style="color: var(--c-text-1); border-bottom: 2px solid rgba(var(--_bw),0.20);"
+                onfocus="this.style.borderBottomColor='#2ED38D'"
+                onblur="this.style.borderBottomColor='rgba(var(--_bw),0.20)'"
               />
               @if (mostrarSugerencias()) {
                 @let sugs = entrenamiento.sugerenciasCache();
@@ -117,7 +120,7 @@
                   <div class="flex flex-col mt-0.5 max-h-52 overflow-y-auto"
                     style="background: var(--c-surface); border: 1px solid rgba(var(--_bw),0.18);">
                     @if (!nuevoNombre().trim()) {
-                      <p class="text-[9px] font-bold tracking-[0.2em] uppercase px-4 pt-2.5 pb-1" style="color: rgba(var(--_tw),0.45)">USADOS RECIENTEMENTE</p>
+                      <p class="text-[9px] font-bold tracking-[0.2em] uppercase px-4 pt-2.5 pb-1" style="color: rgba(var(--_tw),0.65)">USADOS RECIENTEMENTE</p>
                     }
                     @for (sug of sugs; track sug.id) {
                       <button type="button" (mousedown)="seleccionarSugerencia(sug)"
@@ -127,7 +130,7 @@
                         onmouseleave="this.style.background=''">
                         <span class="text-sm font-bold uppercase tracking-tight" style="color: var(--c-text-1)">{{ sug.nombre }}</span>
                         @if (sug.grupoMuscular) {
-                          <span class="text-[10px] font-black tracking-widest uppercase flex-shrink-0" style="color: rgba(var(--_tw),0.45)">{{ sug.grupoMuscular }}</span>
+                          <span class="text-[10px] font-black tracking-widest uppercase flex-shrink-0" style="color: rgba(var(--_tw),0.65)">{{ sug.grupoMuscular }}</span>
                         }
                       </button>
                     }
@@ -142,8 +145,8 @@
             <div class="flex items-center gap-4 px-5 py-4"
               style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.14); border-left: 3px solid rgba(var(--_bw),0.30);">
               <div class="w-2 h-2 flex-shrink-0" style="background: rgba(var(--_tw),0.35)"></div>
-              <span class="text-xl font-black uppercase tracking-tight" style="color: rgba(var(--_tw),0.55)">DESCANSO</span>
-              <span class="text-xs font-light ml-auto" style="color: rgba(var(--_tw),0.35)">ejercicio de recuperación</span>
+              <span class="text-xl font-black uppercase tracking-tight" style="color: rgba(var(--_tw),0.75)">DESCANSO</span>
+              <span class="text-xs font-light ml-auto" style="color: rgba(var(--_tw),0.60)">ejercicio de recuperación</span>
             </div>
           }
 
@@ -152,7 +155,7 @@
             <div class="grid grid-cols-2 gap-6">
               <!-- Series -->
               <div class="flex flex-col gap-3">
-                <label class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.55)">SERIES</label>
+                <label class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.75)">SERIES</label>
                 <div class="flex items-center gap-3">
                   <button type="button"
                     (click)="nuevoSeries.set(nuevoSeries() > 1 ? nuevoSeries() - 1 : 1)"
@@ -173,15 +176,18 @@
               </div>
               <!-- Reps -->
               <div class="flex flex-col gap-3">
-                <label class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.55)">REPS / DURACIÓN</label>
+                <label class="text-[9px] font-black tracking-[0.3em] uppercase" style="color: rgba(var(--_tw),0.75)">REPS / DURACIÓN</label>
                 <div class="relative">
                   <input
                     [value]="nuevoReps()"
                     (input)="nuevoReps.set($any($event.target).value)"
                     placeholder="10"
-                    class="w-full text-center border-b-2 border-white/20 bg-transparent py-2.5 text-4xl font-black text-white placeholder:text-white/25 outline-none focus:border-[#2ED38D] transition-colors"
+                    class="w-full text-center py-2.5 text-4xl font-black outline-none bg-transparent transition-colors"
+                    style="color: var(--c-text-1); border-bottom: 2px solid rgba(var(--_bw),0.20);"
+                    onfocus="this.style.borderBottomColor='#2ED38D'"
+                    onblur="this.style.borderBottomColor='rgba(var(--_bw),0.20)'"
                   />
-                  <span class="absolute bottom-1 right-0 text-[9px] font-black tracking-widest uppercase" style="color: rgba(var(--_tw),0.40)">reps</span>
+                  <span class="absolute bottom-1 right-0 text-[9px] font-black tracking-widest uppercase" style="color: rgba(var(--_tw),0.60)">reps</span>
                 </div>
               </div>
             </div>
@@ -189,19 +195,19 @@
 
           <!-- Notas -->
           <div class="flex flex-col gap-2">
-            <label class="text-[9px] font-black tracking-[0.3em] uppercase flex items-center gap-2" style="color: rgba(var(--_tw),0.55)">
+            <label class="text-[9px] font-black tracking-[0.3em] uppercase flex items-center gap-2" style="color: rgba(var(--_tw),0.75)">
               NOTAS
-              <span class="font-light normal-case tracking-normal text-[10px]" style="color: rgba(var(--_tw),0.40)">(opcional)</span>
+              <span class="font-light normal-case tracking-normal text-[10px]" style="color: rgba(var(--_tw),0.60)">(opcional)</span>
             </label>
             <textarea
               [value]="nuevoNotas()"
               (input)="nuevoNotas.set($any($event.target).value)"
               [placeholder]="esDescanso ? 'Foam roller, paseo suave, estiramientos...' : 'Tempo, descanso entre series, indicaciones técnicas...'"
               rows="3"
-              class="px-4 py-3 text-sm font-light text-white placeholder:text-white/25 outline-none transition-all resize-none bg-transparent leading-relaxed"
-              style="border: 1px solid rgba(var(--_bw),0.14);"
+              class="px-4 py-3 text-sm font-light outline-none transition-all resize-none bg-transparent leading-relaxed"
+              style="color: rgba(var(--_tw),0.80); border: 1px solid rgba(var(--_bw),0.18);"
               onfocus="this.style.borderColor='rgba(46,211,141,0.35)'; this.style.background='rgba(46,211,141,0.02)'"
-              onblur="this.style.borderColor='rgba(var(--_bw),0.14)'; this.style.background=''">
+              onblur="this.style.borderColor='rgba(var(--_bw),0.18)'; this.style.background=''">
             </textarea>
           </div>
 
@@ -226,7 +232,7 @@
         <div class="flex items-center gap-2">
           <span class="w-1.5 h-1.5 rounded-full"
             [style]="(sesion?.ejercicios?.length ?? 0) > 0 ? 'background: #2ED38D' : 'background: rgba(var(--_bw),0.25)'"></span>
-          <span class="text-xs font-light" style="color: rgba(var(--_tw),0.55)">
+          <span class="text-xs font-light" style="color: rgba(var(--_tw),0.70)">
             <span class="font-black" style="color: var(--c-text-1)">{{ sesion?.ejercicios?.length ?? 0 }}</span>
             ejercicio{{ (sesion?.ejercicios?.length ?? 0) !== 1 ? 's' : '' }} en esta sesión
           </span>
@@ -533,29 +539,54 @@
             </div>
           }
           @for (ej of sesion.ejercicios; track ej.id; let ei = $index) {
-            <div class="mb-2 px-5 py-3" style="border: 1px solid rgba(var(--_bw),0.14)">
-              <div class="flex items-start gap-3">
-                <span
-                  class="text-[10px] font-black w-4 flex-shrink-0 mt-0.5"
-                  style="color: rgba(var(--_tw),0.45)"
-                  >{{ ei + 1 }}</span
-                >
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-black uppercase tracking-tight text-white">
-                    {{ ej.nombre }}
-                  </p>
-                  <div class="flex items-center gap-3 mt-1 flex-wrap">
-                    <span class="text-xs font-black text-white">{{ ej.series }} series</span>
-                    <span class="text-xs" style="color: rgba(var(--_tw),0.50)">×</span>
-                    <span class="text-xs font-black text-white">{{ ej.reps }} reps</span>
-                    @if (ej.notas) {
-                      <span class="text-xs font-light" style="color: rgba(var(--_tw),0.60)"
-                        >— {{ ej.notas }}</span
-                      >
-                    }
-                  </div>
-                </div>
+            @let ejDescanso = ej.nombre.toLowerCase().includes('descanso');
+            <div class="mb-2 overflow-hidden"
+              [style]="ejDescanso
+                ? 'border: 1px solid rgba(var(--_bw),0.14); background: rgba(var(--_bw),0.03);'
+                : 'border: 1px solid rgba(46,211,141,0.15); background: rgba(46,211,141,0.03);'">
+              <!-- Cabecera -->
+              <div class="flex items-center justify-between px-4 py-2.5"
+                [style]="ejDescanso
+                  ? 'border-bottom: 1px solid rgba(var(--_bw),0.10);'
+                  : 'border-bottom: 1px solid rgba(46,211,141,0.10);'">
+                <p class="text-xs font-black uppercase tracking-tight leading-tight" style="color: var(--c-text-1)">
+                  <span style="color: rgba(var(--_tw),0.40)">{{ ei + 1 }}.</span>&nbsp;{{ ej.nombre }}
+                </p>
+                <button (click)="editarRutina(rutina); vista.set('crear')"
+                  class="w-6 h-6 flex items-center justify-center flex-shrink-0 ml-3 transition-all"
+                  style="color: rgba(var(--_tw),0.35); border: 1px solid transparent;"
+                  onmouseenter="this.style.color='#2ED38D'; this.style.borderColor='rgba(46,211,141,0.30)'"
+                  onmouseleave="this.style.color='rgba(var(--_tw),0.35)'; this.style.borderColor='transparent'">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="w-3.5 h-3.5">
+                    <path d="M11 2l3 3-8 8H3v-3L11 2z" stroke-linecap="square"/>
+                  </svg>
+                </button>
               </div>
+              <!-- Stats -->
+              @if (!ejDescanso) {
+                <div class="flex items-stretch px-4 py-3">
+                  <div class="flex flex-col gap-0.5 pr-5">
+                    <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.45)">Series</span>
+                    <span class="text-2xl font-black leading-none" style="color: var(--c-text-1)">{{ ej.series }}</span>
+                  </div>
+                  <div class="w-px self-stretch mx-1" style="background: rgba(var(--_bw),0.12)"></div>
+                  <div class="flex flex-col gap-0.5 px-5">
+                    <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.45)">Reps</span>
+                    <span class="text-2xl font-black leading-none" style="color: var(--c-text-1)">{{ ej.reps }}</span>
+                  </div>
+                  @if (ej.notas) {
+                    <div class="w-px self-stretch mx-1" style="background: rgba(var(--_bw),0.12)"></div>
+                    <div class="flex flex-col gap-0.5 pl-5 flex-1 min-w-0">
+                      <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.45)">Notas</span>
+                      <p class="text-xs font-light leading-snug" style="color: rgba(var(--_tw),0.70)">{{ ej.notas }}</p>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="px-4 py-3">
+                  <span class="text-xs font-light" style="color: rgba(var(--_tw),0.50)">{{ ej.notas || 'Ejercicio de recuperación activa' }}</span>
+                </div>
+              }
             </div>
           }
         </div>
@@ -909,94 +940,55 @@
                         style="color: rgba(var(--_tw),0.65)"
                       />
                     } @else {
-                      <div class="flex items-center gap-4">
-                        <!-- Nombre + notas (izquierda) -->
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                          <input
-                            [value]="ej.nombre"
-                            (change)="
-                              actualizarEjercicio(si, ej.id, 'nombre', $any($event.target).value)
-                            "
-                            class="text-sm font-black uppercase tracking-tight text-white outline-none bg-transparent border-b border-transparent focus:border-white/25 transition-colors pb-0.5 min-w-0"
-                            style="flex: 1 1 8rem"
-                          />
-                          <!-- Notas: ocultas en móvil, auto-expand -->
-                          <textarea
-                            [value]="ej.notas"
-                            (change)="actualizarEjercicio(si, ej.id, 'notas', $any($event.target).value)"
-                            (input)="$any($event.target).style.height='auto'; $any($event.target).style.height=$any($event.target).scrollHeight+'px'"
-                            placeholder="Notas..."
-                            rows="1"
-                            class="hidden md:block text-xs font-light placeholder:text-white/25 outline-none border-b border-transparent focus:border-white/20 transition-colors bg-transparent min-w-0 resize-none overflow-hidden"
-                            style="color: rgba(var(--_tw),0.65); flex: 1 1 6rem; line-height: 1.5;"
-                          ></textarea>
-                        </div>
-                        <!-- Series × reps (derecha) -->
-                        <div class="flex items-center gap-1 flex-shrink-0 ml-auto">
-                          <button
-                            (click)="
-                              actualizarEjercicio(
-                                si,
-                                ej.id,
-                                'series',
-                                ej.series > 1 ? ej.series - 1 : 1
-                              )
-                            "
-                            class="w-5 h-5 text-xs flex items-center justify-center transition-colors"
-                            style="
-                              border: 1px solid rgba(var(--_bw),0.26);
-                              color: rgba(var(--_tw),0.65);
-                            "
-                            onmouseenter="
-                              this.style.borderColor = 'rgba(var(--_tw),0.60)';
-                              this.style.color = '#1E1B4B';
-                            "
-                            onmouseleave="
-                              this.style.borderColor = 'rgba(var(--_bw),0.26)';
-                              this.style.color = 'rgba(var(--_tw),0.65)';
-                            "
-                          >
-                            −
-                          </button>
-                          <span
-                            class="text-xs font-black w-5 text-center text-white tabular-nums"
-                            >{{ ej.series }}</span
-                          >
-                          <button
-                            (click)="actualizarEjercicio(si, ej.id, 'series', ej.series + 1)"
-                            class="w-5 h-5 text-xs flex items-center justify-center transition-colors"
-                            style="
-                              border: 1px solid rgba(var(--_bw),0.26);
-                              color: rgba(var(--_tw),0.65);
-                            "
-                            onmouseenter="
-                              this.style.borderColor = 'rgba(var(--_tw),0.60)';
-                              this.style.color = '#1E1B4B';
-                            "
-                            onmouseleave="
-                              this.style.borderColor = 'rgba(var(--_bw),0.26)';
-                              this.style.color = 'rgba(var(--_tw),0.65)';
-                            "
-                          >
-                            +
-                          </button>
-                          <span
-                            class="text-[10px] font-medium mx-1"
-                            style="color: rgba(var(--_tw),0.60)"
-                            >×</span
-                          >
-                          <input
-                            [value]="ej.reps"
-                            (change)="
-                              actualizarEjercicio(si, ej.id, 'reps', $any($event.target).value)
-                            "
-                            class="w-11 text-xs font-black text-white text-center outline-none bg-transparent border-b border-white/25 focus:border-white/50 transition-colors pb-0.5"
-                          />
-                          <span
-                            class="text-[10px] font-medium ml-0.5"
-                            style="color: rgba(var(--_tw),0.60)"
-                            >reps</span
-                          >
+                      <div class="flex flex-col">
+                        <!-- Fila 1: nombre -->
+                        <input
+                          [value]="ej.nombre"
+                          (change)="actualizarEjercicio(si, ej.id, 'nombre', $any($event.target).value)"
+                          class="text-sm font-black uppercase tracking-tight outline-none bg-transparent border-b border-transparent transition-colors pb-1.5 mb-2 min-w-0 w-full"
+                          style="color: var(--c-text-1); border-bottom-color: transparent;"
+                          onfocus="this.style.borderBottomColor='rgba(var(--_bw),0.25)'"
+                          onblur="this.style.borderBottomColor='transparent'"
+                        />
+                        <!-- Fila 2: SER / REP / notas -->
+                        <div class="flex items-center gap-0" style="border-top: 1px solid rgba(var(--_bw),0.10); padding-top: 6px;">
+                          <div class="flex items-center gap-1 flex-shrink-0">
+                            <span class="text-[9px] font-black tracking-widest uppercase mr-1.5" style="color: rgba(var(--_tw),0.38)">SER</span>
+                            <button
+                              (click)="actualizarEjercicio(si, ej.id, 'series', ej.series > 1 ? ej.series - 1 : 1)"
+                              class="w-5 h-5 text-xs flex items-center justify-center transition-colors"
+                              style="border: 1px solid rgba(var(--_bw),0.22); color: rgba(var(--_tw),0.55);"
+                              onmouseenter="this.style.borderColor='rgba(46,211,141,0.45)'; this.style.color='#2ED38D'"
+                              onmouseleave="this.style.borderColor='rgba(var(--_bw),0.22)'; this.style.color='rgba(var(--_tw),0.55)'">−</button>
+                            <span class="text-xs font-black w-6 text-center tabular-nums" style="color: var(--c-text-1)">{{ ej.series }}</span>
+                            <button
+                              (click)="actualizarEjercicio(si, ej.id, 'series', ej.series + 1)"
+                              class="w-5 h-5 text-xs flex items-center justify-center transition-colors"
+                              style="border: 1px solid rgba(var(--_bw),0.22); color: rgba(var(--_tw),0.55);"
+                              onmouseenter="this.style.borderColor='rgba(46,211,141,0.45)'; this.style.color='#2ED38D'"
+                              onmouseleave="this.style.borderColor='rgba(var(--_bw),0.22)'; this.style.color='rgba(var(--_tw),0.55)'">+</button>
+                          </div>
+                          <div class="flex items-center gap-1 flex-shrink-0 ml-3 pl-3" style="border-left: 1px solid rgba(var(--_bw),0.14);">
+                            <span class="text-[9px] font-black tracking-widest uppercase" style="color: rgba(var(--_tw),0.38)">REP</span>
+                            <input
+                              [value]="ej.reps"
+                              (change)="actualizarEjercicio(si, ej.id, 'reps', $any($event.target).value)"
+                              class="w-10 text-xs font-black text-center outline-none bg-transparent border-b transition-colors pb-0.5 ml-1"
+                              style="color: var(--c-text-1); border-bottom-color: rgba(var(--_bw),0.22);"
+                              onfocus="this.style.borderBottomColor='rgba(46,211,141,0.50)'"
+                              onblur="this.style.borderBottomColor='rgba(var(--_bw),0.22)'"/>
+                          </div>
+                          <div class="flex-1 ml-3 pl-3 min-w-0" style="border-left: 1px solid rgba(var(--_bw),0.14);">
+                            <textarea
+                              [value]="ej.notas"
+                              (change)="actualizarEjercicio(si, ej.id, 'notas', $any($event.target).value)"
+                              (input)="$any($event.target).style.height='auto'; $any($event.target).style.height=$any($event.target).scrollHeight+'px'"
+                              placeholder="Notas..."
+                              rows="1"
+                              class="w-full text-xs font-light outline-none bg-transparent resize-none overflow-hidden transition-colors"
+                              style="color: rgba(var(--_tw),0.60); line-height: 1.5;"
+                            ></textarea>
+                          </div>
                         </div>
                       </div>
                     }
