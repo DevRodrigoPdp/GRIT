@@ -9,6 +9,12 @@
   --font-family-sans: 'Inter', 'Geist', system-ui, sans-serif;
 }
 
+/* ApexCharts — hover marker transition */
+.apexcharts-series-markers circle {
+  transition: r 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              opacity 0.45s ease !important;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   scrollbar-width: none;

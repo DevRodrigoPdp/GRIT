@@ -84,7 +84,7 @@
     </div>
     }
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(var(--_bw),0.20)_transparent]" style="max-height: 52vh;">
       @for (hilo of hilosFiltrados(); track hilo.id) {
       <button (click)="abrirHilo(hilo)"
         class="w-full text-left transition-all duration-200 group"
@@ -221,68 +221,24 @@
     @if (historialPesos().length > 0) {
 
       <!-- Gráfico EVOLUCIÓN DE PESO -->
-      @if (chartData(); as chart) {
+      @if (historialPesos().length >= 2) {
       <div class="mb-4 overflow-hidden" style="background: rgba(var(--_bw),0.03); border: 1px solid rgba(var(--_bw),0.14);">
         <div class="px-4 pt-3 pb-2" style="border-bottom: 1px solid rgba(var(--_bw),0.07);">
           <span class="text-[9px] font-black tracking-[0.25em] uppercase" style="color: rgba(var(--_tw),0.45);">EVOLUCIÓN DE PESO</span>
         </div>
-        <div class="px-3 pt-3 pb-2">
-          <svg viewBox="0 0 460 100" style="width: 100%; height: auto; display: block; overflow: visible;"
-            (mouseleave)="hoverIdx.set(null)">
-
-            <defs>
-              <linearGradient id="pesoAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#2ED38D" stop-opacity="0.20"/>
-                <stop offset="100%" stop-color="#2ED38D" stop-opacity="0.02"/>
-              </linearGradient>
-            </defs>
-
-            <!-- Grid horizontales -->
-            @for (gy of [8, 23, 38, 53, 68]; track gy) {
-              <line x1="20" [attr.y1]="gy" x2="440" [attr.y2]="gy"
-                stroke="rgba(180,180,180,0.12)" stroke-width="0.8"/>
-            }
-
-            <!-- Grid verticales por punto -->
-            @for (p of chart.points; track $index) {
-              <line [attr.x1]="p.x" y1="8" [attr.x2]="p.x" y2="68"
-                stroke="rgba(180,180,180,0.07)" stroke-width="0.8"/>
-            }
-
-            <!-- Área bajo la línea -->
-            <polygon
-              [attr.points]="chart.points[0].x + ',68 ' + chart.polyline + ' ' + chart.points[chart.points.length - 1].x + ',68'"
-              fill="url(#pesoAreaGrad)"/>
-
-            <!-- Línea principal -->
-            <polyline [attr.points]="chart.polyline" fill="none" stroke="#2ED38D"
-              stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-
-            <!-- Puntos interactivos -->
-            @for (p of chart.points; track $index; let i = $index) {
-              <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#2ED38D"
-                stroke="rgba(255,255,255,0.15)" stroke-width="1.5"
-                style="cursor: pointer;"
-                (mouseenter)="hoverIdx.set(i)"/>
-            }
-
-            <!-- Tooltip -->
-            @if (hoveredPoint(); as hp) {
-              <rect [attr.x]="hp.tooltipX" [attr.y]="hp.y - 28" width="108" height="18" rx="2"
-                style="fill: rgba(10,10,10,0.88);"/>
-              <text [attr.x]="hp.tooltipX + 54" [attr.y]="hp.y - 15" text-anchor="middle"
-                style="font-size: 8px; font-weight: 700; fill: #f0f0f0; letter-spacing: 0.3px;">
-                {{ hp.fecha }}: {{ hp.peso }} kg
-              </text>
-            }
-
-            <!-- Etiquetas eje X -->
-            @for (p of chart.points; track $index) {
-              <text [attr.x]="p.x" y="82" text-anchor="middle"
-                style="font-size: 7.5px; fill: rgba(150,150,150,0.65);">{{ p.fecha }}</text>
-            }
-
-          </svg>
+        <div class="px-2 pt-1">
+          <apx-chart
+            [series]="chartOptions().series!"
+            [chart]="chartOptions().chart!"
+            [stroke]="chartOptions().stroke!"
+            [fill]="chartOptions().fill!"
+            [markers]="chartOptions().markers!"
+            [xaxis]="chartOptions().xaxis!"
+            [yaxis]="chartOptions().yaxis!"
+            [grid]="chartOptions().grid!"
+            [tooltip]="chartOptions().tooltip!"
+            [dataLabels]="chartOptions().dataLabels!"
+          />
         </div>
       </div>
       }
