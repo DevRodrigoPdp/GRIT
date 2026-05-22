@@ -459,7 +459,6 @@
 
       <!-- Fila 2: meta-info horizontal -->
       <div class="flex items-center gap-5 flex-shrink-0 pb-4 flex-wrap" style="border-bottom: 1px solid rgba(var(--_bw),0.12);">
-        <!-- Estado -->
         <button type="button"
           (click)="rutina.activa ? desactivarRutina(rutina.id) : activarRutina(rutina.id)"
           class="flex items-center gap-2">
@@ -472,106 +471,113 @@
             [style.color]="rutina.activa ? '#2ED38D' : 'rgba(var(--_tw),0.40)'">{{ rutina.activa ? 'ACTIVA' : 'INACTIVA' }}</span>
         </button>
         <div class="w-px h-4" style="background: rgba(var(--_bw),0.18)"></div>
-        <!-- Sesiones -->
         <div class="flex items-baseline gap-1.5">
           <span class="text-lg font-black leading-none" style="color: var(--c-text-1)">{{ rutina.sesiones.length }}</span>
           <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.40)">SESIONES</span>
         </div>
         <div class="w-px h-4" style="background: rgba(var(--_bw),0.18)"></div>
-        <!-- Ejercicios -->
         <div class="flex items-baseline gap-1.5">
           <span class="text-lg font-black leading-none" style="color: var(--c-text-1)">{{ entrenamiento.totalEjercicios(rutina) }}</span>
           <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.40)">EJERCICIOS</span>
         </div>
         <div class="w-px h-4" style="background: rgba(var(--_bw),0.18)"></div>
-        <!-- Fecha -->
         <div class="flex items-baseline gap-1.5">
           <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.40)">CREADA</span>
           <span class="text-lg font-black leading-none" style="color: var(--c-text-1)">{{ rutina.creadoEn | date:'dd/MM/yy' }}</span>
         </div>
       </div>
 
-      <!-- Fila 3: tabs de sesiones -->
-      <div class="flex items-end gap-0 flex-shrink-0 flex-wrap" style="border-bottom: 1px solid rgba(var(--_bw),0.12);">
-        @for (sesion of rutina.sesiones; track sesion.id; let si = $index) {
-          <button (click)="sesionDetalleIdx.set(si)"
-            class="relative flex items-center gap-2 px-5 py-3 transition-colors flex-shrink-0"
-            [style.color]="sesionDetalleIdx() === si ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.45)'">
-            <span class="text-[11px] font-black tracking-[0.15em] uppercase">{{ sesion.nombre }}</span>
-            @if (sesion.ejercicios.length > 0) {
-              <span class="text-[9px] font-black px-1.5 py-0.5 leading-none"
-                [style]="sesionDetalleIdx() === si
-                  ? 'background: rgba(46,211,141,0.18); color: #2ED38D; border: 1px solid rgba(46,211,141,0.30);'
-                  : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
-                {{ sesion.ejercicios.length }}
-              </span>
-            }
-            @if (sesionDetalleIdx() === si) {
-              <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
-            }
-          </button>
-        }
-      </div>
+      <!-- Body: sidebar + ejercicios -->
+      <div class="flex-1 min-h-0 flex overflow-hidden">
 
-      <!-- Fila 4: ejercicios en grid, scroll -->
-      @let sesion = sesionDetalleActiva();
-      @if (sesion) {
-        <div class="flex-1 min-h-0 overflow-y-auto pt-4 pb-6" [@fadeSesion]="sesionDetalleIdx()">
-          @if (sesion.ejercicios.length === 0) {
-            <div class="flex flex-col items-center justify-center py-16" style="border: 1px dashed rgba(var(--_bw),0.16)">
-              <p class="text-sm font-black tracking-[0.15em] uppercase" style="color: rgba(var(--_tw),0.35)">SIN EJERCICIOS</p>
-            </div>
-          } @else {
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
-              @for (ej of sesion.ejercicios; track ej.id; let ei = $index) {
-                @let ejDescanso = ej.nombre.toLowerCase().includes('descanso');
-                <div class="flex overflow-hidden"
-                  [style]="ejDescanso
-                    ? 'border: 1px solid rgba(var(--_bw),0.12); background: rgba(var(--_bw),0.03);'
-                    : 'border: 1px solid rgba(var(--_bw),0.14); background: rgba(var(--_bw),0.04);'">
-                  <!-- Número -->
-                  <div class="w-12 flex-shrink-0 flex items-center justify-center"
-                    style="border-right: 1px solid rgba(var(--_bw),0.10);">
-                    <span class="text-xs font-black tabular-nums" style="color: rgba(var(--_tw),0.30)">{{ ei + 1 < 10 ? '0' + (ei + 1) : (ei + 1) }}</span>
-                  </div>
-                  <!-- Contenido -->
-                  <div class="flex-1 px-4 py-3 min-w-0">
-                    <p class="text-[11px] font-black uppercase tracking-tight leading-tight mb-2.5 truncate" style="color: var(--c-text-1)">{{ ej.nombre }}</p>
-                    @if (!ejDescanso) {
-                      <div class="flex items-end gap-5">
-                        <div>
-                          <span class="text-[9px] font-black tracking-widest uppercase block mb-0.5" style="color: rgba(var(--_tw),0.35)">SERIES</span>
-                          <span class="text-2xl font-black leading-none tabular-nums" style="color: var(--c-text-1)">{{ ej.series }}</span>
-                        </div>
-                        <div class="w-px h-7 flex-shrink-0" style="background: rgba(var(--_bw),0.12)"></div>
-                        <div>
-                          <span class="text-[9px] font-black tracking-widest uppercase block mb-0.5" style="color: rgba(var(--_tw),0.35)">REPS</span>
-                          <span class="text-2xl font-black leading-none tabular-nums" style="color: var(--c-text-1)">{{ ej.reps }}</span>
-                        </div>
-                        @if (ej.notas) {
-                          <p class="text-[10px] font-light flex-1 min-w-0 truncate self-center" style="color: rgba(var(--_tw),0.50)">{{ ej.notas }}</p>
-                        }
-                      </div>
-                    } @else {
-                      <p class="text-[10px] font-light truncate" style="color: rgba(var(--_tw),0.45)">{{ ej.notas || 'Recuperación activa' }}</p>
-                    }
-                  </div>
-                  <!-- Editar -->
-                  <button (click)="editarRutina(rutina); vista.set('crear')"
-                    class="w-9 flex-shrink-0 flex items-center justify-center transition-all"
-                    style="color: rgba(var(--_tw),0.22); border-left: 1px solid rgba(var(--_bw),0.08);"
-                    onmouseenter="this.style.color='#2ED38D'; this.style.background='rgba(46,211,141,0.06)'"
-                    onmouseleave="this.style.color='rgba(var(--_tw),0.22)'; this.style.background=''">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="w-3 h-3">
-                      <path d="M11 2l3 3-8 8H3v-3L11 2z" stroke-linecap="square"/>
-                    </svg>
-                  </button>
-                </div>
-              }
-            </div>
+        <!-- Sidebar izquierdo: sesiones -->
+        <div class="flex-shrink-0 flex flex-col w-44 overflow-y-auto"
+          style="border-right: 1px solid rgba(var(--_bw),0.12); background: rgba(var(--_bw),0.03);">
+          <div class="px-4 py-3 flex-shrink-0"
+            style="border-bottom: 1px solid rgba(var(--_bw),0.10);">
+            <span class="text-[9px] font-black tracking-[0.35em] uppercase" style="color: rgba(var(--_tw),0.40)">SESIONES</span>
+          </div>
+          @for (sesion of rutina.sesiones; track sesion.id; let si = $index) {
+            <button (click)="sesionDetalleIdx.set(si)"
+              class="w-full text-left px-4 py-3 transition-colors flex-shrink-0"
+              [style]="sesionDetalleIdx() === si
+                ? 'background: rgba(46,211,141,0.09); border-left: 2px solid #2ED38D;'
+                : 'border-left: 2px solid transparent;'"
+              onmouseenter="if(this.style.borderLeftColor!=='rgb(46, 211, 141)') this.style.background='rgba(var(--_bw),0.06)'"
+              onmouseleave="if(this.style.borderLeftColor!=='rgb(46, 211, 141)') this.style.background=''">
+              <p class="text-xs font-black uppercase tracking-tight truncate leading-tight"
+                [style.color]="sesionDetalleIdx() === si ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.60)'">
+                {{ sesion.nombre }}
+              </p>
+              <p class="text-[10px] font-medium mt-0.5 leading-none"
+                [style.color]="sesionDetalleIdx() === si ? '#2ED38D' : 'rgba(var(--_tw),0.45)'">
+                {{ sesion.ejercicios.length === 0 ? 'vacía' : sesion.ejercicios.length + ' ejerc.' }}
+              </p>
+            </button>
           }
         </div>
-      }
+
+        <!-- Panel ejercicios -->
+        @let sesion = sesionDetalleActiva();
+        @if (sesion) {
+          <div class="flex-1 min-h-0 overflow-y-auto pt-4 pb-6 px-4" [@fadeSesion]="sesionDetalleIdx()">
+            @if (sesion.ejercicios.length === 0) {
+              <div class="flex flex-col items-center justify-center py-16" style="border: 1px dashed rgba(var(--_bw),0.16)">
+                <p class="text-sm font-black tracking-[0.15em] uppercase" style="color: rgba(var(--_tw),0.35)">SIN EJERCICIOS</p>
+              </div>
+            } @else {
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                @for (ej of sesion.ejercicios; track ej.id; let ei = $index) {
+                  @let ejDescanso = ej.nombre.toLowerCase().includes('descanso');
+                  <div class="flex overflow-hidden"
+                    [style]="ejDescanso
+                      ? 'border: 1px solid rgba(var(--_bw),0.12); background: rgba(var(--_bw),0.03);'
+                      : 'border: 1px solid rgba(var(--_bw),0.14); background: rgba(var(--_bw),0.04);'">
+                    <!-- Número -->
+                    <div class="w-12 flex-shrink-0 flex items-center justify-center"
+                      style="border-right: 1px solid rgba(var(--_bw),0.10);">
+                      <span class="text-xs font-black tabular-nums" style="color: rgba(var(--_tw),0.30)">{{ ei + 1 < 10 ? '0' + (ei + 1) : (ei + 1) }}</span>
+                    </div>
+                    <!-- Contenido -->
+                    <div class="flex-1 px-4 py-3 min-w-0">
+                      <p class="text-[11px] font-black uppercase tracking-tight leading-tight mb-2.5 truncate" style="color: var(--c-text-1)">{{ ej.nombre }}</p>
+                      @if (!ejDescanso) {
+                        <div class="flex items-end gap-5">
+                          <div>
+                            <span class="text-[9px] font-black tracking-widest uppercase block mb-0.5" style="color: rgba(var(--_tw),0.35)">SERIES</span>
+                            <span class="text-2xl font-black leading-none tabular-nums" style="color: var(--c-text-1)">{{ ej.series }}</span>
+                          </div>
+                          <div class="w-px h-7 flex-shrink-0" style="background: rgba(var(--_bw),0.12)"></div>
+                          <div>
+                            <span class="text-[9px] font-black tracking-widest uppercase block mb-0.5" style="color: rgba(var(--_tw),0.35)">REPS</span>
+                            <span class="text-2xl font-black leading-none tabular-nums" style="color: var(--c-text-1)">{{ ej.reps }}</span>
+                          </div>
+                          @if (ej.notas) {
+                            <p class="text-[10px] font-light flex-1 min-w-0 truncate self-center" style="color: rgba(var(--_tw),0.50)">{{ ej.notas }}</p>
+                          }
+                        </div>
+                      } @else {
+                        <p class="text-[10px] font-light truncate" style="color: rgba(var(--_tw),0.45)">{{ ej.notas || 'Recuperación activa' }}</p>
+                      }
+                    </div>
+                    <!-- Editar -->
+                    <button (click)="editarRutina(rutina); vista.set('crear')"
+                      class="w-9 flex-shrink-0 flex items-center justify-center transition-all"
+                      style="color: rgba(var(--_tw),0.22); border-left: 1px solid rgba(var(--_bw),0.08);"
+                      onmouseenter="this.style.color='#2ED38D'; this.style.background='rgba(46,211,141,0.06)'"
+                      onmouseleave="this.style.color='rgba(var(--_tw),0.22)'; this.style.background=''">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="w-3 h-3">
+                        <path d="M11 2l3 3-8 8H3v-3L11 2z" stroke-linecap="square"/>
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
+      </div>
 
     </div>
   }

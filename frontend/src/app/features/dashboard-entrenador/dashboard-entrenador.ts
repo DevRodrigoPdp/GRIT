@@ -56,8 +56,9 @@ export class DashboardEntrenadorPage implements OnInit {
   readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered() || this.mobileMenuOpen());
 
   // ── Desconectar atleta ────────────────────────────────────────────────────
-  readonly confirmandoDesconectar = signal<string | null>(null);
-  readonly desconectando          = signal(false);
+  readonly confirmandoDesconectar  = signal<string | null>(null);
+  readonly pendienteDesconectar    = signal<AtletaAsignado | null>(null);
+  readonly desconectando           = signal(false);
 
   // ── Ajustes ───────────────────────────────────────────────────────────────
   readonly passAbierto        = signal(false);
@@ -235,23 +236,18 @@ export class DashboardEntrenadorPage implements OnInit {
     });
   }
 
-  desconectarAtleta(atletaId: string): void {
-    if (this.confirmandoDesconectar() !== atletaId) {
-      this.confirmandoDesconectar.set(atletaId);
-      return;
-    }
+  confirmarDesconexionAtleta(): void {
+    const atleta = this.pendienteDesconectar();
+    if (!atleta) return;
+    this.pendienteDesconectar.set(null);
     this.desconectando.set(true);
-    this.entrenador.desconectarAtleta(atletaId).subscribe({
+    this.entrenador.desconectarAtleta(atleta.id).subscribe({
       next: () => {
-        this.atletas.update(a => a.filter(x => x.id !== atletaId));
-        this.atletaActivo.set(null);
-        this.confirmandoDesconectar.set(null);
+        this.atletas.update(a => a.filter(x => x.id !== atleta.id));
+        if (this.atletaActivo()?.id === atleta.id) this.atletaActivo.set(null);
         this.desconectando.set(false);
       },
-      error: () => {
-        this.confirmandoDesconectar.set(null);
-        this.desconectando.set(false);
-      },
+      error: () => this.desconectando.set(false),
     });
   }
 

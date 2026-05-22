@@ -322,21 +322,13 @@
             </button>
 
             <div class="flex items-center gap-2 flex-shrink-0">
-              @if (confirmandoDesconectar() === atleta.id) {
-                <span class="text-[10px]" style="color: rgba(var(--_tw),0.55)">¿Confirmar?</span>
-                <button (click)="desconectarAtleta(atleta.id)" [disabled]="desconectando()"
-                  class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
-                  style="background: #DC2626; color: #fff;">
-                  {{ desconectando() ? '...' : 'CONFIRMAR' }}
-                </button>
-                <button (click)="confirmandoDesconectar.set(null)"
-                  class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors"
-                  style="border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.55);">CANCELAR</button>
-              } @else {
-                <button (click)="confirmandoDesconectar.set(atleta.id)"
-                  class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors text-red-400 hover:text-red-300"
-                  style="border: 1px solid rgba(220,38,38,0.25);">DAR DE BAJA</button>
-              }
+              <button (click)="pendienteDesconectar.set(atleta)" [disabled]="desconectando()"
+                class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
+                style="border: 1px solid rgba(220,38,38,0.25); color: rgba(220,38,38,0.70);"
+                onmouseenter="this.style.borderColor='rgba(220,38,38,0.55)'; this.style.color='rgba(220,38,38,0.90)'"
+                onmouseleave="this.style.borderColor='rgba(220,38,38,0.25)'; this.style.color='rgba(220,38,38,0.70)'">
+                DAR DE BAJA
+              </button>
             </div>
           </div>
 
@@ -749,4 +741,44 @@
 
     </main>
   </div>
+
+<!-- ── Modal confirmación dar de baja atleta ──────────────────────────────── -->
+@if (pendienteDesconectar()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);"
+    (click)="pendienteDesconectar.set(null)">
+    <div class="w-full max-w-sm p-6 relative"
+      [style]="'background: ' + (theme.isDark() ? '#0f0f1a' : '#ffffff') + '; border: 1px solid rgba(var(--_bw),0.16);'"
+      (click)="$event.stopPropagation()">
+
+      <div class="h-[2px] w-full absolute top-0 left-0" style="background: rgba(220,38,38,0.70);"></div>
+
+      <p class="text-[10px] font-black tracking-[0.25em] uppercase mb-4" style="color: rgba(220,38,38,0.75)">DAR DE BAJA</p>
+      <p class="text-sm font-light leading-relaxed mb-1" style="color: var(--c-text-1)">
+        ¿Seguro que quieres dar de baja a
+        <span class="font-black">{{ pendienteDesconectar()!.nombre }}</span>?
+      </p>
+      <p class="text-xs font-light mb-6" style="color: rgba(var(--_tw),0.50)">
+        Perderá acceso a su plan y se eliminará la conexión permanentemente.
+      </p>
+
+      <div class="flex gap-3 justify-end">
+        <button type="button" (click)="pendienteDesconectar.set(null)"
+          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors"
+          style="border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.60);"
+          onmouseenter="this.style.background='rgba(var(--_bw),0.06)'"
+          onmouseleave="this.style.background=''">
+          CANCELAR
+        </button>
+        <button type="button" (click)="confirmarDesconexionAtleta()" [disabled]="desconectando()"
+          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40"
+          style="border: 1px solid rgba(220,38,38,0.45); color: rgba(220,38,38,0.85);"
+          onmouseenter="this.style.background='rgba(220,38,38,0.08)'; this.style.borderColor='rgba(220,38,38,0.70)'"
+          onmouseleave="this.style.background=''; this.style.borderColor='rgba(220,38,38,0.45)'">
+          {{ desconectando() ? '...' : 'DAR DE BAJA' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
 </div>

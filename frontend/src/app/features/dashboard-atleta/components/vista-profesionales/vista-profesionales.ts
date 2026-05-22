@@ -2,6 +2,15 @@ import { Component, inject, signal, input, output } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AtletaService, ProfesionalAsignado } from '../../services/atleta.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ThemeService } from '../../../../core/services/theme.service';
+
+const TITULACION_LABEL: Record<string, string> = {
+  GRADO_CAFYD:               'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte',
+  TSAF_TSEAS:                'TSAF / TSEAS — Técnico Superior en Animación de Actividades Físicas',
+  CERT_AFDA0210:             'Certificado de Profesionalidad AFDA0210',
+  GRADO_NUTRICION_DIETETICA: 'Grado en Nutrición Humana y Dietética',
+  TSD:                       'TSD — Técnico Superior en Dietética',
+};
 
 @Component({
   selector: 'app-vista-profesionales',
@@ -11,6 +20,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class VistaProfesionalesComponent {
   readonly auth  = inject(AuthService);
+  readonly theme = inject(ThemeService);
   private atleta = inject(AtletaService);
 
   readonly profesionales             = input<ProfesionalAsignado[]>([]);
@@ -21,7 +31,13 @@ export class VistaProfesionalesComponent {
   readonly enviandoCodigo   = signal(false);
   readonly codigoError      = signal('');
   readonly codigoExito      = signal(false);
-  readonly desconectandoId  = signal<string | null>(null);
+  readonly desconectandoId        = signal<string | null>(null);
+  readonly expandidoId            = signal<string | null>(null);
+  readonly pendienteDesconectar   = signal<ProfesionalAsignado | null>(null);
+
+  toggleExpandido(id: string): void {
+    this.expandidoId.set(this.expandidoId() === id ? null : id);
+  }
 
   conectarConCodigo(): void {
     const codigo = this.codigoEntrenador().trim().toUpperCase();
@@ -51,14 +67,30 @@ export class VistaProfesionalesComponent {
     });
   }
 
-  desconectar(id: string): void {
-    this.desconectandoId.set(id);
-    this.atleta.desconectarProfesional(id).subscribe({
+  iniciales(nombre: string): string {
+    return nombre.split(' ').slice(0, 2).map(p => p[0]).join('').toUpperCase() || '?';
+  }
+
+  titulacionLabel(raw: string): string {
+    return TITULACION_LABEL[raw] ?? raw;
+  }
+
+  confirmarDesconexion(): void {
+    const prof = this.pendienteDesconectar();
+    if (!prof) return;
+    this.pendienteDesconectar.set(null);
+    this.desconectandoId.set(prof.id);
+    this.atleta.desconectarProfesional(prof.id).subscribe({
       next: () => {
         this.desconectandoId.set(null);
         this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionalesActualizados.emit(p));
       },
       error: () => this.desconectandoId.set(null),
     });
+  }
+
+  desconectar(id: string): void {
+    const prof = this.profesionales().find(p => p.id === id) ?? null;
+    this.pendienteDesconectar.set(prof);
   }
 }
