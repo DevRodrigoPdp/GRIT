@@ -165,18 +165,36 @@
             }
           </div>
           @if (auth.tituloEntrenamiento() && auth.tituloNutricion()) {
-          <div class="flex gap-1.5">
-            @for (opcion of [['TODOS','TODOS'],['ENTRENAMIENTO','ENTR'],['NUTRICION','NUTR']]; track opcion[0]) {
-            <button (click)="filtroServicio.set($any(opcion[0]))"
-              class="px-4 py-2.5 text-[11px] font-black tracking-[0.15em] uppercase transition-all duration-150"
-              [style]="filtroServicio() === opcion[0]
-                        ? (opcion[0] === 'NUTRICION'
-                            ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
-                            : 'background: #fff; color: #000;')
-                        : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.65);'">
-              {{ opcion[1] }}
+          <div class="relative flex"
+            style="background: rgba(var(--_bw),0.07); border: 1px solid rgba(var(--_bw),0.11);">
+            <!-- Indicador deslizante -->
+            <div class="absolute inset-y-0 w-1/3 pointer-events-none"
+              style="transition: left 220ms cubic-bezier(0.4,0,0.2,1), background-color 180ms ease;"
+              [style.left]="filtroServicio() === 'TODOS' ? '0%' : filtroServicio() === 'ENTRENAMIENTO' ? '33.333%' : '66.666%'"
+              [style.background-color]="filtroServicio() === 'TODOS' ? 'rgba(var(--_bw),0.82)' : filtroServicio() === 'ENTRENAMIENTO' ? 'rgba(59,130,246,0.25)' : 'rgba(46,211,141,0.20)'">
+            </div>
+            <!-- TODOS -->
+            <button (click)="filtroServicio.set('TODOS')"
+              class="relative z-10 flex-1 px-4 py-2 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-200"
+              [style.color]="filtroServicio() === 'TODOS' ? 'var(--c-bg)' : 'rgba(var(--_tw),0.40)'">
+              TODOS
             </button>
-            }
+            <!-- ENTR -->
+            <button (click)="filtroServicio.set('ENTRENAMIENTO')"
+              class="relative z-10 flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-200"
+              [style.color]="filtroServicio() === 'ENTRENAMIENTO' ? '#60A5FA' : 'rgba(var(--_tw),0.40)'">
+              <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors duration-200"
+                [style.background]="filtroServicio() === 'ENTRENAMIENTO' ? '#3B82F6' : 'rgba(59,130,246,0.28)'"></span>
+              ENTR
+            </button>
+            <!-- NUTR -->
+            <button (click)="filtroServicio.set('NUTRICION')"
+              class="relative z-10 flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-200"
+              [style.color]="filtroServicio() === 'NUTRICION' ? '#2ED38D' : 'rgba(var(--_tw),0.40)'">
+              <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors duration-200"
+                [style.background]="filtroServicio() === 'NUTRICION' ? '#2ED38D' : 'rgba(46,211,141,0.28)'"></span>
+              NUTR
+            </button>
           </div>
           }
         </div>
@@ -205,60 +223,78 @@
         }
 
         <!-- Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+          [@listaAtletas]="atletasFiltrados().length">
           @for (atleta of atletasFiltrados(); track atleta.id) {
           <button (click)="seleccionarAtleta(atleta)"
-            class="text-left transition-all duration-200 group relative overflow-hidden"
-            style="background: linear-gradient(135deg, rgba(var(--_bw),0.05) 0%, rgba(var(--_bw),0.02) 100%); border: 1px solid rgba(var(--_bw),0.14);"
-            onmouseenter="this.style.borderColor='rgba(var(--_tw),0.45)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.4)'"
-            onmouseleave="this.style.borderColor='rgba(var(--_bw),0.14)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <!-- Barra color -->
-            <div class="h-[3px]" [class]="atleta.servicio === 'NUTRICION'     ? 'bg-[#2ED38D]' :
-                             atleta.servicio === 'ENTRENAMIENTO' ? 'bg-white' :
-                             'bg-gradient-to-r from-white to-[#2ED38D]'">
+            class="text-left group relative flex overflow-hidden"
+            style="background: rgba(var(--_bw),0.04); border: 1px solid rgba(var(--_bw),0.11); transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;"
+            [style.--accent]="atleta.servicio === 'ENTRENAMIENTO' ? '59,130,246' : atleta.servicio === 'NUTRICION' ? '46,211,141' : '46,211,141'"
+            onmouseenter="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 16px 48px rgba(0,0,0,0.45)'; this.style.borderColor='rgba(var(--_bw),0.28)'"
+            onmouseleave="this.style.transform=''; this.style.boxShadow=''; this.style.borderColor='rgba(var(--_bw),0.11)'">
+
+            <!-- Barra lateral de color -->
+            <div class="w-[3px] flex-shrink-0 self-stretch"
+              [style.background]="atleta.servicio === 'NUTRICION'     ? 'linear-gradient(180deg,#2ED38D,#22B574)'
+                                : atleta.servicio === 'ENTRENAMIENTO' ? 'linear-gradient(180deg,#3B82F6,#2563EB)'
+                                : 'linear-gradient(180deg,#3B82F6,#2ED38D)'">
             </div>
-            <div class="p-5">
-              <div class="flex items-center gap-3 mb-4">
-                <div class="w-11 h-11 flex-shrink-0 flex items-center justify-center font-black text-sm"
+
+            <!-- Contenido -->
+            <div class="flex-1 min-w-0 p-5 flex flex-col gap-4">
+
+              <!-- Fila superior: avatar + nombre/deporte -->
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 flex-shrink-0 flex items-center justify-center font-black text-base relative"
                   [style]="atleta.servicio === 'NUTRICION'
-                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
+                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'
                           : atleta.servicio === 'ENTRENAMIENTO'
-                            ? 'background: rgba(var(--_bw),0.20); color:#fff; border: 1px solid rgba(var(--_tw),0.28);'
-                            : 'background: rgba(var(--_bw),0.14); color:#2ED38D; border: 1px solid rgba(46,211,141,0.2);'">
+                            ? 'background: rgba(59,130,246,0.14); color:#60A5FA; border: 1px solid rgba(59,130,246,0.28);'
+                            : 'background: linear-gradient(135deg,rgba(59,130,246,0.16),rgba(46,211,141,0.16)); color:#2ED38D; border: 1px solid rgba(46,211,141,0.22);'">
                   {{ iniciales(atleta.nombre) }}
                 </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-black uppercase tracking-tight text-white leading-none mb-1 truncate">{{
-                    atleta.nombre }}</p>
-                  <p class="text-xs font-medium truncate" style="color: rgba(var(--_tw),0.60)">{{ atleta.deporte }} ·
-                    {{ nivelLabel(atleta.nivel) }}</p>
+                <div class="min-w-0 flex-1">
+                  <p class="font-black uppercase tracking-tight leading-none truncate mb-1.5"
+                    style="font-size: 15px; color: var(--c-text-1);">{{ atleta.nombre }}</p>
+                  <p class="text-[11px] font-medium uppercase tracking-wide truncate"
+                    style="color: rgba(var(--_tw),0.42)">{{ atleta.deporte }}</p>
                 </div>
               </div>
+
+              <!-- Separador -->
+              <div style="border-top: 1px solid rgba(var(--_bw),0.09);"></div>
+
+              <!-- Fila inferior: badges + estado -->
               <div class="flex items-center justify-between">
                 <div class="flex gap-1.5">
                   @if (incluyeEntrenamiento(atleta.servicio)) {
-                  <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2 py-0.5"
-                    style="background: rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.85); border: 1px solid rgba(var(--_bw),0.20)">ENTR</span>
+                  <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2.5 py-1"
+                    style="background: rgba(59,130,246,0.12); color:#60A5FA; border: 1px solid rgba(59,130,246,0.25);">ENTR</span>
                   }
                   @if (incluyeNutricion(atleta.servicio)) {
-                  <span
-                    class="text-[10px] font-black tracking-[0.15em] uppercase px-2 py-0.5 bg-[#2ED38D] text-black">NUTR</span>
+                  <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2.5 py-1"
+                    style="background: rgba(46,211,141,0.18); color:#2ED38D; border: 1px solid rgba(46,211,141,0.30);">NUTR</span>
                   }
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-shrink-0">
                   @if (atleta.tienePlanActivo) {
-                  <span
-                    class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.1em] uppercase text-[#2ED38D]">
+                  <span class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.12em] uppercase"
+                    style="color: #2ED38D;">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D]"
-                      style="box-shadow: 0 0 4px rgba(46,211,141,0.6)"></span>ACTIVO
+                      style="box-shadow: 0 0 6px rgba(46,211,141,0.7)"></span>ACTIVO
                   </span>
                   } @else {
-                  <span class="text-[10px] font-bold tracking-[0.1em] uppercase"
-                    style="color: rgba(var(--_tw),0.45)">SIN PLAN</span>
+                  <span class="text-[10px] font-bold tracking-[0.12em] uppercase"
+                    style="color: rgba(var(--_tw),0.38)">SIN PLAN</span>
                   }
-                  <span class="text-sm transition-colors" style="color: rgba(var(--_tw),0.35)">→</span>
+                  <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
+                    fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    style="color: rgba(var(--_tw),0.30)">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="square"/>
+                  </svg>
                 </div>
               </div>
+
             </div>
           </button>
           }
@@ -464,8 +500,8 @@
                         style="color: rgba(var(--_tw),0.60)">AÑOS DE EXPERIENCIA</label>
                       <input type="number" min="0" max="60" [value]="editExperiencia()"
                         (input)="editExperiencia.set(+$any($event.target).value)"
-                        class="w-28 px-4 py-2.5 text-sm text-white outline-none transition-colors"
-                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                        class="w-28 px-4 py-2.5 text-sm text-white outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15); color-scheme: dark;"
                         onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                         onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                     </div>

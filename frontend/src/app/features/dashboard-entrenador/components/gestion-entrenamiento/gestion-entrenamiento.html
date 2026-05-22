@@ -249,7 +249,7 @@
 
 <!-- ── LISTA DE RUTINAS ───────────────────────────────────────────────────── -->
 @if (vista() === 'lista') {
-  <div class="flex-1 overflow-y-auto py-6">
+  <div class="flex-1 overflow-y-auto py-6" @fadeView>
     <div class="flex items-center justify-between mb-6">
       <div>
         <p
@@ -428,94 +428,83 @@
 @if (vista() === 'detalle') {
   @let rutina = rutinaDetalle();
   @if (rutina) {
-    <div class="flex-1 min-h-0 flex flex-col">
-      <!-- Cabecera -->
-      <div class="flex items-start gap-4 pt-6 pb-4 flex-shrink-0">
-        <div class="flex-1">
-          <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">
-            {{ rutina.nombre }}
-          </h2>
+    <div class="flex-1 min-h-0 flex flex-col pt-6" @fadeView>
+
+      <!-- Fila 1: nombre + botones -->
+      <div class="flex items-start justify-between gap-4 mb-3 flex-shrink-0">
+        <div class="min-w-0">
+          <h2 class="text-3xl font-black uppercase tracking-tighter leading-none truncate" style="color: var(--c-text-1)">{{ rutina.nombre }}</h2>
           @if (rutina.descripcion) {
-            <p class="text-sm font-light mt-1" style="color: rgba(var(--_tw),0.65)">
-              {{ rutina.descripcion }}
-            </p>
+            <p class="text-xs font-light mt-1.5 truncate" style="color: rgba(var(--_tw),0.50)">{{ rutina.descripcion }}</p>
           }
         </div>
-        <div class="flex items-center gap-3 flex-shrink-0 mt-1">
-          <button
-            (click)="editarRutina(rutina); vista.set('crear')"
-            class="text-xs font-bold tracking-[0.2em] uppercase transition-colors"
-            style="color: rgba(var(--_tw),0.60)"
-            onmouseenter="this.style.color = '#1E1B4B'"
-            onmouseleave="this.style.color = 'rgba(var(--_tw),0.60)'"
-          >
-            MODIFICAR
+        <div class="flex items-center gap-2 flex-shrink-0 mt-1">
+          <button (click)="vista.set('lista')"
+            class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.2em] uppercase transition-colors px-3 py-1.5"
+            style="color: rgba(var(--_tw),0.50); border: 1px solid rgba(var(--_bw),0.14);"
+            onmouseenter="this.style.color='var(--c-text-1)'; this.style.borderColor='rgba(var(--_bw),0.30)'"
+            onmouseleave="this.style.color='rgba(var(--_tw),0.50)'; this.style.borderColor='rgba(var(--_bw),0.14)'">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16"><path d="M10 4L6 8l4 4" stroke-linecap="square"/></svg>
+            VOLVER
           </button>
-          <button
-            (click)="vista.set('lista')"
-            class="text-xs font-bold tracking-[0.2em] uppercase transition-colors"
-            style="color: rgba(var(--_tw),0.60)"
-            onmouseenter="this.style.color = '#1E1B4B'"
-            onmouseleave="this.style.color = 'rgba(var(--_tw),0.60)'"
-          >
-            ← VOLVER
+          <button (click)="editarRutina(rutina); vista.set('crear')"
+            class="text-[10px] font-black tracking-[0.2em] uppercase transition-all px-4 py-1.5 text-black"
+            style="background: linear-gradient(135deg,#2ED38D,#22B574);"
+            onmouseenter="this.style.boxShadow='0 4px 16px rgba(46,211,141,0.30)'"
+            onmouseleave="this.style.boxShadow='none'">
+            MODIFICAR
           </button>
         </div>
       </div>
 
-      <!-- Toggle activar rutina -->
-      <div
-        class="flex-shrink-0 pb-3 mb-1"
-        style="border-bottom: 1px solid rgba(var(--_bw),0.14)"
-      >
-        <button
-          type="button"
+      <!-- Fila 2: meta-info horizontal -->
+      <div class="flex items-center gap-5 flex-shrink-0 pb-4 flex-wrap" style="border-bottom: 1px solid rgba(var(--_bw),0.12);">
+        <!-- Estado -->
+        <button type="button"
           (click)="rutina.activa ? desactivarRutina(rutina.id) : activarRutina(rutina.id)"
-          class="flex items-center gap-3"
-        >
-          <div
-            class="w-10 h-5 rounded-full transition-colors flex-shrink-0 relative"
-            [style.background]="rutina.activa ? '#2ED38D' : 'rgba(var(--_tw),0.28)'"
-          >
-            <div
-              class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-              [class]="rutina.activa ? 'translate-x-5' : 'translate-x-0.5'"
-            ></div>
+          class="flex items-center gap-2">
+          <div class="w-8 h-4 rounded-full transition-colors relative flex-shrink-0"
+            [style.background]="rutina.activa ? '#2ED38D' : 'rgba(var(--_tw),0.25)'">
+            <div class="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform"
+              [class]="rutina.activa ? 'translate-x-4' : 'translate-x-0.5'"></div>
           </div>
-          <div class="text-left">
-            <p
-              class="text-xs font-black tracking-[0.15em] uppercase"
-              [style.color]="rutina.activa ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.60)'"
-            >
-              {{ rutina.activa ? 'RUTINA ACTIVA' : 'RUTINA INACTIVA' }}
-            </p>
-            <p class="text-[11px] font-light mt-0.5" style="color: rgba(var(--_tw),0.60)">
-              {{
-                rutina.activa
-                  ? 'El atleta ve esta rutina como su plan actual'
-                  : 'Se guardará pero no será la rutina en curso'
-              }}
-            </p>
-          </div>
+          <span class="text-[10px] font-black tracking-[0.15em] uppercase"
+            [style.color]="rutina.activa ? '#2ED38D' : 'rgba(var(--_tw),0.40)'">{{ rutina.activa ? 'ACTIVA' : 'INACTIVA' }}</span>
         </button>
+        <div class="w-px h-4" style="background: rgba(var(--_bw),0.18)"></div>
+        <!-- Sesiones -->
+        <div class="flex items-baseline gap-1.5">
+          <span class="text-lg font-black leading-none" style="color: var(--c-text-1)">{{ rutina.sesiones.length }}</span>
+          <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.40)">SESIONES</span>
+        </div>
+        <div class="w-px h-4" style="background: rgba(var(--_bw),0.18)"></div>
+        <!-- Ejercicios -->
+        <div class="flex items-baseline gap-1.5">
+          <span class="text-lg font-black leading-none" style="color: var(--c-text-1)">{{ entrenamiento.totalEjercicios(rutina) }}</span>
+          <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.40)">EJERCICIOS</span>
+        </div>
+        <div class="w-px h-4" style="background: rgba(var(--_bw),0.18)"></div>
+        <!-- Fecha -->
+        <div class="flex items-baseline gap-1.5">
+          <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.40)">CREADA</span>
+          <span class="text-lg font-black leading-none" style="color: var(--c-text-1)">{{ rutina.creadoEn | date:'dd/MM/yy' }}</span>
+        </div>
       </div>
 
-      <!-- Tabs sesiones -->
-      <div
-        class="flex items-end gap-0 flex-shrink-0 flex-wrap"
-        style="border-bottom: 1px solid rgba(var(--_bw),0.14)"
-      >
+      <!-- Fila 3: tabs de sesiones -->
+      <div class="flex items-end gap-0 flex-shrink-0 flex-wrap" style="border-bottom: 1px solid rgba(var(--_bw),0.12);">
         @for (sesion of rutina.sesiones; track sesion.id; let si = $index) {
-          <button
-            (click)="sesionDetalleIdx.set(si)"
-            class="relative py-3 px-5 text-xs font-black tracking-[0.15em] uppercase whitespace-nowrap flex-shrink-0 transition-colors"
-            [style.color]="sesionDetalleIdx() === si ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.60)'"
-          >
-            {{ sesion.nombre }}
-            @if (sesion.tipo === 'entrenamiento' && sesion.ejercicios.length > 0) {
-              <span class="ml-1.5 text-[9px] font-black text-[#2ED38D]">{{
-                sesion.ejercicios.length
-              }}</span>
+          <button (click)="sesionDetalleIdx.set(si)"
+            class="relative flex items-center gap-2 px-5 py-3 transition-colors flex-shrink-0"
+            [style.color]="sesionDetalleIdx() === si ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.45)'">
+            <span class="text-[11px] font-black tracking-[0.15em] uppercase">{{ sesion.nombre }}</span>
+            @if (sesion.ejercicios.length > 0) {
+              <span class="text-[9px] font-black px-1.5 py-0.5 leading-none"
+                [style]="sesionDetalleIdx() === si
+                  ? 'background: rgba(46,211,141,0.18); color: #2ED38D; border: 1px solid rgba(46,211,141,0.30);'
+                  : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
+                {{ sesion.ejercicios.length }}
+              </span>
             }
             @if (sesionDetalleIdx() === si) {
               <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
@@ -524,67 +513,59 @@
         }
       </div>
 
-      <!-- Contenido sesión -->
+      <!-- Fila 4: ejercicios en grid, scroll -->
       @let sesion = sesionDetalleActiva();
       @if (sesion) {
-        <div class="flex-1 min-h-0 overflow-y-auto pb-4 pt-4">
+        <div class="flex-1 min-h-0 overflow-y-auto pt-4 pb-6" [@fadeSesion]="sesionDetalleIdx()">
           @if (sesion.ejercicios.length === 0) {
-            <div class="p-8 text-center" style="border: 1px dashed rgba(var(--_bw),0.18)">
-              <p
-                class="text-sm font-black tracking-[0.15em] uppercase"
-                style="color: rgba(var(--_tw),0.45)"
-              >
-                SIN EJERCICIOS
-              </p>
+            <div class="flex flex-col items-center justify-center py-16" style="border: 1px dashed rgba(var(--_bw),0.16)">
+              <p class="text-sm font-black tracking-[0.15em] uppercase" style="color: rgba(var(--_tw),0.35)">SIN EJERCICIOS</p>
             </div>
-          }
-          @for (ej of sesion.ejercicios; track ej.id; let ei = $index) {
-            @let ejDescanso = ej.nombre.toLowerCase().includes('descanso');
-            <div class="mb-2 overflow-hidden"
-              [style]="ejDescanso
-                ? 'border: 1px solid rgba(var(--_bw),0.14); background: rgba(var(--_bw),0.03);'
-                : 'border: 1px solid rgba(46,211,141,0.15); background: rgba(46,211,141,0.03);'">
-              <!-- Cabecera -->
-              <div class="flex items-center justify-between px-4 py-2.5"
-                [style]="ejDescanso
-                  ? 'border-bottom: 1px solid rgba(var(--_bw),0.10);'
-                  : 'border-bottom: 1px solid rgba(46,211,141,0.10);'">
-                <p class="text-xs font-black uppercase tracking-tight leading-tight" style="color: var(--c-text-1)">
-                  <span style="color: rgba(var(--_tw),0.40)">{{ ei + 1 }}.</span>&nbsp;{{ ej.nombre }}
-                </p>
-                <button (click)="editarRutina(rutina); vista.set('crear')"
-                  class="w-6 h-6 flex items-center justify-center flex-shrink-0 ml-3 transition-all"
-                  style="color: rgba(var(--_tw),0.35); border: 1px solid transparent;"
-                  onmouseenter="this.style.color='#2ED38D'; this.style.borderColor='rgba(46,211,141,0.30)'"
-                  onmouseleave="this.style.color='rgba(var(--_tw),0.35)'; this.style.borderColor='transparent'">
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="w-3.5 h-3.5">
-                    <path d="M11 2l3 3-8 8H3v-3L11 2z" stroke-linecap="square"/>
-                  </svg>
-                </button>
-              </div>
-              <!-- Stats -->
-              @if (!ejDescanso) {
-                <div class="flex items-stretch px-4 py-3">
-                  <div class="flex flex-col gap-0.5 pr-5">
-                    <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.45)">Series</span>
-                    <span class="text-2xl font-black leading-none" style="color: var(--c-text-1)">{{ ej.series }}</span>
+          } @else {
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+              @for (ej of sesion.ejercicios; track ej.id; let ei = $index) {
+                @let ejDescanso = ej.nombre.toLowerCase().includes('descanso');
+                <div class="flex overflow-hidden"
+                  [style]="ejDescanso
+                    ? 'border: 1px solid rgba(var(--_bw),0.12); background: rgba(var(--_bw),0.03);'
+                    : 'border: 1px solid rgba(var(--_bw),0.14); background: rgba(var(--_bw),0.04);'">
+                  <!-- Número -->
+                  <div class="w-12 flex-shrink-0 flex items-center justify-center"
+                    style="border-right: 1px solid rgba(var(--_bw),0.10);">
+                    <span class="text-xs font-black tabular-nums" style="color: rgba(var(--_tw),0.30)">{{ ei + 1 < 10 ? '0' + (ei + 1) : (ei + 1) }}</span>
                   </div>
-                  <div class="w-px self-stretch mx-1" style="background: rgba(var(--_bw),0.12)"></div>
-                  <div class="flex flex-col gap-0.5 px-5">
-                    <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.45)">Reps</span>
-                    <span class="text-2xl font-black leading-none" style="color: var(--c-text-1)">{{ ej.reps }}</span>
+                  <!-- Contenido -->
+                  <div class="flex-1 px-4 py-3 min-w-0">
+                    <p class="text-[11px] font-black uppercase tracking-tight leading-tight mb-2.5 truncate" style="color: var(--c-text-1)">{{ ej.nombre }}</p>
+                    @if (!ejDescanso) {
+                      <div class="flex items-end gap-5">
+                        <div>
+                          <span class="text-[9px] font-black tracking-widest uppercase block mb-0.5" style="color: rgba(var(--_tw),0.35)">SERIES</span>
+                          <span class="text-2xl font-black leading-none tabular-nums" style="color: var(--c-text-1)">{{ ej.series }}</span>
+                        </div>
+                        <div class="w-px h-7 flex-shrink-0" style="background: rgba(var(--_bw),0.12)"></div>
+                        <div>
+                          <span class="text-[9px] font-black tracking-widest uppercase block mb-0.5" style="color: rgba(var(--_tw),0.35)">REPS</span>
+                          <span class="text-2xl font-black leading-none tabular-nums" style="color: var(--c-text-1)">{{ ej.reps }}</span>
+                        </div>
+                        @if (ej.notas) {
+                          <p class="text-[10px] font-light flex-1 min-w-0 truncate self-center" style="color: rgba(var(--_tw),0.50)">{{ ej.notas }}</p>
+                        }
+                      </div>
+                    } @else {
+                      <p class="text-[10px] font-light truncate" style="color: rgba(var(--_tw),0.45)">{{ ej.notas || 'Recuperación activa' }}</p>
+                    }
                   </div>
-                  @if (ej.notas) {
-                    <div class="w-px self-stretch mx-1" style="background: rgba(var(--_bw),0.12)"></div>
-                    <div class="flex flex-col gap-0.5 pl-5 flex-1 min-w-0">
-                      <span class="text-[9px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.45)">Notas</span>
-                      <p class="text-xs font-light leading-snug" style="color: rgba(var(--_tw),0.70)">{{ ej.notas }}</p>
-                    </div>
-                  }
-                </div>
-              } @else {
-                <div class="px-4 py-3">
-                  <span class="text-xs font-light" style="color: rgba(var(--_tw),0.50)">{{ ej.notas || 'Ejercicio de recuperación activa' }}</span>
+                  <!-- Editar -->
+                  <button (click)="editarRutina(rutina); vista.set('crear')"
+                    class="w-9 flex-shrink-0 flex items-center justify-center transition-all"
+                    style="color: rgba(var(--_tw),0.22); border-left: 1px solid rgba(var(--_bw),0.08);"
+                    onmouseenter="this.style.color='#2ED38D'; this.style.background='rgba(46,211,141,0.06)'"
+                    onmouseleave="this.style.color='rgba(var(--_tw),0.22)'; this.style.background=''">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="w-3 h-3">
+                      <path d="M11 2l3 3-8 8H3v-3L11 2z" stroke-linecap="square"/>
+                    </svg>
+                  </button>
                 </div>
               }
             </div>
@@ -592,41 +573,13 @@
         </div>
       }
 
-      <!-- Footer info -->
-      <div
-        class="flex-shrink-0 py-4 flex items-center gap-6"
-        style="border-top: 1px solid rgba(var(--_bw),0.14)"
-      >
-        <div>
-          <p class="text-[11px] font-light uppercase" style="color: rgba(var(--_tw),0.60)">
-            Sesiones
-          </p>
-          <p class="text-xl font-black text-white leading-none">{{ rutina.sesiones.length }}</p>
-        </div>
-        <div>
-          <p class="text-[11px] font-light uppercase" style="color: rgba(var(--_tw),0.60)">
-            Ejercicios
-          </p>
-          <p class="text-xl font-black text-white leading-none">
-            {{ entrenamiento.totalEjercicios(rutina) }}
-          </p>
-        </div>
-        <div>
-          <p class="text-[11px] font-light uppercase" style="color: rgba(var(--_tw),0.60)">
-            Creada
-          </p>
-          <p class="text-sm font-black text-white leading-none">
-            {{ rutina.creadoEn | date: 'dd/MM/yy' }}
-          </p>
-        </div>
-      </div>
     </div>
   }
 }
 
 <!-- ── CREAR RUTINA ────────────────────────────────────────────────────────── -->
 @if (vista() === 'crear') {
-  <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+  <div class="flex-1 min-h-0 flex flex-col overflow-hidden" @fadeView>
     <!-- Header: nombre + descripción -->
     <div class="flex-shrink-0 pt-7 pb-5" style="border-bottom: 1px solid rgba(var(--_bw),0.20)">
       <div class="flex items-center justify-between mb-4">

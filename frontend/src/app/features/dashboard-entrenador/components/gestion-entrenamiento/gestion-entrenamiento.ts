@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, input, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { EntrenamientoService, Rutina, Sesion, EjercicioManual } from '../../services/entrenamiento.service';
 
 
@@ -18,6 +19,20 @@ type Vista = 'lista' | 'crear' | 'detalle';
   standalone: true,
   imports: [DatePipe],
   templateUrl: './gestion-entrenamiento.html',
+  animations: [
+    trigger('fadeView', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeSesion', [
+      transition('* => *', [
+        style({ opacity: 0 }),
+        animate('180ms ease-out', style({ opacity: 1 }))
+      ])
+    ])
+  ]
 })
 export class GestionEntrenamientoComponent implements OnInit {
   readonly entrenamiento = inject(EntrenamientoService);
