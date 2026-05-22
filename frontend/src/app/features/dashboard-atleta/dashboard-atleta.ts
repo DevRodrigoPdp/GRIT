@@ -177,7 +177,14 @@ export class DashboardAtletaPage implements OnInit {
 
   onPerfilActualizado(p: PerfilAtleta): void { this.perfilAtleta.set(p); }
 
-  onProfesionalesActualizados(p: ProfesionalAsignado[]): void { this.profesionales.set(p); }
+  onProfesionalesActualizados(p: ProfesionalAsignado[]): void {
+    const prev = this.profesionales();
+    this.profesionales.set(p);
+    const tieniaEntrenador    = prev.some(x => x.rol === 'ENTRENADOR');
+    const tieniaNutricionista = prev.some(x => x.rol === 'NUTRICIONISTA');
+    if (tieniaEntrenador    && !p.some(x => x.rol === 'ENTRENADOR'))    this.planEntrenamiento.set(null);
+    if (tieniaNutricionista && !p.some(x => x.rol === 'NUTRICIONISTA')) { this.planNutricion.set(null); this.notasNutricionista.set([]); }
+  }
 
   // ── Helper (cuaderno graficaPeso template) ────────────────────────────────
   formatFecha(fecha: string): string {

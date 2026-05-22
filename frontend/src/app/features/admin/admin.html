@@ -117,7 +117,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 min-w-0 min-h-0 flex flex-col md:flex-row overflow-hidden">
+    <main class="flex-1 min-w-0 min-h-0 flex flex-col md:flex-row overflow-hidden relative">
       @if (seccionActual() === 'SOLICITUDES') {
         <!-- ── SOLICITUDES ────────────────────────────────────────────────── -->
         <section
@@ -125,7 +125,7 @@
           style="border-right: 1px solid rgba(255, 255, 255, 0.05)"
         >
           <div
-            class="p-8 lg:p-12 pb-6"
+            class="p-6 md:p-8 lg:p-12 pb-6"
             style="
               border-bottom: 1px solid rgba(255, 255, 255, 0.05);
               background: linear-gradient(180deg, rgba(8, 8, 14, 0.8) 0%, transparent 100%);
@@ -138,7 +138,7 @@
               >
             </div>
             <h1
-              class="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none mb-10"
+              class="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none mb-6 md:mb-10"
             >
               SOLICITUDES<br />PENDIENTES
             </h1>
@@ -172,7 +172,7 @@
           </div>
 
           <!-- Scrollable List -->
-          <div class="flex-1 overflow-y-auto px-8 lg:px-12 py-8" scrollIndicator>
+          <div class="flex-1 overflow-y-auto px-6 md:px-8 lg:px-12 py-6 md:py-8" scrollIndicator>
             @if (loadingSolicitudes() && solicitudes().length === 0) {
               <div class="py-20 text-center">
                 <div
@@ -264,10 +264,17 @@
           </div>
         </section>
 
-        <!-- Detail Pane -->
+        <!-- Detail Pane — modal en tablet, side panel en desktop -->
         @if (entrenadorSeleccionado(); as e) {
+          <!-- Backdrop tablet (oculto en lg+) -->
+          <div class="fixed inset-0 z-40 lg:hidden"
+            style="background: rgba(0,0,0,0.65); backdrop-filter: blur(3px);"
+            (click)="entrenadorSeleccionado.set(null)">
+          </div>
+          <!-- Panel: fixed en tablet, side panel en lg+ -->
           <section
-            class="hidden md:flex w-[450px] lg:w-[600px] flex-col overflow-hidden relative"
+            class="fixed top-14 right-0 bottom-0 z-50 w-full max-w-[480px] flex flex-col overflow-hidden
+                   lg:static lg:top-auto lg:bottom-auto lg:z-auto lg:w-[520px] lg:max-w-none lg:flex-shrink-0"
             style="
               background: linear-gradient(180deg, #0a0a12 0%, #0e0e18 100%);
               border-left: 1px solid rgba(255, 255, 255, 0.05);
@@ -275,12 +282,23 @@
           >
             <!-- Dark header -->
             <div
-              class="px-10 lg:px-16 pt-12 pb-10 flex-shrink-0"
+              class="px-7 md:px-10 lg:px-16 pt-10 lg:pt-12 pb-8 lg:pb-10 flex-shrink-0 relative"
               style="
                 background: linear-gradient(180deg, #07070d 0%, rgba(10, 10, 18, 0.8) 100%);
                 border-bottom: 1px solid rgba(255, 255, 255, 0.06);
               "
             >
+              <button
+                (click)="entrenadorSeleccionado.set(null)"
+                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center transition-colors"
+                style="color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.10);"
+                onmouseenter="this.style.color='rgba(255,255,255,0.85)'; this.style.borderColor='rgba(255,255,255,0.30)'"
+                onmouseleave="this.style.color='rgba(255,255,255,0.35)'; this.style.borderColor='rgba(255,255,255,0.10)'"
+                aria-label="Cerrar detalle">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+                  <path d="M1 1l12 12M13 1L1 13"/>
+                </svg>
+              </button>
               <div
                 class="w-20 h-20 flex items-center justify-center text-2xl font-black mb-8"
                 style="
@@ -292,7 +310,7 @@
                 {{ iniciales(e.nombre) }}
               </div>
               <h2
-                class="text-4xl lg:text-5xl font-black uppercase tracking-tighter text-white leading-[0.85] mb-3"
+                class="text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-white leading-[0.85] mb-3"
               >
                 {{ e.nombre }}
               </h2>
@@ -304,7 +322,7 @@
               </p>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-10 lg:p-16">
+            <div class="flex-1 overflow-y-auto p-7 md:p-10 lg:p-16">
               <div class="space-y-12">
                 <div>
                   <h4
@@ -404,53 +422,32 @@
                   </div>
                 </div>
               </div>
-              <div class="h-40"></div>
-            </div>
-
-            <div
-              class="absolute bottom-0 left-0 w-full p-8 flex gap-4"
-              style="background: linear-gradient(to top, #0a0a12 60%, transparent)"
-            >
-              <button
-                (click)="pedirConfirmacionAprobacion()"
-                [disabled]="loadingSolicitudes()"
-                class="flex-1 py-5 text-xs font-black tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-30 text-black"
-                style="
-                  background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
-                  box-shadow: 0 4px 20px rgba(46, 211, 141, 0.25);
-                "
-                onmouseenter="
-                  this.style.background = 'linear-gradient(135deg, #3AEAA0 0%, #2ED38D 100%)';
-                  this.style.boxShadow = '0 4px 30px rgba(46,211,141,0.4)';
-                "
-                onmouseleave="
-                  this.style.background = 'linear-gradient(135deg, #2ED38D 0%, #22B574 100%)';
-                  this.style.boxShadow = '0 4px 20px rgba(46,211,141,0.25)';
-                "
-              >
-                APROBAR CUENTA
-              </button>
-              <button
-                (click)="abrirModalRechazo()"
-                [disabled]="loadingSolicitudes()"
-                class="px-8 py-5 text-xs font-black tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-30 text-white"
-                style="
-                  border: 1px solid rgba(255, 255, 255, 0.12);
-                  background: rgba(255, 255, 255, 0.04);
-                "
-                onmouseenter="
-                  this.style.background = 'rgba(220,38,38,0.2)';
-                  this.style.borderColor = 'rgba(220,38,38,0.5)';
-                  this.style.color = '#fff';
-                "
-                onmouseleave="
-                  this.style.background = 'rgba(255,255,255,0.04)';
-                  this.style.borderColor = 'rgba(255,255,255,0.12)';
-                  this.style.color = 'rgba(255,255,255,0.7)';
-                "
-              >
-                RECHAZAR
-              </button>
+              <!-- Acciones -->
+              <div class="pt-8 mt-4 flex gap-4" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                <button
+                  (click)="pedirConfirmacionAprobacion()"
+                  [disabled]="loadingSolicitudes()"
+                  class="flex-1 py-4 text-xs font-black tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-30 text-black"
+                  style="
+                    background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
+                    box-shadow: 0 4px 20px rgba(46, 211, 141, 0.25);
+                  "
+                  onmouseenter="this.style.background='linear-gradient(135deg,#3AEAA0 0%,#2ED38D 100%)'; this.style.boxShadow='0 4px 30px rgba(46,211,141,0.4)'"
+                  onmouseleave="this.style.background='linear-gradient(135deg,#2ED38D 0%,#22B574 100%)'; this.style.boxShadow='0 4px 20px rgba(46,211,141,0.25)'"
+                >
+                  APROBAR CUENTA
+                </button>
+                <button
+                  (click)="abrirModalRechazo()"
+                  [disabled]="loadingSolicitudes()"
+                  class="px-6 py-4 text-xs font-black tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-30"
+                  style="border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.70);"
+                  onmouseenter="this.style.background='rgba(220,38,38,0.2)'; this.style.borderColor='rgba(220,38,38,0.5)'; this.style.color='#fff'"
+                  onmouseleave="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.70)'"
+                >
+                  RECHAZAR
+                </button>
+              </div>
             </div>
           </section>
         }
@@ -472,14 +469,14 @@
                 >GESTIÓN COMUNIDAD</span
               >
             </div>
-            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 lg:gap-6">
               <h1
-                class="text-4xl sm:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none"
+                class="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none"
               >
                 TODOS LOS<br />USUARIOS
               </h1>
 
-              <div class="flex flex-col sm:flex-row flex-wrap items-stretch gap-4 w-full lg:w-auto">
+              <div class="flex flex-col md:flex-row flex-wrap items-stretch gap-3 md:gap-4 w-full lg:w-auto">
                 <!-- Role Filter -->
                 <div
                   class="flex p-1 h-[46px] items-center justify-between sm:justify-start flex-1 sm:flex-initial"
@@ -502,37 +499,41 @@
                     </button>
                   }
                 </div>
+                <!-- Paginación -->
                 <div
-                  class="flex items-center justify-between sm:justify-start p-1 h-[46px] w-full sm:w-auto"
-                  style="
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                  "
+                  class="flex items-center h-[46px] w-full sm:w-auto"
+                  style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);"
                 >
                   <button
                     (click)="irPaginaAnteriorUsuarios()"
                     [disabled]="paginaUsuarios() === 0"
-                    class="px-4 sm:px-3 h-full text-[10px] font-black tracking-widest uppercase transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white/5 text-white/80 hover:text-white flex-1 sm:flex-initial"
+                    class="h-full px-4 flex items-center justify-center transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed flex-1 sm:flex-initial"
+                    style="color: rgba(255,255,255,0.55); border-right: 1px solid rgba(255,255,255,0.08);"
+                    onmouseenter="if(!this.disabled){this.style.background='rgba(255,255,255,0.06)'; this.style.color='#fff'}"
+                    onmouseleave="this.style.background=''; this.style.color='rgba(255,255,255,0.55)'"
                   >
-                    <-
+                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+                      <path d="M10 3L5 8l5 5"/>
+                    </svg>
                   </button>
 
-                  <div
-                    class="px-6 sm:px-3 border-x h-1/2 flex items-center justify-center text-[10px] font-black tracking-[0.15em] uppercase text-white/50 flex-1 sm:flex-initial"
-                    style="border-color: rgba(255, 255, 255, 0.08)"
-                  >
-                    <span class="text-white font-mono mr-1">{{ paginaUsuarios() + 1 }}</span
-                    >/<span class="text-white/80 font-mono ml-1">{{
-                      totalPaginasUsuarios() || 1
-                    }}</span>
+                  <div class="px-5 flex items-center justify-center gap-1 flex-1 sm:flex-initial">
+                    <span class="text-[13px] font-black text-white font-mono tabular-nums">{{ paginaUsuarios() + 1 }}</span>
+                    <span class="text-[10px] font-bold" style="color: rgba(255,255,255,0.30)">/</span>
+                    <span class="text-[13px] font-black font-mono tabular-nums" style="color: rgba(255,255,255,0.45)">{{ totalPaginasUsuarios() || 1 }}</span>
                   </div>
 
                   <button
                     (click)="irPaginaSiguienteUsuarios()"
                     [disabled]="paginaUsuarios() >= totalPaginasUsuarios() - 1"
-                    class="px-4 sm:px-3 h-full text-[10px] font-black tracking-widest uppercase transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white/5 text-white/80 hover:text-white flex-1 sm:flex-initial"
+                    class="h-full px-4 flex items-center justify-center transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed flex-1 sm:flex-initial"
+                    style="color: rgba(255,255,255,0.55); border-left: 1px solid rgba(255,255,255,0.08);"
+                    onmouseenter="if(!this.disabled){this.style.background='rgba(255,255,255,0.06)'; this.style.color='#fff'}"
+                    onmouseleave="this.style.background=''; this.style.color='rgba(255,255,255,0.55)'"
                   >
-                    ->
+                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+                      <path d="M6 3l5 5-5 5"/>
+                    </svg>
                   </button>
                 </div>
                 <!-- Search -->
@@ -553,11 +554,11 @@
             </div>
           </div>
 
-          <div class="flex-1 overflow-y-auto pb-20" scrollIndicator>
+          <div class="flex-1 overflow-y-auto overflow-x-auto pb-20" scrollIndicator>
             <div class="min-w-[800px]">
               <!-- Header Tabla -->
               <div
-                class="grid grid-cols-6 px-12 py-5 text-[10px] font-black tracking-[0.3em] uppercase"
+                class="grid grid-cols-6 px-6 md:px-12 py-5 text-[10px] font-black tracking-[0.3em] uppercase"
                 style="
                   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
                   background: rgba(0, 0, 0, 0.25);
@@ -575,7 +576,7 @@
               <div>
                 @for (u of usuariosFiltrados(); track u.id || $index) {
                   <div
-                    class="grid grid-cols-6 px-12 py-5 items-center transition-colors group"
+                    class="grid grid-cols-6 px-6 md:px-12 py-4 md:py-5 items-center transition-colors group"
                     style="border-bottom: 1px solid rgba(255, 255, 255, 0.04)"
                     onmouseenter="this.style.background = 'rgba(255,255,255,0.025)'"
                     onmouseleave="this.style.background = 'transparent'"
