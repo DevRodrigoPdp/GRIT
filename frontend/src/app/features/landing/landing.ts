@@ -24,7 +24,6 @@ type Vista = 'inicio' | 'como-funciona' | 'para-quien' | 'precios';
       }
       @if (vistaActual() === 'para-quien') {
         <app-dashboard />
-        <app-cta-final />
       }
       @if (vistaActual() === 'precios') {
         <app-precios />
