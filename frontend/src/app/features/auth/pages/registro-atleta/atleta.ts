@@ -119,6 +119,20 @@ export class AtletaPage implements OnInit {
       && !!this.form.get('objetivo')?.value;
   });
 
+  readonly pasosCompletos = computed(() => this.paso1Completo() &&
+    this.paso2Completo() &&
+    this.paso3Completo() &&
+    this.paso4Completo());
+
+  readonly pasos = computed(() => {
+    if (!this.paso1Completo()) return "PASO 01 / 04";
+    if (!this.paso2Completo()) return "PASO 02 / 04";
+    if (!this.paso3Completo()) return "PASO 03 / 04";
+    if (!this.paso4Completo()) return "PASO 04 / 04";
+    if (this.pasosCompletos()) return "Listo para enviar ✓";
+    return "PASO 01 / 04";
+  });
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       nombre:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],

@@ -109,7 +109,8 @@
         </div>
 
         <div class="text-xs font-bold tracking-[0.15em] uppercase text-white/40">
-          PASO 03 / 04
+          <span [class.text-white]="pasosCompletos()" 
+          [class.text-white/20]="!pasosCompletos()">{{ pasos() }}</span>
         </div>
       </div>
     </aside>
