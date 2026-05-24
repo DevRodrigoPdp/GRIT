@@ -472,8 +472,8 @@
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
                         style="color: rgba(var(--_tw),0.60)">NOMBRE</label>
                       <input type="text" [value]="editNombre()" (input)="editNombre.set($any($event.target).value)"
-                        class="w-full px-4 py-2.5 text-sm font-medium text-white outline-none transition-colors"
-                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
+                        class="w-full px-4 py-2.5 text-sm font-medium outline-none transition-colors"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
                         onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                         onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                     </div>
@@ -482,8 +482,8 @@
                         style="color: rgba(var(--_tw),0.60)">SOBRE MÍ</label>
                       <textarea [value]="editDescripcion()" (input)="editDescripcion.set($any($event.target).value)"
                         rows="3" placeholder="Describe tu experiencia, metodología..."
-                        class="w-full px-4 py-2.5 text-sm text-white placeholder:text-white/20 outline-none resize-none transition-colors"
-                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
+                        class="w-full px-4 py-2.5 text-sm outline-none resize-none transition-colors"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
                         onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                         onblur="this.style.borderColor='rgba(var(--_bw),0.15)'"></textarea>
                     </div>
@@ -492,8 +492,8 @@
                         style="color: rgba(var(--_tw),0.60)">AÑOS DE EXPERIENCIA</label>
                       <input type="number" min="0" max="60" [value]="editExperiencia()"
                         (input)="editExperiencia.set(+$any($event.target).value)"
-                        class="w-28 px-4 py-2.5 text-sm text-white outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color-scheme: dark;"
+                        class="w-28 px-4 py-2.5 text-sm outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
                         onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                         onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                     </div>
@@ -518,7 +518,7 @@
                         style="border: 1px solid rgba(var(--_bw),0.15); background: rgba(var(--_bw),0.05);">
                         <input [value]="nuevoMaster()" (input)="nuevoMaster.set($any($event.target).value)"
                           (keydown.enter)="agregarMaster()" placeholder="Ej. Máster en Alto Rendimiento..."
-                          class="flex-1 px-4 py-2.5 text-sm text-white placeholder:text-white/25 outline-none bg-transparent transition-colors" />
+                          class="flex-1 px-4 py-2.5 text-sm outline-none bg-transparent transition-colors" style="color: var(--c-text-1);" />
                         <div class="w-px flex-shrink-0" style="background: rgba(var(--_bw),0.14);"></div>
                         <button (click)="agregarMaster()" [disabled]="!nuevoMaster().trim()"
                           class="text-[11px] font-black tracking-[0.15em] uppercase px-5 transition-all flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -581,8 +581,8 @@
                         @if (campo[1] === 'passActual') {
                         <input [type]="showPassActual() ? 'text' : 'password'" [value]="passActual()"
                           (input)="passActual.set($any($event.target).value)" autocomplete="current-password"
-                          class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
+                          class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
                           onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                           onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassActual.update(v=>!v)"
@@ -605,8 +605,8 @@
                         @if (campo[1] === 'passNueva') {
                         <input [type]="showPassNueva() ? 'text' : 'password'" [value]="passNueva()"
                           (input)="passNueva.set($any($event.target).value)" autocomplete="new-password"
-                          class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
+                          class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
                           onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                           onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassNueva.update(v=>!v)"
@@ -639,8 +639,8 @@
                         @if (campo[1] === 'passConfirm') {
                         <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
                           (input)="passConfirm.set($any($event.target).value)" autocomplete="new-password"
-                          class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
+                          class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
                           onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                           onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassConfirm.update(v=>!v)"
@@ -673,6 +673,31 @@
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tema -->
+          <div class="mb-6" style="border: 1px solid rgba(var(--_bw),0.14)">
+            <div class="px-5 py-4 flex items-center justify-between">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">TEMA</p>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  (click)="theme.set(false)"
+                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+                  [style]="!theme.isDark()
+                    ? 'background: #2ED38D; color: #000;'
+                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
+                >CLARO</button>
+                <button
+                  type="button"
+                  (click)="theme.set(true)"
+                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+                  [style]="theme.isDark()
+                    ? 'background: #2ED38D; color: #000;'
+                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
+                >OSCURO</button>
               </div>
             </div>
           </div>

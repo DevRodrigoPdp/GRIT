@@ -15,7 +15,7 @@
         [value]="pesoInputValor()"
         (input)="pesoInputValor.set($any($event.target).value)"
         aria-label="Tu peso en kilogramos"
-        class="px-3 py-2 text-sm text-white w-28 focus:outline-none font-mono transition-colors"
+        class="px-3 py-2 text-sm text-white w-28 focus:outline-none font-mono transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         style="border: 1px solid rgba(var(--_bw),0.14); background: rgba(var(--_bw),0.05);"
       />
       <span class="text-sm" style="color: rgba(var(--_tw),0.60)">kg</span>
