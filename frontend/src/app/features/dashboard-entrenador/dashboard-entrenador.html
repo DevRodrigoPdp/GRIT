@@ -473,7 +473,7 @@
                         style="color: rgba(var(--_tw),0.60)">NOMBRE</label>
                       <input type="text" [value]="editNombre()" (input)="editNombre.set($any($event.target).value)"
                         class="w-full px-4 py-2.5 text-sm font-medium text-white outline-none transition-colors"
-                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
                         onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                         onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                     </div>
@@ -483,7 +483,7 @@
                       <textarea [value]="editDescripcion()" (input)="editDescripcion.set($any($event.target).value)"
                         rows="3" placeholder="Describe tu experiencia, metodología..."
                         class="w-full px-4 py-2.5 text-sm text-white placeholder:text-white/20 outline-none resize-none transition-colors"
-                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
                         onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                         onblur="this.style.borderColor='rgba(var(--_bw),0.15)'"></textarea>
                     </div>
@@ -493,7 +493,7 @@
                       <input type="number" min="0" max="60" [value]="editExperiencia()"
                         (input)="editExperiencia.set(+$any($event.target).value)"
                         class="w-28 px-4 py-2.5 text-sm text-white outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15); color-scheme: dark;"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color-scheme: dark;"
                         onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                         onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                     </div>
@@ -582,7 +582,7 @@
                         <input [type]="showPassActual() ? 'text' : 'password'" [value]="passActual()"
                           (input)="passActual.set($any($event.target).value)" autocomplete="current-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
                           onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                           onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassActual.update(v=>!v)"
@@ -606,7 +606,7 @@
                         <input [type]="showPassNueva() ? 'text' : 'password'" [value]="passNueva()"
                           (input)="passNueva.set($any($event.target).value)" autocomplete="new-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
                           onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                           onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassNueva.update(v=>!v)"
@@ -640,7 +640,7 @@
                         <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
                           (input)="passConfirm.set($any($event.target).value)" autocomplete="new-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm text-white outline-none transition-colors"
-                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.15);"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15);"
                           onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
                           onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
                         <button type="button" (click)="showPassConfirm.update(v=>!v)"
