@@ -53,6 +53,7 @@ export class GestionEntrenamientoComponent implements OnInit {
   // ── Formulario rutina ─────────────────────────────────────────────────────
   readonly nombreRutina = signal('');
   readonly descripcionRutina = signal('');
+  readonly rutinaActiva = signal(false);
 
   readonly sesiones = signal<Sesion[]>([
     { id: crypto.randomUUID(), nombre: 'Sesión 1', tipo: 'entrenamiento', ejercicios: [] },
@@ -105,6 +106,7 @@ export class GestionEntrenamientoComponent implements OnInit {
     this.rutinaEditandoId.set(null);
     this.nombreRutina.set('');
     this.descripcionRutina.set('');
+    this.rutinaActiva.set(false);
     this.sesiones.set([{ id: crypto.randomUUID(), nombre: 'Sesión 1', tipo: 'entrenamiento', ejercicios: [] }]);
     this.sesionActivaIdx.set(0);
     this.editandoNombreSesion.set(false);
@@ -118,6 +120,7 @@ export class GestionEntrenamientoComponent implements OnInit {
     this.descripcionRutina.set(rutina.descripcion);
     this.sesiones.set(rutina.sesiones.map(s => ({ ...s, ejercicios: [...s.ejercicios] })));
     this.sesionActivaIdx.set(0);
+    this.rutinaActiva.set(rutina.activa)
     this.editandoNombreSesion.set(false);
     this.errorGuardando.set('');
     this.limpiarForm();
@@ -267,7 +270,7 @@ export class GestionEntrenamientoComponent implements OnInit {
     };
 
     if (rutinaId) {
-      this.entrenamiento.actualizarRutina(rutinaId, id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
+      this.entrenamiento.actualizarRutina(rutinaId, id, this.nombreRutina(), this.descripcionRutina(), this.rutinaActiva(), this.sesiones())
         .subscribe(observer);
     } else {
       this.entrenamiento.crearRutina(id, this.nombreRutina(), this.descripcionRutina(), this.sesiones())
