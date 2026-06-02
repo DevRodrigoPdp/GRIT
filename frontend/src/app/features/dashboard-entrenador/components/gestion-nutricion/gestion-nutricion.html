@@ -379,7 +379,8 @@
         [value]="nombrePlan()"
         (input)="nombrePlan.set($any($event.target).value)"
         placeholder="Ej: Plan volumen semana 1"
-        class="w-full border-b border-white/20 text-base font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors placeholder:text-white/20 bg-transparent text-white"
+        class="w-full border-b text-base font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors bg-transparent"
+        style="border-color: rgba(var(--_bw),0.20); color: var(--c-text-1);"
       />
     </div>
     <div class="mb-6">
@@ -389,7 +390,8 @@
         (input)="descripcionPlan.set($any($event.target).value)"
         rows="2"
         placeholder="Notas para el atleta..."
-        class="w-full border-b border-white/10 text-base font-light pb-1.5 outline-none focus:border-white/30 transition-colors placeholder:text-white/20 resize-none bg-transparent text-white/70"
+        class="w-full border-b text-base font-light pb-1.5 outline-none transition-colors resize-none bg-transparent"
+        style="border-color: rgba(var(--_bw),0.10); color: var(--c-text-1);"
       ></textarea>
     </div>
 
