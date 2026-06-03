@@ -456,15 +456,15 @@
               <div class="overflow-hidden">
                 <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.10);">
                   @if (perfilGuardado()) {
-                  <div class="px-4 py-3 mt-4 mb-3"
-                    style="border-left: 2px solid #2ED38D; background: rgba(46,211,141,0.06);">
+                  <div class="px-5 py-4 mt-4 mb-2"
+                    style="background: rgba(46, 211, 141, 0.06); border: 1px solid rgba(46, 211, 141, 0.25);">
                     <p class="text-sm font-bold text-[#2ED38D]">Perfil actualizado correctamente.</p>
                   </div>
                   }
                   @if (perfilError()) {
-                  <div class="px-4 py-3 mt-4 mb-3"
-                    style="border-left: 2px solid rgba(220,38,38,0.8); background: rgba(220,38,38,0.06);">
-                    <p class="text-sm text-red-400">{{ perfilError() }}</p>
+                  <div class="px-5 py-4 mt-4 mb-2"
+                    style="background: rgba(220, 38, 38, 0.06); border: 1px solid rgba(220, 38, 38, 0.25);">
+                    <p class="text-sm text-red-500 font-light">{{ perfilError() }}</p>
                   </div>
                   }
                   <div class="flex flex-col gap-5 mt-4">
@@ -473,9 +473,9 @@
                         style="color: rgba(var(--_tw),0.60)">NOMBRE</label>
                       <input type="text" [value]="editNombre()" (input)="editNombre.set($any($event.target).value)"
                         class="w-full px-4 py-2.5 text-sm font-medium outline-none transition-colors"
-                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
-                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
-                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);"
+                        onfocus="this.style.borderColor='rgba(var(--_tw),0.50)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.18)'" />
                     </div>
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
@@ -483,9 +483,9 @@
                       <textarea [value]="editDescripcion()" (input)="editDescripcion.set($any($event.target).value)"
                         rows="3" placeholder="Describe tu experiencia, metodología..."
                         class="w-full px-4 py-2.5 text-sm outline-none resize-none transition-colors"
-                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
-                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
-                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'"></textarea>
+                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);"
+                        onfocus="this.style.borderColor='rgba(var(--_tw),0.50)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.18)'"></textarea>
                     </div>
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
@@ -493,9 +493,9 @@
                       <input type="number" min="0" max="60" [value]="editExperiencia()"
                         (input)="editExperiencia.set(+$any($event.target).value)"
                         class="w-28 px-4 py-2.5 text-sm outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
-                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
-                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                        style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);"
+                        onfocus="this.style.borderColor='rgba(var(--_tw),0.50)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.18)'" />
                     </div>
                     <div>
                       <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
@@ -504,7 +504,7 @@
                         @for (master of editMasters(); track $index; let i = $index) {
                         <div class="flex items-center gap-1.5 px-3 py-1.5"
                           style="border: 1px solid rgba(var(--_bw),0.20); background: rgba(var(--_bw),0.06);">
-                          <span class="text-xs font-medium text-white">{{ master }}</span>
+                          <span class="text-xs font-medium" style="color: var(--c-text-1)">{{ master }}</span>
                           <button (click)="eliminarMaster(i)"
                             class="hover:text-red-400 transition-colors text-xs leading-none"
                             style="color: rgba(var(--_tw),0.50)">✕</button>
@@ -529,10 +529,9 @@
                     </div>
                     <button type="button" (click)="guardarPerfil()"
                       [disabled]="!editNombre().trim() || guardandoPerfil()"
-                      class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                      [style]="editNombre().trim() && !guardandoPerfil()
-                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
-                          : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
+                      class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      [class]="editNombre().trim() && !guardandoPerfil() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : ''"
+                      [style]="!(editNombre().trim() && !guardandoPerfil()) ? 'background: rgba(var(--_bw),0.08); color: rgba(var(--_tw),0.60);' : ''">
                       {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR PERFIL' }}
                     </button>
                   </div>
@@ -559,15 +558,15 @@
               <div class="overflow-hidden">
                 <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.10);">
                   @if (passCambiada()) {
-                  <div class="px-4 py-3 mt-4 mb-3"
-                    style="border-left: 2px solid #2ED38D; background: rgba(46,211,141,0.06);">
+                  <div class="px-5 py-4 mt-4 mb-2"
+                    style="background: rgba(46, 211, 141, 0.06); border: 1px solid rgba(46, 211, 141, 0.25);">
                     <p class="text-sm font-bold text-[#2ED38D]">Contraseña actualizada correctamente.</p>
                   </div>
                   }
                   @if (passError()) {
-                  <div class="px-4 py-3 mt-4 mb-3"
-                    style="border-left: 2px solid rgba(220,38,38,0.8); background: rgba(220,38,38,0.06);">
-                    <p class="text-sm text-red-400">{{ passError() }}</p>
+                  <div class="px-5 py-4 mt-4 mb-2"
+                    style="background: rgba(220, 38, 38, 0.06); border: 1px solid rgba(220, 38, 38, 0.25);">
+                    <p class="text-sm text-red-500 font-light">{{ passError() }}</p>
                   </div>
                   }
                   <div class="flex flex-col gap-5 mt-4">
@@ -582,9 +581,9 @@
                         <input [type]="showPassActual() ? 'text' : 'password'" [value]="passActual()"
                           (input)="passActual.set($any($event.target).value)" autocomplete="current-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
-                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
-                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
-                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);"
+                          onfocus="this.style.borderColor='rgba(var(--_tw),0.50)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.18)'" />
                         <button type="button" (click)="showPassActual.update(v=>!v)"
                           class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
                           style="color: rgba(var(--_tw),0.50)" tabindex="-1">
@@ -606,9 +605,9 @@
                         <input [type]="showPassNueva() ? 'text' : 'password'" [value]="passNueva()"
                           (input)="passNueva.set($any($event.target).value)" autocomplete="new-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
-                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
-                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
-                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);"
+                          onfocus="this.style.borderColor='rgba(var(--_tw),0.50)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.18)'" />
                         <button type="button" (click)="showPassNueva.update(v=>!v)"
                           class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
                           style="color: rgba(var(--_tw),0.50)" tabindex="-1">
@@ -640,9 +639,9 @@
                         <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
                           (input)="passConfirm.set($any($event.target).value)" autocomplete="new-password"
                           class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
-                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
-                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
-                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                          style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);"
+                          onfocus="this.style.borderColor='rgba(var(--_tw),0.50)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.18)'" />
                         <button type="button" (click)="showPassConfirm.update(v=>!v)"
                           class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
                           style="color: rgba(var(--_tw),0.50)" tabindex="-1">
@@ -665,10 +664,9 @@
                     }
                     <button type="button" (click)="cambiarPassword()"
                       [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
-                      class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                      [style]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
-                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
-                          : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
+                      class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      [class]="passActual() && passNueva() && passConfirm() && !cambiandoPass() ? 'bg-black text-white hover:bg-[#2ED38D] hover:text-black' : ''"
+                      [style]="!(passActual() && passNueva() && passConfirm() && !cambiandoPass()) ? 'background: rgba(var(--_bw),0.08); color: rgba(var(--_tw),0.60);' : ''">
                       {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
                     </button>
                   </div>
