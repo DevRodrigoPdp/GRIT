@@ -438,6 +438,31 @@
 
         <div class="flex flex-col gap-2">
 
+          <!-- Tema -->
+          <div style="border: 1px solid rgba(var(--_bw),0.14)">
+            <div class="px-5 py-4 flex items-center justify-between">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">TEMA</p>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  (click)="theme.set(false)"
+                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+                  [style]="!theme.isDark()
+                    ? 'background: #2ED38D; color: #000;'
+                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
+                >CLARO</button>
+                <button
+                  type="button"
+                  (click)="theme.set(true)"
+                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+                  [style]="theme.isDark()
+                    ? 'background: #2ED38D; color: #000;'
+                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
+                >OSCURO</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Editar perfil -->
           <div style="border: 1px solid rgba(var(--_bw),0.14);">
             <button type="button" (click)="editarPerfilAbierto() ? editarPerfilAbierto.set(false) : abrirEditarPerfil()"
@@ -671,31 +696,6 @@
                     </button>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tema -->
-          <div class="mb-6" style="border: 1px solid rgba(var(--_bw),0.14)">
-            <div class="px-5 py-4 flex items-center justify-between">
-              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">TEMA</p>
-              <div class="flex gap-2">
-                <button
-                  type="button"
-                  (click)="theme.set(false)"
-                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
-                  [style]="!theme.isDark()
-                    ? 'background: #2ED38D; color: #000;'
-                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
-                >CLARO</button>
-                <button
-                  type="button"
-                  (click)="theme.set(true)"
-                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
-                  [style]="theme.isDark()
-                    ? 'background: #2ED38D; color: #000;'
-                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
-                >OSCURO</button>
               </div>
             </div>
           </div>
