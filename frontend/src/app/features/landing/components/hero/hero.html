@@ -1,0 +1,161 @@
+<section class="relative min-h-screen flex items-center overflow-hidden">
+
+  <!-- Fondo -->
+  <div
+    class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1920&q=80')"
+  ></div>
+  <div class="absolute inset-0 bg-gradient-to-r from-black/92 via-black/75 to-black/50"></div>
+
+  <!-- Contenido -->
+  <div class="relative z-10 max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12 items-center pt-24 pb-12 lg:pt-28 lg:pb-16 xl:pt-36 xl:pb-20">
+
+    <!-- ── Columna izquierda ── -->
+    <div>
+      <div class="flex items-center gap-3 mb-5 xl:mb-8">
+        <div class="w-8 h-px bg-[#2ED38D]"></div>
+        <span class="text-xs font-bold tracking-[0.3em] uppercase text-[#2ED38D]">
+          Plataforma de entrenamiento y nutrición certificada
+        </span>
+      </div>
+
+      <h1 class="text-[clamp(2.8rem,5.5vw,6rem)] font-black uppercase tracking-tighter leading-[0.88] text-white mb-5 xl:mb-8">
+        ENTRENA.<br>
+        NUTRE.<br>
+        <span class="text-[#2ED38D]">EVOLUCIONA.</span>
+      </h1>
+
+      <p class="text-base lg:text-lg font-light leading-relaxed text-gray-300 max-w-md mb-7 xl:mb-12">
+        Conectamos <strong class="font-bold text-white">entrenadores y nutricionistas certificados</strong>
+        con atletas que buscan resultados reales.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-start gap-3 mb-8 xl:mb-14">
+        <a
+          routerLink="/registro/entrenador"
+          class="inline-flex items-center gap-3 bg-[#2ED38D] text-black px-7 py-3.5 xl:px-8 xl:py-4 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline group"
+        >
+          Soy profesional
+          <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+          </svg>
+        </a>
+        <a
+          routerLink="/registro/atleta"
+          class="inline-flex items-center gap-3 border border-white/30 text-white px-7 py-3.5 xl:px-8 xl:py-4 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white hover:text-black transition-all duration-300 no-underline group"
+        >
+          Soy atleta
+          <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="flex flex-wrap gap-6 xl:gap-10 pt-6 xl:pt-8 border-t border-white/15">
+        <div class="flex flex-col gap-1">
+          <span class="text-3xl xl:text-4xl font-black text-white tracking-tighter">120+</span>
+          <span class="text-xs font-medium tracking-widest uppercase text-gray-400">Profesionales verificados</span>
+        </div>
+        <div class="w-px h-10 bg-white/15 hidden sm:block self-center"></div>
+        <div class="flex flex-col gap-1">
+          <span class="text-3xl xl:text-4xl font-black text-white tracking-tighter">500+</span>
+          <span class="text-xs font-medium tracking-widest uppercase text-gray-400">Atletas activos</span>
+        </div>
+        <div class="w-px h-10 bg-white/15 hidden sm:block self-center"></div>
+        <div class="flex flex-col gap-1">
+          <span class="text-3xl xl:text-4xl font-black text-white tracking-tighter">1.200+</span>
+          <span class="text-xs font-medium tracking-widest uppercase text-gray-400">Planes completados</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Columna derecha — Mockup app ── -->
+    <div class="hidden lg:flex justify-end items-center">
+      <div class="w-full max-w-xs xl:max-w-sm flex flex-col gap-2 xl:gap-3">
+
+        <!-- Card principal — Plan de entrenamiento -->
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 xl:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <p class="text-[10px] font-bold tracking-[0.25em] uppercase text-[#2ED38D] mb-0.5">Plan activo</p>
+              <p class="text-xs xl:text-sm font-black text-white uppercase tracking-tight">Semana 3 · Full Body</p>
+            </div>
+            <span class="text-[10px] font-bold tracking-widest uppercase text-black bg-[#2ED38D] px-2 py-0.5 rounded-full">Activo</span>
+          </div>
+
+          <!-- Días de la semana -->
+          <div class="grid grid-cols-7 gap-1 mb-3">
+            @for (dia of dias; track dia.label) {
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-[9px] font-bold tracking-widest uppercase text-gray-400">{{ dia.label }}</span>
+                <div
+                  class="w-6 h-6 xl:w-7 xl:h-7 rounded-full flex items-center justify-center text-[9px] font-black"
+                  [class.bg-[#2ED38D]]="dia.hecho"
+                  [class.text-black]="dia.hecho"
+                  [class.bg-white/10]="!dia.hecho && !dia.hoy"
+                  [class.text-gray-400]="!dia.hecho && !dia.hoy"
+                  [class.bg-white]="dia.hoy"
+                  [class.text-black]="dia.hoy"
+                  [class.ring-2]="dia.hoy"
+                  [class.ring-[#2ED38D]]="dia.hoy"
+                >
+                  {{ dia.num }}
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Ejercicios de hoy -->
+          <div class="border-t border-white/10 pt-3 flex flex-col gap-1.5">
+            <p class="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-0.5">Hoy — Press + Espalda</p>
+            @for (ej of ejercicios; track ej) {
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-1 h-1 rounded-full bg-[#2ED38D]"></div>
+                  <span class="text-xs text-gray-200 font-light">{{ ej.nombre }}</span>
+                </div>
+                <span class="text-[10px] font-bold text-gray-400">{{ ej.series }}×{{ ej.reps }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Card macros -->
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 xl:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[10px] font-bold tracking-[0.25em] uppercase text-[#2ED38D]">Macros de hoy</p>
+            <p class="text-xs font-black text-white">2.340 kcal</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            @for (macro of macros; track macro.label) {
+              <div class="flex items-center gap-3">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 w-10">{{ macro.label }}</span>
+                <div class="flex-1 h-1 xl:h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full bg-[#2ED38D]" [style.width]="macro.pct"></div>
+                </div>
+                <span class="text-[10px] font-bold text-white w-10 text-right">{{ macro.valor }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Card mensaje -->
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 xl:p-4 flex items-start gap-3">
+          <div class="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-[#2ED38D]/20 border border-[#2ED38D]/40 flex items-center justify-center flex-shrink-0">
+            <span class="text-[10px] font-black text-[#2ED38D]">JM</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-0.5">
+              <p class="text-xs font-black text-white">Javier Morales</p>
+              <span class="text-[10px] text-gray-400">hace 2 min</span>
+            </div>
+            <p class="text-xs text-gray-300 font-light truncate">Buen trabajo esta semana, revisa la técnica del press...</p>
+          </div>
+          <div class="w-2 h-2 rounded-full bg-[#2ED38D] flex-shrink-0 mt-1"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>

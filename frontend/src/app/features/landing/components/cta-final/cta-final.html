@@ -1,0 +1,68 @@
+<section class="relative overflow-hidden py-40">
+
+  <!-- Fondo vídeo -->
+  <video
+    class="absolute inset-0 w-full h-full object-cover"
+    autoplay
+    muted
+    loop
+    playsinline
+    poster="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1920&q=80"
+  >
+    <source src="https://assets.mixkit.co/videos/preview/mixkit-athlete-training-with-battle-ropes-in-the-gym-34300-large.mp4" type="video/mp4">
+  </video>
+  <div class="absolute inset-0 bg-black/75"></div>
+
+  <!-- Línea verde superior -->
+  <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent"></div>
+
+  <!-- Contenido -->
+  <div class="relative z-10 max-w-5xl mx-auto px-6 flex flex-col items-center text-center gap-10">
+
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-px bg-[#2ED38D]"></div>
+      <span class="text-xs font-bold tracking-[0.4em] uppercase text-[#2ED38D]">Empieza hoy</span>
+      <div class="w-8 h-px bg-[#2ED38D]"></div>
+    </div>
+
+    <h2 class="text-[clamp(3rem,8vw,7rem)] font-black uppercase tracking-tighter text-white leading-[0.88]">
+      ¿LISTO PARA<br>
+      <span class="text-[#2ED38D]">EVOLUCIONAR?</span>
+    </h2>
+
+    <p class="text-lg font-light text-gray-300 max-w-xl leading-relaxed">
+      Únete a más de <strong class="text-white font-bold">500 atletas</strong> y
+      <strong class="text-white font-bold">120 profesionales</strong> que ya entrenan y planifican con GRIT.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4">
+      <a
+        routerLink="/registro/atleta"
+        class="inline-flex items-center gap-3 bg-[#2ED38D] text-black px-10 py-4 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all duration-300 no-underline group"
+      >
+        Soy atleta — Empieza gratis
+        <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+      </a>
+      <a
+        routerLink="/registro/entrenador"
+        class="inline-flex items-center gap-3 border border-white/30 text-white px-10 py-4 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white hover:text-black transition-all duration-300 no-underline group"
+      >
+        Soy profesional
+        <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+      </a>
+    </div>
+
+    <p class="text-xs font-light text-gray-500 tracking-wide">
+      Sin permanencia · Sin comisiones por atleta · Cancela cuando quieras
+    </p>
+
+  </div>
+
+  <!-- Línea verde inferior -->
+  <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#2ED38D] to-transparent"></div>
+
+</section>

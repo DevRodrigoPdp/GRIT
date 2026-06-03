@@ -1,0 +1,809 @@
+﻿<div class="dashboard-root h-screen flex flex-col overflow-hidden font-sans"
+  style="background: var(--c-bg);">
+
+  <!-- ── Top bar ──────────────────────────────────────────────────────────── -->
+  <header class="border-b px-6 h-14 flex items-center justify-between flex-shrink-0 z-50"
+    style="background: var(--c-header); border-color: rgba(var(--_bw),0.10);">
+    <div class="flex items-center gap-4">
+      <span class="font-black tracking-tighter text-lg text-white uppercase select-none">GRIT</span>
+      <div class="h-4 w-px hidden md:block" style="background: rgba(var(--_bw),0.18)"></div>
+      <span class="text-[10px] font-black tracking-[0.25em] uppercase hidden md:block"
+        style="color: rgba(var(--_tw),0.60)">
+        {{ vistaActual() === 'atletas' ? 'MIS ATLETAS' : vistaActual() === 'perfil' ? 'MI PERFIL' : 'AJUSTES' }}
+      </span>
+    </div>
+    <div class="flex items-center gap-3">
+      @if (auth.nombre()) {
+      <span class="hidden md:block text-[11px] font-black tracking-[0.15em] uppercase"
+        style="color: rgba(var(--_tw),0.65)">{{ auth.nombre() }}</span>
+      }
+      <button (click)="theme.toggle()" class="w-8 h-8 flex items-center justify-center transition-colors"
+        style="color: rgba(var(--_tw),0.55)" [attr.title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'">
+        @if (theme.isDark()) {
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-linecap="square"/>
+          </svg>
+        } @else {
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 0010 9.79z"/>
+          </svg>
+        }
+      </button>
+      <button class="md:hidden w-8 h-8 flex items-center justify-center transition-colors"
+        style="color: rgba(var(--_tw),0.70)" (click)="mobileMenuOpen.set(!mobileMenuOpen())"
+        [attr.aria-label]="mobileMenuOpen() ? 'Cerrar menú' : 'Abrir menú'">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          @if (mobileMenuOpen()) {
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="square" />
+          } @else {
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="square" />
+          }
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="flex-1 min-h-0 flex overflow-hidden">
+
+    <!-- Backdrop móvil -->
+    @if (mobileMenuOpen()) {
+    <div class="fixed inset-0 z-30 md:hidden" style="background: var(--c-overlay)" (click)="mobileMenuOpen.set(false)">
+    </div>
+    }
+
+    <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+    <aside class="flex flex-col py-8 overflow-hidden transition-[width,transform] duration-300 ease-in-out z-40
+                  fixed top-14 bottom-0 left-0
+                  md:static md:flex-shrink-0 md:translate-x-0"
+      [ngClass]="mobileMenuOpen() ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+      [style.width]="sidebarOpen() ? '14rem' : '3.5rem'"
+      style="background: var(--c-sidebar); border-right: 1px solid rgba(var(--_bw),0.08);"
+      (mouseenter)="sidebarHovered.set(true)" (mouseleave)="sidebarHovered.set(false)">
+
+      @if (sidebarOpen()) {
+      <div class="px-4 mb-6 flex items-center justify-between">
+        <span class="text-[9px] font-black tracking-[0.4em] uppercase"
+          style="color: rgba(var(--_tw),0.35)">ENTRENADOR</span>
+        <button (click)="sidebarPinned.set(!sidebarPinned())"
+          class="flex items-center gap-1.5 px-2 py-1 transition-all"
+          [style.color]="sidebarPinned() ? '#2ED38D' : 'rgba(var(--_tw),0.45)'"
+          [attr.aria-pressed]="sidebarPinned()"
+          [attr.aria-label]="sidebarPinned() ? 'Desanclar barra lateral' : 'Anclar barra lateral'">
+          <svg lucidePin class="w-4 h-4" [class.pin-filled]="sidebarPinned()" aria-hidden="true"></svg>
+        </button>
+      </div>
+      }
+
+      <nav class="flex flex-col gap-1 px-2">
+        @for (item of navItems; track item.id) {
+        <button (click)="navegarA(item.id)" class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
+          [style]="vistaActual() === item.id
+              ? 'background: linear-gradient(90deg, rgba(46,211,141,0.18) 0%, rgba(46,211,141,0.06) 100%); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D; box-shadow: 0 0 20px rgba(46,211,141,0.08);'
+              : 'color: rgba(var(--_tw),0.65); border: 1px solid transparent;'">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            @if (item.id === 'atletas') {
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="square" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="square" />
+            }
+            @if (item.id === 'perfil') {
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke-linecap="square" />
+            <circle cx="12" cy="7" r="4" />
+            }
+            @if (item.id === 'ajustes') {
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+            }
+          </svg>
+          @if (sidebarOpen()) {
+          <span class="text-[11px] font-black tracking-[0.2em] uppercase whitespace-nowrap">{{ item.label }}</span>
+          }
+        </button>
+        }
+      </nav>
+
+      <div class="mt-auto px-2" style="border-top: 1px solid rgba(var(--_bw),0.10); padding-top: 12px;">
+        <button (click)="auth.logout()" class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
+          style="color: rgba(var(--_tw),0.60); border: 1px solid transparent;"
+          onmouseenter="this.style.color='rgba(var(--_tw),0.85)'"
+          onmouseleave="this.style.color='rgba(var(--_tw),0.60)'">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="square" />
+          </svg>
+          @if (sidebarOpen()) {
+          <span class="text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap">CERRAR SESIÓN</span>
+          }
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Contenido principal ───────────────────────────────────────────────── -->
+    <main class="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col">
+
+      <!-- ════ ATLETAS ══════════════════════════════════════════════════════ -->
+      @if (vistaActual() === 'atletas') {
+
+      @if (!atletaActivo()) {
+      <div class="flex-1 overflow-y-auto px-6 md:px-12 py-10" scrollIndicator>
+
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-5 h-px bg-[#2ED38D]"></div>
+            <span class="text-[10px] font-black tracking-[0.35em] uppercase text-[#2ED38D]">DASHBOARD</span>
+          </div>
+          <div class="flex items-end justify-between">
+            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-white leading-[0.88]">
+              MIS<br>ATLETAS
+            </h1>
+            @if (atletas().length > 0) {
+            <div class="mb-2 text-right">
+              <span class="text-3xl font-black text-white leading-none">{{ atletas().length }}</span>
+              <p class="text-[10px] font-bold tracking-[0.2em] uppercase mt-0.5" style="color: rgba(var(--_tw),0.60)">{{
+                atletas().length === 1 ? 'ATLETA' : 'ATLETAS' }}</p>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-8 pb-8" style="border-bottom: 1px solid rgba(var(--_bw),0.10);">
+          <div class="relative flex-1">
+            <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5" fill="none" stroke="currentColor"
+              stroke-width="2" viewBox="0 0 24 24" style="color: rgba(var(--_tw),0.50)">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" stroke-linecap="square" />
+            </svg>
+            <input [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" placeholder="Buscar atleta..."
+              class="w-full pl-10 pr-4 py-2.5 text-sm font-medium text-white placeholder:text-white/30 outline-none transition-all"
+              style="background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.14);" />
+            @if (busqueda()) {
+            <button (click)="busqueda.set('')"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-xs transition-colors hover:text-white"
+              style="color: rgba(var(--_tw),0.60)">✕</button>
+            }
+          </div>
+          @if (auth.tituloEntrenamiento() && auth.tituloNutricion()) {
+          <div class="relative flex"
+            style="background: rgba(var(--_bw),0.07); border: 1px solid rgba(var(--_bw),0.11);">
+            <!-- Indicador deslizante -->
+            <div class="absolute inset-y-0 w-1/3 pointer-events-none"
+              style="transition: left 220ms cubic-bezier(0.4,0,0.2,1), background-color 180ms ease;"
+              [style.left]="filtroServicio() === 'TODOS' ? '0%' : filtroServicio() === 'ENTRENAMIENTO' ? '33.333%' : '66.666%'"
+              [style.background-color]="filtroServicio() === 'TODOS' ? 'rgba(var(--_bw),0.82)' : filtroServicio() === 'ENTRENAMIENTO' ? 'rgba(59,130,246,0.25)' : 'rgba(46,211,141,0.20)'">
+            </div>
+            <!-- TODOS -->
+            <button (click)="filtroServicio.set('TODOS')"
+              class="relative z-10 flex-1 px-4 py-2 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-200"
+              [style.color]="filtroServicio() === 'TODOS' ? 'var(--c-bg)' : 'rgba(var(--_tw),0.40)'">
+              TODOS
+            </button>
+            <!-- ENTR -->
+            <button (click)="filtroServicio.set('ENTRENAMIENTO')"
+              class="relative z-10 flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-200"
+              [style.color]="filtroServicio() === 'ENTRENAMIENTO' ? '#60A5FA' : 'rgba(var(--_tw),0.40)'">
+              <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors duration-200"
+                [style.background]="filtroServicio() === 'ENTRENAMIENTO' ? '#3B82F6' : 'rgba(59,130,246,0.28)'"></span>
+              ENTR
+            </button>
+            <!-- NUTR -->
+            <button (click)="filtroServicio.set('NUTRICION')"
+              class="relative z-10 flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-200"
+              [style.color]="filtroServicio() === 'NUTRICION' ? '#2ED38D' : 'rgba(var(--_tw),0.40)'">
+              <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors duration-200"
+                [style.background]="filtroServicio() === 'NUTRICION' ? '#2ED38D' : 'rgba(46,211,141,0.28)'"></span>
+              NUTR
+            </button>
+          </div>
+          }
+        </div>
+
+        <!-- Estado vacío -->
+        @if (atletas().length === 0) {
+        <div class="py-16 text-center" style="border: 1px dashed rgba(var(--_bw),0.14);">
+          <div class="w-12 h-12 flex items-center justify-center mx-auto mb-4"
+            style="border: 1px solid rgba(var(--_bw),0.14);">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"
+              style="color: rgba(var(--_tw),0.35)">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="square" />
+              <circle cx="9" cy="7" r="4" />
+            </svg>
+          </div>
+          <p class="text-xs font-black tracking-[0.25em] uppercase mb-2" style="color: rgba(var(--_tw),0.50)">SIN
+            ATLETAS</p>
+          <p class="text-sm" style="color: rgba(var(--_tw),0.60)">Comparte tu código de invitación para que los atletas
+            se conecten contigo.</p>
+        </div>
+        }
+        @if (atletas().length > 0 && atletasFiltrados().length === 0) {
+        <div class="py-12 text-center" style="border: 1px dashed rgba(var(--_bw),0.14);">
+          <p class="text-sm" style="color: rgba(var(--_tw),0.60)">Sin resultados para los filtros aplicados.</p>
+        </div>
+        }
+
+        <!-- Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+          [@listaAtletas]="atletasFiltrados().length">
+          @for (atleta of atletasFiltrados(); track atleta.id) {
+          <button (click)="seleccionarAtleta(atleta)"
+            class="text-left group relative flex overflow-hidden"
+            style="background: rgba(var(--_bw),0.04); border: 1px solid rgba(var(--_bw),0.11); transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;"
+            [style.--accent]="atleta.servicio === 'ENTRENAMIENTO' ? '59,130,246' : atleta.servicio === 'NUTRICION' ? '46,211,141' : '46,211,141'"
+            onmouseenter="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 16px 48px rgba(0,0,0,0.45)'; this.style.borderColor='rgba(var(--_bw),0.28)'"
+            onmouseleave="this.style.transform=''; this.style.boxShadow=''; this.style.borderColor='rgba(var(--_bw),0.11)'">
+
+            <!-- Barra lateral de color -->
+            <div class="w-[3px] flex-shrink-0 self-stretch"
+              [style.background]="atleta.servicio === 'NUTRICION'     ? 'linear-gradient(180deg,#2ED38D,#22B574)'
+                                : atleta.servicio === 'ENTRENAMIENTO' ? 'linear-gradient(180deg,#3B82F6,#2563EB)'
+                                : 'linear-gradient(180deg,#3B82F6,#2ED38D)'">
+            </div>
+
+            <!-- Contenido -->
+            <div class="flex-1 min-w-0 p-5 flex flex-col gap-4">
+
+              <!-- Fila superior: avatar + nombre/deporte -->
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 flex-shrink-0 flex items-center justify-center font-black text-base relative"
+                  [style]="atleta.servicio === 'NUTRICION'
+                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'
+                          : atleta.servicio === 'ENTRENAMIENTO'
+                            ? 'background: rgba(59,130,246,0.14); color:#60A5FA; border: 1px solid rgba(59,130,246,0.28);'
+                            : 'background: linear-gradient(135deg,rgba(59,130,246,0.16),rgba(46,211,141,0.16)); color:#2ED38D; border: 1px solid rgba(46,211,141,0.22);'">
+                  {{ iniciales(atleta.nombre) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="font-black uppercase tracking-tight leading-none truncate mb-1.5"
+                    style="font-size: 15px; color: var(--c-text-1);">{{ atleta.nombre }}</p>
+                  <p class="text-[11px] font-medium uppercase tracking-wide truncate"
+                    style="color: rgba(var(--_tw),0.42)">{{ atleta.deporte }}</p>
+                </div>
+              </div>
+
+              <!-- Separador -->
+              <div style="border-top: 1px solid rgba(var(--_bw),0.09);"></div>
+
+              <!-- Fila inferior: badges + estado -->
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1.5">
+                  @if (incluyeEntrenamiento(atleta.servicio)) {
+                  <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2.5 py-1"
+                    style="background: rgba(59,130,246,0.12); color:#60A5FA; border: 1px solid rgba(59,130,246,0.25);">ENTR</span>
+                  }
+                  @if (incluyeNutricion(atleta.servicio)) {
+                  <span class="text-[10px] font-black tracking-[0.15em] uppercase px-2.5 py-1"
+                    style="background: rgba(46,211,141,0.18); color:#2ED38D; border: 1px solid rgba(46,211,141,0.30);">NUTR</span>
+                  }
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  @if (atleta.tienePlanActivo) {
+                  <span class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.12em] uppercase"
+                    style="color: #2ED38D;">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D]"
+                      style="box-shadow: 0 0 6px rgba(46,211,141,0.7)"></span>ACTIVO
+                  </span>
+                  } @else {
+                  <span class="text-[10px] font-bold tracking-[0.12em] uppercase"
+                    style="color: rgba(var(--_tw),0.38)">SIN PLAN</span>
+                  }
+                  <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
+                    fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    style="color: rgba(var(--_tw),0.30)">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="square"/>
+                  </svg>
+                </div>
+              </div>
+
+            </div>
+          </button>
+          }
+        </div>
+
+      </div>
+      }
+
+      <!-- Detalle atleta -->
+      @if (atletaActivo(); as atleta) {
+      <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+
+        <!-- ── Cabecera del atleta ─────────────────────────────────────────── -->
+        <div class="flex-shrink-0" style="background: var(--c-header); border-bottom: 1px solid rgba(var(--_bw),0.10);">
+
+          <!-- Fila superior: breadcrumb + acciones -->
+          <div class="px-6 md:px-10 pt-4 flex items-center justify-between gap-4">
+            <button (click)="volver()"
+              class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.28em] uppercase transition-opacity opacity-60 hover:opacity-100"
+              style="color: rgba(var(--_tw),0.65)">
+              <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
+                <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
+              </svg>
+              ATLETAS
+            </button>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button (click)="pendienteDesconectar.set(atleta)" [disabled]="desconectando()"
+                class="h-7 px-3 text-[10px] font-black tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
+                style="border: 1px solid rgba(220,38,38,0.25); color: rgba(220,38,38,0.70);"
+                onmouseenter="this.style.borderColor='rgba(220,38,38,0.55)'; this.style.color='rgba(220,38,38,0.90)'"
+                onmouseleave="this.style.borderColor='rgba(220,38,38,0.25)'; this.style.color='rgba(220,38,38,0.70)'">
+                DAR DE BAJA
+              </button>
+            </div>
+          </div>
+
+          <!-- Fila info: avatar + nombre + deporte + badges -->
+          <div class="px-6 md:px-10 pt-3 pb-5 flex items-center gap-4">
+            <!-- Avatar -->
+            <div class="w-12 h-12 flex items-center justify-center font-black text-sm flex-shrink-0"
+              [style]="atleta.servicio === 'NUTRICION'
+                ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: #000;'
+                : atleta.servicio === 'ENTRENAMIENTO'
+                  ? 'background: rgba(var(--_bw),0.12); color: rgba(var(--_tw),0.85); border: 1px solid rgba(var(--_bw),0.22);'
+                  : 'background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.25);'">
+              {{ iniciales(atleta.nombre) }}
+            </div>
+
+            <!-- Nombre + deporte -->
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 class="text-lg font-black uppercase tracking-tight text-white leading-none">{{ atleta.nombre }}</h2>
+                @if (incluyeEntrenamiento(atleta.servicio)) {
+                  <span class="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
+                    style="background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.70); border: 1px solid rgba(var(--_bw),0.18);">ENTR</span>
+                }
+                @if (incluyeNutricion(atleta.servicio)) {
+                  <span class="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
+                    style="background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.28);">NUTR</span>
+                }
+              </div>
+              <p class="text-xs mt-1.5" style="color: rgba(var(--_tw),0.55)">
+                {{ atleta.deporte }} · {{ nivelLabel(atleta.nivel) }}
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── Tabs ──────────────────────────────────────────────────────── -->
+        <div class="flex-shrink-0 px-6 md:px-10 overflow-x-auto no-scrollbar"
+          style="border-bottom: 1px solid rgba(var(--_bw),0.10); background: var(--c-header);">
+          <div class="flex min-w-max">
+            @for (tab of tabsDisponibles(); track tab) {
+            <button (click)="tabActiva.set(tab)"
+              class="relative flex items-center gap-2 px-4 py-3.5 transition-colors"
+              [style]="tabActiva() === tab ? 'color: #2ED38D;' : 'color: rgba(var(--_tw),0.50);'">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5"
+                viewBox="0 0 24 24">
+                @if (tab === 'ENTRENAMIENTO') {
+                  <path d="M6 5v14M18 5v14M6 12h12M3 8h3M18 8h3M3 16h3M18 16h3" stroke-linecap="square" />
+                } @else if (tab === 'NUTRICION') {
+                  <path d="M12 2C8 2 4 6 4 10c0 5 4 8 8 12 4-4 8-7 8-12 0-4-4-8-8-8z" />
+                } @else {
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="square" />
+                }
+              </svg>
+              <span class="text-[11px] font-black tracking-[0.18em] uppercase">
+                @if (tab === 'ENTRENAMIENTO') { ENTRENAMIENTO }
+                @else if (tab === 'NUTRICION') { NUTRICIÓN }
+                @else { COMUNICACIÓN }
+              </span>
+              @if (tabActiva() === tab) {
+                <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2ED38D]"></span>
+              }
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Contenido tab -->
+        <div class="flex-1 min-h-0 overflow-hidden">
+          @if (tabActiva() === 'NUTRICION') {
+          <app-gestion-nutricion class="flex-1 min-h-0 overflow-y-auto block px-6 md:px-10 h-full"
+            [atletaId]="atleta.id" [alergias]="atleta.alergias ?? []" [intolerancias]="atleta.intolerancias ?? []" />
+          }
+          @if (tabActiva() === 'ENTRENAMIENTO') {
+          <app-gestion-entrenamiento class="flex-1 min-h-0 flex flex-col overflow-hidden block px-6 md:px-10 h-full"
+            [atletaId]="atleta.id" />
+          }
+          @if (tabActiva() === 'COMUNICACION') {
+          <div class="h-full overflow-y-auto no-scrollbar px-6 md:px-10">
+            <app-comunicacion [atletaId]="atleta.id" [atletaNombre]="atleta.nombre" [servicio]="atleta.servicio" />
+          </div>
+          }
+        </div>
+
+      </div>
+      }
+      }
+
+      <!-- ════ MI PERFIL ════════════════════════════════════════════════════ -->
+      @if (vistaActual() === 'perfil') {
+      <app-perfil-entrenador-vista class="flex-1 min-h-0 overflow-hidden flex flex-col" [perfil]="perfil()"
+        (volver)="navegarA('atletas')" />
+      }
+
+      <!-- ════ AJUSTES ══════════════════════════════════════════════════════ -->
+      @if (vistaActual() === 'ajustes') {
+      <div class="flex-1 overflow-y-auto px-6 md:px-12 py-10" scrollIndicator>
+
+        <div class="mb-10">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-5 h-px" style="background: rgba(var(--_tw),0.60)"></div>
+            <span class="text-[10px] font-black tracking-[0.35em] uppercase"
+              style="color: rgba(var(--_tw),0.60)">CONFIGURACIÓN</span>
+          </div>
+          <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-white leading-[0.88]">AJUSTES</h1>
+        </div>
+
+        <div class="flex flex-col gap-2">
+
+          <!-- Editar perfil -->
+          <div style="border: 1px solid rgba(var(--_bw),0.14);">
+            <button type="button" (click)="editarPerfilAbierto() ? editarPerfilAbierto.set(false) : abrirEditarPerfil()"
+              class="w-full px-5 py-4 flex items-center justify-between transition-colors"
+              style="background: rgba(var(--_bw),0.05);" onmouseenter="this.style.background='rgba(var(--_bw),0.08)'"
+              onmouseleave="this.style.background='rgba(var(--_bw),0.05)'">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">EDITAR PERFIL</p>
+              <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
+                [style.transform]="editarPerfilAbierto() ? 'rotate(180deg)' : 'rotate(0deg)'" fill="none"
+                stroke="currentColor" stroke-width="2" viewBox="0 0 16 16" style="color: rgba(var(--_tw),0.50)">
+                <path d="M4 6l4 4 4-4" stroke-linecap="square" />
+              </svg>
+            </button>
+            <div class="grid" style="transition: grid-template-rows 0.3s ease;"
+              [style.grid-template-rows]="editarPerfilAbierto() ? '1fr' : '0fr'">
+              <div class="overflow-hidden">
+                <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.10);">
+                  @if (perfilGuardado()) {
+                  <div class="px-4 py-3 mt-4 mb-3"
+                    style="border-left: 2px solid #2ED38D; background: rgba(46,211,141,0.06);">
+                    <p class="text-sm font-bold text-[#2ED38D]">Perfil actualizado correctamente.</p>
+                  </div>
+                  }
+                  @if (perfilError()) {
+                  <div class="px-4 py-3 mt-4 mb-3"
+                    style="border-left: 2px solid rgba(220,38,38,0.8); background: rgba(220,38,38,0.06);">
+                    <p class="text-sm text-red-400">{{ perfilError() }}</p>
+                  </div>
+                  }
+                  <div class="flex flex-col gap-5 mt-4">
+                    <div>
+                      <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
+                        style="color: rgba(var(--_tw),0.60)">NOMBRE</label>
+                      <input type="text" [value]="editNombre()" (input)="editNombre.set($any($event.target).value)"
+                        class="w-full px-4 py-2.5 text-sm font-medium outline-none transition-colors"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
+                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
+                        style="color: rgba(var(--_tw),0.60)">SOBRE MÍ</label>
+                      <textarea [value]="editDescripcion()" (input)="editDescripcion.set($any($event.target).value)"
+                        rows="3" placeholder="Describe tu experiencia, metodología..."
+                        class="w-full px-4 py-2.5 text-sm outline-none resize-none transition-colors"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
+                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'"></textarea>
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
+                        style="color: rgba(var(--_tw),0.60)">AÑOS DE EXPERIENCIA</label>
+                      <input type="number" min="0" max="60" [value]="editExperiencia()"
+                        (input)="editExperiencia.set(+$any($event.target).value)"
+                        class="w-28 px-4 py-2.5 text-sm outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
+                        onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                        onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
+                        style="color: rgba(var(--_tw),0.60)">FORMACIÓN ADICIONAL</label>
+                      <div class="flex flex-wrap gap-2 mb-3">
+                        @for (master of editMasters(); track $index; let i = $index) {
+                        <div class="flex items-center gap-1.5 px-3 py-1.5"
+                          style="border: 1px solid rgba(var(--_bw),0.20); background: rgba(var(--_bw),0.06);">
+                          <span class="text-xs font-medium text-white">{{ master }}</span>
+                          <button (click)="eliminarMaster(i)"
+                            class="hover:text-red-400 transition-colors text-xs leading-none"
+                            style="color: rgba(var(--_tw),0.50)">✕</button>
+                        </div>
+                        }
+                        @if (editMasters().length === 0) {
+                        <p class="text-sm" style="color: rgba(var(--_tw),0.45)">Ninguno añadido.</p>
+                        }
+                      </div>
+                      <div class="flex items-stretch"
+                        style="border: 1px solid rgba(var(--_bw),0.15); background: rgba(var(--_bw),0.05);">
+                        <input [value]="nuevoMaster()" (input)="nuevoMaster.set($any($event.target).value)"
+                          (keydown.enter)="agregarMaster()" placeholder="Ej. Máster en Alto Rendimiento..."
+                          class="flex-1 px-4 py-2.5 text-sm outline-none bg-transparent transition-colors" style="color: var(--c-text-1);" />
+                        <div class="w-px flex-shrink-0" style="background: rgba(var(--_bw),0.14);"></div>
+                        <button (click)="agregarMaster()" [disabled]="!nuevoMaster().trim()"
+                          class="text-[11px] font-black tracking-[0.15em] uppercase px-5 transition-all flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                          [style]="nuevoMaster().trim() ? 'color: #2ED38D;' : 'color: rgba(var(--_tw),0.35);'">
+                          AÑADIR
+                        </button>
+                      </div>
+                    </div>
+                    <button type="button" (click)="guardarPerfil()"
+                      [disabled]="!editNombre().trim() || guardandoPerfil()"
+                      class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                      [style]="editNombre().trim() && !guardandoPerfil()
+                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
+                          : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
+                      {{ guardandoPerfil() ? 'GUARDANDO...' : 'GUARDAR PERFIL' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cambiar contraseña -->
+          <div style="border: 1px solid rgba(var(--_bw),0.14);">
+            <button type="button" (click)="passAbierto.set(!passAbierto())"
+              class="w-full px-5 py-4 flex items-center justify-between transition-colors"
+              style="background: rgba(var(--_bw),0.05);" onmouseenter="this.style.background='rgba(var(--_bw),0.08)'"
+              onmouseleave="this.style.background='rgba(var(--_bw),0.05)'">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">CAMBIAR CONTRASEÑA</p>
+              <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
+                [style.transform]="passAbierto() ? 'rotate(180deg)' : 'rotate(0deg)'" fill="none" stroke="currentColor"
+                stroke-width="2" viewBox="0 0 16 16" style="color: rgba(var(--_tw),0.50)">
+                <path d="M4 6l4 4 4-4" stroke-linecap="square" />
+              </svg>
+            </button>
+            <div class="grid" style="transition: grid-template-rows 0.3s ease;"
+              [style.grid-template-rows]="passAbierto() ? '1fr' : '0fr'">
+              <div class="overflow-hidden">
+                <div class="px-5 pb-5" style="border-top: 1px solid rgba(var(--_bw),0.10);">
+                  @if (passCambiada()) {
+                  <div class="px-4 py-3 mt-4 mb-3"
+                    style="border-left: 2px solid #2ED38D; background: rgba(46,211,141,0.06);">
+                    <p class="text-sm font-bold text-[#2ED38D]">Contraseña actualizada correctamente.</p>
+                  </div>
+                  }
+                  @if (passError()) {
+                  <div class="px-4 py-3 mt-4 mb-3"
+                    style="border-left: 2px solid rgba(220,38,38,0.8); background: rgba(220,38,38,0.06);">
+                    <p class="text-sm text-red-400">{{ passError() }}</p>
+                  </div>
+                  }
+                  <div class="flex flex-col gap-5 mt-4">
+                    @for (campo of [['CONTRASEÑA ACTUAL', 'passActual', 'showPassActual', 'current-password'], ['NUEVA
+                    CONTRASEÑA', 'passNueva', 'showPassNueva', 'new-password'], ['CONFIRMAR NUEVA CONTRASEÑA',
+                    'passConfirm', 'showPassConfirm', 'new-password']]; track campo[0]) {
+                    <div>
+                      <label class="text-[10px] font-bold tracking-[0.2em] uppercase block mb-2"
+                        style="color: rgba(var(--_tw),0.60)">{{ campo[0] }}</label>
+                      <div class="relative">
+                        @if (campo[1] === 'passActual') {
+                        <input [type]="showPassActual() ? 'text' : 'password'" [value]="passActual()"
+                          (input)="passActual.set($any($event.target).value)" autocomplete="current-password"
+                          class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
+                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                        <button type="button" (click)="showPassActual.update(v=>!v)"
+                          class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
+                          style="color: rgba(var(--_tw),0.50)" tabindex="-1">
+                          @if (showPassActual()) { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5">
+                            <path
+                              d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                              stroke-linecap="square" />
+                            <line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square" />
+                          </svg>
+                          } @else { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg> }
+                        </button>
+                        }
+                        @if (campo[1] === 'passNueva') {
+                        <input [type]="showPassNueva() ? 'text' : 'password'" [value]="passNueva()"
+                          (input)="passNueva.set($any($event.target).value)" autocomplete="new-password"
+                          class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
+                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                        <button type="button" (click)="showPassNueva.update(v=>!v)"
+                          class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
+                          style="color: rgba(var(--_tw),0.50)" tabindex="-1">
+                          @if (showPassNueva()) { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5">
+                            <path
+                              d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                              stroke-linecap="square" />
+                            <line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square" />
+                          </svg>
+                          } @else { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg> }
+                        </button>
+                        @if (passNueva()) {
+                        <ul class="mt-2 flex flex-col gap-1">
+                          @for (r of passReglas(); track r.label) {
+                          <li class="flex items-center gap-1.5 text-[10px]" [class]="r.ok ? 'text-[#2ED38D]' : ''"
+                            [style]="!r.ok ? 'color: rgba(var(--_tw),0.50)' : ''">
+                            <span>{{ r.ok ? '✓' : '○' }}</span><span>{{ r.label }}</span>
+                          </li>
+                          }
+                        </ul>
+                        }
+                        }
+                        @if (campo[1] === 'passConfirm') {
+                        <input [type]="showPassConfirm() ? 'text' : 'password'" [value]="passConfirm()"
+                          (input)="passConfirm.set($any($event.target).value)" autocomplete="new-password"
+                          class="w-full px-4 py-2.5 pr-11 text-sm outline-none transition-colors"
+                          style="background: transparent; border: 1px solid rgba(var(--_bw),0.15); color: var(--c-text-1);"
+                          onfocus="this.style.borderColor='rgba(var(--_bw),0.35)'"
+                          onblur="this.style.borderColor='rgba(var(--_bw),0.15)'" />
+                        <button type="button" (click)="showPassConfirm.update(v=>!v)"
+                          class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-white"
+                          style="color: rgba(var(--_tw),0.50)" tabindex="-1">
+                          @if (showPassConfirm()) { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5">
+                            <path
+                              d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                              stroke-linecap="square" />
+                            <line x1="1" y1="1" x2="23" y2="23" stroke-linecap="square" />
+                          </svg>
+                          } @else { <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="square" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg> }
+                        </button>
+                        }
+                      </div>
+                    </div>
+                    }
+                    <button type="button" (click)="cambiarPassword()"
+                      [disabled]="!passActual() || !passNueva() || !passConfirm() || cambiandoPass()"
+                      class="py-3 text-xs font-black tracking-[0.25em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                      [style]="passActual() && passNueva() && passConfirm() && !cambiandoPass()
+                          ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: var(--c-text-1);'
+                          : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
+                      {{ cambiandoPass() ? 'GUARDANDO...' : 'GUARDAR CONTRASEÑA' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tema -->
+          <div class="mb-6" style="border: 1px solid rgba(var(--_bw),0.14)">
+            <div class="px-5 py-4 flex items-center justify-between">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-white">TEMA</p>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  (click)="theme.set(false)"
+                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+                  [style]="!theme.isDark()
+                    ? 'background: #2ED38D; color: #000;'
+                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
+                >CLARO</button>
+                <button
+                  type="button"
+                  (click)="theme.set(true)"
+                  class="px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-colors"
+                  [style]="theme.isDark()
+                    ? 'background: #2ED38D; color: #000;'
+                    : 'border: 1px solid rgba(var(--_bw),0.20); color: rgba(var(--_tw),0.60)'"
+                >OSCURO</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eliminar cuenta -->
+          <div style="border: 1px solid rgba(220,38,38,0.15);">
+            <button type="button" (click)="bajaAbierta.set(!bajaAbierta())"
+              class="w-full px-5 py-4 flex items-center justify-between transition-colors"
+              style="background: rgba(var(--_bw),0.05);" onmouseenter="this.style.background='rgba(220,38,38,0.05)'"
+              onmouseleave="this.style.background='rgba(var(--_bw),0.05)'">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-red-400">ELIMINAR CUENTA</p>
+              <svg class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
+                [style.transform]="bajaAbierta() ? 'rotate(180deg)' : 'rotate(0deg)'" fill="none" stroke="currentColor"
+                stroke-width="2" viewBox="0 0 16 16" style="color: rgba(220,38,38,0.4)">
+                <path d="M4 6l4 4 4-4" stroke-linecap="square" />
+              </svg>
+            </button>
+            <div class="grid" style="transition: grid-template-rows 0.3s ease;"
+              [style.grid-template-rows]="bajaAbierta() ? '1fr' : '0fr'">
+              <div class="overflow-hidden">
+                <div class="px-5 pb-5" style="border-top: 1px solid rgba(220,38,38,0.12);">
+                  @if (!confirmarBaja()) {
+                  <div class="mt-4">
+                    <p class="text-sm mb-4" style="color: rgba(var(--_tw),0.65)">Al eliminar tu cuenta se borrarán todos
+                      tus datos de forma permanente. Esta acción no se puede deshacer.</p>
+                    <button type="button" (click)="confirmarBaja.set(true)"
+                      class="px-6 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors text-red-400 hover:text-red-300"
+                      style="border: 1px solid rgba(220,38,38,0.3);">
+                      QUIERO DARME DE BAJA
+                    </button>
+                  </div>
+                  } @else {
+                  <div class="mt-4">
+                    <p class="text-sm font-bold text-white mb-1">¿Estás seguro?</p>
+                    <p class="text-sm mb-4" style="color: rgba(var(--_tw),0.60)">Escribe <span
+                        class="font-mono font-bold text-white">ELIMINAR</span> para confirmar.</p>
+                    <input type="text" [value]="textoConfirmaBaja()"
+                      (input)="textoConfirmaBaja.set($any($event.target).value)" placeholder="ELIMINAR"
+                      class="w-full px-4 py-2.5 text-sm font-mono text-white outline-none mb-4 transition-colors placeholder:text-white/20"
+                      style="background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.25);"
+                      onfocus="this.style.borderColor='rgba(220,38,38,0.5)'"
+                      onblur="this.style.borderColor='rgba(220,38,38,0.25)'" />
+                    <div class="flex gap-3">
+                      <button type="button" (click)="confirmarBaja.set(false); textoConfirmaBaja.set('')"
+                        class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors hover:text-white"
+                        style="border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.60);">CANCELAR</button>
+                      <button type="button" (click)="eliminarCuenta()"
+                        [disabled]="textoConfirmaBaja() !== 'ELIMINAR' || eliminandoCuenta()"
+                        class="flex-1 py-3 text-xs font-black tracking-[0.2em] uppercase transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        [style]="textoConfirmaBaja() === 'ELIMINAR' && !eliminandoCuenta()
+                            ? 'background: linear-gradient(135deg,#DC2626,#B91C1C); color:#fff;'
+                            : 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.50);'">
+                        {{ eliminandoCuenta() ? 'ELIMINANDO...' : 'CONFIRMAR BAJA' }}
+                      </button>
+                    </div>
+                  </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      }
+
+    </main>
+  </div>
+
+<!-- ── Modal confirmación dar de baja atleta ──────────────────────────────── -->
+@if (pendienteDesconectar()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);"
+    (click)="pendienteDesconectar.set(null)">
+    <div class="w-full max-w-sm p-6 relative"
+      [style]="'background: ' + (theme.isDark() ? '#0f0f1a' : '#ffffff') + '; border: 1px solid rgba(var(--_bw),0.16);'"
+      (click)="$event.stopPropagation()">
+
+      <div class="h-[2px] w-full absolute top-0 left-0" style="background: rgba(220,38,38,0.70);"></div>
+
+      <p class="text-[10px] font-black tracking-[0.25em] uppercase mb-4" style="color: rgba(220,38,38,0.75)">DAR DE BAJA</p>
+      <p class="text-sm font-light leading-relaxed mb-1" style="color: var(--c-text-1)">
+        ¿Seguro que quieres dar de baja a
+        <span class="font-black">{{ pendienteDesconectar()!.nombre }}</span>?
+      </p>
+      <p class="text-xs font-light mb-6" style="color: rgba(var(--_tw),0.50)">
+        Perderá acceso a su plan y se eliminará la conexión permanentemente.
+      </p>
+
+      <div class="flex gap-3 justify-end">
+        <button type="button" (click)="pendienteDesconectar.set(null)"
+          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors"
+          style="border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.60);"
+          onmouseenter="this.style.background='rgba(var(--_bw),0.06)'"
+          onmouseleave="this.style.background=''">
+          CANCELAR
+        </button>
+        <button type="button" (click)="confirmarDesconexionAtleta()" [disabled]="desconectando()"
+          class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 transition-colors disabled:opacity-40"
+          style="border: 1px solid rgba(220,38,38,0.45); color: rgba(220,38,38,0.85);"
+          onmouseenter="this.style.background='rgba(220,38,38,0.08)'; this.style.borderColor='rgba(220,38,38,0.70)'"
+          onmouseleave="this.style.background=''; this.style.borderColor='rgba(220,38,38,0.45)'">
+          {{ desconectando() ? '...' : 'DAR DE BAJA' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+</div>
