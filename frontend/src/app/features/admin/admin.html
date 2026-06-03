@@ -146,7 +146,73 @@
                 </svg>
               </button>
             </div>
+                    </div>
+        </div>
+
+        <!-- Scrollable List -->
+        <div class="flex-1 overflow-y-auto px-6 md:px-8 lg:px-12 py-6 md:py-8" scrollIndicator>
+          @if (loadingSolicitudes() && solicitudes().length === 0) {
+          <div class="py-20 text-center">
+            <div class="w-10 h-10 border-2 border-[#2ED38D] border-t-transparent animate-spin mx-auto mb-4"></div>
+            <p class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255, 255, 255, 0.58)">
+              CARGANDO...
+            </p>
           </div>
+          } @else if (solicitudesFiltradas().length === 0) {
+          <div class="py-20 text-center" style="border: 1px dashed rgba(255, 255, 255, 0.08)">
+            <p class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255, 255, 255, 0.42)">
+              SIN SOLICITUDES
+            </p>
+          </div>
+          } @else {
+          <div class="flex flex-col gap-3">
+            @for (s of solicitudesFiltradas(); track s.id ?? $index) {
+            <button (click)="seleccionarSolicitud(s)"
+              class="text-left p-6 transition-all duration-300 group relative overflow-hidden" [style]="
+                      entrenadorSeleccionado()?.id === s.id
+                        ? 'background: linear-gradient(135deg, rgba(46,211,141,0.1) 0%, rgba(46,211,141,0.04) 100%); border: 1px solid rgba(46,211,141,0.3); transform: translateX(4px); box-shadow: 0 4px 24px rgba(46,211,141,0.08), inset 0 1px 0 rgba(46,211,141,0.1);'
+                        : 'background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(255,255,255,0.07);'
+                    ">
+              <div class="absolute top-0 left-0 w-0.5 h-full" [class]="
+                        s.titulacionEntrenamiento && s.titulacionNutricion
+                          ? 'bg-gradient-to-b from-white to-[#2ED38D]'
+                          : s.titulacionNutricion
+                            ? 'bg-[#2ED38D]'
+                            : 'bg-white/30'
+                      "></div>
+
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-[10px] font-black tracking-[0.2em] uppercase"
+                  style="color: rgba(255, 255, 255, 0.52)">
+                  RECIBIDA EL {{ s.createdAt | date: 'dd/MM/yyyy' }}
+                </span>
+              </div>
+
+              <h3
+                class="text-xl font-black uppercase tracking-tight text-white mb-1 group-hover:text-[#2ED38D] transition-colors">
+                {{ s.nombre }}
+              </h3>
+              <p class="text-xs font-bold tracking-tight lowercase mb-4" style="color: rgba(255, 255, 255, 0.62)">
+                {{ s.correo }}
+              </p>
+
+              <div class="flex items-center gap-2">
+                @if (s.titulacionEntrenamiento) {
+                <span class="text-[9px] font-black tracking-widest uppercase px-2 py-1" style="
+                            background: rgba(255, 255, 255, 0.1);
+                            color: rgba(255, 255, 255, 0.8);
+                            border: 1px solid rgba(255, 255, 255, 0.12);
+                          ">ENTRENAMIENTO</span>
+                }
+                @if (s.titulacionNutricion) {
+                <span
+                  class="text-[9px] font-black tracking-widest uppercase bg-[#2ED38D] text-black px-2 py-1">NUTRICIÓN</span>
+                }
+              </div>
+            </button>
+            }
+          </div>
+          }
         </div>
       </section>
 
