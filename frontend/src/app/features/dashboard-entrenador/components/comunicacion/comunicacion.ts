@@ -4,6 +4,8 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import type { ApexOptions } from 'ng-apexcharts';
 import { SeguimientoService, CheckInPeso } from '../../services/seguimiento.service';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export type CategoriaHilo = 'tecnica' | 'duda' | 'apunte';
 
@@ -56,6 +58,9 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
 
   private readonly API = '/api/v1/comunicacion';
+
+  readonly loadingHilos = signal(false);
+  readonly loadingPeso = signal(false);
 
   readonly atletaId = input.required<string>();
   readonly atletaNombre = input.required<string>();
@@ -195,8 +200,8 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const atletaId = this.atletaId();
-    this.seg.getHistorialPesos(atletaId).subscribe((h) => this.historialPesos.set(h));
-    this.seg.tieneCheckInPendiente(atletaId).subscribe((b) => this.checkInPendiente.set(b));
+    this.loadingHilos.set(true);
+    this.loadingPeso.set(true);
 
     const ctx = this.servicio() === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
 
@@ -219,9 +224,19 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
             totalMensajes: h.totalMensajes,
           }));
           this.hilos.set(hilosMapeados);
+          this.loadingHilos.set(false);
         },
-        error: () => {},
+        error: () => {
+          this.loadingHilos.set(false);
+        },
       });
+
+    const observablesObj: Record<string, any> = {
+      historialPesos: this.seg.getHistorialPesos(atletaId).pipe(tap((h) => this.historialPesos.set(h))),
+      checkInPendiente: this.seg.tieneCheckInPendiente(atletaId).pipe(tap((b) => this.checkInPendiente.set(b))),
+    }
+
+    forkJoin(observablesObj).subscribe(() => this.loadingPeso.set(false));
   }
 
   // ── Multimedia ────────────────────────────────────────────────────────────

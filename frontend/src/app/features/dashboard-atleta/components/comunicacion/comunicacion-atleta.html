@@ -178,13 +178,34 @@
           </button>
         }
 
-        @if (hilos().length === 0) {
+      
+
+        @if (loadingHilos() && hilos().length === 0) {
+          <div
+            class="col-span-2 lg:col-span-3 flex items-center justify-center p-6 text-center"
+            style="border: 1px dashed rgba(var(--_bw), 0.18)"
+          >
+            <div class="py-20 text-center">
+              <div
+                class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+              ></div>
+              <p
+                class="text-[10px] font-black tracking-[0.2em] uppercase"
+                style="color: rgba(var(--_tw), 0.58)"
+              >
+                CARGANDO...
+              </p>
+            </div>
+          </div>
+        } @else if (hilos().length === 0) {
           <div class="p-12 text-center" style="border: 1px dashed rgba(var(--_bw),0.20);">
             <div class="w-2 h-2 mx-auto mb-4" style="background: rgba(var(--_tw),0.28);"></div>
             <p class="text-xs font-black tracking-[0.25em] uppercase mb-1" style="color: rgba(var(--_tw),0.50);">SIN HILOS</p>
             <p class="text-sm font-light" style="color: rgba(var(--_tw),0.60);">Abre el primer hilo con {{ profesionalNombre() }}.</p>
           </div>
         }
+        
         @if (hilos().length > 0 && hilosFiltrados().length === 0) {
           <div class="p-10 text-center" style="border: 1px dashed rgba(var(--_bw),0.20);">
             <p class="text-xs font-black tracking-[0.25em] uppercase mb-1" style="color: rgba(var(--_tw),0.50);">SIN RESULTADOS</p>

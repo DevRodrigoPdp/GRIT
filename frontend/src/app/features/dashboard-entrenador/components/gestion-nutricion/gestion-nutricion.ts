@@ -26,6 +26,9 @@ export class GestionNutricionComponent implements OnInit {
   readonly alergias = input<string[]>([]);
   readonly intolerancias = input<string[]>([]);
 
+  readonly loadingPlanes = signal(false);
+
+
   // ── Estado principal ──────────────────────────────────────────────────────
   vista = signal<Vista>('lista');
   planes = signal<PlanNutricion[]>([]);
@@ -46,8 +49,14 @@ export class GestionNutricionComponent implements OnInit {
   totales = computed(() => this.nutricion.calcularMacros(this.comidas()));
 
   ngOnInit() {
+    this.loadingPlanes.set(true);
     const id = this.atletaId();
-    if (id) this.nutricion.getPlanes(id).subscribe((p) => this.planes.set(p));
+    if (id) {
+      this.nutricion.getPlanes(id).subscribe((p) => {
+        this.planes.set(p);
+        this.loadingPlanes.set(false);
+      });
+    }
   }
 
   // ── Gestión de comidas ────────────────────────────────────────────────────

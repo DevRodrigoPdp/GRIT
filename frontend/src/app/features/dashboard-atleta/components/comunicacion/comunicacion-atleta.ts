@@ -60,6 +60,7 @@ type Vista = 'lista' | 'detalle' | 'nuevo';
 export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   private atleta = inject(AtletaService);
   private http = inject(HttpClient);
+  readonly loadingHilos = signal(false);
 
   private readonly API = '/api/v1/comunicacion';
   private readonly opts = { withCredentials: true };
@@ -163,13 +164,18 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   }
 
   private cargarHilos(): void {
+    this.loadingHilos.set(true);
     const ctx = this.contexto();
     this.http.get<HiloResumenDTO[]>(`${this.API}/atleta/hilos?contexto=${ctx}`, this.opts)
       .subscribe({
         next: (res) => {
           this.hilos.set(res.map(h => this.mapDtoToHilo(h)));
+           this.loadingHilos.set(false);
         },
-        error: (err) => console.error("Fallo en la arquitectura: no se pudieron cargar hilos", err)
+        error: (err) => {
+          console.error("Fallo en la arquitectura: no se pudieron cargar hilos", err);
+          this.loadingHilos.set(false);
+        }
       });
   }
 
