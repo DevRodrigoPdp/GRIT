@@ -1,6 +1,19 @@
 ﻿<div class="dashboard-root h-screen flex flex-col overflow-hidden font-sans"
   style="background: var(--c-bg);">
 
+  <!-- ── Spinner de carga ── -->
+  @if (cargando()) {
+    <div class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center gap-8">
+      <span class="font-black tracking-tighter text-2xl text-white uppercase select-none">GRIT</span>
+      <div class="relative w-8 h-8">
+        <svg class="w-8 h-8 animate-spin" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="17" stroke="#E5E7EB" stroke-width="2.5"/>
+          <path d="M20 3 a17 17 0 0 1 17 17" stroke="#2ED38D" stroke-width="2.5" stroke-linecap="square"/>
+        </svg>
+      </div>
+    </div>
+  }
+
   <!-- ── Top bar ──────────────────────────────────────────────────────────── -->
   <header class="border-b px-6 h-14 flex items-center justify-between flex-shrink-0 z-50"
     style="background: var(--c-header); border-color: rgba(var(--_bw),0.10);">

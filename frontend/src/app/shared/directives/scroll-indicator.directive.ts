@@ -7,6 +7,7 @@ import { Directive, ElementRef, OnInit, OnDestroy, Renderer2 } from '@angular/co
 export class ScrollIndicatorDirective implements OnInit, OnDestroy {
   private indicator!: HTMLElement;
   private unlisten!: () => void;
+  private unlistenClick!: () => void;
   private ro!: ResizeObserver;
 
   constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2) {}
@@ -22,6 +23,7 @@ export class ScrollIndicatorDirective implements OnInit, OnDestroy {
 
     this.indicator = this.renderer.createElement('div');
     this.indicator.className = 'scroll-indicator-hint';
+    this.indicator.style.cursor = 'pointer';
     this.renderer.setProperty(this.indicator, 'innerHTML',
       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
         <path d="M6 9l6 6 6-6" stroke-linecap="square"/>
@@ -31,8 +33,17 @@ export class ScrollIndicatorDirective implements OnInit, OnDestroy {
 
     this.update();
     this.unlisten = this.renderer.listen(host, 'scroll', () => this.update());
+    this.unlistenClick = this.renderer.listen(this.indicator, 'click', () => this.scrollToBottom());
     this.ro = new ResizeObserver(() => this.update());
     this.ro.observe(host);
+  }
+
+  private scrollToBottom() {
+    const h = this.el.nativeElement;
+    h.scrollTo({
+      top: h.scrollHeight,
+      behavior: 'smooth'
+    });
   }
 
   private update() {
@@ -45,6 +56,7 @@ export class ScrollIndicatorDirective implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.unlisten) this.unlisten();
+    if (this.unlistenClick) this.unlistenClick();
     if (this.ro) this.ro.disconnect();
     this.indicator?.remove();
   }
