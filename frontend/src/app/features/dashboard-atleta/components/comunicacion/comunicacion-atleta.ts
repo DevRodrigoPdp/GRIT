@@ -1,7 +1,16 @@
-import { Component, inject, input, output, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  computed,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, finalize } from 'rxjs';
 import { AtletaService, SolicitudCheckIn } from '../../services/atleta.service';
 
 export type CategoriaHilo = 'tecnica' | 'duda' | 'apunte';
@@ -40,9 +49,9 @@ export interface Hilo {
   titulo: string;
   categoria: CategoriaHilo;
   de: 'entrenador' | 'atleta';
-  fecha: Date;          // Cambiado de fechaAbierto a fecha
+  fecha: Date; // Cambiado de fechaAbierto a fecha
   leido: boolean;
-  total: number;        // Agregado para el conteo de mensajes
+  total: number; // Agregado para el conteo de mensajes
   mensajes: MensajeHilo[]; // Mantenerlo como opcional o inicializar vacío
   ultimoTexto?: string;
   ultimoEnvio?: Date;
@@ -61,6 +70,7 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   private atleta = inject(AtletaService);
   private http = inject(HttpClient);
   readonly loadingHilos = signal(false);
+  readonly loadingMensajes = signal(false);
 
   private readonly API = '/api/v1/comunicacion';
   private readonly opts = { withCredentials: true };
@@ -127,7 +137,7 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   readonly busqueda = signal('');
   readonly filtroCategoria = signal<CategoriaHilo | 'TODOS'>('TODOS');
 
-  readonly hilosNoLeidos = computed(() => this.hilos().filter(h => !h.leido).length);
+  readonly hilosNoLeidos = computed(() => this.hilos().filter((h) => !h.leido).length);
 
   readonly ultimoMensaje = (hilo: Hilo): MensajeHilo => {
     // Si ya se han cargado los mensajes completos, usar el último del array
@@ -139,8 +149,10 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
       return {
         id: '',
         texto: hilo.ultimoTexto || '',
-        de: (hilo.ultimoEnviadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta') as 'entrenador' | 'atleta',
-        fecha: hilo.ultimoEnvio || new Date()
+        de: (hilo.ultimoEnviadoPor === 'ENTRENADOR' ? 'entrenador' : 'atleta') as
+          | 'entrenador'
+          | 'atleta',
+        fecha: hilo.ultimoEnvio || new Date(),
       } as MensajeHilo;
     }
     // Fallback
@@ -150,11 +162,12 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   readonly hilosFiltrados = computed(() => {
     const q = this.busqueda().trim().toLowerCase();
     const filtro = this.filtroCategoria();
-    return this.hilos().filter(h => {
+    return this.hilos().filter((h) => {
       const coincideCategoria = filtro === 'TODOS' || h.categoria === filtro;
-      const coincideBusqueda = !q ||
+      const coincideBusqueda =
+        !q ||
         h.titulo.toLowerCase().includes(q) ||
-        h.mensajes.some(m => m.texto.toLowerCase().includes(q));
+        h.mensajes.some((m) => m.texto.toLowerCase().includes(q));
       return coincideCategoria && coincideBusqueda;
     });
   });
@@ -166,22 +179,23 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
   private cargarHilos(): void {
     this.loadingHilos.set(true);
     const ctx = this.contexto();
-    this.http.get<HiloResumenDTO[]>(`${this.API}/atleta/hilos?contexto=${ctx}`, this.opts)
+    this.http
+      .get<HiloResumenDTO[]>(`${this.API}/atleta/hilos?contexto=${ctx}`, this.opts)
       .subscribe({
         next: (res) => {
-          this.hilos.set(res.map(h => this.mapDtoToHilo(h)));
-           this.loadingHilos.set(false);
+          this.hilos.set(res.map((h) => this.mapDtoToHilo(h)));
+          this.loadingHilos.set(false);
         },
         error: (err) => {
-          console.error("Fallo en la arquitectura: no se pudieron cargar hilos", err);
+          console.error('Fallo en la arquitectura: no se pudieron cargar hilos', err);
           this.loadingHilos.set(false);
-        }
+        },
       });
   }
 
   ngOnDestroy(): void {
-    this.nuevoAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
-    this.respuestaAdjuntos().forEach(a => URL.revokeObjectURL(a.url));
+    this.nuevoAdjuntos().forEach((a) => URL.revokeObjectURL(a.url));
+    this.respuestaAdjuntos().forEach((a) => URL.revokeObjectURL(a.url));
   }
 
   // ── Multimedia ────────────────────────────────────────────────────────────
@@ -190,7 +204,7 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
     const files = (event.target as HTMLInputElement).files;
     if (!files) return;
 
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach((file) => {
       const id = crypto.randomUUID(); // ID único para vincular UI y Archivo
       const tipo: 'imagen' | 'video' = file.type.startsWith('video/') ? 'video' : 'imagen';
       const url = URL.createObjectURL(file);
@@ -198,10 +212,10 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
       const adjunto: Adjunto = { id, url, tipo, nombre: file.name };
 
       if (destino === 'nuevo') {
-        this.nuevoAdjuntos.update(l => [...l, adjunto]);
+        this.nuevoAdjuntos.update((l) => [...l, adjunto]);
         this.nuevoFiles.set(id, file);
       } else {
-        this.respuestaAdjuntos.update(l => [...l, adjunto]);
+        this.respuestaAdjuntos.update((l) => [...l, adjunto]);
         this.respuestaFiles.set(id, file);
       }
     });
@@ -212,10 +226,10 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
     const lista = destino === 'nuevo' ? this.nuevoAdjuntos : this.respuestaAdjuntos;
     const mapa = destino === 'nuevo' ? this.nuevoFiles : this.respuestaFiles;
 
-    const adjunto = lista().find(a => a.id === id);
+    const adjunto = lista().find((a) => a.id === id);
     if (adjunto) URL.revokeObjectURL(adjunto.url); // Liberar memoria RAM
 
-    lista.update(l => l.filter(a => a.id !== id));
+    lista.update((l) => l.filter((a) => a.id !== id));
     mapa.delete(id);
   }
 
@@ -225,37 +239,46 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
     const params = new HttpParams().set('contexto', ctx);
     return this.http.get<HiloResumenDTO[]>(`${this.API}/atleta/hilos`, { params });
   }
-
+  
   abrirHilo(hilo: Hilo): void {
-    this.hilos.update(list => list.map(h => h.id === hilo.id ? { ...h, leido: true } : h));
-    this.hiloActivo.set(this.hilos().find(h => h.id === hilo.id) ?? hilo);
+    this.loadingMensajes.set(true);
+    this.hilos.update((list) => list.map((h) => (h.id === hilo.id ? { ...h, leido: true } : h)));
+    this.hiloActivo.set(this.hilos().find((h) => h.id === hilo.id) ?? hilo);
     this.textoRespuesta.set('');
     this.respuestaAdjuntos.set([]);
     this.vista.set('detalle');
 
-    this.http.get<any>(`${this.API}/hilos/${hilo.id}`, this.opts)
-      .subscribe(h => {
-        const hiloCompleto: Hilo = {
-          id: h.id,
-          titulo: h.titulo,
-          categoria: h.categoria.toLowerCase() as CategoriaHilo,
-          de: h.de === 'ATLETA' ? 'atleta' : 'entrenador',
-          fecha: new Date(h.fechaAbierto),
-          leido: true,
-          total: h.mensajes.length,
-          mensajes: h.mensajes.map((m: any) => ({
-            id: m.id,
-            texto: m.texto ?? '',
-            de: m.de === 'ATLETA' ? 'atleta' : 'entrenador',
-            fecha: new Date(m.fecha),
-            adjuntos: m.adjuntos?.map((a: any) => ({
-              id: a.id, url: a.url,
-              tipo: a.tipo.toLowerCase() as 'imagen' | 'video',
-              nombre: a.nombre,
-            }))
-          })),
-        };
-        this.hiloActivo.set(hiloCompleto);
+    this.http
+      .get<any>(`${this.API}/hilos/${hilo.id}`, this.opts)
+      .pipe(finalize(() => this.loadingMensajes.set(false)))
+      .subscribe({
+        next: (h) => {
+          const hiloCompleto: Hilo = {
+            id: h.id,
+            titulo: h.titulo,
+            categoria: h.categoria.toLowerCase() as CategoriaHilo,
+            de: h.de === 'ATLETA' ? 'atleta' : 'entrenador',
+            fecha: new Date(h.fechaAbierto),
+            leido: true,
+            total: h.mensajes.length,
+            mensajes: h.mensajes.map((m: any) => ({
+              id: m.id,
+              texto: m.texto ?? '',
+              de: m.de === 'ATLETA' ? 'atleta' : 'entrenador',
+              fecha: new Date(m.fecha),
+              adjuntos: m.adjuntos?.map((a: any) => ({
+                id: a.id,
+                url: a.url,
+                tipo: a.tipo.toLowerCase() as 'imagen' | 'video',
+                nombre: a.nombre,
+              })),
+            })),
+          };
+          this.hiloActivo.set(hiloCompleto);
+        },
+        error: (err) => {
+          console.error('Error cargando hilo:', err);
+        },
       });
   }
 
@@ -279,12 +302,12 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
       titulo: titulo,
       categoria: this.nuevaCategoria().toUpperCase(),
       contexto: this.contexto(),
-      texto: texto
+      texto: texto,
     };
 
     const fd = new FormData();
     fd.append('datos', new Blob([JSON.stringify(datosDTO)], { type: 'application/json' }));
-    this.nuevoFiles.forEach(file => fd.append('archivos', file));
+    this.nuevoFiles.forEach((file) => fd.append('archivos', file));
 
     // 2. Optimistic UI: Mostrar el hilo antes de la respuesta del servidor
     const nuevoHiloLocal: Hilo = {
@@ -295,22 +318,24 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
       fecha: new Date(),
       leido: true,
       total: 1,
-      mensajes: []
+      mensajes: [],
     };
 
-    this.hilos.update(prev => [nuevoHiloLocal, ...prev]);
+    this.hilos.update((prev) => [nuevoHiloLocal, ...prev]);
     this.resetFormularioNuevo();
 
     // 3. Persistencia
     this.http.post<any>(`${this.API}/hilos`, fd, this.opts).subscribe({
       next: (res) => {
         const idReal = res.id || res.data?.id;
-        this.hilos.update(list => list.map(h => h.id === idTemporal ? { ...h, id: idReal } : h));
+        this.hilos.update((list) =>
+          list.map((h) => (h.id === idTemporal ? { ...h, id: idReal } : h)),
+        );
       },
       error: () => {
         // Rollback si falla
-        this.hilos.update(list => list.filter(h => h.id !== idTemporal));
-      }
+        this.hilos.update((list) => list.filter((h) => h.id !== idTemporal));
+      },
     });
   }
 
@@ -321,15 +346,14 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
 
     const fd = new FormData();
     if (texto) fd.append('texto', new Blob([texto], { type: 'text/plain' }));
-    this.respuestaFiles.forEach(f => fd.append('archivos', f));
+    this.respuestaFiles.forEach((f) => fd.append('archivos', f));
 
-    this.http.post<any>(`${this.API}/hilos/${hilo.id}/mensajes`, fd, this.opts)
-      .subscribe({
-        next: () => {
-          this.limpiarRespuesta();
-          this.abrirHilo(hilo); // Refrescar para obtener datos del servidor
-        }
-      });
+    this.http.post<any>(`${this.API}/hilos/${hilo.id}/mensajes`, fd, this.opts).subscribe({
+      next: () => {
+        this.limpiarRespuesta();
+        this.abrirHilo(hilo); // Refrescar para obtener datos del servidor
+      },
+    });
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -346,7 +370,7 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
       mensajes: [],
       ultimoTexto: h.ultimoTexto,
       ultimoEnvio: h.ultimoEnvio ? new Date(h.ultimoEnvio) : undefined,
-      ultimoEnviadoPor: h.ultimoEnviadoPor as 'ATLETA' | 'ENTRENADOR'
+      ultimoEnviadoPor: h.ultimoEnviadoPor as 'ATLETA' | 'ENTRENADOR',
     };
   }
 
@@ -379,7 +403,8 @@ export class ComunicacionAtletaComponent implements OnInit, OnDestroy {
 
   formatearFecha(fecha: Date): string {
     const hoy = new Date();
-    const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
+    const ayer = new Date(hoy);
+    ayer.setDate(hoy.getDate() - 1);
     const hora = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
     if (fecha.toDateString() === hoy.toDateString()) return `Hoy · ${hora}`;
     if (fecha.toDateString() === ayer.toDateString()) return `Ayer · ${hora}`;

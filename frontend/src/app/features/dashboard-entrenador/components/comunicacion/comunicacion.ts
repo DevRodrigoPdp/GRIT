@@ -5,7 +5,7 @@ import type { ApexOptions } from 'ng-apexcharts';
 import { SeguimientoService, CheckInPeso } from '../../services/seguimiento.service';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 
 export type CategoriaHilo = 'tecnica' | 'duda' | 'apunte';
 
@@ -61,6 +61,7 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
 
   readonly loadingHilos = signal(false);
   readonly loadingPeso = signal(false);
+  readonly loadingMensajes = signal(false);
 
   readonly atletaId = input.required<string>();
   readonly atletaNombre = input.required<string>();
@@ -141,8 +142,8 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   historialExpandido = signal(false);
   readonly chartOptions = computed<ApexOptions>(() => {
     const pesos = this.historialPesos();
-    const series = pesos.map(p => p.pesoKg);
-    const labels = pesos.map(p => p.fecha);
+    const series = pesos.map((p) => p.pesoKg);
+    const labels = pesos.map((p) => p.fecha);
     return {
       series: [{ name: 'Peso', data: series }],
       chart: {
@@ -159,7 +160,9 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
       fill: {
         type: 'gradient',
         gradient: {
-          shadeIntensity: 1, opacityFrom: 0.25, opacityTo: 0.02,
+          shadeIntensity: 1,
+          opacityFrom: 0.25,
+          opacityTo: 0.02,
           colorStops: [
             { offset: 0, color: '#2ED38D', opacity: 0.25 },
             { offset: 100, color: '#2ED38D', opacity: 0.02 },
@@ -232,9 +235,13 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
       });
 
     const observablesObj: Record<string, any> = {
-      historialPesos: this.seg.getHistorialPesos(atletaId).pipe(tap((h) => this.historialPesos.set(h))),
-      checkInPendiente: this.seg.tieneCheckInPendiente(atletaId).pipe(tap((b) => this.checkInPendiente.set(b))),
-    }
+      historialPesos: this.seg
+        .getHistorialPesos(atletaId)
+        .pipe(tap((h) => this.historialPesos.set(h))),
+      checkInPendiente: this.seg
+        .tieneCheckInPendiente(atletaId)
+        .pipe(tap((b) => this.checkInPendiente.set(b))),
+    };
 
     forkJoin(observablesObj).subscribe(() => this.loadingPeso.set(false));
   }
@@ -277,13 +284,17 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   // ── Navegación ────────────────────────────────────────────────────────────
 
   abrirHilo(hilo: Hilo): void {
+    this.loadingMensajes.set(true);
     this.hilos.update((list) => list.map((h) => (h.id === hilo.id ? { ...h, leido: true } : h)));
     this.hiloActivo.set(this.hilos().find((h) => h.id === hilo.id) ?? hilo);
     this.textoRespuesta.set('');
     this.respuestaAdjuntos.set([]);
     this.vista.set('detalle');
 
-    this.http.get<any>(`${this.API}/hilos/${hilo.id}`).subscribe((r) => {
+    this.http
+    .get<any>(`${this.API}/hilos/${hilo.id}`)
+    .pipe(finalize(() => this.loadingMensajes.set(false)))
+    .subscribe((r) => {
       if (!r) return;
       const h = r?.data ?? r;
       const hiloCompleto: Hilo = {
