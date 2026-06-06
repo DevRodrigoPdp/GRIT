@@ -15,14 +15,16 @@
         <div class="flex mb-4 w-fit" style="border: 1px solid rgba(var(--_bw),0.14);">
           <button type="button" (click)="rolConectar.set('ENTRENAMIENTO')"
             class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors"
-            [class]="rolConectar() === 'ENTRENAMIENTO' ? 'bg-black text-white' : ''"
-            [style]="rolConectar() !== 'ENTRENAMIENTO' ? 'color: rgba(var(--_tw),0.60);' : ''">
+            [style]="rolConectar() === 'ENTRENAMIENTO'
+              ? 'background: rgba(59,130,246,0.16); color: #60A5FA; border-bottom: 2px solid #3B82F6;'
+              : 'color: rgba(var(--_tw),0.60);'">
             ENTRENADOR
           </button>
           <button type="button" (click)="rolConectar.set('NUTRICION')"
             class="px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-colors"
-            [style]="rolConectar() !== 'NUTRICION' ? 'border-left: 1px solid rgba(var(--_bw),0.14); color: rgba(var(--_tw),0.60);' : 'border-left: 1px solid rgba(var(--_bw),0.14);'"
-            [class]="rolConectar() === 'NUTRICION' ? 'bg-black text-white' : ''">
+            [style]="rolConectar() === 'NUTRICION'
+              ? 'border-left: 1px solid rgba(var(--_bw),0.14); background: rgba(46,211,141,0.12); color: #2ED38D; border-bottom: 2px solid #2ED38D;'
+              : 'border-left: 1px solid rgba(var(--_bw),0.14); color: rgba(var(--_tw),0.60);'">
             NUTRICIONISTA
           </button>
         </div>
