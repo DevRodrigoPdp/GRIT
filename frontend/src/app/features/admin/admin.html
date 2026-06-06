@@ -41,7 +41,7 @@
 
   <div class="flex-1 min-h-0 flex overflow-hidden">
     <!-- Sidebar -->
-    <aside class="w-14 lg:w-60 flex flex-col py-8 flex-shrink-0" style="
+    <aside class="w-14 lg:w-60 flex flex-col pt-8 flex-shrink-0" style="
         background: var(--c-sidebar);
         border-right: 1px solid rgba(var(--_bw), 0.05);
       ">
@@ -84,8 +84,7 @@
       <div class="flex-1"></div>
 
       <!-- Cerrar sesión -->
-      <div class="flex flex-col gap-1 px-2">
-        <!-- Cerrar sesión -->
+      <div class="px-2" style="border-top: 1px solid rgba(var(--_bw), 0.1); padding-top: 12px; padding-bottom: 12px">
         <button (click)="cerrarSesion()"
           class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
           style="color: rgba(var(--_bw),0.50); border: 1px solid transparent;"
