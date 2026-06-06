@@ -124,38 +124,57 @@
 
     <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
     <aside
-      class="flex flex-col pt-8 overflow-hidden transition-[width,transform] duration-300 ease-in-out z-40 fixed top-14 bottom-0 left-0 md:static md:flex-shrink-0 md:translate-x-0"
+      class="flex flex-col overflow-hidden transition-[width,transform] duration-300 ease-in-out z-40
+             fixed top-14 bottom-0 left-0
+             md:static md:flex-shrink-0 md:translate-x-0"
       [ngClass]="mobileMenuOpen() ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
       [style.width]="sidebarOpen() ? '14rem' : '3.5rem'"
-      style="background: var(--c-sidebar); border-right: 1px solid rgba(var(--_bw), 0.08)"
+      style="background: var(--c-sidebar); border-right: 1px solid rgba(var(--_bw),0.08);"
       (mouseenter)="sidebarHovered.set(true)"
       (mouseleave)="sidebarHovered.set(false)"
     >
-      @if (sidebarOpen()) {
-        <div class="px-4 mb-6 flex items-center justify-between">
-          <span
-            class="text-[9px] font-black tracking-[0.4em] uppercase"
-            style="color: rgba(var(--_tw), 0.35)"
-            >ENTRENADOR</span
-          >
-          <button
-            (click)="sidebarPinned.set(!sidebarPinned())"
-            class="flex items-center gap-1.5 px-2 py-1 transition-all"
-            [style.color]="sidebarPinned() ? '#2ED38D' : 'rgba(var(--_tw),0.45)'"
-            [attr.aria-pressed]="sidebarPinned()"
-            [attr.aria-label]="sidebarPinned() ? 'Desanclar barra lateral' : 'Anclar barra lateral'"
-          >
-            <svg
-              lucidePin
-              class="w-4 h-4"
-              [class.pin-filled]="sidebarPinned()"
-              aria-hidden="true"
-            ></svg>
-          </button>
+       <!-- Identidad del entrenador -->
+      <div class="px-3 py-4 flex items-center gap-3 flex-shrink-0"
+        style="border-bottom: 1px solid rgba(var(--_bw),0.10);">
+        @if (perfil()?.fotoUrl) {
+          <img [src]="perfil()!.fotoUrl!" alt="Foto de perfil"
+            class="w-8 h-8 object-cover flex-shrink-0" />
+        } @else {
+          <div class="w-8 h-8 bg-black flex-shrink-0 flex items-center justify-center">
+            <span class="text-[10px] font-black text-[#2ED38D] uppercase select-none">
+              {{ (perfil()?.nombre ?? auth.nombre() ?? 'A').split(' ').slice(0,2).map(n => n[0]).join('') }}
+            </span>
+          </div>
+        }
+        <div class="min-w-0 flex-1 overflow-hidden whitespace-nowrap transition-[opacity,max-width] duration-300 ease-in-out"
+             [style.opacity]="sidebarOpen() ? '1' : '0'"
+             [style.max-width]="sidebarOpen() ? '10rem' : '0'">
+          <p class="text-xs font-black uppercase tracking-tight text-white leading-none truncate">{{ perfil()?.nombre ?? auth.nombre() }}</p>
+          <p class="text-[10px] text-[#2ED38D] font-bold mt-0.5">
+            {{ perfil()?.titulacionEntrenamiento && perfil()?.titulacionNutricion
+              ? 'Entr + Nutr'
+              : perfil()?.titulacionEntrenamiento
+                ? 'Entrenador'
+                : perfil()?.titulacionNutricion
+                  ? 'Nutricionista'
+                  : 'Entrenador' }}
+          </p>
         </div>
-      }
+        <button
+          (click)="sidebarPinned.set(!sidebarPinned())"
+          class="flex-shrink-0 flex items-center gap-1.5 px-2 py-1 transition-[opacity] duration-300"
+          [style.opacity]="sidebarOpen() ? '1' : '0'"
+          [style.pointer-events]="sidebarOpen() ? 'auto' : 'none'"
+          [style.color]="sidebarPinned() ? '#2ED38D' : 'rgba(var(--_tw),0.45)'"
+          [attr.aria-pressed]="sidebarPinned()"
+          [attr.aria-label]="sidebarPinned() ? 'Desanclar barra lateral' : 'Anclar barra lateral'"
+        >
+          <svg lucidePin class="w-4 h-4" [class.pin-filled]="sidebarPinned()" aria-hidden="true"></svg>
+        </button>
+      </div>
 
-      <nav class="flex flex-col gap-1 px-2">
+      <!-- Navegación -->
+      <nav class="py-2 flex-1 px-2">
         @for (item of navItems; track item.id) {
           <button
             (click)="navegarA(item.id)"
