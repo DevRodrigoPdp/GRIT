@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, EntrenadorPendienteDTO, UsuarioDTO } from './services/admin.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
 
 @Component({
@@ -14,6 +15,7 @@ import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicat
 export class AdminPage implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
 
   // Navegación
   readonly seccionActual = signal<'SOLICITUDES' | 'USUARIOS'>('SOLICITUDES');
