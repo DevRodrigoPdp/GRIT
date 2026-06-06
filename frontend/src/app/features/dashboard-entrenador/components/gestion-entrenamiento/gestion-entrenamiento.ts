@@ -227,7 +227,7 @@ export class GestionEntrenamientoComponent implements OnInit {
       return nuevasSesiones;
     });
 
-    this.cerrarModal();
+    this.limpiarForm();
   }
 
   quitarEjercicio(sesionIdx: number, ejId: string): void {
