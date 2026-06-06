@@ -1,4 +1,4 @@
-﻿<div>
+<div>
   <div class="mb-8">
     <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">
       MI PERFIL
@@ -57,54 +57,26 @@
   @if (perfilAtleta()) {
     @let p = perfilAtleta()!;
 
-    <!-- Datos personales (siempre solo lectura) -->
+    <!-- Datos personales -->
     <div class="mb-8">
-      <p
-        class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4"
-        style="color: rgba(var(--_tw),0.60)"
-      >
+      <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(var(--_tw),0.60)">
         DATOS PERSONALES
       </p>
       <div style="border: 1px solid rgba(var(--_bw),0.14)">
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Nombre</span
-          >
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Nombre</span>
           <span class="text-sm text-white font-light">{{ p.nombre }}</span>
         </div>
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Correo</span
-          >
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Correo</span>
           <span class="text-sm text-white font-light">{{ p.email }}</span>
         </div>
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Fecha de nacimiento</span
-          >
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Fecha de nacimiento</span>
           <span class="text-sm text-white font-light">{{ formatFecha(p.fechaNac) }}</span>
         </div>
         <div class="px-5 py-3.5 flex items-center justify-between">
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Género</span
-          >
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Género</span>
           <span class="text-sm text-white font-light">{{ labelGenero(p.genero) }}</span>
         </div>
       </div>
@@ -112,43 +84,20 @@
 
     <!-- Datos deportivos -->
     <div class="mb-8">
-      <p
-        class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4"
-        style="color: rgba(var(--_tw),0.60)"
-      >
+      <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(var(--_tw),0.60)">
         DATOS DEPORTIVOS
       </p>
       <div style="border: 1px solid rgba(var(--_bw),0.14)">
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Deporte</span
-          >
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Deporte</span>
           <span class="text-sm text-white font-light">{{ p.deporte }}</span>
         </div>
-
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Nivel</span
-          >
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Nivel</span>
           <span class="text-sm text-white font-light">{{ labelNivel(p.nivel) }}</span>
         </div>
-
         <div class="px-5 py-3.5 flex items-center justify-between">
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Objetivo</span
-          >
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Objetivo</span>
           <span class="text-sm text-white font-light">{{ labelObjetivo(p.objetivo) }}</span>
         </div>
       </div>
@@ -156,66 +105,30 @@
 
     <!-- Datos físicos -->
     <div class="mb-8">
-      <p
-        class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4"
-        style="color: rgba(var(--_tw),0.60)"
-      >
+      <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(var(--_tw),0.60)">
         DATOS FÍSICOS
       </p>
       <div style="border: 1px solid rgba(var(--_bw),0.14)">
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Peso</span
-          >
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Peso</span>
           <span class="text-sm text-white font-light">{{ p.peso }} kg</span>
         </div>
-
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Altura</span
-          >
+        <div class="px-5 py-3.5 flex items-center justify-between" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide" style="color: rgba(var(--_tw),0.60)">Altura</span>
           <span class="text-sm text-white font-light">{{ p.altura }} cm</span>
         </div>
-
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-            >Restricciones Dietéticas</span
-          >
-
+        <div class="px-5 py-3.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1" style="border-bottom: 1px solid rgba(var(--_bw),0.10)">
+          <span class="text-xs font-bold uppercase tracking-wide shrink-0" style="color: rgba(var(--_tw),0.60)">Restricciones Dietéticas</span>
           @if (p.restriccionesDieteticas) {
-            <span class="text-sm text-white font-light">{{ p.restriccionesDieteticas }}</span>
+            <span class="text-sm text-white font-light break-words shrink-0 max-w-full">{{ p.restriccionesDieteticas }}</span>
           } @else {
             <span class="text-sm font-light" style="color: rgba(var(--_tw),0.60)">—</span>
           }
         </div>
-
-        <div
-          class="px-5 py-3.5 flex items-center justify-between"
-          style="border-bottom: 1px solid rgba(var(--_bw),0.10)"
-        >
-          <span
-            class="text-xs font-bold uppercase tracking-wide"
-            style="color: rgba(var(--_tw),0.60)"
-          >
-            Restricciones Físicas</span
-          >
+        <div class="px-5 py-3.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <span class="text-xs font-bold uppercase tracking-wide shrink-0" style="color: rgba(var(--_tw),0.60)">Restricciones Físicas</span>
           @if (p.restriccionesFisicas) {
-            <span class="text-sm text-white font-light">{{ p.restriccionesFisicas }}</span>
+            <span class="text-sm text-white font-light break-words shrink-0 max-w-full">{{ p.restriccionesFisicas }}</span>
           } @else {
             <span class="text-sm font-light" style="color: rgba(var(--_tw),0.60)">—</span>
           }
