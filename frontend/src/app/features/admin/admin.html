@@ -15,11 +15,28 @@
         {{ seccionActual() === 'SOLICITUDES' ? 'GESTIÓN DE SOLICITUDES' : 'GESTIÓN DE USUARIOS' }}
       </span>
     </div>
-    @if (auth.nombre()) {
-    <span class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(var(--_bw), 0.58)">
-      {{ auth.nombre() }}
-    </span>
-    }
+    <div class="flex items-center gap-3">
+      @if (auth.nombre()) {
+      <span class="text-[10px] font-black tracking-[0.2em] uppercase hidden md:block" style="color: rgba(var(--_bw), 0.58)">
+        {{ auth.nombre() }}
+      </span>
+      }
+      <button (click)="theme.toggle()"
+        class="w-8 h-8 flex items-center justify-center transition-all duration-200"
+        style="color: rgba(var(--_bw),0.55); border: 1px solid rgba(var(--_bw),0.10);"
+        onmouseenter="this.style.color='rgba(var(--_bw),0.90)'; this.style.background='rgba(var(--_bw),0.06)'"
+        onmouseleave="this.style.color='rgba(var(--_bw),0.55)'; this.style.background='transparent'">
+        @if (theme.isDark()) {
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="square"/>
+        </svg>
+        } @else {
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke-linecap="square"/>
+        </svg>
+        }
+      </button>
+    </div>
   </header>
 
   <div class="flex-1 min-h-0 flex overflow-hidden">
@@ -66,26 +83,8 @@
       <!-- Spacer -->
       <div class="flex-1"></div>
 
-      <!-- Tema + Cerrar sesión -->
+      <!-- Cerrar sesión -->
       <div class="flex flex-col gap-1 px-2">
-        <!-- Toggle tema -->
-        <button (click)="theme.toggle()"
-          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
-          style="color: rgba(var(--_bw),0.50); border: 1px solid transparent;"
-          onmouseenter="this.style.color='rgba(var(--_bw),0.85)'; this.style.background='rgba(var(--_bw),0.05)'"
-          onmouseleave="this.style.color='rgba(var(--_bw),0.50)'; this.style.background='transparent'">
-          @if (theme.isDark()) {
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="square"/>
-          </svg>
-          } @else {
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke-linecap="square"/>
-          </svg>
-          }
-          <span class="hidden lg:block text-[11px] font-black tracking-[0.2em] uppercase">{{ theme.isDark() ? 'MODO CLARO' : 'MODO OSCURO' }}</span>
-        </button>
-
         <!-- Cerrar sesión -->
         <button (click)="cerrarSesion()"
           class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
