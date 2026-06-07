@@ -297,7 +297,20 @@ export class GestionEntrenamientoComponent implements OnInit {
       },
       error: (err: any) => {
         this.guardando.set(false);
-        this.errorGuardando.set('Error en el servidor. Inténtalo de nuevo.');
+
+        let msg =
+          err?.error?.errors?.[0]?.defaultMessage ??
+          err?.error?.title ??
+          `Error ${err?.status ?? ''}`;
+
+        const invalidParams = err?.error?.invalid_params;
+
+        if (invalidParams && typeof invalidParams === 'object') {
+          for (const [campo, mensaje] of Object.entries(invalidParams)) {
+            msg += `\n- ${mensaje}`;
+          }
+        }
+        this.errorGuardando.set(msg);
         console.error('Error persistiendo rutina:', err);
       },
     };

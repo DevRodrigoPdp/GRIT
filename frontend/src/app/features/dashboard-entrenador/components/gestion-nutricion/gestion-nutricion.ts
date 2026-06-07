@@ -28,7 +28,6 @@ export class GestionNutricionComponent implements OnInit {
 
   readonly loadingPlanes = signal(false);
 
-
   // ── Estado principal ──────────────────────────────────────────────────────
   vista = signal<Vista>('lista');
   planes = signal<PlanNutricion[]>([]);
@@ -147,7 +146,7 @@ export class GestionNutricionComponent implements OnInit {
   guardarPlan() {
     const atletaId = this.atletaId();
     const editandoId = this.planEditandoId();
-    const macros = this.totales(); 
+    const macros = this.totales();
     if (!atletaId || !this.nombrePlan().trim()) return;
 
     if (this.comidas().length === 0) {
@@ -198,10 +197,18 @@ export class GestionNutricionComponent implements OnInit {
           },
           error: (err) => {
             this.guardando.set(false);
-            const msg =
+             let msg =
               err?.error?.errors?.[0]?.defaultMessage ??
-              err?.error?.message ??
+              err?.error?.title ??
               `Error ${err?.status ?? ''}`;
+
+            const invalidParams = err?.error?.invalid_params;
+
+            if (invalidParams && typeof invalidParams === 'object') {
+              for (const [campo, mensaje] of Object.entries(invalidParams)) {
+                msg += `\n- ${mensaje}`;
+              }
+            }
             this.errorGuardando.set(msg);
           },
         });
@@ -226,10 +233,18 @@ export class GestionNutricionComponent implements OnInit {
           },
           error: (err) => {
             this.guardando.set(false);
-            const msg =
+            let msg =
               err?.error?.errors?.[0]?.defaultMessage ??
-              err?.error?.message ??
+              err?.error?.title ??
               `Error ${err?.status ?? ''}`;
+
+            const invalidParams = err?.error?.invalid_params;
+
+            if (invalidParams && typeof invalidParams === 'object') {
+              for (const [campo, mensaje] of Object.entries(invalidParams)) {
+                msg += `\n- ${mensaje}`;
+              }
+            }
             this.errorGuardando.set(msg);
           },
         });
