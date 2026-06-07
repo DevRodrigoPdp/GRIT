@@ -59,11 +59,11 @@ public class AdminController {
 
     @Operation(summary = "Listar entrenadores pendientes con búsqueda flexible por nombre o correo")
     @GetMapping("/entrenadores/pendientes/search")
-    public ResponseEntity<Page<EntrenadorBusquedaDTO>> getPendientes(
-            @RequestParam(required = false) String search,
+    public ResponseEntity<Page<EntrenadorPendienteDTO>> getPendientes(
+            @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") @Min(0) @Max(100) int page,
             @RequestParam(defaultValue = "15") @Min(1) @Max(50) int size) {
-        Page<EntrenadorBusquedaDTO> resultado = adminService.obtenerPendientesBuscador(search, page, size);
+        Page<EntrenadorPendienteDTO> resultado = adminService.obtenerPendientesBuscador(q, page, size);
 
         return ResponseEntity.ok(resultado);
     }

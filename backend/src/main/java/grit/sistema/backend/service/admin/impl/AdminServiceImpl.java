@@ -1,5 +1,8 @@
 package grit.sistema.backend.service.admin.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import grit.sistema.backend.dto.coaching.DocumentoDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
@@ -42,6 +45,7 @@ public class AdminServiceImpl implements AdminService {
     private final UsuarioMapper usuarioMapper;
     private final StorageService storageService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -65,7 +69,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<EntrenadorBusquedaDTO> obtenerPendientesBuscador(String search, int page, int size) {
+    public Page<EntrenadorPendienteDTO> obtenerPendientesBuscador(String search, int page, int size) {
         String cleanSearch = (search == null) ? "" : search.trim()
                 .replace("%", "\\%")
                 .replace("_", "\\_");
@@ -73,12 +77,13 @@ public class AdminServiceImpl implements AdminService {
         // 2. Creación de Pageable seguro (sin Sort externo)
         Pageable pageable = PageRequest.of(page, size);
 
-        // 3. Ejecución con el estado PENDIENTE fijo
-        return entrenadorRepository.findPendientesConFiltro(
+        Page<EntrenadorBusquedaDTO> proyecciones = entrenadorRepository.findPendientesConFiltro(
                 EstadoRevision.PENDIENTE_REVISION.name(),
                 cleanSearch,
                 pageable
         );
+
+        return proyecciones.map(this::convertirARecord);
     }
 
     /**
@@ -204,8 +209,44 @@ public class AdminServiceImpl implements AdminService {
                 e.getTitulacionEntrenamiento() != null ? e.getTitulacionEntrenamiento().name() : "SIN_TITULO",
                 e.getTitulacionNutricion() != null ? e.getTitulacionNutricion().name() : "SIN_TITULO",
                 e.getCodigoProfesional(),
-                e.getCreatedAt(),
+                e.getCreatedAt().toInstant(),
                 docs
+        );
+    }
+
+    private EntrenadorPendienteDTO convertirARecord(EntrenadorBusquedaDTO proyeccion) {
+        List<DocumentoDTO> listaDocsRaw = new ArrayList<>();
+
+        if (proyeccion.getDocumentosRawJson() != null && !proyeccion.getDocumentosRawJson().isBlank()) {
+            try {
+                listaDocsRaw = objectMapper.readValue(
+                        proyeccion.getDocumentosRawJson(),
+                        new TypeReference<List<DocumentoDTO>>() {}
+                );
+            } catch (JsonProcessingException e) {
+                listaDocsRaw = List.of();
+            }
+        }
+
+        List<DocumentoDTO> documentosConUrlsFirmadas = listaDocsRaw.stream()
+                .map(doc -> new DocumentoDTO(
+                        doc.id(),
+                        doc.nombreArchivo(),
+                        storageService.getPresignedUrl(doc.urlFirmada()),
+                        doc.uploadedAt(),
+                        doc.status()
+                ))
+                .toList();
+
+        return new EntrenadorPendienteDTO(
+                proyeccion.getId(),
+                proyeccion.getNombre(),
+                proyeccion.getEmail(),
+                proyeccion.getTitulacionEntrenamiento(),
+                proyeccion.getTitulacionNutricion(),
+                proyeccion.getCodigoProfesional(),
+                proyeccion.getCreatedAt(),
+                documentosConUrlsFirmadas
         );
     }
 }

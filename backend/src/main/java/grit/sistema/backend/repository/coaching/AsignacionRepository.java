@@ -28,6 +28,8 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
 
     Optional<Asignacion> findByEntrenadorIdAndAtletaId(UUID entrenadorId, UUID atletaId);
 
+    Optional<Asignacion> findFirstByEntrenadorIdAndAtletaIdOrderByCreadaEnDesc(UUID entrenadorId, UUID atletaId);
+
     Optional<Asignacion> findByAtletaIdAndActivaTrueAndTipoServicio(UUID atletaId, TipoServicio tipo);
 
     boolean existsByAtletaIdAndTipoServicioAndActivaTrue(UUID atletaId, TipoServicio tipoServicio);
@@ -41,4 +43,8 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
     void desactivarAsignacionesPorAtleta(UUID atletaId);
 
     boolean existsByAtletaIdAndEntrenadorIdAndActivaTrue(UUID atletaId, UUID entrenadorId);
+
+    boolean existsByAtletaIdAndEntrenadorIdAndActivaTrueAndTipoServicio(UUID atletaId, UUID entrenadorId, TipoServicio tipoServicio);
+
+    boolean existsByAtletaIdAndActivaTrueAndTipoServicio(UUID atletaId, TipoServicio servicioContexto);
 }

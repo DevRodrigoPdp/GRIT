@@ -1,6 +1,5 @@
 package grit.sistema.backend.service.admin;
 
-import grit.sistema.backend.dto.coaching.EntrenadorBusquedaDTO;
 import grit.sistema.backend.dto.coaching.EntrenadorPendienteDTO;
 import grit.sistema.backend.dto.user.UsuarioBusquedaDTO;
 import grit.sistema.backend.dto.user.UsuarioResponseDTO;
@@ -15,7 +14,7 @@ public interface AdminService {
 
     Page<EntrenadorPendienteDTO> obtenerPendientes(int page, int size);
 
-    Page<EntrenadorBusquedaDTO> obtenerPendientesBuscador(String searchTerm, int page, int size);
+    Page<EntrenadorPendienteDTO> obtenerPendientesBuscador(String searchTerm, int page, int size);
 
     void procesarAprobacion(UUID id, boolean aprobado, String motivo);
 

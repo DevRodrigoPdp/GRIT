@@ -1,35 +1,50 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://db-postgresql:5432/grit_db}
+    url: ${DB_URL:jdbc:postgresql://postgres-db:5432/grit_db}
     username: ${DB_USERNAME:app_user}
     password: ${DB_PASSWORD:password_container_prod_secret}
     driver-class-name: org.postgresql.Driver
     hikari:
-      pool-name: Grit-Docker-Pool
-      connection-timeout: 10000
-      maximum-pool-size: 15
-      minimum-idle: 5
-
+      pool-name: Grit-HikariPool
+      connection-timeout: 5000
+      maximum-pool-size: 10
+      minimum-idle: 10
+      max-lifetime: 900000
+      idle-timeout: 300000
+      connection-test-query: SELECT 1
   flyway:
     enabled: true
-    connect-retries: 10
+    locations: classpath:db/migration
     baseline-on-migrate: true
-    clean-disabled: true
-
+    clean-disabled: false
   jpa:
     hibernate:
-      ddl-auto: validate # Obligatorio: la DB se gestiona solo vía Flyway
+      ddl-auto: validate # Flyway manda, Hibernate solo valida que todo coincida
     show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
 
 logging:
   level:
     root: INFO
-    # Reducimos el ruido en logs de contenedores para no saturar el storage de logs
-    grit.sistema.backend: INFO
-    org.hibernate.SQL: ERROR
-    org.springframework.security: WARN
+    grit.sistema.backend: DEBUG
+    # Hibernate / JPA: El "rayo X" de tu base de datos
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    # Limpieza de ruido: No queremos ver estadísticas internas a menos que busquemos fugas
+    org.hibernate.stat: ERROR
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: ERROR
+    # Seguridad: Vital para entender por qué un JWT es rechazado
+    org.springframework.security: INFO
+    org.springframework.security.web.FilterChainProxy: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springdoc: ERROR
 
 application:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:80}
   security:
     pepper: ${SECURITY_PEPPER:secret_pepper_docker_2026}
     jwt:
@@ -38,7 +53,7 @@ application:
       secure: false
   storage:
     # El endpoint apunta al nombre del servicio de MinIO en Docker
-    endpoint: ${STORAGE_ENDPOINT:http://minio-service:9000}
+    endpoint: ${STORAGE_ENDPOINT:http://grit-minio:9000}
     access-key: ${STORAGE_ACCESS_KEY:minio_container_user}
     secret-key: ${STORAGE_SECRET_KEY:minio_container_password}
     bucket-name: grit-certificaciones-entrenadores

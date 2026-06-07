@@ -27,7 +27,7 @@ out/
 # 2. SEGURIDAD Y VARIABLES DE ENTORNO (CRÍTICO)
 # =================================================================
 # Jamás subir secretos al repositorio [cite: 25]
-backend/.env
+.env
 .env.local
 .env.*.local
 *.pem

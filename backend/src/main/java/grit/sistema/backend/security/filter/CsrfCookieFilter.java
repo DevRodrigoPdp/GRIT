@@ -10,10 +10,24 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 @Slf4j
 public class CsrfCookieFilter extends OncePerRequestFilter {
+
+    private static final String[] EXCLUDED_PATHS = {
+            "/v3/api-docs",
+            "/swagger-ui",
+            "/swagger-ui.html"
+    };
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return Arrays.stream(EXCLUDED_PATHS).anyMatch(path::startsWith);
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

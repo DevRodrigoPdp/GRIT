@@ -20,6 +20,7 @@ import grit.sistema.backend.service.user.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -39,6 +41,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final PwnedPasswordClient pwnedClient;
     private final StorageService storageService;
+    private final CacheManager cacheManager; // Inyección de la abstracción de caché
+
+    private static final String CACHE_ATLETA = "perfilAtleta";
+    private static final String CACHE_ENTRENADOR = "perfilEntrenador";
 
     @Override
     @Transactional(readOnly = true)
@@ -120,13 +126,16 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         String carpeta;
         String urlAntigua;
+        String cacheANulificar;
 
         if (usuario instanceof Entrenador e) {
             carpeta = "profiles/entrenadores";
             urlAntigua = e.getFotoUrl();
+            cacheANulificar = CACHE_ENTRENADOR;
         } else if (usuario instanceof Atleta a) {
             carpeta = "profiles/atletas";
             urlAntigua = a.getFotoUrl();
+            cacheANulificar = CACHE_ATLETA;
         } else {
             throw new IllegalArgumentException("Tipo de usuario no soportado");
         }
@@ -139,6 +148,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         if (usuario instanceof Entrenador e) e.setFotoUrl(fotoKey);
         if (usuario instanceof Atleta a) a.setFotoUrl(fotoKey);
+
+        evictCache(cacheANulificar, usuarioId);
 
         return new FotoPerfilResponseDTO(storageService.getPresignedUrl(fotoKey));
     }
@@ -171,5 +182,13 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         usuario.setEstado(EstadoUsuario.SUSPENDIDO);
+    }
+
+    private void evictCache(String cacheName, UUID usuarioId) {
+        Optional.ofNullable(cacheManager.getCache(cacheName))
+                .ifPresent(cache -> {
+                    cache.evict(usuarioId);
+                    log.info("Caché evictada con éxito. Región: '{}', Clave: '{}'", cacheName, usuarioId);
+                });
     }
 }

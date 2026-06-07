@@ -252,7 +252,6 @@ public class GlobalExceptionHandler {
     // --- 3. RECURSOS Y CONFLICTOS (404, 409) ---
 
     @ExceptionHandler({
-            EntityNotFoundException.class,
             ResourceNotFoundException.class
     })
     public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
@@ -264,6 +263,23 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 "resource-not-found",
                 request);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ProblemDetail handleEntityNotFound(EntityNotFoundException ex, HttpServletRequest request) {
+
+        // Estructura normalizada bajo el estándar RFC 7807
+        ProblemDetail pb = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND, // Código 404 real
+                ex.getMessage()       // Mostrará "Asignación no encontrada"
+        );
+
+        pb.setTitle("Recurso No Encontrado");
+        pb.setType(URI.create("https://api.GRIT.com/errors/not-found"));
+        pb.setInstance(URI.create(request.getRequestURI()));
+        pb.setProperty("timestamp", LocalDateTime.now());
+
+        return pb;
     }
 
     // 1. CONCURRENCIA: Cuando dos usuarios editan lo mismo

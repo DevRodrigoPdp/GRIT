@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import java.util.List;
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
+    private final Environment environment;
     private final UsuarioRepository usuarioRepository;
     private final EntrenadorRepository entrenadorRepository;
     private final AtletaRepository atletaRepository;
@@ -45,32 +47,50 @@ public class DataInitializer implements CommandLineRunner {
     public DataInitializer(UsuarioRepository usuarioRepository,
                            EntrenadorRepository entrenadorRepository,
                            AtletaRepository atletaRepository,
-                           PasswordEncoder passwordEncoder, CodeGenerator codeGenerator) {
+                           PasswordEncoder passwordEncoder,
+                           CodeGenerator codeGenerator,
+                           Environment environment) {
         this.usuarioRepository = usuarioRepository;
         this.entrenadorRepository = entrenadorRepository;
         this.atletaRepository = atletaRepository;
         this.passwordEncoder = passwordEncoder;
         this.codeGenerator = codeGenerator;
+        this.environment = environment;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
-        if (usuarioRepository.count() <= 3) {
-            log.info(">>>> [SEED] Base de datos vacía. Iniciando creación de usuarios para entorno: {}",
-                    System.getProperty("spring.profiles.active"));
+        String perfilesActivos = String.join(", ", environment.getActiveProfiles());
 
+        log.info(">>>> [SEED] Iniciando verificación de usuarios de prueba para el entorno: [{}]", perfilesActivos);
+
+        boolean seHicieronCambios = false;
+
+        if (!usuarioRepository.existsByEmail(adminEmail)) {
+            log.info(">>>> [SEED] Creando usuario ADMINISTRADOR: {}", adminEmail);
             crearAdminSiNoExiste(adminEmail);
-            usuarioRepository.flush();
+            seHicieronCambios = true;
+        }
 
+        if (!usuarioRepository.existsByEmail(coachEmail)) {
+            log.info(">>>> [SEED] Creando usuario ENTRENADOR: {}", coachEmail);
             crearEntrenadorSiNoExiste(coachEmail);
-            usuarioRepository.flush();
+            seHicieronCambios = true;
+        }
 
+        if (!usuarioRepository.existsByEmail(athleteEmail)) {
+            log.info(">>>> [SEED] Creando usuario ATLETA: {}", athleteEmail);
             crearAtletaSiNoExiste(athleteEmail);
+            seHicieronCambios = true;
+        }
 
-            log.info(">>>> [SEED] Inicialización completada exitosamente.");
+        if (seHicieronCambios) {
+            // Un único flush al final de la transacción optimiza el rendimiento del pool
+            usuarioRepository.flush();
+            log.info(">>>> [SEED] Inicialización de usuarios completada exitosamente.");
         } else {
-            log.info(">>>> [SEED] La base de datos ya contiene datos. Saltando inicialización.");
+            log.info(">>>> [SEED] Todos los usuarios específicos del entorno ya existen. Saltando inicialización.");
         }
     }
 
@@ -97,8 +117,8 @@ public class DataInitializer implements CommandLineRunner {
             coach.setEstado(EstadoUsuario.ACTIVO);
             coach.setPassword(passwordEncoder.encode("password123"));
 
-            // Datos del Hijo (Entrenador)
-            coach.setCodigoProfesional("COL-00000");
+            String codigoProf = "COL-" + codeGenerator.generateGritFormat().substring(0, 5).toUpperCase();
+            coach.setCodigoProfesional(codigoProf);
             coach.setTitulacionEntrenamiento(TitulacionEntrenamiento.GRADO_CAFYD);
             coach.setTitulacionNutricion(TitulacionNutricion.GRADO_NUTRICION_DIETETICA);
             coach.setTieneAccesoEntrenamiento(true);

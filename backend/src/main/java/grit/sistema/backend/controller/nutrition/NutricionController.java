@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/nutricion")
@@ -36,7 +38,9 @@ public class NutricionController {
             @RequestParam(required = false) UUID atletaId
     ) {
         List<PlanNutricionResponseDTO> planes = nutricionService.listarPlanes(principal.getId(), atletaId);
-        return ResponseEntity.ok(ApiResponseDTO.success(planes, "Planes de nutrición encontrados"));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
+                .body(ApiResponseDTO.success(planes, "Planes de nutrición encontrados"));
     }
 
     @Operation(summary = "Crear plan de nutrición")
