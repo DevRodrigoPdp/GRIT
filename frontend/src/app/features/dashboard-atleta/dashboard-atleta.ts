@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet, NgClass } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import {
   AtletaService,
   PerfilAtleta,
@@ -13,15 +14,19 @@ import {
   ProfesionalAsignado,
 } from './services/atleta.service';
 import { ComunicacionAtletaComponent } from './components/comunicacion/comunicacion-atleta';
+import { LucidePin } from '@lucide/angular';
 import { VistaEntrenamientoComponent } from './components/vista-entrenamiento/vista-entrenamiento';
 import { VistaDietaComponent } from './components/vista-dieta/vista-dieta';
 import { VistaPerfilAtletaComponent } from './components/vista-perfil/vista-perfil-atleta';
 import { AjustesAtletaComponent } from './components/ajustes/ajustes-atleta';
 import { VistaProfesionalesComponent } from './components/vista-profesionales/vista-profesionales';
+import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
+import { NgApexchartsModule } from 'ng-apexcharts';
+import type { ApexOptions } from 'ng-apexcharts';
+import { forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 type Vista = 'entrenamiento' | 'dieta' | 'cuaderno' | 'profesionales' | 'perfil' | 'ajustes';
-
-interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
 
 @Component({
   selector: 'app-dashboard-atleta',
@@ -33,32 +38,36 @@ interface ChartPoint { x: number; y: number; peso: number; fecha: string; }
     VistaPerfilAtletaComponent,
     AjustesAtletaComponent,
     VistaProfesionalesComponent,
+    ScrollIndicatorDirective,
+    NgApexchartsModule,
     FormsModule,
     NgTemplateOutlet,
     NgClass,
+    LucidePin,
   ],
   templateUrl: './dashboard-atleta.html',
 })
 export class DashboardAtletaPage implements OnInit {
-  readonly auth   = inject(AuthService);
+  readonly auth = inject(AuthService);
   readonly atleta = inject(AtletaService);
+  readonly theme = inject(ThemeService);
 
   readonly cargando = signal(true);
 
   // ── Datos ─────────────────────────────────────────────────────────────────
-  readonly perfilAtleta       = signal<PerfilAtleta | null>(null);
-  readonly profesionales      = signal<ProfesionalAsignado[]>([]);
-  readonly planEntrenamiento  = signal<PlanEntrenamiento | null>(null);
-  readonly planNutricion      = signal<PlanNutricion | null>(null);
-  readonly solicitudCheckIn   = signal<SolicitudCheckIn | null>(null);
-  readonly historialPesos     = signal<CheckInPeso[]>([]);
+  readonly perfilAtleta = signal<PerfilAtleta | null>(null);
+  readonly profesionales = signal<ProfesionalAsignado[]>([]);
+  readonly planEntrenamiento = signal<PlanEntrenamiento | null>(null);
+  readonly planNutricion = signal<PlanNutricion | null>(null);
+  readonly solicitudCheckIn = signal<SolicitudCheckIn | null>(null);
+  readonly historialPesos = signal<CheckInPeso[]>([]);
   readonly notasNutricionista = signal<NotaNutricionista[]>([]);
 
   // ── Navegación ────────────────────────────────────────────────────────────
   readonly vistaActual = signal<Vista>('entrenamiento');
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
-  sidebarPinned  = signal(false);
+  sidebarPinned = signal(false);
   sidebarHovered = signal(false);
   mobileMenuOpen = signal(false);
   readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered() || this.mobileMenuOpen());
@@ -67,17 +76,17 @@ export class DashboardAtletaPage implements OnInit {
     const s = this.auth.servicio();
     const items: { id: Vista; label: string }[] = [];
     if (s === 'ENTRENAMIENTO' || s === 'AMBOS') items.push({ id: 'entrenamiento', label: 'ENTRENAMIENTO' });
-    if (s === 'NUTRICION'     || s === 'AMBOS') items.push({ id: 'dieta',          label: 'DIETA'           });
-    items.push({ id: 'cuaderno',      label: 'COMUNICACIÓN'  });
+    if (s === 'NUTRICION' || s === 'AMBOS') items.push({ id: 'dieta', label: 'DIETA' });
+    items.push({ id: 'cuaderno', label: 'COMUNICACIÓN' });
     items.push({ id: 'profesionales', label: 'PROFESIONALES' });
-    items.push({ id: 'perfil',        label: 'MI PERFIL'     });
-    items.push({ id: 'ajustes',       label: 'AJUSTES'       });
+    items.push({ id: 'perfil', label: 'MI PERFIL' });
+    items.push({ id: 'ajustes', label: 'AJUSTES' });
     return items;
   });
 
   // ── Peso (cuaderno check-in widget) ───────────────────────────────────────
   readonly pesoInputValor = signal('');
-  readonly enviandoPeso   = signal(false);
+  readonly enviandoPeso = signal(false);
 
   // ── Comunicación ─────────────────────────────────────────────────────────
   readonly contextoChat = signal<'ENTRENAMIENTO' | 'NUTRICION'>('ENTRENAMIENTO');
@@ -90,19 +99,20 @@ export class DashboardAtletaPage implements OnInit {
   );
 
   // ── Computeds ─────────────────────────────────────────────────────────────
-  readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
+  readonly chartOptions = computed<ApexOptions>(() => {
     const pesos = this.historialPesos();
-    if (pesos.length < 2) return null;
-    const W = 460, H = 60, padX = 20, padY = 8;
-    const weights = pesos.map(p => p.pesoKg);
-    const minW = Math.min(...weights) - 1;
-    const maxW = Math.max(...weights) + 1;
-    const toX = (i: number) => padX + (i / (pesos.length - 1)) * (W - 2 * padX);
-    const toY = (w: number) => padY + H - ((w - minW) / (maxW - minW)) * H;
-    const points: ChartPoint[] = pesos.map((p, i) => ({
-      x: toX(i), y: toY(p.pesoKg), peso: p.pesoKg, fecha: p.fecha,
-    }));
-    return { points, polyline: points.map(p => `${p.x},${p.y}`).join(' ') };
+    return {
+      series: [{ name: 'Peso', data: pesos.map(p => p.pesoKg) }],
+      chart: { type: 'area', height: 180, toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: true, speed: 1200, animateGradually: { enabled: true, delay: 200 }, dynamicAnimation: { enabled: true, speed: 600 } }, background: 'transparent', foreColor: 'rgba(150,150,150,0.8)' },
+      stroke: { curve: 'smooth', width: 2, colors: ['#2ED38D'] },
+      fill: { type: 'gradient', gradient: { colorStops: [{ offset: 0, color: '#2ED38D', opacity: 0.25 }, { offset: 100, color: '#2ED38D', opacity: 0.02 }] } },
+      markers: { size: 4, colors: ['#2ED38D'], strokeColors: 'transparent', hover: { size: 6 } },
+      xaxis: { categories: pesos.map(p => p.fecha), labels: { style: { fontSize: '10px', colors: 'rgba(150,150,150,0.75)' } }, axisBorder: { show: false }, axisTicks: { show: false }, tooltip: { enabled: false } },
+      yaxis: { labels: { style: { fontSize: '10px', colors: 'rgba(150,150,150,0.75)' }, formatter: (v: number) => `${v} kg`, offsetX: -4 }, tickAmount: 3 },
+      grid: { borderColor: 'rgba(180,180,180,0.10)', strokeDashArray: 3, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } }, padding: { left: 10, right: 8 } },
+      tooltip: { theme: 'dark', x: { show: true }, y: { formatter: (v: number) => `${v} kg` } },
+      dataLabels: { enabled: false },
+    };
   });
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -117,26 +127,29 @@ export class DashboardAtletaPage implements OnInit {
   private cargarDatos(): void {
     const s = this.auth.servicio();
     const incluyeEntrenamiento = s === 'ENTRENAMIENTO' || s === 'AMBOS';
-    const incluyeNutricion     = s === 'NUTRICION'     || s === 'AMBOS';
+    const incluyeNutricion = s === 'NUTRICION' || s === 'AMBOS';
 
     if (!incluyeEntrenamiento) {
       this.vistaActual.set('dieta');
       this.contextoChat.set('NUTRICION');
     }
 
-    this.atleta.getPerfil().subscribe(p => this.perfilAtleta.set(p));
-    this.atleta.getProfesionalesAsignados().subscribe(p => this.profesionales.set(p));
-    this.atleta.getSolicitudCheckIn().subscribe(s => this.solicitudCheckIn.set(s));
-    this.atleta.getHistorialPesos().subscribe(h => this.historialPesos.set(h));
+    const observablesObj: Record<string, any> = {
+      perfil: this.atleta.getPerfil().pipe(tap(p => this.perfilAtleta.set(p))),
+      profesionales: this.atleta.getProfesionalesAsignados().pipe(tap(p => this.profesionales.set(p))),
+      checkIn: this.atleta.getSolicitudCheckIn().pipe(tap(s => this.solicitudCheckIn.set(s))),
+      pesos: this.atleta.getHistorialPesos().pipe(tap(h => this.historialPesos.set(h))),
+    };
 
     if (incluyeEntrenamiento) {
-      this.atleta.getPlanEntrenamiento().subscribe(p => this.planEntrenamiento.set(p));
+      observablesObj['entrenamiento'] = this.atleta.getPlanEntrenamiento().pipe(tap(p => this.planEntrenamiento.set(p)));
     }
 
     if (incluyeNutricion) {
-      this.atleta.getPlanNutricion().subscribe(p => this.planNutricion.set(p));    }
+      observablesObj['nutricion'] = this.atleta.getPlanNutricion().pipe(tap(p => this.planNutricion.set(p)));
+    }
 
-    this.cargando.set(false);
+    forkJoin(observablesObj).subscribe(() => this.cargando.set(false));
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────
@@ -169,12 +182,19 @@ export class DashboardAtletaPage implements OnInit {
 
   onPerfilActualizado(p: PerfilAtleta): void { this.perfilAtleta.set(p); }
 
-  onProfesionalesActualizados(p: ProfesionalAsignado[]): void { this.profesionales.set(p); }
+  onProfesionalesActualizados(p: ProfesionalAsignado[]): void {
+    const prev = this.profesionales();
+    this.profesionales.set(p);
+    const tieniaEntrenador = prev.some(x => x.rol === 'ENTRENADOR');
+    const tieniaNutricionista = prev.some(x => x.rol === 'NUTRICIONISTA');
+    if (tieniaEntrenador && !p.some(x => x.rol === 'ENTRENADOR')) this.planEntrenamiento.set(null);
+    if (tieniaNutricionista && !p.some(x => x.rol === 'NUTRICIONISTA')) { this.planNutricion.set(null); this.notasNutricionista.set([]); }
+  }
 
   // ── Helper (cuaderno graficaPeso template) ────────────────────────────────
   formatFecha(fecha: string): string {
     const [year, month, day] = fecha.split('-');
-    const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
     return `${parseInt(day)} ${meses[parseInt(month) - 1]} ${year}`;
   }
 }

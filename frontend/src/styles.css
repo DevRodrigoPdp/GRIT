@@ -9,8 +9,20 @@
   --font-family-sans: 'Inter', 'Geist', system-ui, sans-serif;
 }
 
+/* ApexCharts — hover marker transition */
+.apexcharts-series-markers circle {
+  transition: r 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              opacity 0.45s ease !important;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 html {
@@ -24,6 +36,44 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+}
+
+/* ─── SCROLL INDICATOR ──────────────────────────────────────────────────── */
+.scroll-indicator-hint {
+  position: sticky;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.65);
+  pointer-events: auto;  
+  cursor: pointer;       
+  transition: opacity 0.3s ease;
+  animation: scroll-bounce 1.6s ease-in-out infinite;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.scroll-indicator-hint:hover {
+  background: rgba(255,255,255,0.20);
+  color: rgba(255,255,255,0.85);
+  transform: translateX(-50%) scale(1.1);
+}
+
+html.light .scroll-indicator-hint {
+  background: rgba(0,0,0,0.10);
+  color: rgba(0,0,0,0.45);
+}
+
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(5px); }
 }
 
 /* Progress bar animation */
@@ -228,3 +278,51 @@ html::-webkit-scrollbar {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ─── THEME TOKENS ──────────────────────────────────────────────── */
+:root {
+  --_tw: 255, 255, 255;
+  --_bw: 255, 255, 255;
+  --c-text-1:      #FFFFFF;
+  --c-bg:          linear-gradient(135deg, #0C0C14 0%, #12121C 50%, #0E0E18 100%);
+  --c-header:      linear-gradient(90deg,  #08080E 0%, #0F0F18 50%, #08080E 100%);
+  --c-sidebar:     linear-gradient(180deg, #08080E 0%, #0F0F1A 100%);
+  --c-surface:     #111118;
+  --c-dropdown:    #16161f;
+  --c-section:     rgba(0, 0, 0, 0.28);
+  --c-section-mid: rgba(0, 0, 0, 0.15);
+  --c-overlay:     rgba(0, 0, 0, 0.6);
+}
+
+html.light {
+  --_tw: 30, 27, 75;
+  --_bw: 99, 102, 241;
+  --c-text-1:      #1E1B4B;
+  --c-bg:          #F5F7FF;
+  --c-header:      #FFFFFF;
+  --c-sidebar:     linear-gradient(180deg, #EEF2FF 0%, #E8EDFF 100%);
+  --c-surface:     #FFFFFF;
+  --c-dropdown:    #F8FAFF;
+  --c-section:     rgba(99, 102, 241, 0.05);
+  --c-section-mid: rgba(99, 102, 241, 0.03);
+  --c-overlay:     rgba(0, 0, 0, 0.4);
+}
+
+/* Chincheta rellena para estado anclado */
+.pin-filled path { fill: currentColor; stroke: none; }
+
+/* ─── THEME TRANSITION ──────────────────────────────────────────────── */
+html.theme-transitioning .dashboard-root,
+html.theme-transitioning .dashboard-root * {
+  transition: color 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease !important;
+}
+
+html.light .dashboard-root .text-white,
+html.light .dashboard-root .text-white\/80,
+html.light .dashboard-root .text-white\/60,
+html.light .dashboard-root .text-white\/40 { color: #1E1B4B !important; }
+html.light .dashboard-root .hover\:text-white:hover { color: #1E1B4B !important; }
+html.light .dashboard-root .bg-black { background-color: #EEF2FF !important; }
+html.light .dashboard-root input::placeholder,
+html.light .dashboard-root textarea::placeholder { color: rgba(30,27,75,0.40) !important; }
+html.light .dashboard-root select option { background: #FFFFFF; color: #1E1B4B; }

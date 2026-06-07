@@ -213,12 +213,14 @@ export class EntrenamientoService {
     atletaId: string,
     nombre: string,
     descripcion: string,
+    activo: boolean,
     sesiones: Sesion[],
   ): Observable<Rutina> {
     const payload = {
       atletaId,
       nombre,
       descripcion,
+      activo,
       sesiones: sesiones.map((s, si) => ({
         nombre: s.nombre,
         orden: si,
@@ -234,7 +236,7 @@ export class EntrenamientoService {
     };
     return this.http
       .put<
-        ApiResponse<{ id: string; atletaId: string; creadoEn: string; activa: boolean }>
+        ApiResponse<{ id: string; atletaId: string; creadoEn: string; activo: boolean }>
       >(`${this.API}/rutinas/${rutinaId}`, payload)
       .pipe(
         map((r) => ({
@@ -244,7 +246,7 @@ export class EntrenamientoService {
           descripcion,
           sesiones,
           creadoEn: new Date(r.data.creadoEn),
-          activa: r.data.activa,
+          activa: r.data.activo,
         })),
       );
   }

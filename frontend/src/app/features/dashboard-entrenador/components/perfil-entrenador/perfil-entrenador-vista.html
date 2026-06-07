@@ -1,313 +1,293 @@
-<div class="flex-1 min-h-0 overflow-y-auto px-6 md:px-10 py-10 w-full">
+<div class="flex-1 min-h-0 overflow-y-auto w-full" scrollIndicator>
+  <div class="px-6 md:px-10 py-10 flex flex-col gap-4">
 
-  <!-- Cabecera -->
-  <div class="mb-10">
-    <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter text-white leading-none">
-      MI<br>PERFIL
-    </h1>
-  </div>
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-1">
+      <div class="w-5 h-px bg-[#2ED38D]"></div>
+      <span class="text-[10px] font-black tracking-[0.35em] uppercase text-[#2ED38D]">ENTRENADOR</span>
+    </div>
+    <h1 class="text-6xl md:text-7xl font-black uppercase tracking-tighter leading-none mb-4" style="color: var(--c-text-1)">MI PERFIL</h1>
 
-  <!-- Grid principal -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-    <!-- Columna izquierda: identidad -->
-    <div class="lg:col-span-1 flex flex-col gap-4">
-
-      <!-- Avatar + nombre -->
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-        <div class="h-1 bg-[#2ED38D]" style="background: linear-gradient(90deg, #2ED38D, #22B574)"></div>
-        <div class="p-6 flex flex-col items-center text-center gap-4">
-          <div class="relative group">
-            @if (fotoMostrada()) {
-              <img [src]="fotoMostrada()!" alt="Foto de perfil"
-                class="w-24 h-24 object-cover" style="border: 1px solid rgba(255,255,255,0.1);" />
-            } @else {
-              <div class="w-24 h-24 flex items-center justify-center"
-                style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); box-shadow: 0 8px 32px rgba(46,211,141,0.25);">
-                <span class="text-3xl font-black text-black">{{ iniciales() }}</span>
-              </div>
-            }
-            <button type="button" (click)="fileInputFoto.click()"
-              [disabled]="subiendoFoto()"
-              class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-              <span class="text-[10px] font-black tracking-widest text-white uppercase">
-                {{ subiendoFoto() ? '...' : 'CAMBIAR' }}
-              </span>
-            </button>
-          </div>
-          <input #fileInputFoto type="file" accept="image/*" class="hidden"
-            (change)="seleccionarFoto($event)" />
-          <div>
-            <h2 class="text-xl font-black uppercase tracking-tighter text-white leading-tight mb-1">
-              {{ nombre() }}
-            </h2>
-            @if (email()) {
-              <p class="text-xs font-light mb-2" style="color: rgba(255,255,255,0.4);">{{ email() }}</p>
-            }
-            <span class="text-[11px] font-bold tracking-[0.2em] uppercase text-[#2ED38D]">● VERIFICADO</span>
-          </div>
-        </div>
+    <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+    <div class="relative overflow-hidden" style="border: 1px solid rgba(var(--_bw),0.14); background: rgba(var(--_bw),0.04);">
+      <!-- Accent bar top -->
+      <div class="h-[3px]"
+        [style.background]="auth.tituloEntrenamiento() && auth.tituloNutricion()
+          ? 'linear-gradient(90deg,#3B82F6 0%,#2ED38D 100%)'
+          : auth.tituloEntrenamiento() ? '#3B82F6' : '#2ED38D'">
       </div>
 
-      <!-- Experiencia -->
-      @if (experiencia()) {
-        <div class="p-6" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-2" style="color: rgba(255,255,255,0.35);">EXPERIENCIA</p>
-          <p class="text-4xl font-black text-white">{{ experiencia() }}<span class="text-lg font-light ml-1" style="color: rgba(255,255,255,0.4);">año{{ experiencia() === 1 ? '' : 's' }}</span></p>
+      <!-- Ghost iniciales -->
+      <span class="absolute right-6 top-1/2 -translate-y-1/2 font-black leading-none select-none pointer-events-none tabular-nums"
+        style="font-size: 9rem; color: rgba(var(--_bw),0.04)">{{ iniciales() }}</span>
+
+      <div class="relative p-6 md:p-8 flex items-center gap-6 md:gap-10">
+
+        <!-- Avatar -->
+        <div class="relative group flex-shrink-0">
+          @if (fotoMostrada()) {
+            <img [src]="fotoMostrada()!" alt="Foto de perfil"
+              class="w-24 h-24 md:w-28 md:h-28 object-cover"
+              style="border: 1px solid rgba(var(--_bw),0.20);" />
+          } @else {
+            <div class="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center font-black text-2xl"
+              [style]="auth.tituloEntrenamiento() && auth.tituloNutricion()
+                ? 'background: linear-gradient(135deg,rgba(59,130,246,0.18),rgba(46,211,141,0.18)); color:#2ED38D; border: 1px solid rgba(46,211,141,0.22);'
+                : auth.tituloEntrenamiento()
+                  ? 'background: rgba(59,130,246,0.14); color:#60A5FA; border: 1px solid rgba(59,130,246,0.28);'
+                  : 'background: linear-gradient(135deg,#2ED38D,#22B574); color:#000;'">
+              {{ iniciales() }}
+            </div>
+          }
+          <button type="button" (click)="fileInputFoto.click()" [disabled]="subiendoFoto()"
+            class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+            <span class="text-[9px] font-black tracking-widest text-white uppercase">{{ subiendoFoto() ? '...' : 'CAMBIAR' }}</span>
+          </button>
         </div>
-      }
+        <input #fileInputFoto type="file" accept="image/*" class="hidden" (change)="seleccionarFoto($event)" />
+
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+          <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter leading-none truncate mb-1"
+            style="color: var(--c-text-1)">{{ nombre() }}</h2>
+          @if (email()) {
+            <p class="text-xs font-medium mb-3 truncate" style="color: rgba(var(--_tw),0.45)">{{ email() }}</p>
+          }
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D]">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D]" style="box-shadow: 0 0 5px rgba(46,211,141,0.7)"></span>
+            VERIFICADO
+          </span>
+
+          <!-- Stats -->
+          @if (experiencia()) {
+            <div class="flex items-end gap-6 mt-5 pt-5" style="border-top: 1px solid rgba(var(--_bw),0.10);">
+              <div>
+                <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-0.5" style="color: rgba(var(--_tw),0.40)">EXPERIENCIA</span>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-3xl font-black leading-none" style="color: var(--c-text-1)">{{ experiencia() }}</span>
+                  <span class="text-xs font-medium" style="color: rgba(var(--_tw),0.45)">años</span>
+                </div>
+              </div>
+              <div class="w-px h-10" style="background: rgba(var(--_bw),0.14)"></div>
+              <div>
+                <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-0.5" style="color: rgba(var(--_tw),0.40)">MÓDULOS</span>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-3xl font-black leading-none" style="color: var(--c-text-1)">
+                    {{ (auth.tituloEntrenamiento() ? 1 : 0) + (auth.tituloNutricion() ? 1 : 0) }}
+                  </span>
+                  <span class="text-xs font-medium" style="color: rgba(var(--_tw),0.45)">activos</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Grid: módulos + código ─────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- Módulos activos -->
+      <div class="flex flex-col gap-3">
+        <p class="text-[9px] font-black tracking-[0.35em] uppercase" style="color: rgba(var(--_tw),0.40)">MÓDULOS ACTIVOS</p>
+        @if (auth.tituloEntrenamiento()) {
+          <div class="flex overflow-hidden" style="border: 1px solid rgba(59,130,246,0.22); background: rgba(59,130,246,0.05);">
+            <div class="w-[3px] flex-shrink-0" style="background: linear-gradient(180deg,#3B82F6,#2563EB)"></div>
+            <div class="flex-1 p-4">
+              <span class="text-[10px] font-black tracking-[0.18em] uppercase inline-block mb-2 px-2 py-0.5"
+                style="background: rgba(59,130,246,0.16); color: #60A5FA; border: 1px solid rgba(59,130,246,0.28);">ENTRENAMIENTO</span>
+              @if (titulacionEntLabel()) {
+                <p class="text-xs font-light leading-relaxed" style="color: rgba(var(--_tw),0.60)">{{ titulacionEntLabel() }}</p>
+              }
+            </div>
+          </div>
+        }
+        @if (auth.tituloNutricion()) {
+          <div class="flex overflow-hidden" style="border: 1px solid rgba(46,211,141,0.22); background: rgba(46,211,141,0.04);">
+            <div class="w-[3px] flex-shrink-0" style="background: linear-gradient(180deg,#2ED38D,#22B574)"></div>
+            <div class="flex-1 p-4">
+              <span class="text-[10px] font-black tracking-[0.18em] uppercase inline-block mb-2 px-2 py-0.5"
+                style="background: rgba(46,211,141,0.16); color: #2ED38D; border: 1px solid rgba(46,211,141,0.30);">NUTRICIÓN</span>
+              @if (titulacionNutrLabel()) {
+                <p class="text-xs font-light leading-relaxed" style="color: rgba(var(--_tw),0.60)">{{ titulacionNutrLabel() }}</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
 
       <!-- Código de invitación -->
       @if (perfil()?.codigoInvitacion; as codigo) {
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <div class="px-5 py-3" style="background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <p class="text-[10px] font-bold tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.35);">CÓDIGO DE INVITACIÓN</p>
-          </div>
-          <div class="p-5 flex flex-col gap-4">
-            <!-- Código copiable -->
-            <button
-              (click)="copiarCodigo()"
-              class="flex items-center justify-between px-4 py-3 w-full transition-all"
-              style="border: 1px solid rgba(255,255,255,0.1);"
-              onmouseenter="this.style.borderColor='rgba(255,255,255,0.25)'"
-              onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)'"
-              title="Copiar código"
-            >
-              <span class="text-base font-black tracking-[0.15em] text-white">{{ codigo }}</span>
-              <span class="text-[10px] font-bold tracking-[0.15em] uppercase transition-colors"
-                [style.color]="codigoCopiado() ? '#2ED38D' : 'rgba(255,255,255,0.3)'">
-                {{ codigoCopiado() ? '✓ COPIADO' : 'COPIAR' }}
-              </span>
-            </button>
-            <!-- Invitar por email -->
-            <div class="flex gap-2">
-              <input
-                [ngModel]="emailInvitacion()"
-                (ngModelChange)="emailInvitacion.set($event)"
-                (keydown.enter)="enviarInvitacion()"
-                type="email"
-                placeholder="correo@atleta.com"
-                class="flex-1 min-w-0 px-3 py-2 text-sm font-light text-white placeholder:text-white/30 outline-none transition-colors bg-transparent"
-                style="border: 1px solid rgba(255,255,255,0.1);"
-                onfocus="this.style.borderColor='rgba(255,255,255,0.25)'"
-                onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
-              />
-              <button
-                (click)="enviarInvitacion()"
-                [disabled]="!emailInvitacion().trim() || enviandoInvitacion()"
-                class="flex-shrink-0 px-3 py-2 text-[10px] font-black tracking-[0.15em] uppercase transition-all"
-                [style]="invitacionEnviada()
-                  ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black;'
-                  : !emailInvitacion().trim() || enviandoInvitacion()
-                    ? 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: not-allowed;'
-                    : 'background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: white;'"
-              >
-                @if (invitacionEnviada()) { ✓ }
-                @else if (enviandoInvitacion()) { ... }
-                @else { ENVIAR }
-              </button>
+        <div class="flex flex-col gap-4 p-5" style="background: rgba(var(--_bw),0.04); border: 1px solid rgba(var(--_bw),0.14);">
+          <p class="text-[9px] font-black tracking-[0.35em] uppercase" style="color: rgba(var(--_tw),0.40)">CÓDIGO DE INVITACIÓN</p>
+
+          <div class="flex items-center gap-2">
+            <div class="flex-1 px-4 py-3 font-mono text-base font-black tracking-[0.12em]"
+              style="background: rgba(var(--_bw),0.07); border: 1px solid rgba(var(--_bw),0.18); color: var(--c-text-1);">
+              {{ codigo }}
             </div>
-            <p class="text-[10px] font-light leading-relaxed -mt-1" style="color: rgba(255,255,255,0.4);">
-              El atleta introduce este código al registrarse para vincularse contigo automáticamente.
-            </p>
+            <button (click)="copiarCodigo()"
+              class="flex-shrink-0 px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-all flex items-center gap-2"
+              [style]="codigoCopiado()
+                ? 'background: rgba(46,211,141,0.18); color: #2ED38D; border: 1px solid rgba(46,211,141,0.35);'
+                : 'background: linear-gradient(135deg,#2ED38D,#22B574); color: black;'"
+              onmouseenter="if(!this.classList.contains('copied')) this.style.boxShadow='0 4px 16px rgba(46,211,141,0.28)'"
+              onmouseleave="this.style.boxShadow='none'">
+              @if (codigoCopiado()) {
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="square"/></svg>
+                COPIADO
+              } @else {
+                COPIAR
+              }
+            </button>
           </div>
+
+          <p class="text-[11px] font-light leading-relaxed" style="color: rgba(var(--_tw),0.45)">
+            El atleta introduce este código al registrarse para vincularse contigo automáticamente.
+          </p>
         </div>
       }
-
     </div>
 
-    <!-- Columna derecha: módulos + descripción -->
-    <div class="lg:col-span-2 flex flex-col gap-4">
+    <!-- ── Sobre mí ────────────────────────────────────────────────────────── -->
+    @if (descripcion()) {
+      <div class="p-5" style="background: rgba(var(--_bw),0.04); border: 1px solid rgba(var(--_bw),0.14);">
+        <p class="text-[9px] font-black tracking-[0.35em] uppercase mb-3" style="color: rgba(var(--_tw),0.40)">SOBRE MÍ</p>
+        <p class="text-sm font-light leading-relaxed" style="color: rgba(var(--_tw),0.70)">{{ descripcion() }}</p>
+      </div>
+    }
 
-      <!-- Módulos -->
-      <div class="p-6" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-        <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(255,255,255,0.35);">MÓDULOS ACTIVOS</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          @if (auth.tituloEntrenamiento()) {
-            <div class="p-4" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
-              <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 inline-block mb-2 text-white"
-                style="background: rgba(255,255,255,0.12);">
-                ENTRENAMIENTO
-              </span>
-              @if (titulacionEntLabel()) {
-                <p class="text-xs font-light leading-relaxed" style="color: rgba(255,255,255,0.5);">{{ titulacionEntLabel() }}</p>
-              }
-            </div>
-          }
-          @if (auth.tituloNutricion()) {
-            <div class="p-4" style="background: rgba(46,211,141,0.05); border: 1px solid rgba(46,211,141,0.2);">
-              <span class="text-[11px] font-black tracking-[0.15em] uppercase px-2.5 py-1 bg-[#2ED38D] text-black inline-block mb-2">
-                NUTRICIÓN
-              </span>
-              @if (titulacionNutrLabel()) {
-                <p class="text-xs font-light leading-relaxed" style="color: rgba(255,255,255,0.5);">{{ titulacionNutrLabel() }}</p>
-              }
-            </div>
+    <!-- ── Formación adicional (pills) ───────────────────────────────────── -->
+    @if (perfil()?.masters?.length) {
+      <div class="p-5" style="background: rgba(var(--_bw),0.04); border: 1px solid rgba(var(--_bw),0.14);">
+        <p class="text-[9px] font-black tracking-[0.35em] uppercase mb-4" style="color: rgba(var(--_tw),0.40)">FORMACIÓN ADICIONAL</p>
+        <div class="flex flex-wrap gap-2">
+          @for (master of perfil()!.masters; track master) {
+            <span class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium"
+              style="background: rgba(var(--_bw),0.08); border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.75);">
+              <span class="w-1 h-1 rounded-full bg-[#2ED38D] flex-shrink-0"></span>
+              {{ master }}
+            </span>
           }
         </div>
       </div>
+    }
 
-      <!-- Descripción -->
-      @if (descripcion()) {
-        <div class="p-6 flex-1" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-3" style="color: rgba(255,255,255,0.35);">SOBRE MÍ</p>
-          <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.62);">{{ descripcion() }}</p>
-        </div>
-      }
+    <!-- ── Ampliar formación ──────────────────────────────────────────────── -->
+    @if (puedeAmpliar()) {
+      <div style="background: rgba(var(--_bw),0.04); border: 1px solid rgba(var(--_bw),0.14);">
+        <div class="h-[3px]" style="background: linear-gradient(90deg,#2ED38D,#22B574)"></div>
+        <div class="p-5">
+          <p class="text-[9px] font-black tracking-[0.35em] uppercase mb-1" style="color: rgba(var(--_tw),0.40)">AMPLIAR FORMACIÓN</p>
+          <p class="text-base font-black uppercase tracking-tighter mb-1" style="color: var(--c-text-1)">
+            Habilitar módulo de {{ moduloAAmpliar() === 'NUTRICION' ? 'Nutrición' : 'Entrenamiento' }}
+          </p>
+          <p class="text-xs font-light mb-5 leading-relaxed" style="color: rgba(var(--_tw),0.55)">
+            Si has obtenido la titulación en
+            {{ moduloAAmpliar() === 'NUTRICION' ? 'dietética y nutrición' : 'actividad física y del deporte' }},
+            envía la documentación para que revisemos y activemos el módulo en tu cuenta.
+          </p>
 
-      <!-- Másteres -->
-      @if (perfil()?.masters?.length) {
-        <div class="p-6" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style="color: rgba(255,255,255,0.35);">FORMACIÓN ADICIONAL</p>
-          <div class="flex flex-col gap-2">
-            @for (master of perfil()!.masters; track master) {
-              <div class="flex items-center gap-3">
-                <span class="w-1 h-1 bg-[#2ED38D] flex-shrink-0"></span>
-                <span class="text-sm font-light" style="color: rgba(255,255,255,0.62);">{{ master }}</span>
-              </div>
-            }
-          </div>
-        </div>
-      }
+          @if (solicitudPendiente()) {
+            <div class="flex items-center gap-3 px-4 py-3" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.2);">
+              <span class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D]">● EN REVISIÓN</span>
+              <p class="text-xs font-light" style="color: rgba(var(--_tw),0.65)">Tu solicitud está siendo revisada. Te avisaremos por correo en un plazo de 48h.</p>
+            </div>
+          } @else if (estadoSolicitud() === 'enviada') {
+            <div class="px-5 py-4" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.3);">
+              <p class="text-xs font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">SOLICITUD ENVIADA</p>
+              <p class="text-xs font-light" style="color: rgba(var(--_tw),0.65)">La revisaremos en un máximo de 48h y te notificaremos por correo.</p>
+            </div>
+          } @else {
+            <button type="button" (click)="toggleExpanding()"
+              class="text-xs font-black tracking-[0.2em] uppercase transition-colors mb-4 flex items-center gap-2"
+              [style.color]="expandiendo() ? 'rgba(var(--_tw),0.50)' : 'var(--c-text-1)'">
+              <span>{{ expandiendo() ? '✕' : '+' }}</span>
+              {{ expandiendo() ? 'CANCELAR' : 'SOLICITAR AMPLIACIÓN' }}
+            </button>
 
-      <!-- ── Ampliación de formación ── -->
-      @if (puedeAmpliar()) {
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-          <div class="h-1" style="background: linear-gradient(90deg, #2ED38D, #22B574)"></div>
-          <div class="p-6">
-            <p class="text-[10px] font-bold tracking-[0.3em] uppercase mb-1" style="color: rgba(255,255,255,0.35);">AMPLIAR FORMACIÓN</p>
-            <p class="text-sm font-black uppercase tracking-tighter text-white mb-1">
-              Habilitar módulo de {{ moduloAAmpliar() === 'NUTRICION' ? 'Nutrición' : 'Entrenamiento' }}
-            </p>
-            <p class="text-xs font-light mb-5 leading-relaxed" style="color: rgba(255,255,255,0.5);">
-              Si has obtenido la titulación en
-              {{ moduloAAmpliar() === 'NUTRICION' ? 'dietética y nutrición' : 'actividad física y del deporte' }},
-              envía la documentación para que revisemos y activemos el módulo en tu cuenta.
-            </p>
-
-            @if (solicitudPendiente()) {
-              <div class="flex items-center gap-3 px-4 py-3" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.2);">
-                <span class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D]">● EN REVISIÓN</span>
-                <p class="text-xs font-light" style="color: rgba(255,255,255,0.5);">Tu solicitud está siendo revisada. Te avisaremos por correo en un plazo de 48h.</p>
-              </div>
-
-            } @else if (estadoSolicitud() === 'enviada') {
-              <div class="px-5 py-4" style="background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.3);">
-                <p class="text-xs font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">SOLICITUD ENVIADA</p>
-                <p class="text-xs font-light" style="color: rgba(255,255,255,0.5);">La revisaremos en un máximo de 48h y te notificaremos por correo.</p>
-              </div>
-
-            } @else {
-              <button
-                type="button"
-                (click)="toggleExpanding()"
-                class="text-xs font-black tracking-[0.2em] uppercase transition-colors mb-4"
-                [style.color]="expandiendo() ? 'rgba(255,255,255,0.4)' : 'white'"
-                onmouseenter="this.style.color='#2ED38D'" onmouseleave=""
-              >
-                {{ expandiendo() ? '✕ CANCELAR' : '+ SOLICITAR AMPLIACIÓN' }}
-              </button>
-
-              @if (expandiendo()) {
-                <div class="flex flex-col gap-5">
-
-                  <!-- Seleccionar titulación -->
-                  <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold tracking-[0.2em] uppercase text-white">
-                      Titulación obtenida <span class="text-[#2ED38D]">*</span>
-                    </label>
-                    <div class="relative">
-                      <select
-                        [value]="titulacionAmpliacion()"
-                        (change)="titulacionAmpliacion.set($any($event.target).value)"
-                        class="w-full border-b border-white/20 bg-transparent py-3 text-sm font-medium text-white outline-none appearance-none cursor-pointer pr-8 focus:border-[#2ED38D] transition-colors"
-                        [style.color]="titulacionAmpliacion() ? 'white' : 'rgba(255,255,255,0.3)'"
-                      >
-                        <option value="" style="background: #111118; color: rgba(255,255,255,0.4);">Selecciona tu titulación</option>
-                        @for (op of titulacionesDisponibles(); track op.value) {
-                          <option [value]="op.value" style="background: #111118; color: white;">{{ op.label }}</option>
-                        }
-                      </select>
-                      <svg class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" viewBox="0 0 16 16" fill="none" style="color: rgba(255,255,255,0.4);">
-                        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-                      </svg>
-                    </div>
+            @if (expandiendo()) {
+              <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-2">
+                  <label class="text-[10px] font-bold tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.60)">
+                    TITULACIÓN OBTENIDA <span style="color: #2ED38D">*</span>
+                  </label>
+                  <div class="relative">
+                    <select [value]="titulacionAmpliacion()" (change)="titulacionAmpliacion.set($any($event.target).value)"
+                      class="w-full py-3 text-sm font-medium text-white outline-none appearance-none cursor-pointer pr-8 bg-transparent transition-colors"
+                      style="border-bottom: 2px solid rgba(var(--_bw),0.20);"
+                      onfocus="this.style.borderBottomColor='#2ED38D'"
+                      onblur="this.style.borderBottomColor='rgba(var(--_bw),0.20)'"
+                      [style.color]="titulacionAmpliacion() ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.50)'">
+                      <option value="" style="background: var(--c-dropdown)">Selecciona tu titulación</option>
+                      @for (op of titulacionesDisponibles(); track op.value) {
+                        <option [value]="op.value" style="background: var(--c-surface); color: var(--c-text-1)">{{ op.label }}</option>
+                      }
+                    </select>
+                    <svg class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" viewBox="0 0 16 16" fill="none" style="color: rgba(var(--_tw),0.60)">
+                      <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+                    </svg>
                   </div>
-
-                  <!-- Drop zone documentos -->
-                  <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold tracking-[0.2em] uppercase text-white">
-                      Documentación acreditativa <span class="text-[#2ED38D]">*</span>
-                    </label>
-                    <label
-                      class="flex flex-col items-center justify-center gap-3 py-8 px-4 cursor-pointer transition-all duration-200"
-                      [style]="dragOverAmpliacion()
-                        ? 'border: 1px dashed #2ED38D; background: rgba(46,211,141,0.05);'
-                        : 'border: 1px dashed rgba(255,255,255,0.12);'"
-                      (dragover)="onDragOverAmp($event)"
-                      (dragleave)="onDragLeaveAmp()"
-                      (drop)="onDropAmp($event)"
-                    >
-                      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: rgba(255,255,255,0.3);">
-                        <path d="M12 16V8M8 12l4-4 4 4" stroke-linecap="square"/>
-                        <rect x="3" y="3" width="18" height="18" rx="0"/>
-                      </svg>
-                      <p class="text-xs font-bold tracking-[0.15em] uppercase text-white text-center">
-                        Arrastra o <span class="text-[#2ED38D]">selecciona</span> — PDF · JPG · PNG
-                      </p>
-                      <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple class="hidden" (change)="onFileInputAmp($event)" />
-                    </label>
-                    @if (archivosAmpliacion().length > 0) {
-                      <div class="flex flex-col gap-1.5 mt-1">
-                        @for (archivo of archivosAmpliacion(); track archivo.nombre; let i = $index) {
-                          <div class="flex items-center justify-between px-3 py-2"
-                            style="border: 1px solid rgba(255,255,255,0.08);">
-                            <div class="flex items-center gap-2">
-                              <span class="text-[9px] font-black tracking-wider text-[#2ED38D]" style="border: 1px solid rgba(46,211,141,0.4); padding: 1px 4px;">DOC</span>
-                              <div>
-                                <p class="text-xs font-bold text-white truncate max-w-[200px]">{{ archivo.nombre }}</p>
-                                <p class="text-[10px]" style="color: rgba(255,255,255,0.4);">{{ archivo.size }}</p>
-                              </div>
-                            </div>
-                            <button type="button" (click)="eliminarArchivoAmp(i)" class="transition-colors p-1" style="color: rgba(255,255,255,0.3);"
-                              onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.3)'">
-                              <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
-                                <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-                              </svg>
-                            </button>
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-
-                  <!-- Error -->
-                  @if (estadoSolicitud() === 'error') {
-                    <p class="text-xs font-bold text-red-400 tracking-wide">Error al enviar. Inténtalo de nuevo.</p>
-                  }
-
-                  <!-- Botón enviar -->
-                  <button
-                    type="button"
-                    (click)="enviarSolicitudAmpliacion()"
-                    [disabled]="!puedeEnviar() || estadoSolicitud() === 'enviando'"
-                    class="self-start px-8 py-3 text-xs font-black tracking-[0.2em] uppercase transition-all"
-                    [style]="puedeEnviar() && estadoSolicitud() !== 'enviando'
-                      ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black; box-shadow: 0 4px 16px rgba(46,211,141,0.2);'
-                      : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: not-allowed;'"
-                  >
-                    {{ estadoSolicitud() === 'enviando' ? 'ENVIANDO...' : 'ENVIAR SOLICITUD' }}
-                  </button>
-
                 </div>
-              }
-            }
-          </div>
-        </div>
-      }
 
-    </div>
+                <div class="flex flex-col gap-2">
+                  <label class="text-[10px] font-bold tracking-[0.2em] uppercase" style="color: rgba(var(--_tw),0.60)">
+                    DOCUMENTACIÓN <span style="color: #2ED38D">*</span>
+                  </label>
+                  <label class="flex flex-col items-center justify-center gap-3 py-8 px-4 cursor-pointer transition-all"
+                    [style]="dragOverAmpliacion()
+                      ? 'border: 1px dashed #2ED38D; background: rgba(46,211,141,0.05);'
+                      : 'border: 1px dashed rgba(var(--_bw),0.20);'"
+                    (dragover)="onDragOverAmp($event)" (dragleave)="onDragLeaveAmp()" (drop)="onDropAmp($event)">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: rgba(var(--_tw),0.40)">
+                      <path d="M12 16V8M8 12l4-4 4 4" stroke-linecap="square"/><rect x="3" y="3" width="18" height="18" rx="0"/>
+                    </svg>
+                    <p class="text-xs font-bold tracking-[0.15em] uppercase text-center" style="color: rgba(var(--_tw),0.70)">
+                      Arrastra o <span style="color:#2ED38D">selecciona</span> — PDF · JPG · PNG
+                    </p>
+                    <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple class="hidden" (change)="onFileInputAmp($event)" />
+                  </label>
+                  @if (archivosAmpliacion().length > 0) {
+                    <div class="flex flex-col gap-1.5 mt-1">
+                      @for (archivo of archivosAmpliacion(); track archivo.nombre; let i = $index) {
+                        <div class="flex items-center justify-between px-3 py-2" style="border: 1px solid rgba(var(--_bw),0.14);">
+                          <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-black tracking-wider text-[#2ED38D] px-1" style="border: 1px solid rgba(46,211,141,0.4)">DOC</span>
+                            <div>
+                              <p class="text-xs font-bold truncate max-w-[200px]" style="color: var(--c-text-1)">{{ archivo.nombre }}</p>
+                              <p class="text-[10px]" style="color: rgba(var(--_tw),0.50)">{{ archivo.size }}</p>
+                            </div>
+                          </div>
+                          <button type="button" (click)="eliminarArchivoAmp(i)" class="p-1 transition-colors" style="color: rgba(var(--_tw),0.40)"
+                            onmouseenter="this.style.color='rgba(220,38,38,0.8)'" onmouseleave="this.style.color='rgba(var(--_tw),0.40)'">
+                            <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
+                              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+                            </svg>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+
+                @if (estadoSolicitud() === 'error') {
+                  <p class="text-xs font-bold text-red-400">Error al enviar. Inténtalo de nuevo.</p>
+                }
+
+                <button type="button" (click)="enviarSolicitudAmpliacion()"
+                  [disabled]="!puedeEnviar() || estadoSolicitud() === 'enviando'"
+                  class="self-start px-8 py-3 text-xs font-black tracking-[0.2em] uppercase transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  [style]="puedeEnviar() && estadoSolicitud() !== 'enviando'
+                    ? 'background: linear-gradient(135deg,#2ED38D,#22B574); color: black;'
+                    : 'background: rgba(var(--_bw),0.08); border: 1px solid rgba(var(--_bw),0.14); color: rgba(var(--_tw),0.40);'">
+                  {{ estadoSolicitud() === 'enviando' ? 'ENVIANDO...' : 'ENVIAR SOLICITUD' }}
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
 
   </div>
-
 </div>

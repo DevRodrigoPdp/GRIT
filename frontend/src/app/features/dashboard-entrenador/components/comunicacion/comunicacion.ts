@@ -1,7 +1,11 @@
 import { Component, inject, input, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgApexchartsModule } from 'ng-apexcharts';
+import type { ApexOptions } from 'ng-apexcharts';
 import { SeguimientoService, CheckInPeso } from '../../services/seguimiento.service';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { finalize, tap } from 'rxjs/operators';
 
 export type CategoriaHilo = 'tecnica' | 'duda' | 'apunte';
 
@@ -46,7 +50,7 @@ interface ChartPoint {
 @Component({
   selector: 'app-comunicacion',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NgApexchartsModule],
   templateUrl: './comunicacion.html',
 })
 export class ComunicacionComponent implements OnInit, OnDestroy {
@@ -54,6 +58,10 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
 
   private readonly API = '/api/v1/comunicacion';
+
+  readonly loadingHilos = signal(false);
+  readonly loadingPeso = signal(false);
+  readonly loadingMensajes = signal(false);
 
   readonly atletaId = input.required<string>();
   readonly atletaNombre = input.required<string>();
@@ -132,32 +140,71 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   checkInPendiente = signal(false);
   solicitando = signal(false);
   historialExpandido = signal(false);
-
-  readonly chartData = computed<{ points: ChartPoint[]; polyline: string } | null>(() => {
+  readonly chartOptions = computed<ApexOptions>(() => {
     const pesos = this.historialPesos();
-    if (pesos.length < 2) return null;
-    const W = 460,
-      H = 60,
-      padX = 20,
-      padY = 8;
-    const weights = pesos.map((p) => p.pesoKg);
-    const minW = Math.min(...weights) - 1;
-    const maxW = Math.max(...weights) + 1;
-    const toX = (i: number) => padX + (i / (pesos.length - 1)) * (W - 2 * padX);
-    const toY = (w: number) => padY + H - ((w - minW) / (maxW - minW)) * H;
-    const points: ChartPoint[] = pesos.map((p, i) => ({
-      x: toX(i),
-      y: toY(p.pesoKg),
-      peso: p.pesoKg,
-      fecha: p.fecha,
-    }));
-    return { points, polyline: points.map((p) => `${p.x},${p.y}`).join(' ') };
+    const series = pesos.map((p) => p.pesoKg);
+    const labels = pesos.map((p) => p.fecha);
+    return {
+      series: [{ name: 'Peso', data: series }],
+      chart: {
+        type: 'area',
+        height: 180,
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: { enabled: true, speed: 400 },
+        background: 'transparent',
+        foreColor: 'rgba(150,150,150,0.8)',
+        sparkline: { enabled: false },
+      },
+      stroke: { curve: 'smooth', width: 2, colors: ['#2ED38D'] },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          opacityFrom: 0.25,
+          opacityTo: 0.02,
+          colorStops: [
+            { offset: 0, color: '#2ED38D', opacity: 0.25 },
+            { offset: 100, color: '#2ED38D', opacity: 0.02 },
+          ],
+        },
+      },
+      markers: { size: 4, colors: ['#2ED38D'], strokeColors: 'transparent', hover: { size: 6 } },
+      xaxis: {
+        categories: labels,
+        labels: { style: { fontSize: '10px', colors: 'rgba(150,150,150,0.75)' } },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+        tooltip: { enabled: false },
+      },
+      yaxis: {
+        labels: {
+          style: { fontSize: '10px', colors: 'rgba(150,150,150,0.75)' },
+          formatter: (v: number) => `${v} kg`,
+          offsetX: -4,
+        },
+        tickAmount: 3,
+      },
+      grid: {
+        borderColor: 'rgba(180,180,180,0.10)',
+        strokeDashArray: 3,
+        xaxis: { lines: { show: false } },
+        yaxis: { lines: { show: true } },
+        padding: { left: 10, right: 8 },
+      },
+      tooltip: {
+        theme: 'dark',
+        x: { show: true },
+        y: { formatter: (v: number) => `${v} kg` },
+      },
+      dataLabels: { enabled: false },
+    };
   });
 
   ngOnInit(): void {
     const atletaId = this.atletaId();
-    this.seg.getHistorialPesos(atletaId).subscribe((h) => this.historialPesos.set(h));
-    this.seg.tieneCheckInPendiente(atletaId).subscribe((b) => this.checkInPendiente.set(b));
+    this.loadingHilos.set(true);
+    this.loadingPeso.set(true);
 
     const ctx = this.servicio() === 'NUTRICION' ? 'NUTRICION' : 'ENTRENAMIENTO';
 
@@ -180,9 +227,23 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
             totalMensajes: h.totalMensajes,
           }));
           this.hilos.set(hilosMapeados);
+          this.loadingHilos.set(false);
         },
-        error: () => {},
+        error: () => {
+          this.loadingHilos.set(false);
+        },
       });
+
+    const observablesObj: Record<string, any> = {
+      historialPesos: this.seg
+        .getHistorialPesos(atletaId)
+        .pipe(tap((h) => this.historialPesos.set(h))),
+      checkInPendiente: this.seg
+        .tieneCheckInPendiente(atletaId)
+        .pipe(tap((b) => this.checkInPendiente.set(b))),
+    };
+
+    forkJoin(observablesObj).subscribe(() => this.loadingPeso.set(false));
   }
 
   // ── Multimedia ────────────────────────────────────────────────────────────
@@ -223,13 +284,17 @@ export class ComunicacionComponent implements OnInit, OnDestroy {
   // ── Navegación ────────────────────────────────────────────────────────────
 
   abrirHilo(hilo: Hilo): void {
+    this.loadingMensajes.set(true);
     this.hilos.update((list) => list.map((h) => (h.id === hilo.id ? { ...h, leido: true } : h)));
     this.hiloActivo.set(this.hilos().find((h) => h.id === hilo.id) ?? hilo);
     this.textoRespuesta.set('');
     this.respuestaAdjuntos.set([]);
     this.vista.set('detalle');
 
-    this.http.get<any>(`${this.API}/hilos/${hilo.id}`).subscribe((r) => {
+    this.http
+    .get<any>(`${this.API}/hilos/${hilo.id}`)
+    .pipe(finalize(() => this.loadingMensajes.set(false)))
+    .subscribe((r) => {
       if (!r) return;
       const h = r?.data ?? r;
       const hiloCompleto: Hilo = {

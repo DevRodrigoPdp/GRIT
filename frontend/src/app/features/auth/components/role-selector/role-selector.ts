@@ -12,11 +12,12 @@ export type Role = 'atleta' | 'entrenador' | null;
   animations: [
     trigger('slideUp', [
       transition(':enter', [
-        style({ transform: 'translateY(40px)', opacity: 0 }),
-        animate('1100ms cubic-bezier(0.16, 1, 0.3, 1)', style({ transform: 'translateY(0)', opacity: 1 })),
+        style({ maxHeight: '0', opacity: 0, transform: 'translateY(12px)', overflow: 'hidden' }),
+        animate('400ms ease-out', style({ maxHeight: '120px', opacity: 1, transform: 'translateY(0)' })),
       ]),
       transition(':leave', [
-        animate('220ms cubic-bezier(0.4, 0, 1, 1)', style({ transform: 'translateY(16px)', opacity: 0 })),
+        style({ overflow: 'hidden' }),
+        animate('300ms ease-in', style({ maxHeight: '0', opacity: 0, transform: 'translateY(8px)' })),
       ]),
     ]),
   ],

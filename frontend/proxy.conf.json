@@ -1,7 +1,7 @@
 {
   "/api": {
-    "target": "https://grit-production-11bc.up.railway.app",
-    "secure": false,
+    "target": "http://localhost:8080",
+    "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
   }

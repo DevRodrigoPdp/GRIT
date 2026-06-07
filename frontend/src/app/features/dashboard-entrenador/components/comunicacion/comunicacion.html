@@ -1,512 +1,1027 @@
-<!-- ── LIGHTBOX ────────────────────────────────────────────────────────────── -->
+﻿<!-- ── LIGHTBOX ────────────────────────────────────────────────────────────── -->
 @if (zoomUrl()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-sm cursor-zoom-out"
-  (click)="zoomUrl.set(null)">
-  <img [src]="zoomUrl()!" class="max-w-[90vw] max-h-[90vh] object-contain select-none"
-    (click)="$event.stopPropagation()" />
-  <button (click)="zoomUrl.set(null)"
-    class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center transition-colors"
-    style="background: rgba(255,255,255,0.1);"
-    onmouseenter="this.style.background='rgba(255,255,255,0.2)'" onmouseleave="this.style.background='rgba(255,255,255,0.1)'">
-    <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
-      <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
-    </svg>
-  </button>
-</div>
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-sm cursor-zoom-out"
+    (click)="zoomUrl.set(null)"
+  >
+    <img
+      [src]="zoomUrl()!"
+      class="max-w-[90vw] max-h-[90vh] object-contain select-none"
+      (click)="$event.stopPropagation()"
+    />
+    <button
+      (click)="zoomUrl.set(null)"
+      class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center transition-colors"
+      style="background: rgba(var(--_bw), 0.18)"
+      onmouseenter="this.style.background = 'rgba(var(--_tw),0.35)'"
+      onmouseleave="this.style.background = 'rgba(var(--_bw),0.18)'"
+    >
+      <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M3 3l10 10M13 3L3 13"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="square"
+        />
+      </svg>
+    </button>
+  </div>
 }
 
 <div class="flex flex-col h-full py-6 gap-10">
-
   <!-- ── VISTA: LISTA ──────────────────────────────────────────────────────── -->
   @if (vista() === 'lista') {
-  <section>
-    <div class="flex items-center justify-between mb-5">
-      <div class="flex items-center gap-3">
-        <div class="w-5 h-px bg-[#2ED38D]"></div>
-        <span class="text-xs font-bold tracking-[0.35em] uppercase text-white">HILOS</span>
-        @if (hilosNoLeidos() > 0) {
-        <span class="text-[10px] font-black bg-[#2ED38D] text-black px-2 py-0.5">
-          {{ hilosNoLeidos() }} NUEVO{{ hilosNoLeidos() > 1 ? 'S' : '' }}
-        </span>
-        }
-      </div>
-      <button (click)="vista.set('nuevo')"
-        class="inline-flex items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors"
-        style="color: rgba(255,255,255,0.55);"
-        onmouseenter="this.style.color='#2ED38D'" onmouseleave="this.style.color='rgba(255,255,255,0.55)'">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
-        </svg>
-        NUEVO HILO
-      </button>
-    </div>
-
-    <!-- Buscador + filtros -->
-    @if (hilos().length > 0) {
-    <div class="flex flex-col gap-3 mb-4">
-      <!-- Buscador -->
-      <div class="relative">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none"
-          viewBox="0 0 16 16" fill="none" style="color: rgba(255,255,255,0.3);">
-          <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.5" />
-          <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
-        </svg>
-        <input [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" placeholder="Buscar en hilos..."
-          class="w-full pl-9 pr-4 py-2.5 text-sm font-light text-white placeholder:text-white/30 outline-none transition-colors bg-transparent"
-          style="border: 1px solid rgba(255,255,255,0.1);"
-          onfocus="this.style.borderColor='rgba(255,255,255,0.25)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
-        @if (busqueda()) {
-        <button (click)="busqueda.set('')"
-          class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style="color: rgba(255,255,255,0.3);"
-          onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.3)'">
+    <section>
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+          <span class="text-xs font-bold tracking-[0.35em] uppercase text-white">HILOS</span>
+          @if (hilosNoLeidos() > 0) {
+            <span class="text-[10px] font-black bg-[#2ED38D] text-black px-2 py-0.5">
+              {{ hilosNoLeidos() }} NUEVO{{ hilosNoLeidos() > 1 ? 'S' : '' }}
+            </span>
+          }
+        </div>
+        <button
+          (click)="vista.set('nuevo')"
+          class="inline-flex items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors"
+          style="color: rgba(var(--_tw), 0.65)"
+          onmouseenter="this.style.color = '#2ED38D'"
+          onmouseleave="this.style.color = 'rgba(var(--_tw),0.65)'"
+        >
           <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
-            <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
+            <path
+              d="M8 2v12M2 8h12"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+            />
           </svg>
+          NUEVO HILO
         </button>
-        }
       </div>
-      <!-- Filtros de categoría -->
-      <div class="flex gap-2 overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <button (click)="filtroCategoria.set('TODOS')"
-          class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
-          [style]="filtroCategoria() === 'TODOS'
-            ? 'background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: white;'
-            : 'background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4);'">TODOS</button>
-        @for (cat of categorias; track cat.value) {
-        <button (click)="filtroCategoria.set(cat.value)"
-          class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
-          [style]="filtroCategoria() === cat.value
-            ? 'background: ' + categoriaEstilo(cat.value).fondo + '; border: 1px solid ' + categoriaEstilo(cat.value).borde + '; color: ' + categoriaEstilo(cat.value).texto + ';'
-            : 'background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4);'">{{ cat.label }}</button>
-        }
-      </div>
-    </div>
-    }
 
-    <div class="flex flex-col gap-2">
-      @for (hilo of hilosFiltrados(); track hilo.id) {
-      <button (click)="abrirHilo(hilo)"
-        class="w-full text-left transition-all duration-200 group"
-        [style]="'background: ' + categoriaEstilo(hilo.categoria).fondo + '; border: 1px solid rgba(255,255,255,0.08);'"
-        onmouseenter="this.style.borderColor='rgba(255,255,255,0.2)'"
-        onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)'">
-        <div class="flex">
-          <!-- Franja lateral de color -->
-          <div class="w-1 flex-shrink-0" [style.background-color]="categoriaEstilo(hilo.categoria).borde">
+      <!-- Buscador + filtros -->
+      @if (hilos().length > 0) {
+        <div class="flex flex-col gap-3 mb-4">
+          <!-- Buscador -->
+          <div class="relative">
+            <svg
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none"
+              viewBox="0 0 16 16"
+              fill="none"
+              style="color: rgba(var(--_tw), 0.5)"
+            >
+              <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.5" />
+              <path
+                d="M10 10l3 3"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="square"
+              />
+            </svg>
+            <input
+              [ngModel]="busqueda()"
+              (ngModelChange)="busqueda.set($event)"
+              placeholder="Buscar en hilos..."
+              class="w-full pl-9 pr-4 py-2.5 text-sm font-light text-white placeholder:text-white/30 outline-none transition-colors bg-transparent"
+              style="border: 1px solid rgba(var(--_bw), 0.18)"
+              onfocus="this.style.borderColor = 'rgba(var(--_tw),0.45)'"
+              onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
+            />
+            @if (busqueda()) {
+              <button
+                (click)="busqueda.set('')"
+                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                style="color: rgba(var(--_tw), 0.5)"
+                onmouseenter="this.style.color = '#1E1B4B'"
+                onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3 3l10 10M13 3L3 13"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="square"
+                  />
+                </svg>
+              </button>
+            }
           </div>
+          <!-- Filtros de categoría -->
+          <div
+            class="flex gap-2 overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <button
+              (click)="filtroCategoria.set('TODOS')"
+              class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
+              [style]="
+                filtroCategoria() === 'TODOS'
+                  ? 'background: rgba(var(--_bw),0.20); border: 1px solid rgba(var(--_tw),0.45); color: var(--c-text-1);'
+                  : 'background: transparent; border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.60);'
+              "
+            >
+              TODOS
+            </button>
+            @for (cat of categorias; track cat.value) {
+              <button
+                (click)="filtroCategoria.set(cat.value)"
+                class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
+                [style]="
+                  filtroCategoria() === cat.value
+                    ? 'background: ' +
+                      categoriaEstilo(cat.value).fondo +
+                      '; border: 1px solid ' +
+                      categoriaEstilo(cat.value).borde +
+                      '; color: ' +
+                      categoriaEstilo(cat.value).texto +
+                      ';'
+                    : 'background: transparent; border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.60);'
+                "
+              >
+                {{ cat.label }}
+              </button>
+            }
+          </div>
+        </div>
+      }
 
-          <div class="flex-1 px-4 py-3.5">
-            <div class="flex items-start justify-between gap-4">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1.5">
-                  <span class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5"
-                    [style.border]="'1px solid ' + categoriaEstilo(hilo.categoria).borde"
-                    [style.color]="categoriaEstilo(hilo.categoria).texto">
-                    {{ labelCategoria(hilo.categoria) }}
-                  </span>
-                  @if (!hilo.leido) {
-                  <span class="w-1.5 h-1.5 rounded-full"
-                    [style.background-color]="categoriaEstilo(hilo.categoria).borde">
-                  </span>
-                  }
+      <div
+        class="flex flex-col gap-2 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(var(--_bw),0.20)_transparent]"
+        style="max-height: 52vh"
+      >
+        @for (hilo of hilosFiltrados(); track hilo.id) {
+          <button
+            (click)="abrirHilo(hilo)"
+            class="w-full text-left transition-all duration-200 group"
+            [style]="
+              'background: ' +
+              categoriaEstilo(hilo.categoria).fondo +
+              '; border: 1px solid rgba(var(--_bw),0.14);'
+            "
+            onmouseenter="this.style.borderColor = 'rgba(var(--_tw),0.35)'"
+            onmouseleave="this.style.borderColor = 'rgba(var(--_bw),0.14)'"
+          >
+            <div class="flex">
+              <!-- Franja lateral de color -->
+              <div
+                class="w-1 flex-shrink-0"
+                [style.background-color]="categoriaEstilo(hilo.categoria).borde"
+              ></div>
+
+              <div class="flex-1 px-4 py-3.5">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1.5">
+                      <span
+                        class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5"
+                        [style.border]="'1px solid ' + categoriaEstilo(hilo.categoria).borde"
+                        [style.color]="categoriaEstilo(hilo.categoria).texto"
+                      >
+                        {{ labelCategoria(hilo.categoria) }}
+                      </span>
+                      @if (!hilo.leido) {
+                        <span
+                          class="w-1.5 h-1.5 rounded-full"
+                          [style.background-color]="categoriaEstilo(hilo.categoria).borde"
+                        >
+                        </span>
+                      }
+                    </div>
+                    <p class="text-sm font-black text-white truncate">
+                      {{ hilo.titulo }}
+                    </p>
+                    <p
+                      class="text-xs font-light mt-1 truncate"
+                      style="color: rgba(var(--_tw), 0.6)"
+                    >
+                      <span class="font-bold" style="color: rgba(var(--_tw), 0.65)">
+                        {{ ultimoMensaje(hilo).de === 'entrenador' ? 'Tú' : atletaNombre() }}:
+                      </span>
+                      {{ ultimoMensaje(hilo).texto || '— adjunto' }}
+                    </p>
+                  </div>
+                  <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+                    <p
+                      class="text-[10px] font-light whitespace-nowrap"
+                      style="color: rgba(var(--_tw), 0.5)"
+                    >
+                      {{ formatearFecha(ultimoMensaje(hilo).fecha) }}
+                    </p>
+                    <span
+                      class="text-[10px] font-bold tracking-[0.1em] uppercase"
+                      style="color: rgba(var(--_tw), 0.5)"
+                    >
+                      {{ hilo.totalMensajes ?? hilo.mensajes.length }} msg{{
+                        (hilo.totalMensajes ?? hilo.mensajes.length) !== 1 ? 's' : ''
+                      }}
+                    </span>
+                  </div>
                 </div>
-                <p class="text-sm font-black text-white truncate">
-                  {{ hilo.titulo }}
-                </p>
-                <p class="text-xs font-light mt-1 truncate" style="color: rgba(255,255,255,0.4);">
-                  <span class="font-bold" style="color: rgba(255,255,255,0.55);">
-                    {{ ultimoMensaje(hilo).de === 'entrenador' ? 'Tú' : atletaNombre() }}:
-                  </span>
-                  {{ ultimoMensaje(hilo).texto || '— adjunto' }}
-                </p>
-              </div>
-              <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
-                <p class="text-[10px] font-light whitespace-nowrap" style="color: rgba(255,255,255,0.3);">
-                  {{ formatearFecha(ultimoMensaje(hilo).fecha) }}
-                </p>
-                <span class="text-[10px] font-bold tracking-[0.1em] uppercase" style="color: rgba(255,255,255,0.3);">
-                  {{ (hilo.totalMensajes ?? hilo.mensajes.length) }} msg{{ (hilo.totalMensajes ?? hilo.mensajes.length) !== 1 ? 's' : '' }}
-                </span>
               </div>
             </div>
+          </button>
+        }
+
+        @if (loadingHilos() && hilos().length === 0) {
+          <div
+            class="col-span-2 lg:col-span-3 flex items-center justify-center p-6 text-center"
+            style="border: 1px dashed rgba(var(--_bw), 0.18)"
+          >
+            <div class="py-20 text-center">
+              <div
+                class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+              ></div>
+              <p
+                class="text-[10px] font-black tracking-[0.2em] uppercase"
+                style="color: rgba(var(--_tw), 0.58)"
+              >
+                CARGANDO...
+              </p>
+            </div>
           </div>
-        </div>
-      </button>
-      }
+        } @else if (hilos().length === 0) {
+          <div class="p-12 text-center" style="border: 1px dashed rgba(var(--_bw), 0.18)">
+            <div class="w-2 h-2 mx-auto mb-4" style="background: rgba(var(--_bw), 0.2)"></div>
+            <p
+              class="text-xs font-black tracking-[0.25em] uppercase mb-1"
+              style="color: rgba(var(--_tw), 0.45)"
+            >
+              SIN HILOS
+            </p>
+            <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.6)">
+              Abre el primer hilo con {{ atletaNombre() }}.
+            </p>
+          </div>
+        }
 
-      @if (hilos().length === 0) {
-      <div class="p-12 text-center" style="border: 1px dashed rgba(255,255,255,0.1);">
-        <div class="w-2 h-2 mx-auto mb-4" style="background: rgba(255,255,255,0.12);"></div>
-        <p class="text-xs font-black tracking-[0.25em] uppercase mb-1" style="color: rgba(255,255,255,0.25);">SIN HILOS</p>
-        <p class="text-sm font-light" style="color: rgba(255,255,255,0.4);">Abre el primer hilo con {{ atletaNombre() }}.</p>
+        @if (hilos().length > 0 && hilosFiltrados().length === 0) {
+          <div class="p-10 text-center" style="border: 1px dashed rgba(var(--_bw), 0.18)">
+            <p
+              class="text-xs font-black tracking-[0.25em] uppercase mb-1"
+              style="color: rgba(var(--_tw), 0.45)"
+            >
+              SIN RESULTADOS
+            </p>
+            <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.6)">
+              Ningún hilo coincide con la búsqueda.
+            </p>
+          </div>
+        }
       </div>
-      }
-      @if (hilos().length > 0 && hilosFiltrados().length === 0) {
-      <div class="p-10 text-center" style="border: 1px dashed rgba(255,255,255,0.1);">
-        <p class="text-xs font-black tracking-[0.25em] uppercase mb-1" style="color: rgba(255,255,255,0.25);">SIN RESULTADOS</p>
-        <p class="text-sm font-light" style="color: rgba(255,255,255,0.4);">Ningún hilo coincide con la búsqueda.</p>
-      </div>
-      }
-    </div>
-  </section>
+    </section>
 
-  <!-- ── SEGUIMIENTO DE PESO (solo en lista) ────────────────────────────── -->
-  <section>
-
-    <!-- Header + acción -->
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-3">
+    <!-- ── SEGUIMIENTO DE PESO (solo en lista) ────────────────────────────── -->
+    <section>
+      <!-- Header -->
+      <div class="flex items-center gap-3 mb-4">
         <div class="w-5 h-px bg-[#2ED38D]"></div>
-        <span class="text-xs font-bold tracking-[0.35em] uppercase text-white">SEGUIMIENTO DE PESO</span>
-      </div>
-      <button (click)="solicitarPeso()" [disabled]="checkInPendiente() || solicitando()"
-        class="text-[11px] font-black tracking-[0.15em] uppercase px-4 py-2 flex-shrink-0 transition-all"
-        [style]="checkInPendiente() || solicitando()
-          ? 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: not-allowed;'
-          : 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black;'">
-        @if (solicitando()) { ENVIANDO... } @else { SOLICITAR PESO }
-      </button>
-    </div>
-
-    <!-- Banner solicitud pendiente -->
-    @if (checkInPendiente()) {
-    <div class="flex items-center gap-3 px-4 py-3 mb-4"
-      style="background: rgba(46,211,141,0.05); border: 1px solid rgba(46,211,141,0.2); border-left: 2px solid #2ED38D;">
-      <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D] animate-pulse flex-shrink-0"></span>
-      <p class="text-xs font-black tracking-[0.15em] uppercase text-[#2ED38D]">SOLICITUD ENVIADA</p>
-      <p class="text-xs font-light ml-auto" style="color: rgba(255,255,255,0.4);">Esperando a {{ atletaNombre() }}</p>
-    </div>
-    }
-
-    @if (historialPesos().length > 0) {
-
-      <!-- Stat cards -->
-      <div class="grid grid-cols-3 gap-2 mb-4">
-        <div class="p-4" style="background: rgba(46,211,141,0.07); border: 1px solid rgba(46,211,141,0.25);">
-          <p class="text-[9px] font-black tracking-[0.25em] uppercase mb-2" style="color: rgba(255,255,255,0.45);">PESO ACTUAL</p>
-          <p class="text-2xl font-black text-white leading-none">{{ historialPesos()[historialPesos().length - 1].pesoKg }}</p>
-          <p class="text-[10px] font-light mt-1 text-[#2ED38D]">kg</p>
-        </div>
-        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09);">
-          <p class="text-[9px] font-black tracking-[0.25em] uppercase mb-2" style="color: rgba(255,255,255,0.45);">PRIMER REG.</p>
-          <p class="text-2xl font-black leading-none" style="color: rgba(255,255,255,0.7);">{{ historialPesos()[0].pesoKg }}</p>
-          <p class="text-[10px] font-light mt-1" style="color: rgba(255,255,255,0.3);">kg</p>
-        </div>
-        <div class="p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09);">
-          <p class="text-[9px] font-black tracking-[0.25em] uppercase mb-2" style="color: rgba(255,255,255,0.45);">REGISTROS</p>
-          <p class="text-2xl font-black leading-none" style="color: rgba(255,255,255,0.7);">{{ historialPesos().length }}</p>
-          <p class="text-[10px] font-light mt-1" style="color: rgba(255,255,255,0.3);">check-ins</p>
-        </div>
+        <span class="text-xs font-bold tracking-[0.35em] uppercase" style="color: var(--c-text-1)"
+          >SEGUIMIENTO DE PESO</span
+        >
       </div>
 
-      <!-- Gráfico -->
-      @if (chartData(); as chart) {
-      <div class="px-4 pt-4 pb-2 mb-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);">
-        <svg viewBox="0 -8 460 76" class="w-full" preserveAspectRatio="none">
-          <polyline [attr.points]="chart.polyline" fill="none" stroke="#2ED38D" stroke-width="1.5" />
-          @for (p of chart.points; track $index) {
-          <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3" fill="#2ED38D" />
-          }
-        </svg>
-        <div class="flex justify-between mt-2 pt-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
-          <p class="text-[10px] font-light" style="color: rgba(255,255,255,0.3);">{{ chart.points[0].fecha }}</p>
-          <p class="text-[10px] font-light" style="color: rgba(255,255,255,0.3);">{{ chart.points[chart.points.length - 1].fecha }}</p>
-        </div>
+      <!-- Stat cards + botón integrado -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+        @if (historialPesos().length > 0) {
+          <div
+            class="p-4"
+            style="background: rgba(46, 211, 141, 0.07); border: 1px solid rgba(46, 211, 141, 0.25)"
+          >
+            <p
+              class="text-[9px] font-black tracking-[0.25em] uppercase mb-2"
+              style="color: rgba(var(--_tw), 0.6)"
+            >
+              PESO ACTUAL
+            </p>
+            <p class="text-3xl font-black leading-none" style="color: var(--c-text-1)">
+              {{ historialPesos()[historialPesos().length - 1].pesoKg }}
+            </p>
+            <p class="text-[10px] font-light mt-1 text-[#2ED38D]">kg</p>
+          </div>
+          <div
+            class="p-4"
+            style="background: rgba(var(--_bw), 0.05); border: 1px solid rgba(var(--_bw), 0.15)"
+          >
+            <p
+              class="text-[9px] font-black tracking-[0.25em] uppercase mb-2"
+              style="color: rgba(var(--_tw), 0.6)"
+            >
+              PRIMER REG.
+            </p>
+            <p class="text-3xl font-black leading-none" style="color: rgba(var(--_tw), 0.78)">
+              {{ historialPesos()[0].pesoKg }}
+            </p>
+            <p class="text-[10px] font-light mt-1" style="color: rgba(var(--_tw), 0.5)">kg</p>
+          </div>
+          <div
+            class="p-4"
+            style="background: rgba(var(--_bw), 0.05); border: 1px solid rgba(var(--_bw), 0.15)"
+          >
+            <p
+              class="text-[9px] font-black tracking-[0.25em] uppercase mb-2"
+              style="color: rgba(var(--_tw), 0.6)"
+            >
+              TOTAL REGISTROS
+            </p>
+            <p class="text-3xl font-black leading-none" style="color: rgba(var(--_tw), 0.78)">
+              {{ historialPesos().length }}
+            </p>
+            <p class="text-[10px] font-light mt-1" style="color: rgba(var(--_tw), 0.5)">
+              check-ins
+            </p>
+          </div>
+          <!-- Botón SOLICITAR PESO siempre visible en la cuadrícula -->
+          <button
+            (click)="solicitarPeso()"
+            [disabled]="checkInPendiente() || solicitando()"
+            class="col-span-2 lg:col-span-1 min-h-[88px] flex flex-col items-center justify-center gap-2 transition-all"
+            [style]="
+              checkInPendiente() || solicitando()
+                ? 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.10); cursor: not-allowed;'
+                : 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%);'
+            "
+            onmouseenter="
+              if (!this.disabled) this.style.boxShadow = '0 6px 20px rgba(46,211,141,0.30)';
+            "
+            onmouseleave="this.style.boxShadow = 'none'"
+          >
+            @if (solicitando()) {
+              <span
+                class="text-sm font-black tracking-[0.1em] uppercase"
+                style="color: rgba(var(--_tw), 0.35)"
+                >ENVIANDO...</span
+              >
+            } @else {
+              <span
+                class="text-sm font-black tracking-[0.12em] uppercase text-center px-3 leading-tight"
+                [style.color]="checkInPendiente() ? 'rgba(var(--_tw),0.35)' : 'black'"
+                >SOLICITAR PESO</span
+              >
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="2"
+                [attr.stroke]="checkInPendiente() ? 'rgba(120,120,120,0.4)' : 'black'"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v8M8 12h8" stroke-linecap="square" />
+              </svg>
+            }
+          </button>
+        } @else if (loadingPeso() && historialPesos().length === 0) {
+          <div
+            class="col-span-4 lg:col-span-4 flex items-center justify-center p-6 text-center"
+            style="border: 1px dashed rgba(var(--_bw), 0.18)"
+          >
+            <div class="py-20 text-center">
+              <div
+                class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+              ></div>
+              <p
+                class="text-[10px] font-black tracking-[0.2em] uppercase"
+                style="color: rgba(var(--_tw), 0.58)"
+              >
+                CARGANDO...
+              </p>
+            </div>
+          </div>
+        } @else {
+          <div
+            class="col-span-2 lg:col-span-3 flex items-center justify-center p-6 text-center"
+            style="border: 1px dashed rgba(var(--_bw), 0.18)"
+          >
+            <div>
+              <p
+                class="text-xs font-black tracking-[0.15em] uppercase mb-1"
+                style="color: rgba(var(--_tw), 0.45)"
+              >
+                SIN REGISTROS
+              </p>
+              <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.6)">
+                Solicita el primer check-in de peso a {{ atletaNombre() }}.
+              </p>
+            </div>
+          </div>
+          <!-- Botón SOLICITAR PESO siempre visible en la cuadrícula -->
+          <button
+            (click)="solicitarPeso()"
+            [disabled]="checkInPendiente() || solicitando()"
+            class="col-span-2 lg:col-span-1 min-h-[88px] flex flex-col items-center justify-center gap-2 transition-all"
+            [style]="
+              checkInPendiente() || solicitando()
+                ? 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.10); cursor: not-allowed;'
+                : 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%);'
+            "
+            onmouseenter="
+              if (!this.disabled) this.style.boxShadow = '0 6px 20px rgba(46,211,141,0.30)';
+            "
+            onmouseleave="this.style.boxShadow = 'none'"
+          >
+            @if (solicitando()) {
+              <span
+                class="text-sm font-black tracking-[0.1em] uppercase"
+                style="color: rgba(var(--_tw), 0.35)"
+                >ENVIANDO...</span
+              >
+            } @else {
+              <span
+                class="text-sm font-black tracking-[0.12em] uppercase text-center px-3 leading-tight"
+                [style.color]="checkInPendiente() ? 'rgba(var(--_tw),0.35)' : 'black'"
+                >SOLICITAR PESO</span
+              >
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="2"
+                [attr.stroke]="checkInPendiente() ? 'rgba(120,120,120,0.4)' : 'black'"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v8M8 12h8" stroke-linecap="square" />
+              </svg>
+            }
+          </button>
+        }
       </div>
+
+      <!-- Banner solicitud pendiente -->
+      @if (checkInPendiente()) {
+        <div
+          class="flex items-center gap-3 px-4 py-3 mb-4"
+          style="
+            background: rgba(46, 211, 141, 0.05);
+            border: 1px solid rgba(46, 211, 141, 0.2);
+            border-left: 2px solid #2ed38d;
+          "
+        >
+          <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D] animate-pulse flex-shrink-0"></span>
+          <p class="text-xs font-black tracking-[0.15em] uppercase text-[#2ED38D]">
+            SOLICITUD ENVIADA
+          </p>
+          <p class="text-xs font-light ml-auto" style="color: rgba(var(--_tw), 0.6)">
+            Esperando a {{ atletaNombre() }}
+          </p>
+        </div>
       }
 
-      <!-- Historial -->
-      <div class="flex flex-col">
-        @for (entry of (historialExpandido() ? historialPesos().slice().reverse() : historialPesos().slice().reverse().slice(0, 3)); track entry.id; let first = $first) {
-        <div class="flex items-center justify-between px-3 py-2.5 transition-colors"
-          [style]="first
-            ? 'background: rgba(46,211,141,0.05); border: 1px solid rgba(46,211,141,0.18); margin-bottom: 1px;'
-            : 'border-bottom: 1px solid rgba(255,255,255,0.05);'">
-          <div class="flex items-center gap-2.5">
-            @if (first) {
-            <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D] flex-shrink-0"></span>
-            }
-            <span class="text-xs font-light"
-              [style.color]="first ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.4)'">{{ entry.fecha }}</span>
-            @if (servicio() !== 'AMBOS') {
-            <span class="text-[10px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5"
-              [style]="entry.solicitadoPor === 'ENTRENADOR'
-                ? 'background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);'
-                : 'background: rgba(46,211,141,0.1); color: #2ED38D;'">
-              {{ entry.solicitadoPor === 'ENTRENADOR' ? 'ENTR.' : 'NUTR.' }}
-            </span>
-            }
+      @if (historialPesos().length > 0) {
+        <!-- Gráfico EVOLUCIÓN DE PESO -->
+        @if (historialPesos().length >= 2) {
+          <div
+            class="mb-4 overflow-hidden"
+            style="background: rgba(var(--_bw), 0.03); border: 1px solid rgba(var(--_bw), 0.14)"
+          >
+            <div class="px-4 pt-3 pb-2" style="border-bottom: 1px solid rgba(var(--_bw), 0.07)">
+              <span
+                class="text-[9px] font-black tracking-[0.25em] uppercase"
+                style="color: rgba(var(--_tw), 0.45)"
+                >EVOLUCIÓN DE PESO</span
+              >
+            </div>
+            <div class="px-2 pt-1">
+              <apx-chart
+                [series]="chartOptions().series!"
+                [chart]="chartOptions().chart!"
+                [stroke]="chartOptions().stroke!"
+                [fill]="chartOptions().fill!"
+                [markers]="chartOptions().markers!"
+                [xaxis]="chartOptions().xaxis!"
+                [yaxis]="chartOptions().yaxis!"
+                [grid]="chartOptions().grid!"
+                [tooltip]="chartOptions().tooltip!"
+                [dataLabels]="chartOptions().dataLabels!"
+              />
+            </div>
           </div>
-          <p class="text-sm font-black" [style.color]="first ? 'white' : 'rgba(255,255,255,0.65)'">{{ entry.pesoKg }} kg</p>
-        </div>
         }
-        @if (historialPesos().length > 3) {
-        <button (click)="historialExpandido.set(!historialExpandido())"
-          class="flex items-center justify-center gap-2 py-2.5 w-full transition-colors text-[10px] font-black tracking-[0.2em] uppercase"
-          style="color: rgba(255,255,255,0.3); border-top: 1px solid rgba(255,255,255,0.06);"
-          onmouseenter="this.style.color='rgba(255,255,255,0.6)'" onmouseleave="this.style.color='rgba(255,255,255,0.3)'">
-          @if (historialExpandido()) {
-            <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M3 10l5-5 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/></svg>
-            VER MENOS
-          } @else {
-            <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/></svg>
-            VER {{ historialPesos().length - 3 }} MÁS
+
+        <!-- Historial de registros -->
+        <div style="border: 1px solid rgba(var(--_bw), 0.14)">
+          <!-- Cabecera de columnas -->
+          <div
+            class="flex items-center px-4 py-2"
+            style="
+              border-bottom: 1px solid rgba(var(--_bw), 0.1);
+              background: rgba(var(--_bw), 0.04);
+            "
+          >
+            <span
+              class="flex-1 text-[9px] font-black tracking-[0.2em] uppercase"
+              style="color: rgba(var(--_tw), 0.45)"
+              >FECHA</span
+            >
+            @if (servicio() !== 'AMBOS') {
+              <span
+                class="w-20 text-[9px] font-black tracking-[0.2em] uppercase"
+                style="color: rgba(var(--_tw), 0.45)"
+                >ESTADO</span
+              >
+            }
+            <span
+              class="w-20 text-right text-[9px] font-black tracking-[0.2em] uppercase"
+              style="color: rgba(var(--_tw), 0.45)"
+              >PESO</span
+            >
+          </div>
+
+          <!-- Filas -->
+          @for (
+            entry of historialExpandido()
+              ? historialPesos().slice().reverse()
+              : historialPesos().slice().reverse().slice(0, 3);
+            track entry.id;
+            let first = $first
+          ) {
+            <div
+              class="flex items-center px-4 py-3 transition-colors"
+              [style]="
+                first
+                  ? 'background: rgba(46,211,141,0.04); border-bottom: 1px solid rgba(46,211,141,0.10);'
+                  : 'border-bottom: 1px solid rgba(var(--_bw),0.07);'
+              "
+            >
+              <div class="flex-1 flex items-center gap-2">
+                @if (first) {
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D] flex-shrink-0"></span>
+                }
+                <span
+                  class="text-xs font-light"
+                  [style.color]="first ? 'rgba(var(--_tw),0.78)' : 'rgba(var(--_tw),0.55)'"
+                  >{{ entry.fecha }}</span
+                >
+              </div>
+              @if (servicio() !== 'AMBOS') {
+                <div class="w-20 flex-shrink-0">
+                  <span
+                    class="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-0.5"
+                    [style]="
+                      entry.solicitadoPor === 'ENTRENADOR'
+                        ? 'background: rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.55);'
+                        : 'background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.25);'
+                    "
+                  >
+                    {{ entry.solicitadoPor === 'ENTRENADOR' ? 'ENTR.' : 'NUTR.' }}
+                  </span>
+                </div>
+              }
+              <p
+                class="w-20 flex-shrink-0 text-right text-sm font-black"
+                [style.color]="first ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.65)'"
+              >
+                {{ entry.pesoKg }} kg
+              </p>
+            </div>
           }
-        </button>
-        }
-      </div>
 
-    } @else {
-
-      <!-- Empty state -->
-      <div class="p-8 text-center" style="border: 1px dashed rgba(255,255,255,0.1);">
-        <p class="text-xs font-black tracking-[0.15em] uppercase mb-1" style="color: rgba(255,255,255,0.25);">SIN REGISTROS</p>
-        <p class="text-sm font-light" style="color: rgba(255,255,255,0.4);">Solicita el primer check-in de peso a {{ atletaNombre() }}.</p>
-      </div>
-
-    }
-  </section>
+          <!-- Ver más / ver menos -->
+          @if (historialPesos().length > 3) {
+            <button
+              (click)="historialExpandido.set(!historialExpandido())"
+              class="flex items-center justify-center gap-2 py-2.5 w-full transition-colors text-[10px] font-black tracking-[0.2em] uppercase"
+              style="color: rgba(var(--_tw), 0.5)"
+              onmouseenter="this.style.color = 'rgba(var(--_tw),0.70)'"
+              onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
+            >
+              @if (historialExpandido()) {
+                <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3 10l5-5 5 5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="square"
+                  />
+                </svg>
+                VER MENOS
+              } @else {
+                <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3 6l5 5 5-5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="square"
+                  />
+                </svg>
+                VER {{ historialPesos().length - 3 }} MÁS
+              }
+            </button>
+          }
+        </div>
+      }
+    </section>
   }
 
   <!-- ── VISTA: NUEVO HILO ─────────────────────────────────────────────────── -->
   @if (vista() === 'nuevo') {
-  <section>
-    <div class="flex items-center gap-4 mb-6">
-      <button (click)="vista.set('lista')" class="transition-colors" style="color: rgba(255,255,255,0.4);"
-        onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">
-        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
-          <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
-        </svg>
-      </button>
-      <div class="flex items-center gap-3">
-        <div class="w-5 h-px bg-[#2ED38D]"></div>
-        <span class="text-xs font-bold tracking-[0.35em] uppercase text-white">NUEVO HILO</span>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-5">
-      <!-- Categoría -->
-      <div class="flex flex-col gap-2">
-        <label class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.4);">CATEGORÍA</label>
-        <div class="flex gap-2">
-          @for (cat of categorias; track cat.value) {
-          <button (click)="nuevaCategoria.set(cat.value)"
-            class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-2 transition-all"
-            [style]="nuevaCategoria() === cat.value
-              ? 'background: ' + categoriaEstilo(cat.value).fondo + '; border: 1px solid ' + categoriaEstilo(cat.value).borde + '; color: ' + categoriaEstilo(cat.value).texto + ';'
-              : 'background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4);'">{{ cat.label }}</button>
-          }
+    <section>
+      <div class="flex items-center gap-4 mb-6">
+        <button
+          (click)="vista.set('lista')"
+          class="transition-colors"
+          style="color: rgba(var(--_tw), 0.6)"
+          onmouseenter="this.style.color = '#1E1B4B'"
+          onmouseleave="this.style.color = 'rgba(var(--_tw),0.60)'"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13 8H3M7 4L3 8l4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+            />
+          </svg>
+        </button>
+        <div class="flex items-center gap-3">
+          <div class="w-5 h-px bg-[#2ED38D]"></div>
+          <span class="text-xs font-bold tracking-[0.35em] uppercase text-white">NUEVO HILO</span>
         </div>
       </div>
 
-      <!-- Asunto -->
-      <div class="flex flex-col gap-2">
-        <label class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.4);">ASUNTO</label>
-        <input [ngModel]="nuevoTitulo()" (ngModelChange)="nuevoTitulo.set($event)"
-          placeholder="Ej. Revisa tu técnica en sentadilla"
-          class="border-b border-white/15 focus:border-white/35 py-2.5 text-sm font-medium text-white placeholder:text-white/25 outline-none transition-colors bg-transparent" />
-      </div>
-
-      <!-- Mensaje + adjuntos -->
-      <div class="flex flex-col gap-2">
-        <label class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.4);">MENSAJE</label>
-        <textarea [ngModel]="nuevoTexto()" (ngModelChange)="nuevoTexto.set($event)"
-          placeholder="Escribe el primer mensaje del hilo..." rows="4"
-          class="p-4 text-sm font-light text-white placeholder:text-white/25 outline-none resize-none leading-relaxed transition-colors bg-transparent"
-          style="border: 1px solid rgba(255,255,255,0.1);"
-          onfocus="this.style.borderColor='rgba(255,255,255,0.25)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
-        <!-- Adjuntar -->
-        <label
-          class="mt-1 flex items-center gap-3 px-4 py-3 cursor-pointer transition-all group"
-          style="border: 1px dashed rgba(255,255,255,0.1);"
-          onmouseenter="this.style.borderColor='rgba(255,255,255,0.25)'"
-          onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)'">
-          <svg class="w-4 h-4 flex-shrink-0 transition-colors" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="1.5" style="color: rgba(255,255,255,0.4);">
-            <path
-              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-              stroke-linecap="square" />
-          </svg>
-          <span class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors" style="color: rgba(255,255,255,0.4);">
-            ADJUNTAR IMAGEN O VÍDEO
-          </span>
-          @if (nuevoAdjuntos().length > 0) {
-          <span class="ml-auto text-[10px] font-black text-[#2ED38D]">{{ nuevoAdjuntos().length }} archivo{{
-            nuevoAdjuntos().length > 1 ? 's' : '' }}</span>
-          }
-          <input type="file" accept="image/*,video/*" multiple class="hidden"
-            (change)="adjuntarArchivos($event, 'nuevo')" />
-        </label>
-
-        <!-- Previsualizaciones -->
-        @if (nuevoAdjuntos().length > 0) {
-        <div class="flex flex-wrap gap-2">
-          @for (adj of nuevoAdjuntos(); track adj.id) {
-          <div class="relative group overflow-hidden" style="border: 1px solid rgba(255,255,255,0.1);">
-            @if (adj.tipo === 'imagen') {
-            <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre" />
-            } @else {
-            <video [src]="adj.url" class="h-20 w-20 object-cover block"></video>
+      <div class="flex flex-col gap-5">
+        <!-- Categoría -->
+        <div class="flex flex-col gap-2">
+          <label
+            class="text-[10px] font-black tracking-[0.2em] uppercase"
+            style="color: rgba(var(--_tw), 0.6)"
+            >CATEGORÍA</label
+          >
+          <div class="flex gap-2">
+            @for (cat of categorias; track cat.value) {
+              <button
+                (click)="nuevaCategoria.set(cat.value)"
+                class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-2 transition-all"
+                [style]="
+                  nuevaCategoria() === cat.value
+                    ? 'background: ' +
+                      categoriaEstilo(cat.value).fondo +
+                      '; border: 1px solid ' +
+                      categoriaEstilo(cat.value).borde +
+                      '; color: ' +
+                      categoriaEstilo(cat.value).texto +
+                      ';'
+                    : 'background: transparent; border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.60);'
+                "
+              >
+                {{ cat.label }}
+              </button>
             }
-            <button (click)="quitarAdjunto(adj.id, 'nuevo')"
-              class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
-                <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
-              </svg>
+          </div>
+        </div>
+
+        <!-- Asunto -->
+        <div class="flex flex-col gap-2">
+          <label
+            class="text-[10px] font-black tracking-[0.2em] uppercase"
+            style="color: rgba(var(--_tw), 0.6)"
+            >ASUNTO</label
+          >
+          <input
+            [ngModel]="nuevoTitulo()"
+            (ngModelChange)="nuevoTitulo.set($event)"
+            placeholder="Ej. Revisa tu técnica en sentadilla"
+            class="border-b border-white/15 focus:border-white/35 py-2.5 text-sm font-medium text-white placeholder:text-white/25 outline-none transition-colors bg-transparent"
+          />
+        </div>
+
+        <!-- Mensaje + adjuntos -->
+        <div class="flex flex-col gap-2">
+          <label
+            class="text-[10px] font-black tracking-[0.2em] uppercase"
+            style="color: rgba(var(--_tw), 0.6)"
+            >MENSAJE</label
+          >
+          <textarea
+            [ngModel]="nuevoTexto()"
+            (ngModelChange)="nuevoTexto.set($event)"
+            placeholder="Escribe el primer mensaje del hilo..."
+            rows="4"
+            class="p-4 text-sm font-light text-white placeholder:text-white/25 outline-none resize-none leading-relaxed transition-colors bg-transparent"
+            style="border: 1px solid rgba(var(--_bw), 0.18)"
+            onfocus="this.style.borderColor = 'rgba(var(--_tw),0.45)'"
+            onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
+          ></textarea>
+          <!-- Adjuntar -->
+          <label
+            class="mt-1 flex items-center gap-3 px-4 py-3 cursor-pointer transition-all group"
+            style="border: 1px dashed rgba(var(--_bw), 0.18)"
+            onmouseenter="this.style.borderColor = 'rgba(var(--_tw),0.45)'"
+            onmouseleave="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
+          >
+            <svg
+              class="w-4 h-4 flex-shrink-0 transition-colors"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              style="color: rgba(var(--_tw), 0.6)"
+            >
+              <path
+                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                stroke-linecap="square"
+              />
+            </svg>
+            <span
+              class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors"
+              style="color: rgba(var(--_tw), 0.6)"
+            >
+              ADJUNTAR IMAGEN O VÍDEO
+            </span>
+            @if (nuevoAdjuntos().length > 0) {
+              <span class="ml-auto text-[10px] font-black text-[#2ED38D]"
+                >{{ nuevoAdjuntos().length }} archivo{{
+                  nuevoAdjuntos().length > 1 ? 's' : ''
+                }}</span
+              >
+            }
+            <input
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              class="hidden"
+              (change)="adjuntarArchivos($event, 'nuevo')"
+            />
+          </label>
+
+          <!-- Previsualizaciones -->
+          @if (nuevoAdjuntos().length > 0) {
+            <div class="flex flex-wrap gap-2">
+              @for (adj of nuevoAdjuntos(); track adj.id) {
+                <div
+                  class="relative group overflow-hidden"
+                  style="border: 1px solid rgba(var(--_bw), 0.18)"
+                >
+                  @if (adj.tipo === 'imagen') {
+                    <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre" />
+                  } @else {
+                    <video [src]="adj.url" class="h-20 w-20 object-cover block"></video>
+                  }
+                  <button
+                    (click)="quitarAdjunto(adj.id, 'nuevo')"
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  >
+                    <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
+                      <path
+                        d="M3 3l10 10M13 3L3 13"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="square"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Enviar -->
+          <div class="flex justify-end pt-1">
+            <button
+              (click)="crearHilo()"
+              [disabled]="!nuevoTitulo().trim() || !nuevoTexto().trim()"
+              class="text-[11px] font-black tracking-[0.2em] uppercase px-6 py-2.5 transition-all"
+              [style]="
+                nuevoTitulo().trim() && nuevoTexto().trim()
+                  ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black;'
+                  : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.35); cursor: not-allowed;'
+              "
+            >
+              ABRIR HILO
             </button>
           </div>
-          }
-        </div>
-        }
-
-        <!-- Enviar -->
-        <div class="flex justify-end pt-1">
-          <button (click)="crearHilo()" [disabled]="!nuevoTitulo().trim() || !nuevoTexto().trim()"
-            class="text-[11px] font-black tracking-[0.2em] uppercase px-6 py-2.5 transition-all"
-            [style]="nuevoTitulo().trim() && nuevoTexto().trim()
-              ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black;'
-              : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: not-allowed;'">ABRIR HILO</button>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
   }
 
   <!-- ── VISTA: DETALLE ────────────────────────────────────────────────────── -->
   @if (vista() === 'detalle' && hiloActivo(); as hilo) {
-  <section>
-    <!-- Header -->
-    <div class="flex items-start gap-4 mb-6">
-      <button (click)="volverALista()" class="mt-0.5 flex-shrink-0 transition-colors" style="color: rgba(255,255,255,0.4);"
-        onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">
-        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
-          <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
-        </svg>
-      </button>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5"
-            [style.border]="'1px solid ' + categoriaEstilo(hilo.categoria).borde"
-            [style.color]="categoriaEstilo(hilo.categoria).texto">
-            {{ labelCategoria(hilo.categoria) }}
-          </span>
-          <span class="text-[10px] font-light" style="color: rgba(255,255,255,0.3);">
-            Abierto por {{ hilo.de === 'entrenador' ? 'ti' : atletaNombre() }} · {{ formatearFecha(hilo.fechaAbierto) }}
-          </span>
-        </div>
-        <h3 class="text-base font-black uppercase tracking-tight text-white leading-tight">{{ hilo.titulo }}</h3>
-      </div>
-    </div>
-
-    <!-- Mensajes -->
-    <div class="flex flex-col gap-5 mb-6">
-      @for (msg of hilo.mensajes; track msg.id) {
-      <div [class]="msg.de === 'entrenador' ? 'flex justify-end' : 'flex justify-start'">
-        <div class="max-w-[80%]">
-          <!-- Autor + fecha -->
-          <div class="flex items-center gap-2 mb-1.5" [class.flex-row-reverse]="msg.de === 'entrenador'">
-            <span class="text-[10px] font-black tracking-[0.15em] uppercase"
-              [style.color]="msg.de === 'entrenador' ? 'white' : '#2ED38D'">
-              {{ msg.de === 'entrenador' ? 'Tú' : atletaNombre() }}
+    <section>
+      <!-- Header -->
+      <div class="flex items-start gap-4 mb-6">
+        <button
+          (click)="volverALista()"
+          class="mt-0.5 flex-shrink-0 transition-colors"
+          style="color: rgba(var(--_tw), 0.6)"
+          onmouseenter="this.style.color = '#1E1B4B'"
+          onmouseleave="this.style.color = 'rgba(var(--_tw),0.60)'"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13 8H3M7 4L3 8l4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+            />
+          </svg>
+        </button>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span
+              class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5"
+              [style.border]="'1px solid ' + categoriaEstilo(hilo.categoria).borde"
+              [style.color]="categoriaEstilo(hilo.categoria).texto"
+            >
+              {{ labelCategoria(hilo.categoria) }}
             </span>
-            <span class="text-[10px] font-light" style="color: rgba(255,255,255,0.3);">{{ formatearFecha(msg.fecha) }}</span>
+            <span class="text-[10px] font-light" style="color: rgba(var(--_tw), 0.5)">
+              Abierto por {{ hilo.de === 'entrenador' ? 'ti' : atletaNombre() }} ·
+              {{ formatearFecha(hilo.fechaAbierto) }}
+            </span>
           </div>
-          <!-- Burbuja -->
-          <div class="px-4 py-3 text-sm font-light leading-relaxed"
-            [style]="msg.de === 'entrenador'
-              ? 'background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.12); color: white;'
-              : 'background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.2); color: rgba(255,255,255,0.85);'">
-
-            <!-- Adjuntos multimedia -->
-            @if (msg.adjuntos && msg.adjuntos.length > 0) {
-            <div class="flex flex-wrap gap-2 mb-3">
-              @for (adj of msg.adjuntos; track adj.id) {
-              <div class="overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12);">
-                @if (adj.tipo === 'imagen') {
-                <img [src]="adj.url"
-                  class="max-w-[200px] max-h-[160px] object-cover block cursor-zoom-in hover:opacity-90 transition-opacity"
-                  [alt]="adj.nombre" (click)="zoomUrl.set(adj.url)" />
-                } @else {
-                <video [src]="adj.url" controls class="max-w-[200px] block"></video>
-                }
-              </div>
-              }
-            </div>
-            }
-
-            @if (msg.texto) {
-            <p>{{ msg.texto }}</p>
-            }
-          </div>
+          <h3 class="text-base font-black uppercase tracking-tight text-white leading-tight">
+            {{ hilo.titulo }}
+          </h3>
         </div>
       </div>
-      }
-    </div>
 
-    <!-- Respuesta -->
-    <div class="pt-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
-      <p class="text-[10px] font-black tracking-[0.2em] uppercase mb-3" style="color: rgba(255,255,255,0.4);">RESPUESTA</p>
-      <textarea [ngModel]="textoRespuesta()" (ngModelChange)="textoRespuesta.set($event)"
-        placeholder="Escribe tu respuesta..." rows="3"
-        class="w-full p-4 text-sm font-light text-white placeholder:text-white/25 outline-none resize-none leading-relaxed transition-colors mb-3 bg-transparent"
-        style="border: 1px solid rgba(255,255,255,0.1);"
-        onfocus="this.style.borderColor='rgba(255,255,255,0.25)'"
-        onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+      <!-- Mensajes -->
+      <div class="flex flex-col gap-5 mb-6">
+        @if (loadingMensajes()) {
+          <div class="flex items-center justify-center p-6 text-center">
+            <div class="py-20 text-center">
+              <div
+                class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+              ></div>
+              <p
+                class="text-[10px] font-black tracking-[0.2em] uppercase"
+                style="color: rgba(var(--_tw), 0.58)"
+              >
+                CARGANDO MENSAJES...
+              </p>
+            </div>
+          </div>
+        } @else {
+          @for (msg of hilo.mensajes; track msg.id) {
+            <div [class]="msg.de === 'entrenador' ? 'flex justify-end' : 'flex justify-start'">
+              <div class="max-w-[80%]">
+                <!-- Autor + fecha -->
+                <div
+                  class="flex items-center gap-2 mb-1.5"
+                  [class.flex-row-reverse]="msg.de === 'entrenador'"
+                >
+                  <span
+                    class="text-[10px] font-black tracking-[0.15em] uppercase"
+                    [style.color]="msg.de === 'entrenador' ? 'var(--c-text-1)' : '#2ED38D'"
+                  >
+                    {{ msg.de === 'entrenador' ? 'Tú' : atletaNombre() }}
+                  </span>
+                  <span class="text-[10px] font-light" style="color: rgba(var(--_tw), 0.5)">{{
+                    formatearFecha(msg.fecha)
+                  }}</span>
+                </div>
+                <!-- Burbuja -->
+                <div
+                  class="px-4 py-3 text-sm font-light leading-relaxed"
+                  [style]="
+                    msg.de === 'entrenador'
+                      ? 'background: rgba(var(--_bw),0.18); border: 1px solid rgba(var(--_bw),0.20); color: var(--c-text-1);'
+                      : 'background: rgba(46,211,141,0.06); border: 1px solid rgba(46,211,141,0.2); color: rgba(var(--_tw),0.88);'
+                  "
+                >
+                  <!-- Adjuntos multimedia -->
+                  @if (msg.adjuntos && msg.adjuntos.length > 0) {
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      @for (adj of msg.adjuntos; track adj.id) {
+                        <div
+                          class="overflow-hidden"
+                          style="border: 1px solid rgba(var(--_bw), 0.2)"
+                        >
+                          @if (adj.tipo === 'imagen') {
+                            <img
+                              [src]="adj.url"
+                              class="max-w-[200px] max-h-[160px] object-cover block cursor-zoom-in hover:opacity-90 transition-opacity"
+                              [alt]="adj.nombre"
+                              (click)="zoomUrl.set(adj.url)"
+                            />
+                          } @else {
+                            <video [src]="adj.url" controls class="max-w-[200px] block"></video>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
 
-      <!-- Adjuntar respuesta -->
-      <label
-        class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all group mb-3"
-        style="border: 1px dashed rgba(255,255,255,0.1);"
-        onmouseenter="this.style.borderColor='rgba(255,255,255,0.25)'"
-        onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)'">
-        <svg class="w-4 h-4 flex-shrink-0 transition-colors" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" stroke-width="1.5" style="color: rgba(255,255,255,0.4);">
-          <path
-            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-            stroke-linecap="square" />
-        </svg>
-        <span class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors" style="color: rgba(255,255,255,0.4);">
-          ADJUNTAR IMAGEN O VÍDEO
-        </span>
-        @if (respuestaAdjuntos().length > 0) {
-        <span class="ml-auto text-[10px] font-black text-[#2ED38D]">{{ respuestaAdjuntos().length }} archivo{{
-          respuestaAdjuntos().length > 1 ? 's' : '' }}</span>
-        }
-        <input type="file" accept="image/*,video/*" multiple class="hidden"
-          (change)="adjuntarArchivos($event, 'respuesta')" />
-      </label>
-
-      <!-- Previsualizaciones respuesta -->
-      @if (respuestaAdjuntos().length > 0) {
-      <div class="flex flex-wrap gap-2 mb-3">
-        @for (adj of respuestaAdjuntos(); track adj.id) {
-        <div class="relative group overflow-hidden" style="border: 1px solid rgba(255,255,255,0.1);">
-          @if (adj.tipo === 'imagen') {
-          <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre" />
-          } @else {
-          <video [src]="adj.url" class="h-20 w-20 object-cover block"></video>
+                  @if (msg.texto) {
+                    <p>{{ msg.texto }}</p>
+                  }
+                </div>
+              </div>
+            </div>
           }
-          <button (click)="quitarAdjunto(adj.id, 'respuesta')"
-            class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
-              <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
-            </svg>
+        }
+      </div>
+
+      <!-- Respuesta -->
+      <div class="pt-5" style="border-top: 1px solid rgba(var(--_bw), 0.14)">
+        <p
+          class="text-[10px] font-black tracking-[0.2em] uppercase mb-3"
+          style="color: rgba(var(--_tw), 0.6)"
+        >
+          RESPUESTA
+        </p>
+        <textarea
+          [ngModel]="textoRespuesta()"
+          (ngModelChange)="textoRespuesta.set($event)"
+          placeholder="Escribe tu respuesta..."
+          rows="3"
+          class="w-full p-4 text-sm font-light text-white placeholder:text-white/25 outline-none resize-none leading-relaxed transition-colors mb-3 bg-transparent"
+          style="border: 1px solid rgba(var(--_bw), 0.18)"
+          onfocus="this.style.borderColor = 'rgba(var(--_tw),0.45)'"
+          onblur="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
+        ></textarea>
+
+        <!-- Adjuntar respuesta -->
+        <label
+          class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all group mb-3"
+          style="border: 1px dashed rgba(var(--_bw), 0.18)"
+          onmouseenter="this.style.borderColor = 'rgba(var(--_tw),0.45)'"
+          onmouseleave="this.style.borderColor = 'rgba(var(--_bw),0.18)'"
+        >
+          <svg
+            class="w-4 h-4 flex-shrink-0 transition-colors"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            style="color: rgba(var(--_tw), 0.6)"
+          >
+            <path
+              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+              stroke-linecap="square"
+            />
+          </svg>
+          <span
+            class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors"
+            style="color: rgba(var(--_tw), 0.6)"
+          >
+            ADJUNTAR IMAGEN O VÍDEO
+          </span>
+          @if (respuestaAdjuntos().length > 0) {
+            <span class="ml-auto text-[10px] font-black text-[#2ED38D]"
+              >{{ respuestaAdjuntos().length }} archivo{{
+                respuestaAdjuntos().length > 1 ? 's' : ''
+              }}</span
+            >
+          }
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            class="hidden"
+            (change)="adjuntarArchivos($event, 'respuesta')"
+          />
+        </label>
+
+        <!-- Previsualizaciones respuesta -->
+        @if (respuestaAdjuntos().length > 0) {
+          <div class="flex flex-wrap gap-2 mb-3">
+            @for (adj of respuestaAdjuntos(); track adj.id) {
+              <div
+                class="relative group overflow-hidden"
+                style="border: 1px solid rgba(var(--_bw), 0.18)"
+              >
+                @if (adj.tipo === 'imagen') {
+                  <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre" />
+                } @else {
+                  <video [src]="adj.url" class="h-20 w-20 object-cover block"></video>
+                }
+                <button
+                  (click)="quitarAdjunto(adj.id, 'respuesta')"
+                  class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                >
+                  <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M3 3l10 10M13 3L3 13"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="square"
+                    />
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="flex justify-end">
+          <button
+            (click)="responder()"
+            [disabled]="!textoRespuesta().trim() && !respuestaAdjuntos().length"
+            class="text-[11px] font-black tracking-[0.2em] uppercase px-5 py-2.5 transition-all"
+            [style]="
+              textoRespuesta().trim() || respuestaAdjuntos().length
+                ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black;'
+                : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.35); cursor: not-allowed;'
+            "
+          >
+            RESPONDER
           </button>
         </div>
-        }
       </div>
-      }
-
-      <div class="flex justify-end">
-        <button (click)="responder()" [disabled]="!textoRespuesta().trim() && !respuestaAdjuntos().length"
-          class="text-[11px] font-black tracking-[0.2em] uppercase px-5 py-2.5 transition-all"
-          [style]="textoRespuesta().trim() || respuestaAdjuntos().length
-            ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black;'
-            : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: not-allowed;'">RESPONDER</button>
-      </div>
-    </div>
     </section>
   }
 </div>

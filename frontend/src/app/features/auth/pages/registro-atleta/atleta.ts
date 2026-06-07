@@ -119,6 +119,20 @@ export class AtletaPage implements OnInit {
       && !!this.form.get('objetivo')?.value;
   });
 
+  readonly pasosCompletos = computed(() => this.paso1Completo() &&
+    this.paso2Completo() &&
+    this.paso3Completo() &&
+    this.paso4Completo());
+
+  readonly pasos = computed(() => {
+    if (!this.paso1Completo()) return "PASO 01 / 04";
+    if (!this.paso2Completo()) return "PASO 02 / 04";
+    if (!this.paso3Completo()) return "PASO 03 / 04";
+    if (!this.paso4Completo()) return "PASO 04 / 04";
+    if (this.pasosCompletos()) return "Listo para enviar ✓";
+    return "PASO 01 / 04";
+  });
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       nombre:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
@@ -269,8 +283,13 @@ export class AtletaPage implements OnInit {
         if (err.status === 409) {
           this.registroError.set('El correo electrónico ya está registrado.');
         } else if (err.status === 400) {
-          const msg = err.error?.message ?? err.error?.error;
-          this.registroError.set(msg ?? 'Datos inválidos. Revisa los campos.');
+          let msg = "";
+          if (err.error.detail.includes('Seguridad')) {
+             msg = err.error.detail;
+          }else{
+            msg = 'Datos inválidos. Revisa los campos.';
+          }
+          this.registroError.set(msg);
         } else {
           this.registroError.set('Error al registrar. Inténtalo de nuevo.');
         }

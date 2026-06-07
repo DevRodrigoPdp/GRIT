@@ -1,4 +1,4 @@
-<!-- ── OVERLAYS ────────────────────────────────────────────────────────────── -->
+﻿<!-- ── OVERLAYS ────────────────────────────────────────────────────────────── -->
 
 <!-- Buscador de alimentos para el plan -->
 @if (buscadorEnComida() !== null) {
@@ -8,34 +8,62 @@
   />
 }
 
-
 <!-- ── ALERGIAS / INTOLERANCIAS ───────────────────────────────────────────── -->
 @if (alergias().length > 0 || intolerancias().length > 0) {
-  <div class="px-6 md:px-10 py-3 flex flex-wrap items-center gap-x-5 gap-y-2"
-    style="background: rgba(249,115,22,0.06); border-bottom: 1px solid rgba(249,115,22,0.2);">
+  <div
+    class="px-6 md:px-10 py-3 flex flex-wrap items-center gap-x-5 gap-y-2"
+    style="background: rgba(249, 115, 22, 0.06); border-bottom: 1px solid rgba(249, 115, 22, 0.2)"
+  >
     <div class="flex items-center gap-1.5 flex-shrink-0">
-      <svg class="w-3.5 h-3.5 text-[#F97316]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke-linecap="square"/>
-        <line x1="12" y1="9" x2="12" y2="13" stroke-linecap="square"/>
-        <line x1="12" y1="17" x2="12.01" y2="17" stroke-linecap="square"/>
+      <svg
+        class="w-3.5 h-3.5 text-[#F97316]"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+          stroke-linecap="square"
+        />
+        <line x1="12" y1="9" x2="12" y2="13" stroke-linecap="square" />
+        <line x1="12" y1="17" x2="12.01" y2="17" stroke-linecap="square" />
       </svg>
       <span class="text-[10px] font-black tracking-[0.25em] uppercase text-[#F97316]">AVISOS</span>
     </div>
     @if (alergias().length > 0) {
       <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-[10px] font-bold tracking-[0.15em] uppercase" style="color: #fca5a5;">ALÉRGICO A:</span>
+        <span class="text-[10px] font-bold tracking-[0.15em] uppercase" style="color: #fca5a5"
+          >ALÉRGICO A:</span
+        >
         @for (a of alergias(); track a) {
-          <span class="text-[11px] font-black tracking-[0.1em] uppercase px-2 py-0.5"
-            style="background: rgba(248,113,113,0.12); color: #fca5a5; border: 1px solid rgba(248,113,113,0.3);">{{ a }}</span>
+          <span
+            class="text-[11px] font-black tracking-[0.1em] uppercase px-2 py-0.5"
+            style="
+              background: rgba(248, 113, 113, 0.12);
+              color: #fca5a5;
+              border: 1px solid rgba(248, 113, 113, 0.3);
+            "
+            >{{ a }}</span
+          >
         }
       </div>
     }
     @if (intolerancias().length > 0) {
       <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-[10px] font-bold tracking-[0.15em] uppercase" style="color: #fbbf24;">INTOLERANTE A:</span>
+        <span class="text-[10px] font-bold tracking-[0.15em] uppercase" style="color: #fbbf24"
+          >INTOLERANTE A:</span
+        >
         @for (i of intolerancias(); track i) {
-          <span class="text-[11px] font-black tracking-[0.1em] uppercase px-2 py-0.5"
-            style="background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25);">{{ i }}</span>
+          <span
+            class="text-[11px] font-black tracking-[0.1em] uppercase px-2 py-0.5"
+            style="
+              background: rgba(251, 191, 36, 0.1);
+              color: #fbbf24;
+              border: 1px solid rgba(251, 191, 36, 0.25);
+            "
+            >{{ i }}</span
+          >
         }
       </div>
     }
@@ -45,254 +73,658 @@
 <!-- ── LISTA DE PLANES ────────────────────────────────────────────────────── -->
 @if (vista() === 'lista') {
   <div class="py-6">
-
     <div class="flex items-center justify-between mb-6">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <div class="w-3 h-px bg-[#2ED38D]"></div>
-          <span class="text-xs font-bold tracking-[0.25em] uppercase text-[#2ED38D]">NUTRICIÓN</span>
+          <span class="text-xs font-bold tracking-[0.25em] uppercase text-[#2ED38D]"
+            >NUTRICIÓN</span
+          >
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tighter text-white">PLANES</h2>
       </div>
       <button
         (click)="iniciarCreacion()"
         class="text-sm font-black tracking-[0.15em] uppercase px-4 py-2.5 text-black transition-all"
-        style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); box-shadow: 0 4px 16px rgba(46,211,141,0.2);"
-        onmouseenter="this.style.boxShadow='0 6px 24px rgba(46,211,141,0.35)'"
-        onmouseleave="this.style.boxShadow='0 4px 16px rgba(46,211,141,0.2)'">
+        style="
+          background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
+          box-shadow: 0 4px 16px rgba(46, 211, 141, 0.2);
+        "
+        onmouseenter="this.style.boxShadow = '0 6px 24px rgba(46,211,141,0.35)'"
+        onmouseleave="this.style.boxShadow = '0 4px 16px rgba(46,211,141,0.2)'"
+      >
         + NUEVO PLAN
       </button>
     </div>
 
-    @if (planes().length === 0) {
-      <div class="p-8 text-center" style="border: 1px dashed rgba(255,255,255,0.1);">
-        <div class="w-1.5 h-1.5 mx-auto mb-3" style="background: rgba(255,255,255,0.15);"></div>
-        <p class="text-sm font-black tracking-[0.15em] uppercase mb-1" style="color: rgba(255,255,255,0.25);">SIN PLANES</p>
-        <p class="text-sm font-light" style="color: rgba(255,255,255,0.4);">Crea el primer plan de nutrición para este atleta.</p>
+    @if (loadingPlanes() && planes().length === 0) {
+      <div class="py-20 text-center">
+        <div
+          class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+          style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+        ></div>
+        <p
+          class="text-[10px] font-black tracking-[0.2em] uppercase"
+          style="color: rgba(var(--_tw), 0.58)"
+        >
+          CARGANDO...
+        </p>
       </div>
-    }
+    } @else if (planes().length === 0) {
+      <div class="p-8 text-center" style="border: 1px dashed rgba(var(--_bw), 0.18)">
+        <div class="w-1.5 h-1.5 mx-auto mb-3" style="background: rgba(var(--_tw), 0.28)"></div>
+        <p
+          class="text-sm font-black tracking-[0.15em] uppercase mb-1"
+          style="color: rgba(var(--_tw), 0.45)"
+        >
+          SIN PLANES
+        </p>
+        <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.6)">
+          Crea el primer plan de nutrición para este atleta.
+        </p>
+      </div>
+    } @else {
+      @for (plan of planes(); track plan.id) {
+        @let macros = nutricion.calcularMacros(plan.comidas);
+        @let circ = 226.19;
+        @let protPct = macros.kcal > 0 ? ((macros.prot * 4) / macros.kcal) * 100 : 0;
+        @let carbsPct = macros.kcal > 0 ? ((macros.carbs * 4) / macros.kcal) * 100 : 0;
+        @let grasaPct = macros.kcal > 0 ? ((macros.grasa * 9) / macros.kcal) * 100 : 0;
 
-    @for (plan of planes(); track plan.id) {
-      @let macros = nutricion.calcularMacros(plan.comidas);
-      <div class="mb-3 cursor-pointer overflow-hidden transition-all group"
-        [style]="plan.activo
-          ? 'background: rgba(46,211,141,0.04); border: 1px solid rgba(46,211,141,0.2);'
-          : 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);'"
-        (click)="abrirDetalle(plan)"
-        onmouseenter="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.35)'; this.style.borderColor='rgba(255,255,255,0.18)'"
-        onmouseleave="this.style.boxShadow='none'">
+        <div
+          class="mb-3 cursor-pointer overflow-hidden transition-all group"
+          [style]="
+            plan.activo
+              ? 'background: rgba(46,211,141,0.04); border: 1px solid rgba(46,211,141,0.2);'
+              : 'background: rgba(var(--_bw),0.04); border: 1px solid rgba(var(--_bw),0.18);'
+          "
+          (click)="abrirDetalle(plan)"
+          onmouseenter="this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.35)'"
+          onmouseleave="this.style.boxShadow = 'none'"
+        >
+          <!-- Accent line top -->
+          <div
+            class="h-0.5 w-full"
+            [style]="
+              plan.activo
+                ? 'background: linear-gradient(90deg, #2ED38D 0%, rgba(46,211,141,0.2) 60%, transparent 100%)'
+                : 'background: rgba(var(--_bw),0.12)'
+            "
+          ></div>
 
-        <!-- Accent line top -->
-        <div class="h-px w-full"
-          [style]="plan.activo
-            ? 'background: linear-gradient(90deg, #2ED38D 0%, rgba(46,211,141,0.2) 60%, transparent 100%)'
-            : 'background: transparent'">
-        </div>
-
-        <div class="p-5">
-
-          <!-- Layout: mobile apilado / desktop fila única -->
-          <div class="flex flex-col lg:flex-row lg:items-center lg:gap-6 mb-4">
-
-            <!-- Nombre + descripción -->
-            <div class="min-w-0 flex-1 mb-3 lg:mb-0">
-              @if (plan.activo) {
-                <div class="flex items-center gap-1.5 mb-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#2ED38D]" style="box-shadow: 0 0 4px rgba(46,211,141,0.6)"></span>
-                  <span class="text-[9px] font-black tracking-[0.3em] uppercase text-[#2ED38D]">PLAN ACTIVO</span>
+          <div class="p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:gap-8 mb-5">
+              <!-- Nombre + estado -->
+              <div class="min-w-0 flex-1 mb-4 lg:mb-0">
+                <div class="flex items-center gap-1.5 mb-2">
+                  <span
+                    class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    [style]="
+                      plan.activo
+                        ? 'background:#2ED38D; box-shadow:0 0 4px rgba(46,211,141,0.6)'
+                        : 'background:rgba(var(--_tw),0.30)'
+                    "
+                  ></span>
+                  <span
+                    class="text-[9px] font-black tracking-[0.3em] uppercase"
+                    [style.color]="plan.activo ? '#2ED38D' : 'rgba(var(--_tw),0.45)'"
+                  >
+                    {{ plan.activo ? 'PLAN ACTIVO' : 'PLAN INACTIVO' }}
+                  </span>
                 </div>
-              }
-              <p class="text-base font-black uppercase tracking-tight text-white leading-tight">{{ plan.nombre || '(sin nombre)' }}</p>
-              @if (plan.descripcion) {
-                <p class="text-xs font-light mt-1 truncate" style="color: rgba(255,255,255,0.45)">{{ plan.descripcion }}</p>
-              }
+                <p
+                  class="text-lg font-black uppercase tracking-tight leading-tight"
+                  style="color: var(--c-text-1)"
+                >
+                  {{ plan.nombre || '(sin nombre)' }}
+                </p>
+                @if (plan.descripcion) {
+                  <p class="text-xs font-light mt-1 truncate" style="color: rgba(var(--_tw), 0.55)">
+                    {{ plan.descripcion }}
+                  </p>
+                }
+              </div>
+
+              <!-- Anillos de macros -->
+              <div
+                class="flex items-center gap-5 lg:gap-7 flex-shrink-0 justify-center lg:justify-end"
+              >
+                <!-- PROT -->
+                <svg viewBox="0 0 100 100" class="w-24 h-24 flex-shrink-0">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="36"
+                    fill="none"
+                    stroke="rgba(46,211,141,0.13)"
+                    stroke-width="8"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="36"
+                    fill="none"
+                    stroke="#2ED38D"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                    stroke-dasharray="226.19"
+                    [attr.stroke-dashoffset]="circ * (1 - protPct / 100)"
+                    [attr.opacity]="plan.activo ? 1 : 0.45"
+                    transform="rotate(-90 50 50)"
+                  />
+                  <text
+                    x="50"
+                    y="41"
+                    text-anchor="middle"
+                    style="
+                      font-size: 8px;
+                      font-weight: 700;
+                      letter-spacing: 1.5px;
+                      fill: rgba(150, 150, 150, 0.75);
+                    "
+                  >
+                    PROT
+                  </text>
+                  <text
+                    x="45"
+                    y="57"
+                    text-anchor="middle"
+                    style="font-size: 18px; font-weight: 900; fill: var(--c-text-1)"
+                  >
+                    {{ macros.prot | number: '1.0-0' }}
+                  </text>
+                  <text
+                    x="70"
+                    y="57"
+                    text-anchor="middle"
+                    style="font-size: 9px; fill: rgba(150, 150, 150, 0.7)"
+                  >
+                    g
+                  </text>
+                  <text
+                    x="50"
+                    y="69"
+                    text-anchor="middle"
+                    style="font-size: 8px; fill: rgba(46, 211, 141, 0.75)"
+                  >
+                    {{ protPct | number: '1.0-0' }}%
+                  </text>
+                </svg>
+
+                <!-- CARBS -->
+                <svg viewBox="0 0 100 100" class="w-24 h-24 flex-shrink-0">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="36"
+                    fill="none"
+                    stroke="rgba(46,211,141,0.13)"
+                    stroke-width="8"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="36"
+                    fill="none"
+                    stroke="#2ED38D"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                    stroke-dasharray="226.19"
+                    [attr.stroke-dashoffset]="circ * (1 - carbsPct / 100)"
+                    [attr.opacity]="plan.activo ? 1 : 0.45"
+                    transform="rotate(-90 50 50)"
+                  />
+                  <text
+                    x="50"
+                    y="41"
+                    text-anchor="middle"
+                    style="
+                      font-size: 8px;
+                      font-weight: 700;
+                      letter-spacing: 1.5px;
+                      fill: rgba(150, 150, 150, 0.75);
+                    "
+                  >
+                    CARBS
+                  </text>
+                  <text
+                    x="45"
+                    y="57"
+                    text-anchor="middle"
+                    style="font-size: 18px; font-weight: 900; fill: var(--c-text-1)"
+                  >
+                    {{ macros.carbs | number: '1.0-0' }}
+                  </text>
+                  <text
+                    x="70"
+                    y="57"
+                    text-anchor="middle"
+                    style="font-size: 9px; fill: rgba(150, 150, 150, 0.7)"
+                  >
+                    g
+                  </text>
+                  <text
+                    x="50"
+                    y="69"
+                    text-anchor="middle"
+                    style="font-size: 8px; fill: rgba(46, 211, 141, 0.75)"
+                  >
+                    {{ carbsPct | number: '1.0-0' }}%
+                  </text>
+                </svg>
+
+                <!-- GRASA -->
+                <svg viewBox="0 0 100 100" class="w-24 h-24 flex-shrink-0">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="36"
+                    fill="none"
+                    stroke="rgba(46,211,141,0.13)"
+                    stroke-width="8"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="36"
+                    fill="none"
+                    stroke="#2ED38D"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                    stroke-dasharray="226.19"
+                    [attr.stroke-dashoffset]="circ * (1 - grasaPct / 100)"
+                    [attr.opacity]="plan.activo ? 1 : 0.45"
+                    transform="rotate(-90 50 50)"
+                  />
+                  <text
+                    x="50"
+                    y="41"
+                    text-anchor="middle"
+                    style="
+                      font-size: 8px;
+                      font-weight: 700;
+                      letter-spacing: 1.5px;
+                      fill: rgba(150, 150, 150, 0.75);
+                    "
+                  >
+                    GRASA
+                  </text>
+                  <text
+                    x="45"
+                    y="57"
+                    text-anchor="middle"
+                    style="font-size: 18px; font-weight: 900; fill: var(--c-text-1)"
+                  >
+                    {{ macros.grasa | number: '1.0-0' }}
+                  </text>
+                  <text
+                    x="70"
+                    y="57"
+                    text-anchor="middle"
+                    style="font-size: 9px; fill: rgba(150, 150, 150, 0.7)"
+                  >
+                    g
+                  </text>
+                  <text
+                    x="50"
+                    y="69"
+                    text-anchor="middle"
+                    style="font-size: 8px; fill: rgba(46, 211, 141, 0.75)"
+                  >
+                    {{ grasaPct | number: '1.0-0' }}%
+                  </text>
+                </svg>
+
+                <!-- Separador + KCAL/DÍA -->
+                <div class="hidden lg:flex items-center gap-6 flex-shrink-0">
+                  <div class="w-px h-16" style="background: rgba(var(--_bw), 0.14)"></div>
+                  <div class="text-right">
+                    <span
+                      class="text-[9px] font-black tracking-[0.25em] uppercase block mb-1"
+                      [style.color]="plan.activo ? '#2ED38D' : 'rgba(var(--_tw),0.40)'"
+                      >KCAL/DÍA</span
+                    >
+                    <span class="text-4xl font-black leading-none" style="color: var(--c-text-1)">{{
+                      macros.kcal | number: '1.0-0'
+                    }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- Macro mini-cards: grid en móvil, fila compacta en desktop -->
-            <div class="grid grid-cols-3 gap-2 lg:flex lg:gap-2 lg:flex-shrink-0">
-              <div class="px-3 py-2 lg:min-w-[88px]" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);">
-                <span class="text-[8px] font-black tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.35)">PROT</span>
-                <span class="text-sm font-black text-white">{{ macros.prot | number:'1.0-1' }}<span class="text-[10px] font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
-              </div>
-              <div class="px-3 py-2 lg:min-w-[88px]" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);">
-                <span class="text-[8px] font-black tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.35)">CARBS</span>
-                <span class="text-sm font-black text-white">{{ macros.carbs | number:'1.0-1' }}<span class="text-[10px] font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
-              </div>
-              <div class="px-3 py-2 lg:min-w-[88px]" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);">
-                <span class="text-[8px] font-black tracking-[0.2em] uppercase block mb-0.5" style="color: rgba(255,255,255,0.35)">GRASA</span>
-                <span class="text-sm font-black text-white">{{ macros.grasa | number:'1.0-1' }}<span class="text-[10px] font-light ml-0.5" style="color: rgba(255,255,255,0.4)">g</span></span>
+            <!-- KCAL/DÍA móvil -->
+            <div class="flex items-center justify-end mb-4 lg:hidden">
+              <div class="text-right">
+                <span
+                  class="text-[9px] font-black tracking-[0.25em] uppercase block mb-0.5 text-[#2ED38D]"
+                  >KCAL/DÍA</span
+                >
+                <span class="text-3xl font-black leading-none" style="color: var(--c-text-1)">{{
+                  macros.kcal | number: '1.0-0'
+                }}</span>
               </div>
             </div>
 
-            <!-- Kcal: debajo en móvil, columna derecha en desktop -->
-            <div class="hidden lg:block flex-shrink-0 text-right min-w-[100px]">
-              <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-0.5 text-[#2ED38D]">KCAL/DÍA</span>
-              <span class="text-2xl font-black text-white leading-none">{{ macros.kcal | number:'1.0-0' }}</span>
+            <!-- Footer: toggle + meta + acciones -->
+            <div
+              class="flex items-center justify-between gap-3 pt-3"
+              style="border-top: 1px solid rgba(var(--_bw), 0.1)"
+            >
+              <button
+                type="button"
+                (click)="
+                  $event.stopPropagation();
+                  plan.activo ? desactivarPlan(plan.id) : activarPlan(plan.id)
+                "
+                class="flex items-center gap-2 flex-shrink-0"
+              >
+                <div
+                  class="w-8 h-4 rounded-full transition-colors relative"
+                  [style.background]="plan.activo ? '#2ED38D' : 'rgba(var(--_tw),0.28)'"
+                >
+                  <div
+                    class="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform"
+                    [class]="plan.activo ? 'translate-x-4' : 'translate-x-0.5'"
+                  ></div>
+                </div>
+                <span
+                  class="text-[9px] font-black tracking-[0.15em] uppercase"
+                  [style.color]="plan.activo ? '#2ED38D' : 'rgba(var(--_tw),0.50)'"
+                >
+                  {{ plan.activo ? 'ACTIVO' : 'INACTIVO' }}
+                </span>
+              </button>
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="text-[10px] truncate" style="color: rgba(var(--_tw), 0.5)"
+                  >{{ plan.comidas.length }} comidas · {{ plan.creadoEn | date: 'dd/MM/yy' }}</span
+                >
+                <button
+                  (click)="$event.stopPropagation(); iniciarEdicion(plan)"
+                  class="flex-shrink-0 text-[10px] font-bold tracking-[0.15em] uppercase transition-all px-2.5 py-1.5"
+                  style="color: rgba(var(--_tw), 0.38); border: 1px solid transparent"
+                  onmouseenter="
+                    this.style.color = 'var(--c-text-1)';
+                    this.style.borderColor = 'rgba(var(--_bw),0.28)';
+                  "
+                  onmouseleave="
+                    this.style.color = 'rgba(var(--_tw),0.38)';
+                    this.style.borderColor = 'transparent';
+                  "
+                >
+                  EDITAR
+                </button>
+                <button
+                  (click)="$event.stopPropagation(); eliminarPlan(plan.id)"
+                  class="flex-shrink-0 text-[10px] font-bold tracking-[0.15em] uppercase transition-all px-2.5 py-1.5"
+                  style="color: rgba(var(--_tw), 0.32); border: 1px solid transparent"
+                  onmouseenter="
+                    this.style.color = '#f87171';
+                    this.style.borderColor = 'rgba(248,113,113,0.35)';
+                  "
+                  onmouseleave="
+                    this.style.color = 'rgba(var(--_tw),0.32)';
+                    this.style.borderColor = 'transparent';
+                  "
+                >
+                  ELIMINAR
+                </button>
+                <button
+                  (click)="$event.stopPropagation(); abrirDetalle(plan)"
+                  class="flex-shrink-0 px-4 py-2 text-[10px] font-black tracking-[0.15em] uppercase text-black transition-all"
+                  style="background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%)"
+                >
+                  VER DETALLES
+                </button>
+              </div>
             </div>
           </div>
-
-          <!-- Kcal visible solo en móvil (debajo de macros) -->
-          <div class="flex items-center justify-between mb-4 lg:hidden">
-            <div></div>
-            <div class="text-right">
-              <span class="text-[9px] font-black tracking-[0.25em] uppercase block mb-0.5 text-[#2ED38D]">KCAL/DÍA</span>
-              <span class="text-2xl font-black text-white leading-none">{{ macros.kcal | number:'1.0-0' }}</span>
-            </div>
-          </div>
-
-          <!-- Footer: toggle + meta + acciones -->
-          <div class="flex items-center justify-between gap-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.06);">
-            <button type="button"
-              (click)="$event.stopPropagation(); plan.activo ? desactivarPlan(plan.id) : activarPlan(plan.id)"
-              class="flex items-center gap-2 flex-shrink-0">
-              <div class="w-8 h-4 rounded-full transition-colors relative"
-                [style.background]="plan.activo ? '#2ED38D' : 'rgba(255,255,255,0.15)'">
-                <div class="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform"
-                  [class]="plan.activo ? 'translate-x-4' : 'translate-x-0.5'"></div>
-              </div>
-              <span class="text-[9px] font-black tracking-[0.15em] uppercase"
-                [style.color]="plan.activo ? '#2ED38D' : 'rgba(255,255,255,0.3)'">
-                {{ plan.activo ? 'ACTIVO' : 'INACTIVO' }}
-              </span>
-            </button>
-            <div class="flex items-center gap-3 min-w-0">
-              <span class="text-[10px] truncate" style="color: rgba(255,255,255,0.3)">{{ plan.comidas.length }} comidas · {{ plan.creadoEn | date:'dd/MM/yy' }}</span>
-              <button (click)="$event.stopPropagation(); iniciarEdicion(plan)"
-                class="flex-shrink-0 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
-                style="color: rgba(255,255,255,0.45);"
-                onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.45)'">EDITAR</button>
-              <button (click)="$event.stopPropagation(); eliminarPlan(plan.id)"
-                class="flex-shrink-0 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors opacity-0 group-hover:opacity-100"
-                style="color: rgba(255,255,255,0.25);"
-                onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='rgba(255,255,255,0.25)'">ELIMINAR</button>
-            </div>
-          </div>
-
         </div>
-      </div>
+      }
     }
   </div>
 }
 
 <!-- ── DETALLE PLAN ────────────────────────────────────────────────────────── -->
 @if (vista() === 'detalle') {
-@let plan = planDetalle();
-@if (plan) {
-<div class="py-6">
-
-  <!-- Cabecera -->
-  <div class="flex items-center justify-between mb-4">
-    <button (click)="vista.set('lista')"
-      class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.25em] uppercase transition-colors"
-      style="color: rgba(255,255,255,0.4);"
-      onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">
-      <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
-        <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-      </svg>
-      VOLVER
-    </button>
-    <button (click)="iniciarEdicion(plan)"
-      class="text-[10px] font-bold tracking-[0.2em] uppercase transition-colors"
-      style="color: rgba(255,255,255,0.4);"
-      onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">
-      EDITAR
-    </button>
-  </div>
-  <div class="mb-6">
-    <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{{ plan.nombre }}</h2>
-    @if (plan.descripcion) {
-      <p class="text-sm font-light mt-1" style="color: rgba(255,255,255,0.5);">{{ plan.descripcion }}</p>
-    }
-  </div>
-
-  <!-- Toggle activar plan -->
-  <div class="mb-6 pb-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-    <button type="button"
-      (click)="plan.activo ? desactivarPlan(plan.id) : activarPlan(plan.id)"
-      class="flex items-center gap-3">
-      <div class="w-10 h-5 rounded-full transition-colors flex-shrink-0 relative"
-        [style.background]="plan.activo ? '#2ED38D' : 'rgba(255,255,255,0.15)'">
-        <div class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-          [class]="plan.activo ? 'translate-x-5' : 'translate-x-0.5'"></div>
+  @let plan = planDetalle();
+  @if (plan) {
+    <div class="py-6">
+      <!-- Cabecera -->
+      <div class="flex items-center justify-between mb-5">
+        <button
+          (click)="vista.set('lista')"
+          class="flex items-center gap-1.5 text-[10px] font-black tracking-[0.25em] uppercase transition-colors"
+          style="color: rgba(var(--_tw), 0.55)"
+          onmouseenter="this.style.color = '#2ED38D'"
+          onmouseleave="this.style.color = 'rgba(var(--_tw),0.55)'"
+        >
+          <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13 8H3M7 4L3 8l4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+            />
+          </svg>
+          VOLVER
+        </button>
+        <button
+          (click)="iniciarEdicion(plan)"
+          class="text-[11px] font-black tracking-[0.2em] uppercase px-4 py-2.5 text-black transition-all"
+          style="
+            background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
+            box-shadow: 0 4px 14px rgba(46, 211, 141, 0.25);
+          "
+          onmouseenter="this.style.boxShadow = '0 6px 20px rgba(46,211,141,0.4)'"
+          onmouseleave="this.style.boxShadow = '0 4px 14px rgba(46,211,141,0.25)'"
+        >
+          EDITAR PLAN
+        </button>
       </div>
-      <div class="text-left">
-        <p class="text-xs font-black tracking-[0.15em] uppercase"
-          [style.color]="plan.activo ? 'white' : 'rgba(255,255,255,0.4)'">
-          {{ plan.activo ? 'PLAN ACTIVO' : 'PLAN INACTIVO' }}
+
+      <!-- Título -->
+      <h2
+        class="text-4xl font-black uppercase tracking-tighter leading-none mb-6"
+        style="color: var(--c-text-1)"
+      >
+        {{ plan.nombre }}
+      </h2>
+      @if (plan.descripcion) {
+        <p class="text-sm font-light -mt-4 mb-6" style="color: rgba(var(--_tw), 0.6)">
+          {{ plan.descripcion }}
         </p>
-        <p class="text-[11px] font-light mt-0.5" style="color: rgba(255,255,255,0.4);">
-          {{ plan.activo ? 'El atleta verá este plan como su plan actual' : 'Se guardará pero no será el plan en curso' }}
-        </p>
-      </div>
-    </button>
-  </div>
+      }
 
-  <!-- Resumen macros -->
-  @let macros = nutricion.calcularMacros(plan.comidas);
-  <div class="flex gap-6 mb-6 pb-6" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-    <div>
-      <p class="text-[10px] font-bold tracking-[0.2em] uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">KCAL</p>
-      <p class="text-2xl font-black text-white leading-none">{{ macros.kcal | number:'1.0-0' }}</p>
-    </div>
-    <div>
-      <p class="text-[10px] font-bold tracking-[0.2em] uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">PROTEÍNA</p>
-      <p class="text-2xl font-black text-white leading-none">{{ macros.prot | number:'1.0-0' }}<span class="text-xs" style="color: rgba(255,255,255,0.4);">g</span></p>
-    </div>
-    <div>
-      <p class="text-[10px] font-bold tracking-[0.2em] uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">CARBOS</p>
-      <p class="text-2xl font-black text-white leading-none">{{ macros.carbs | number:'1.0-0' }}<span class="text-xs" style="color: rgba(255,255,255,0.4);">g</span></p>
-    </div>
-    <div>
-      <p class="text-[10px] font-bold tracking-[0.2em] uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">GRASAS</p>
-      <p class="text-2xl font-black text-white leading-none">{{ macros.grasa | number:'1.0-0' }}<span class="text-xs" style="color: rgba(255,255,255,0.4);">g</span></p>
-    </div>
-  </div>
+      <!-- Card resumen macros -->
+      @let macros = nutricion.calcularMacros(plan.comidas);
+      @let totalKcalMacros = macros.prot * 4 + macros.carbs * 4 + macros.grasa * 9;
+      @let protW = totalKcalMacros > 0 ? ((macros.prot * 4) / totalKcalMacros) * 100 : 0;
+      @let carbsW = totalKcalMacros > 0 ? ((macros.carbs * 4) / totalKcalMacros) * 100 : 0;
+      @let grasaW = totalKcalMacros > 0 ? ((macros.grasa * 9) / totalKcalMacros) * 100 : 0;
 
-  <!-- Comidas -->
-  <div class="flex flex-col gap-3">
-    @for (comida of plan.comidas; track comida.nombre) {
-    @let macrosComida = nutricion.calcularMacros([comida]);
-    <div style="border: 1px solid rgba(255,255,255,0.08);">
-      <div class="px-5 py-4 flex items-center justify-between" style="background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06);">
-        <p class="text-xs font-black tracking-[0.2em] uppercase text-white">{{ comida.nombre }}</p>
-        <span class="text-[11px] font-bold" style="color: rgba(255,255,255,0.45);">{{ macrosComida.kcal | number:'1.0-0' }} kcal · {{ macrosComida.prot | number:'1.0-0' }}g prot</span>
+      <div
+        class="p-5 mb-5"
+        style="border: 1px solid rgba(var(--_bw), 0.14); background: rgba(var(--_bw), 0.03)"
+      >
+        <!-- KCAL + toggle -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-baseline gap-2">
+            <span class="text-4xl font-black leading-none" style="color: var(--c-text-1)">{{
+              macros.kcal | number: '1.0-0'
+            }}</span>
+            <span
+              class="text-[11px] font-bold tracking-[0.2em] uppercase"
+              style="color: rgba(var(--_tw), 0.5)"
+              >KCAL/DÍA</span
+            >
+          </div>
+          <button
+            type="button"
+            (click)="plan.activo ? desactivarPlan(plan.id) : activarPlan(plan.id)"
+            class="flex items-center gap-2.5"
+          >
+            <span
+              class="text-[10px] font-black tracking-[0.15em] uppercase"
+              style="color: rgba(var(--_tw), 0.55)"
+              >PLAN ACTIVO</span
+            >
+            <div
+              class="w-10 h-5 rounded-full transition-colors relative flex-shrink-0"
+              [style.background]="plan.activo ? '#2ED38D' : 'rgba(var(--_tw),0.28)'"
+            >
+              <div
+                class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                [class]="plan.activo ? 'translate-x-5' : 'translate-x-0.5'"
+              ></div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Barra de macros -->
+        <div class="flex h-1.5 overflow-hidden mb-3 gap-px">
+          <div
+            class="h-full transition-all"
+            style="background: #22c55e"
+            [style.width]="protW + '%'"
+          ></div>
+          <div
+            class="h-full transition-all"
+            style="background: #3b82f6"
+            [style.width]="carbsW + '%'"
+          ></div>
+          <div
+            class="h-full transition-all"
+            style="background: #ef4444"
+            [style.width]="grasaW + '%'"
+          ></div>
+        </div>
+
+        <!-- Pills -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span
+            class="text-[10px] font-bold tracking-[0.15em] uppercase"
+            style="color: rgba(var(--_tw), 0.5)"
+            >PROT</span
+          >
+          <span
+            class="text-[11px] font-black px-2 py-0.5"
+            style="background: rgba(34, 197, 94, 0.15); color: #22c55e"
+            >{{ macros.prot | number: '1.0-0' }}G</span
+          >
+          <span
+            class="mx-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+            style="color: rgba(var(--_tw), 0.5)"
+            >CARBS</span
+          >
+          <span
+            class="text-[11px] font-black px-2 py-0.5"
+            style="background: rgba(59, 130, 246, 0.15); color: #3b82f6"
+            >{{ macros.carbs | number: '1.0-0' }}G</span
+          >
+          <span
+            class="mx-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+            style="color: rgba(var(--_tw), 0.5)"
+            >GRASAS</span
+          >
+          <span
+            class="text-[11px] font-black px-2 py-0.5"
+            style="background: rgba(239, 68, 68, 0.15); color: #ef4444"
+            >{{ macros.grasa | number: '1.0-0' }}G</span
+          >
+        </div>
       </div>
-      <div class="divide-y divide-white/[0.04]">
-        @for (item of comida.alimentos; track item.alimento.codigo) {
-        <div class="px-5 py-3 flex items-center justify-between gap-4">
-          <p class="text-sm text-white">{{ item.alimento.nombre }}</p>
-          <div class="flex items-center gap-4 flex-shrink-0">
-            <span class="text-xs" style="color: rgba(255,255,255,0.4);">{{ item.cantidadG }}g</span>
-            @if (item.alimento.kcalPor100g) {
-              <span class="text-[11px] font-black w-14 text-right" style="color: rgba(255,255,255,0.45);">{{ (item.alimento.kcalPor100g * item.cantidadG / 100) | number:'1.0-0' }} kcal</span>
+
+      <!-- Comidas -->
+      <div class="flex flex-col gap-3">
+        @for (comida of plan.comidas; track comida.nombre) {
+          @let macrosComida = nutricion.calcularMacros([comida]);
+          <div style="border: 1px solid rgba(var(--_bw), 0.14); background: rgba(var(--_bw), 0.02)">
+            <!-- Header comida -->
+            <div
+              class="px-5 py-4 flex items-center gap-2 flex-wrap"
+              style="border-bottom: 1px solid rgba(var(--_bw), 0.1)"
+            >
+              <span
+                class="text-sm font-black tracking-[0.15em] uppercase"
+                style="color: var(--c-text-1)"
+                >{{ comida.nombre }}</span
+              >
+              <span style="color: rgba(var(--_tw), 0.25)">•</span>
+              <span class="text-sm font-bold" style="color: rgba(var(--_tw), 0.5)"
+                >{{ macrosComida.kcal | number: '1.0-0' }} KCAL</span
+              >
+              <span style="color: rgba(var(--_tw), 0.25)">•</span>
+              <span class="text-sm font-bold" style="color: rgba(var(--_tw), 0.5)"
+                >{{ macrosComida.prot | number: '1.0-0' }}G PROT</span
+              >
+            </div>
+
+            <!-- Alimentos -->
+            <div>
+              @for (item of comida.alimentos; track item.alimento.codigo) {
+                <div
+                  class="px-5 py-3.5 flex items-center justify-between gap-4 transition-colors"
+                  style="border-bottom: 1px solid rgba(var(--_bw), 0.06)"
+                  onmouseenter="this.style.background = 'rgba(var(--_bw),0.04)'"
+                  onmouseleave="this.style.background = ''"
+                >
+                  <p class="text-sm flex-1 min-w-0 truncate" style="color: var(--c-text-1)">
+                    {{ item.alimento.nombre }}
+                  </p>
+                  <div class="flex items-center gap-6 flex-shrink-0">
+                    <span
+                      class="text-sm font-bold tabular-nums"
+                      style="color: rgba(var(--_tw), 0.5)"
+                      >{{ item.cantidadG }}g</span
+                    >
+                    @if (item.alimento.kcalPor100g) {
+                      <span
+                        class="text-sm font-black tabular-nums w-20 text-right"
+                        style="color: rgba(var(--_tw), 0.5)"
+                        >{{
+                          (item.alimento.kcalPor100g * item.cantidadG) / 100 | number: '1.0-0'
+                        }}
+                        kcal</span
+                      >
+                    }
+                  </div>
+                </div>
+              }
+              @if (comida.alimentos.length === 0) {
+                <div class="px-5 py-4">
+                  <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.5)">
+                    Sin alimentos
+                  </p>
+                </div>
+              }
+            </div>
+
+            @if (comida.notas) {
+              <div
+                class="px-5 py-3"
+                style="
+                  border-top: 1px solid rgba(var(--_bw), 0.1);
+                  background: rgba(46, 211, 141, 0.03);
+                "
+              >
+                <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">
+                  NOTA
+                </p>
+                <p class="text-sm font-light leading-relaxed" style="color: rgba(var(--_tw), 0.65)">
+                  {{ comida.notas }}
+                </p>
+              </div>
             }
           </div>
-        </div>
-        }
-        @if (comida.alimentos.length === 0) {
-          <div class="px-5 py-4">
-            <p class="text-sm font-light" style="color: rgba(255,255,255,0.3);">Sin alimentos</p>
-          </div>
         }
       </div>
-      @if (comida.notas) {
-        <div class="px-5 py-3" style="border-top: 1px solid rgba(255,255,255,0.06);">
-          <p class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] mb-1">NOTA</p>
-          <p class="text-sm font-light leading-relaxed" style="color: rgba(255,255,255,0.55);">{{ comida.notas }}</p>
-        </div>
-      }
     </div>
-    }
-  </div>
-
-</div>
-}
+  }
 }
 
 <!-- ── CREAR PLAN ─────────────────────────────────────────────────────────── -->
 @if (vista() === 'crear') {
   <div class="py-6">
-
     <div class="flex items-center justify-between mb-6">
       <div>
         <div class="flex items-center gap-2 mb-1">
@@ -308,37 +740,52 @@
       <button
         (click)="vista.set('lista')"
         class="text-xs font-bold tracking-[0.2em] uppercase transition-colors"
-        style="color: rgba(255,255,255,0.4);"
-        onmouseenter="this.style.color='white'" onmouseleave="this.style.color='rgba(255,255,255,0.4)'">← VOLVER</button>
+        style="color: rgba(var(--_tw), 0.6)"
+        onmouseenter="this.style.color = '#1E1B4B'"
+        onmouseleave="this.style.color = 'rgba(var(--_tw),0.60)'"
+      >
+        ← VOLVER
+      </button>
     </div>
 
     <div class="mb-5">
-      <label class="text-xs font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45);">NOMBRE DEL PLAN *</label>
+      <label
+        class="text-xs font-bold tracking-[0.2em] uppercase block mb-1.5"
+        style="color: rgba(var(--_tw), 0.6)"
+        >NOMBRE DEL PLAN *</label
+      >
       <input
         [value]="nombrePlan()"
         (input)="nombrePlan.set($any($event.target).value)"
         placeholder="Ej: Plan volumen semana 1"
-        class="w-full border-b border-white/20 text-base font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors placeholder:text-white/20 bg-transparent text-white"
+        class="w-full border-b text-base font-light pb-1.5 outline-none focus:border-[#2ED38D] transition-colors bg-transparent"
+        style="border-color: rgba(var(--_bw), 0.2); color: var(--c-text-1)"
       />
     </div>
     <div class="mb-6">
-      <label class="text-xs font-bold tracking-[0.2em] uppercase block mb-1.5" style="color: rgba(255,255,255,0.45);">DESCRIPCIÓN</label>
+      <label
+        class="text-xs font-bold tracking-[0.2em] uppercase block mb-1.5"
+        style="color: rgba(var(--_tw), 0.6)"
+        >DESCRIPCIÓN</label
+      >
       <textarea
         [value]="descripcionPlan()"
         (input)="descripcionPlan.set($any($event.target).value)"
         rows="2"
         placeholder="Notas para el atleta..."
-        class="w-full border-b border-white/10 text-base font-light pb-1.5 outline-none focus:border-white/30 transition-colors placeholder:text-white/20 resize-none bg-transparent text-white/70"
+        class="w-full border-b text-base font-light pb-1.5 outline-none transition-colors resize-none bg-transparent"
+        style="border-color: rgba(var(--_bw), 0.1); color: var(--c-text-1)"
       ></textarea>
     </div>
 
-
     <!-- Comidas -->
     @for (comida of comidas(); track $index; let ci = $index) {
-      <div class="mb-4" style="border: 1px solid rgba(255,255,255,0.08);">
-
+      <div class="mb-4" style="border: 1px solid rgba(var(--_bw), 0.14)">
         <!-- Cabecera comida -->
-        <div class="flex items-center gap-3 px-4 py-3" style="background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06);">
+        <div
+          class="flex items-center gap-3 px-4 py-3"
+          style="background: rgba(var(--_bw), 0.05); border-bottom: 1px solid rgba(var(--_bw), 0.1)"
+        >
           <input
             [value]="comida.nombre"
             (input)="actualizarNombreComida(ci, $any($event.target).value)"
@@ -347,19 +794,27 @@
           />
           <div class="flex items-center gap-2 flex-shrink-0">
             @if (comida.alimentos.length > 0) {
-              <span class="text-xs font-light hidden sm:block" style="color: rgba(255,255,255,0.4);">
-                {{ macrosComida(comida).kcal | number:'1.0-0' }} kcal
+              <span class="text-xs font-light hidden sm:block" style="color: rgba(var(--_tw), 0.6)">
+                {{ macrosComida(comida).kcal | number: '1.0-0' }} kcal
               </span>
             }
             <button
               (click)="buscadorEnComida.set(ci)"
               class="text-[11px] font-black tracking-[0.15em] uppercase px-3 py-1.5 text-black transition-all"
-              style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%);">+ ALIMENTO</button>
+              style="background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%)"
+            >
+              + ALIMENTO
+            </button>
             @if (comidas().length > 1) {
               <button
                 (click)="eliminarComida(ci)"
-                class="text-sm leading-none transition-colors" style="color: rgba(255,255,255,0.3);"
-                onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='rgba(255,255,255,0.3)'">✕</button>
+                class="text-sm leading-none transition-colors"
+                style="color: rgba(var(--_tw), 0.5)"
+                onmouseenter="this.style.color = '#f87171'"
+                onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
+              >
+                ✕
+              </button>
             }
           </div>
         </div>
@@ -368,21 +823,40 @@
           <!-- Últimos usados -->
           @let recientes = nutricion.ultimosDeComida(comida.nombre);
           @if (recientes.length > 0) {
-            <div class="mb-3 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-              <p class="text-[11px] font-bold tracking-[0.2em] uppercase mb-2" style="color: rgba(255,255,255,0.3);">ÚLTIMOS USADOS</p>
+            <div class="mb-3 pb-3" style="border-bottom: 1px solid rgba(var(--_bw), 0.1)">
+              <p
+                class="text-[11px] font-bold tracking-[0.2em] uppercase mb-2"
+                style="color: rgba(var(--_tw), 0.5)"
+              >
+                ÚLTIMOS USADOS
+              </p>
               <div class="flex flex-wrap gap-1.5">
                 @for (reciente of recientes; track reciente.codigo) {
                   <button
                     (click)="agregarReciente(ci, reciente)"
                     [disabled]="yaEnComida(ci, reciente.codigo)"
                     class="text-[11px] font-bold tracking-[0.1em] uppercase px-2.5 py-1.5 transition-colors max-w-[180px] truncate"
-                    [style]="yaEnComida(ci, reciente.codigo)
-                      ? 'border: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); cursor: not-allowed;'
-                      : 'border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);'"
+                    [style]="
+                      yaEnComida(ci, reciente.codigo)
+                        ? 'border: 1px solid rgba(var(--_bw),0.08); color: rgba(var(--_tw),0.35); cursor: not-allowed;'
+                        : 'border: 1px solid rgba(var(--_bw),0.18); color: rgba(var(--_tw),0.65);'
+                    "
                     [title]="reciente.nombre + ' · ' + reciente.kcalPor100g + ' kcal/100g'"
-                    onmouseenter="if(!this.disabled){ this.style.borderColor='rgba(255,255,255,0.3)'; this.style.color='white'; }"
-                    onmouseleave="if(!this.disabled){ this.style.borderColor='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.5)'; }"
-                  >+ {{ reciente.nombre }}</button>
+                    onmouseenter="
+                      if (!this.disabled) {
+                        this.style.borderColor = 'rgba(var(--_tw),0.50)';
+                        this.style.color = '#1E1B4B';
+                      }
+                    "
+                    onmouseleave="
+                      if (!this.disabled) {
+                        this.style.borderColor = 'rgba(var(--_bw),0.18)';
+                        this.style.color = 'rgba(var(--_tw),0.65)';
+                      }
+                    "
+                  >
+                    + {{ reciente.nombre }}
+                  </button>
                 }
               </div>
             </div>
@@ -390,33 +864,48 @@
 
           <!-- Alimentos -->
           @if (comida.alimentos.length === 0) {
-            <p class="text-sm font-light italic" style="color: rgba(255,255,255,0.3);">Sin alimentos aún.</p>
+            <p class="text-sm font-light italic" style="color: rgba(var(--_tw), 0.5)">
+              Sin alimentos aún.
+            </p>
           }
           @for (item of comida.alimentos; track $index; let ai = $index) {
-            <div class="flex items-center justify-between py-2 first:border-t-0" style="border-top: 1px solid rgba(255,255,255,0.05);">
+            <div
+              class="flex items-center justify-between py-2 first:border-t-0"
+              style="border-top: 1px solid rgba(var(--_bw), 0.08)"
+            >
               <div class="flex-1 min-w-0 mr-3">
                 <div class="flex items-center gap-1.5">
-                  <p class="text-sm font-bold text-white leading-tight truncate">{{ item.alimento.nombre }}</p>
+                  <p class="text-sm font-bold text-white leading-tight truncate">
+                    {{ item.alimento.nombre }}
+                  </p>
                   @if (item.alimento.marca === 'Receta propia') {
-                    <span class="text-[11px] font-black tracking-[0.1em] uppercase px-1.5 py-0.5 bg-[#2ED38D] text-black flex-shrink-0">RECETA</span>
+                    <span
+                      class="text-[11px] font-black tracking-[0.1em] uppercase px-1.5 py-0.5 bg-[#2ED38D] text-black flex-shrink-0"
+                      >RECETA</span
+                    >
                   }
                 </div>
-                <p class="text-sm font-light" style="color: rgba(255,255,255,0.45);">
+                <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.6)">
                   {{ item.cantidadG }}g ·
-                  {{ (item.alimento.kcalPor100g * item.cantidadG / 100) | number:'1.0-0' }} kcal ·
-                  P {{ (item.alimento.proteinasPor100g * item.cantidadG / 100) | number:'1.0-2' }}g ·
-                  C {{ (item.alimento.carbsPor100g * item.cantidadG / 100) | number:'1.0-2' }}g ·
-                  G {{ (item.alimento.grasasPor100g * item.cantidadG / 100) | number:'1.0-2' }}g
+                  {{ (item.alimento.kcalPor100g * item.cantidadG) / 100 | number: '1.0-0' }} kcal ·
+                  P {{ (item.alimento.proteinasPor100g * item.cantidadG) / 100 | number: '1.0-2' }}g
+                  · C {{ (item.alimento.carbsPor100g * item.cantidadG) / 100 | number: '1.0-2' }}g ·
+                  G {{ (item.alimento.grasasPor100g * item.cantidadG) / 100 | number: '1.0-2' }}g
                 </p>
               </div>
               <button
                 (click)="quitarAlimento(ci, ai)"
-                class="text-xs font-bold flex-shrink-0 transition-colors" style="color: rgba(255,255,255,0.3);"
-                onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='rgba(255,255,255,0.3)'">✕</button>
+                class="text-xs font-bold flex-shrink-0 transition-colors"
+                style="color: rgba(var(--_tw), 0.5)"
+                onmouseenter="this.style.color = '#f87171'"
+                onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
+              >
+                ✕
+              </button>
             </div>
           }
           <!-- Notas de la comida -->
-          <div class="mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.05);">
+          <div class="mt-3 pt-3" style="border-top: 1px solid rgba(var(--_bw), 0.08)">
             <textarea
               [value]="comida.notas ?? ''"
               (input)="actualizarNotasComida(ci, $any($event.target).value)"
@@ -432,37 +921,67 @@
     <button
       (click)="agregarComida()"
       class="w-full py-3 text-xs font-bold tracking-[0.2em] uppercase mb-8 transition-colors text-white/50"
-      style="border: 1px dashed rgba(255,255,255,0.1);"
-      onmouseenter="this.style.borderColor='rgba(255,255,255,0.25)'; this.style.color='white'"
-      onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.5)'">
+      style="border: 1px dashed rgba(var(--_bw), 0.18)"
+      onmouseenter="
+        this.style.borderColor = 'rgba(var(--_tw),0.45)';
+        this.style.color = '#1E1B4B';
+      "
+      onmouseleave="
+        this.style.borderColor = 'rgba(var(--_bw),0.18)';
+        this.style.color = 'rgba(var(--_tw),0.65)';
+      "
+    >
       + AÑADIR COMIDA
     </button>
 
     <!-- Totales del día -->
-    <div class="p-4 mb-6" style="border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);">
+    <div
+      class="p-4 mb-6"
+      style="border: 1px solid rgba(var(--_tw), 0.28); background: rgba(var(--_bw), 0.05)"
+    >
       <p class="text-sm font-black tracking-[0.15em] uppercase text-white mb-3">TOTALES DEL DÍA</p>
       <div class="grid grid-cols-4 gap-3">
         <div class="text-center">
-          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">Kcal</p>
-          <p class="text-xl font-black text-white">{{ totales().kcal | number:'1.0-0' }}</p>
+          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(var(--_tw), 0.6)">
+            Kcal
+          </p>
+          <p class="text-xl font-black text-white">{{ totales().kcal | number: '1.0-0' }}</p>
         </div>
         <div class="text-center">
-          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">Proteínas</p>
-          <p class="text-xl font-black text-white">{{ totales().prot | number:'1.0-1' }}<span class="text-sm font-light" style="color: rgba(255,255,255,0.5);">g</span></p>
+          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(var(--_tw), 0.6)">
+            Proteínas
+          </p>
+          <p class="text-xl font-black text-white">
+            {{ totales().prot | number: '1.0-1'
+            }}<span class="text-sm font-light" style="color: rgba(var(--_tw), 0.65)">g</span>
+          </p>
         </div>
         <div class="text-center">
-          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">Carbos</p>
-          <p class="text-xl font-black text-white">{{ totales().carbs | number:'1.0-1' }}<span class="text-sm font-light" style="color: rgba(255,255,255,0.5);">g</span></p>
+          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(var(--_tw), 0.6)">
+            Carbos
+          </p>
+          <p class="text-xl font-black text-white">
+            {{ totales().carbs | number: '1.0-1'
+            }}<span class="text-sm font-light" style="color: rgba(var(--_tw), 0.65)">g</span>
+          </p>
         </div>
         <div class="text-center">
-          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(255,255,255,0.4);">Grasa</p>
-          <p class="text-xl font-black text-white">{{ totales().grasa | number:'1.0-1' }}<span class="text-sm font-light" style="color: rgba(255,255,255,0.5);">g</span></p>
+          <p class="text-sm font-light uppercase mb-0.5" style="color: rgba(var(--_tw), 0.6)">
+            Grasa
+          </p>
+          <p class="text-xl font-black text-white">
+            {{ totales().grasa | number: '1.0-1'
+            }}<span class="text-sm font-light" style="color: rgba(var(--_tw), 0.65)">g</span>
+          </p>
         </div>
       </div>
     </div>
 
     @if (errorGuardando()) {
-      <div class="px-4 py-3 mb-4" style="background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);">
+      <div
+        class="px-4 py-3 mb-4"
+        style="background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.25)"
+      >
         <p class="text-xs font-bold text-red-400">{{ errorGuardando() }}</p>
       </div>
     }
@@ -471,12 +990,17 @@
       (click)="guardarPlan()"
       [disabled]="!nombrePlan().trim() || guardando()"
       class="w-full text-sm font-black tracking-[0.15em] uppercase py-4 transition-all"
-      [style]="nombrePlan().trim() && !guardando()
-        ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black; box-shadow: 0 4px 20px rgba(46,211,141,0.2);'
-        : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: not-allowed;'"
+      [style]="
+        nombrePlan().trim() && !guardando()
+          ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: black; box-shadow: 0 4px 20px rgba(46,211,141,0.2);'
+          : 'background: rgba(var(--_bw),0.06); border: 1px solid rgba(var(--_bw),0.10); color: rgba(var(--_tw),0.35); cursor: not-allowed;'
+      "
     >
-      @if (guardando()) { GUARDANDO... } @else { {{ planEditandoId() ? 'ACTUALIZAR PLAN' : 'GUARDAR PLAN' }} }
+      @if (guardando()) {
+        GUARDANDO...
+      } @else {
+        {{ planEditandoId() ? 'ACTUALIZAR PLAN' : 'GUARDAR PLAN' }}
+      }
     </button>
-
   </div>
 }

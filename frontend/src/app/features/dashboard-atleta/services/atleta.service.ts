@@ -49,6 +49,7 @@ export interface PlanEntrenamiento {
   descripcion: string;
   semanas?: number;
   semanaActual?: number;
+  fechaInicio?: string;
   sesiones: SesionEntrenamiento[];
   creadoEn?: string;
   atletaId?: string;

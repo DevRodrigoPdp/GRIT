@@ -1,34 +1,53 @@
-<!-- ── LIGHTBOX ────────────────────────────────────────────────────────────── -->
+﻿<!-- ── LIGHTBOX ────────────────────────────────────────────────────────────── -->
 @if (zoomUrl()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-sm cursor-zoom-out"
-  (click)="zoomUrl.set(null)">
-  <img [src]="zoomUrl()!" class="max-w-[90vw] max-h-[90vh] object-contain select-none" (click)="$event.stopPropagation()"/>
-  <button (click)="zoomUrl.set(null)"
-    class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors">
-    <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
-      <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-    </svg>
-  </button>
-</div>
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-sm cursor-zoom-out"
+    (click)="zoomUrl.set(null)"
+  >
+    <img
+      [src]="zoomUrl()!"
+      class="max-w-[90vw] max-h-[90vh] object-contain select-none"
+      (click)="$event.stopPropagation()"
+    />
+    <button
+      (click)="zoomUrl.set(null)"
+      class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors"
+    >
+      <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M3 3l10 10M13 3L3 13"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="square"
+        />
+      </svg>
+    </button>
+  </div>
 }
 
 <div class="flex flex-col gap-10">
-
   <!-- ── VISTA: LISTA ──────────────────────────────────────────────────────── -->
   @if (vista() === 'lista') {
     <section>
-
       <!-- ── BANNER CHECK-IN DE PESO ─────────────────────────────────────── -->
       @if (contexto() === 'ENTRENAMIENTO' && solicitudCheckIn() && !checkInHecho()) {
-        <div class="p-5 mb-6" style="border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.02);">
+        <div
+          class="p-5 mb-6"
+          style="border: 1px solid rgba(var(--_bw), 0.2); background: rgba(var(--_bw), 0.03)"
+        >
           <div class="flex items-center gap-3 mb-4">
             <div class="w-4 h-px bg-[#2ED38D]"></div>
-            <span class="text-[10px] font-black tracking-[0.3em] uppercase text-white">CHECK-IN DE PESO</span>
+            <span class="text-[10px] font-black tracking-[0.3em] uppercase text-white"
+              >CHECK-IN DE PESO</span
+            >
           </div>
-          <p class="text-xs mb-1" style="color: rgba(255,255,255,0.5);">
-            Solicitado por <span class="font-black text-white">{{ solicitudCheckIn()!.solicitadoPor }}</span>
+          <p class="text-xs mb-1" style="color: rgba(var(--_tw), 0.65)">
+            Solicitado por
+            <span class="font-black text-white">{{ solicitudCheckIn()!.solicitadoPor }}</span>
           </p>
-          <p class="text-[11px] mb-4" style="color: rgba(255,255,255,0.35);">{{ solicitudCheckIn()!.fecha }}</p>
+          <p class="text-[11px] mb-4" style="color: rgba(var(--_tw), 0.5)">
+            {{ solicitudCheckIn()!.fecha }}
+          </p>
           <div class="flex gap-3">
             <input
               [ngModel]="pesoInput()"
@@ -39,25 +58,40 @@
               step="0.1"
               placeholder="Peso en kg"
               class="flex-1 px-4 py-2.5 text-sm font-medium text-white placeholder:text-white/30 outline-none transition-colors bg-transparent focus:border-white"
-              style="border: 1px solid rgba(255,255,255,0.15);"
+              style="border: 1px solid rgba(var(--_tw), 0.28)"
             />
             <button
               (click)="registrarPeso()"
               [disabled]="!pesoValido() || enviandoPeso()"
               class="px-5 py-2.5 text-[11px] font-black tracking-[0.2em] uppercase transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: #000;"
+              style="background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%); color: #000"
             >
-              @if (enviandoPeso()) { ENVIANDO... } @else { REGISTRAR }
+              @if (enviandoPeso()) {
+                ENVIANDO...
+              } @else {
+                REGISTRAR
+              }
             </button>
           </div>
         </div>
       }
       @if (contexto() === 'ENTRENAMIENTO' && checkInHecho()) {
-        <div class="p-4 mb-6 flex items-center gap-3" style="border: 1px solid rgba(46,211,141,0.3); background: rgba(46,211,141,0.06);">
-          <svg class="w-4 h-4 text-[#2ED38D] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M5 13l4 4L19 7" stroke-linecap="square"/>
+        <div
+          class="p-4 mb-6 flex items-center gap-3"
+          style="border: 1px solid rgba(46, 211, 141, 0.3); background: rgba(46, 211, 141, 0.06)"
+        >
+          <svg
+            class="w-4 h-4 text-[#2ED38D] flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M5 13l4 4L19 7" stroke-linecap="square" />
           </svg>
-          <span class="text-xs font-black tracking-[0.15em] uppercase text-[#2ED38D]">PESO REGISTRADO</span>
+          <span class="text-xs font-black tracking-[0.15em] uppercase text-[#2ED38D]"
+            >PESO REGISTRADO</span
+          >
         </div>
       }
 
@@ -74,12 +108,17 @@
         <button
           (click)="vista.set('nuevo')"
           class="inline-flex items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors"
-          style="color: rgba(255,255,255,0.55);"
-          onmouseenter="this.style.color='#2ED38D'"
-          onmouseleave="this.style.color='rgba(255,255,255,0.55)'"
+          style="color: rgba(var(--_tw), 0.65)"
+          onmouseenter="this.style.color = '#2ED38D'"
+          onmouseleave="this.style.color = 'rgba(var(--_tw),0.65)'"
         >
           <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
-            <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            <path
+              d="M8 2v12M2 8h12"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+            />
           </svg>
           NUEVO HILO
         </button>
@@ -89,86 +128,145 @@
       @if (hilos().length > 0) {
         <div class="flex flex-col gap-3 mb-4">
           <div class="relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style="color: rgba(255,255,255,0.25);" viewBox="0 0 16 16" fill="none">
-              <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            <svg
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none"
+              style="color: rgba(var(--_tw), 0.45)"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.5" />
+              <path
+                d="M10 10l3 3"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="square"
+              />
             </svg>
             <input
-              [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+              [ngModel]="busqueda()"
+              (ngModelChange)="busqueda.set($event)"
               placeholder="Buscar en hilos..."
               class="w-full pl-9 pr-4 py-2.5 text-sm font-light text-white placeholder:text-white/25 outline-none transition-colors bg-transparent"
-              style="border: 1px solid rgba(255,255,255,0.12);"
+              style="border: 1px solid rgba(var(--_bw), 0.2)"
             />
             @if (busqueda()) {
-              <button (click)="busqueda.set('')" class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                style="color: rgba(255,255,255,0.3);"
-                onmouseenter="this.style.color='white'"
-                onmouseleave="this.style.color='rgba(255,255,255,0.3)'">
+              <button
+                (click)="busqueda.set('')"
+                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                style="color: rgba(var(--_tw), 0.5)"
+                onmouseenter="this.style.color = '#1E1B4B'"
+                onmouseleave="this.style.color = 'rgba(var(--_tw),0.50)'"
+              >
                 <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+                  <path
+                    d="M3 3l10 10M13 3L3 13"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="square"
+                  />
                 </svg>
               </button>
             }
           </div>
-          <div class="flex gap-2 overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            class="flex gap-2 overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             <button
               (click)="filtroCategoria.set('TODOS')"
               class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
-              [style.background]="filtroCategoria() === 'TODOS' ? 'rgba(255,255,255,0.15)' : 'transparent'"
-              [style.border]="filtroCategoria() === 'TODOS' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.12)'"
-              [style.color]="filtroCategoria() === 'TODOS' ? 'white' : 'rgba(255,255,255,0.4)'"
-            >TODOS</button>
+              [style.background]="
+                filtroCategoria() === 'TODOS' ? 'rgba(var(--_tw),0.28)' : 'transparent'
+              "
+              [style.border]="
+                filtroCategoria() === 'TODOS'
+                  ? '1px solid rgba(var(--_tw),0.50)'
+                  : '1px solid rgba(var(--_bw),0.20)'
+              "
+              [style.color]="
+                filtroCategoria() === 'TODOS' ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.60)'
+              "
+            >
+              TODOS
+            </button>
             @for (cat of categorias; track cat.value) {
               <button
                 (click)="filtroCategoria.set(cat.value)"
                 class="flex-shrink-0 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1.5 transition-all"
-                [style.background-color]="filtroCategoria() === cat.value ? categoriaEstilo(cat.value).borde : 'transparent'"
-                [style.border]="filtroCategoria() === cat.value ? '1px solid ' + categoriaEstilo(cat.value).borde : '1px solid rgba(255,255,255,0.12)'"
-                [style.color]="filtroCategoria() === cat.value ? 'black' : 'rgba(255,255,255,0.4)'"
-              >{{ cat.label }}</button>
+                [style.background-color]="
+                  filtroCategoria() === cat.value ? categoriaEstilo(cat.value).borde : 'transparent'
+                "
+                [style.border]="
+                  filtroCategoria() === cat.value
+                    ? '1px solid ' + categoriaEstilo(cat.value).borde
+                    : '1px solid rgba(var(--_bw),0.20)'
+                "
+                [style.color]="filtroCategoria() === cat.value ? 'black' : 'rgba(var(--_tw),0.60)'"
+              >
+                {{ cat.label }}
+              </button>
             }
           </div>
         </div>
       }
 
-      <div class="flex flex-col gap-2">
+      <div
+        class="flex flex-col gap-2 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(var(--_bw),0.20)_transparent]"
+        style="max-height: 52vh"
+      >
         @for (hilo of hilosFiltrados(); track hilo.id) {
           <button
             (click)="abrirHilo(hilo)"
             class="w-full text-left transition-all duration-200"
             [style.background-color]="categoriaEstilo(hilo.categoria).fondo"
-            style="border: 1px solid rgba(255,255,255,0.08);"
-            onmouseenter="this.style.borderColor='rgba(255,255,255,0.2)'"
-            onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)'"
+            style="border: 1px solid rgba(var(--_bw), 0.14)"
+            onmouseenter="this.style.borderColor = 'rgba(var(--_tw),0.35)'"
+            onmouseleave="this.style.borderColor = 'rgba(var(--_bw),0.14)'"
           >
             <div class="flex">
-              <div class="w-1 flex-shrink-0" [style.background-color]="categoriaEstilo(hilo.categoria).borde"></div>
+              <div
+                class="w-1 flex-shrink-0"
+                [style.background-color]="categoriaEstilo(hilo.categoria).borde"
+              ></div>
               <div class="flex-1 px-4 py-3.5">
                 <div class="flex items-start justify-between gap-4">
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1.5">
-                      <span class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5 border"
+                      <span
+                        class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5 border"
                         [style.border-color]="categoriaEstilo(hilo.categoria).borde"
-                        [style.color]="categoriaEstilo(hilo.categoria).texto">
+                        [style.color]="categoriaEstilo(hilo.categoria).texto"
+                      >
                         {{ labelCategoria(hilo.categoria) }}
                       </span>
                       @if (!hilo.leido) {
-                        <span class="w-1.5 h-1.5 rounded-full" [style.background-color]="categoriaEstilo(hilo.categoria).borde"></span>
+                        <span
+                          class="w-1.5 h-1.5 rounded-full"
+                          [style.background-color]="categoriaEstilo(hilo.categoria).borde"
+                        ></span>
                       }
                     </div>
                     <p class="text-sm font-black text-white truncate">{{ hilo.titulo }}</p>
-                    <p class="text-xs font-light mt-1 truncate" style="color: rgba(255,255,255,0.4);">
-                      <span class="font-bold" style="color: rgba(255,255,255,0.55);">
+                    <p
+                      class="text-xs font-light mt-1 truncate"
+                      style="color: rgba(var(--_tw), 0.6)"
+                    >
+                      <span class="font-bold" style="color: rgba(var(--_tw), 0.65)">
                         {{ ultimoMensaje(hilo).de === 'atleta' ? 'Tú' : profesionalNombre() }}:
                       </span>
                       {{ ultimoMensaje(hilo).texto || '— adjunto' }}
                     </p>
                   </div>
                   <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
-                    <p class="text-[10px] font-light whitespace-nowrap" style="color: rgba(255,255,255,0.3);">
+                    <p
+                      class="text-[10px] font-light whitespace-nowrap"
+                      style="color: rgba(var(--_tw), 0.5)"
+                    >
                       {{ formatearFecha(ultimoMensaje(hilo).fecha) }}
                     </p>
-                    <span class="text-[10px] font-bold tracking-[0.1em] uppercase" style="color: rgba(255,255,255,0.3);">
+                    <span
+                      class="text-[10px] font-bold tracking-[0.1em] uppercase"
+                      style="color: rgba(var(--_tw), 0.5)"
+                    >
                       {{ hilo.total }} msg{{ hilo.total !== 1 ? 's' : '' }}
                     </span>
                   </div>
@@ -178,17 +276,50 @@
           </button>
         }
 
-        @if (hilos().length === 0) {
-          <div class="p-12 text-center" style="border: 1px dashed rgba(255,255,255,0.12);">
-            <div class="w-2 h-2 mx-auto mb-4" style="background: rgba(255,255,255,0.15);"></div>
-            <p class="text-xs font-black tracking-[0.25em] uppercase mb-1" style="color: rgba(255,255,255,0.3);">SIN HILOS</p>
-            <p class="text-sm font-light" style="color: rgba(255,255,255,0.4);">Abre el primer hilo con {{ profesionalNombre() }}.</p>
+        @if (loadingHilos() && hilos().length === 0) {
+          <div
+            class="col-span-2 lg:col-span-3 flex items-center justify-center p-6 text-center"
+            style="border: 1px dashed rgba(var(--_bw), 0.18)"
+          >
+            <div class="py-20 text-center">
+              <div
+                class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+              ></div>
+              <p
+                class="text-[10px] font-black tracking-[0.2em] uppercase"
+                style="color: rgba(var(--_tw), 0.58)"
+              >
+                CARGANDO...
+              </p>
+            </div>
+          </div>
+        } @else if (hilos().length === 0) {
+          <div class="p-12 text-center" style="border: 1px dashed rgba(var(--_bw), 0.2)">
+            <div class="w-2 h-2 mx-auto mb-4" style="background: rgba(var(--_tw), 0.28)"></div>
+            <p
+              class="text-xs font-black tracking-[0.25em] uppercase mb-1"
+              style="color: rgba(var(--_tw), 0.5)"
+            >
+              SIN HILOS
+            </p>
+            <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.6)">
+              Abre el primer hilo con {{ profesionalNombre() }}.
+            </p>
           </div>
         }
+
         @if (hilos().length > 0 && hilosFiltrados().length === 0) {
-          <div class="p-10 text-center" style="border: 1px dashed rgba(255,255,255,0.12);">
-            <p class="text-xs font-black tracking-[0.25em] uppercase mb-1" style="color: rgba(255,255,255,0.3);">SIN RESULTADOS</p>
-            <p class="text-sm font-light" style="color: rgba(255,255,255,0.4);">Ningún hilo coincide con la búsqueda.</p>
+          <div class="p-10 text-center" style="border: 1px dashed rgba(var(--_bw), 0.2)">
+            <p
+              class="text-xs font-black tracking-[0.25em] uppercase mb-1"
+              style="color: rgba(var(--_tw), 0.5)"
+            >
+              SIN RESULTADOS
+            </p>
+            <p class="text-sm font-light" style="color: rgba(var(--_tw), 0.6)">
+              Ningún hilo coincide con la búsqueda.
+            </p>
           </div>
         }
       </div>
@@ -199,12 +330,20 @@
   @if (vista() === 'nuevo') {
     <section>
       <div class="flex items-center gap-4 mb-6">
-        <button (click)="vista.set('lista')" class="transition-colors mt-0.5"
-          style="color: rgba(255,255,255,0.4);"
-          onmouseenter="this.style.color='white'"
-          onmouseleave="this.style.color='rgba(255,255,255,0.4)'">
+        <button
+          (click)="vista.set('lista')"
+          class="transition-colors mt-0.5"
+          style="color: rgba(var(--_tw), 0.6)"
+          onmouseenter="this.style.color = '#1E1B4B'"
+          onmouseleave="this.style.color = 'rgba(var(--_tw),0.60)'"
+        >
           <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
-            <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            <path
+              d="M13 8H3M7 4L3 8l4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+            />
           </svg>
         </button>
         <div class="flex items-center gap-3">
@@ -216,71 +355,128 @@
       <div class="flex flex-col gap-5">
         <!-- Categoría -->
         <div class="flex flex-col gap-2">
-          <label class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.4);">CATEGORÍA</label>
+          <label
+            class="text-[10px] font-black tracking-[0.2em] uppercase"
+            style="color: rgba(var(--_tw), 0.6)"
+            >CATEGORÍA</label
+          >
           <div class="flex gap-2">
             @for (cat of categorias; track cat.value) {
               <button
                 (click)="nuevaCategoria.set(cat.value)"
                 class="text-[10px] font-black tracking-[0.15em] uppercase px-3 py-2 transition-all"
-                [style.background-color]="nuevaCategoria() === cat.value ? categoriaEstilo(cat.value).borde : 'transparent'"
-                [style.border]="nuevaCategoria() === cat.value ? '1px solid ' + categoriaEstilo(cat.value).borde : '1px solid rgba(255,255,255,0.15)'"
-                [style.color]="nuevaCategoria() === cat.value ? 'black' : 'rgba(255,255,255,0.45)'"
-              >{{ cat.label }}</button>
+                [style.background-color]="
+                  nuevaCategoria() === cat.value ? categoriaEstilo(cat.value).borde : 'transparent'
+                "
+                [style.border]="
+                  nuevaCategoria() === cat.value
+                    ? '1px solid ' + categoriaEstilo(cat.value).borde
+                    : '1px solid rgba(var(--_tw),0.28)'
+                "
+                [style.color]="nuevaCategoria() === cat.value ? 'black' : 'rgba(var(--_tw),0.60)'"
+              >
+                {{ cat.label }}
+              </button>
             }
           </div>
         </div>
 
         <!-- Asunto -->
         <div class="flex flex-col gap-2">
-          <label class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.4);">ASUNTO</label>
+          <label
+            class="text-[10px] font-black tracking-[0.2em] uppercase"
+            style="color: rgba(var(--_tw), 0.6)"
+            >ASUNTO</label
+          >
           <input
-            [ngModel]="nuevoTitulo()" (ngModelChange)="nuevoTitulo.set($event)"
+            [ngModel]="nuevoTitulo()"
+            (ngModelChange)="nuevoTitulo.set($event)"
             placeholder="Ej. Tengo dudas sobre mi técnica en sentadilla"
             class="py-2.5 text-sm font-medium text-white placeholder:text-white/25 outline-none transition-colors bg-transparent focus:border-white"
-            style="border-bottom: 1px solid rgba(255,255,255,0.15);"
+            style="border-bottom: 1px solid rgba(var(--_tw), 0.28)"
           />
         </div>
 
         <!-- Mensaje + adjuntos -->
         <div class="flex flex-col gap-2">
-          <label class="text-[10px] font-black tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.4);">MENSAJE</label>
+          <label
+            class="text-[10px] font-black tracking-[0.2em] uppercase"
+            style="color: rgba(var(--_tw), 0.6)"
+            >MENSAJE</label
+          >
           <textarea
-            [ngModel]="nuevoTexto()" (ngModelChange)="nuevoTexto.set($event)"
+            [ngModel]="nuevoTexto()"
+            (ngModelChange)="nuevoTexto.set($event)"
             placeholder="Escribe el primer mensaje del hilo..."
             rows="4"
             class="p-4 text-sm font-light text-white placeholder:text-white/25 outline-none resize-none leading-relaxed transition-colors bg-transparent focus:border-white"
-            style="border: 1px solid rgba(255,255,255,0.12);"
+            style="border: 1px solid rgba(var(--_bw), 0.2)"
           ></textarea>
 
-          <label class="mt-1 flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors group"
-            style="border: 1px dashed rgba(255,255,255,0.15);"
-            onmouseenter="this.style.borderColor='rgba(255,255,255,0.35)'"
-            onmouseleave="this.style.borderColor='rgba(255,255,255,0.15)'">
-            <svg class="w-4 h-4 flex-shrink-0 transition-colors" style="color: rgba(255,255,255,0.4);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-linecap="square"/>
+          <label
+            class="mt-1 flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors group"
+            style="border: 1px dashed rgba(var(--_tw), 0.28)"
+            onmouseenter="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+            onmouseleave="this.style.borderColor = 'rgba(var(--_tw),0.28)'"
+          >
+            <svg
+              class="w-4 h-4 flex-shrink-0 transition-colors"
+              style="color: rgba(var(--_tw), 0.6)"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                stroke-linecap="square"
+              />
             </svg>
-            <span class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors" style="color: rgba(255,255,255,0.4);">
+            <span
+              class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors"
+              style="color: rgba(var(--_tw), 0.6)"
+            >
               ADJUNTAR IMAGEN O VÍDEO
             </span>
             @if (nuevoAdjuntos().length > 0) {
-              <span class="ml-auto text-[10px] font-black text-[#2ED38D]">{{ nuevoAdjuntos().length }} archivo{{ nuevoAdjuntos().length > 1 ? 's' : '' }}</span>
+              <span class="ml-auto text-[10px] font-black text-[#2ED38D]"
+                >{{ nuevoAdjuntos().length }} archivo{{
+                  nuevoAdjuntos().length > 1 ? 's' : ''
+                }}</span
+              >
             }
-            <input type="file" accept="image/*,video/*" multiple class="hidden" (change)="adjuntarArchivos($event, 'nuevo')"/>
+            <input
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              class="hidden"
+              (change)="adjuntarArchivos($event, 'nuevo')"
+            />
           </label>
 
           @if (nuevoAdjuntos().length > 0) {
             <div class="flex flex-wrap gap-2">
               @for (adj of nuevoAdjuntos(); track adj.id) {
-                <div class="relative group overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12);">
+                <div
+                  class="relative group overflow-hidden"
+                  style="border: 1px solid rgba(var(--_bw), 0.2)"
+                >
                   @if (adj.tipo === 'imagen') {
-                    <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre"/>
+                    <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre" />
                   } @else {
                     <video [src]="adj.url" class="h-20 w-20 object-cover block"></video>
                   }
-                  <button (click)="quitarAdjunto(adj.id, 'nuevo')"
-                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button
+                    (click)="quitarAdjunto(adj.id, 'nuevo')"
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  >
                     <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+                      <path
+                        d="M3 3l10 10M13 3L3 13"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="square"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -293,8 +489,10 @@
               (click)="crearHilo()"
               [disabled]="!nuevoTitulo().trim() || !nuevoTexto().trim()"
               class="text-[11px] font-black tracking-[0.2em] uppercase px-6 py-2.5 text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%);"
-            >ABRIR HILO</button>
+              style="background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%)"
+            >
+              ABRIR HILO
+            </button>
           </div>
         </div>
       </div>
@@ -305,109 +503,204 @@
   @if (vista() === 'detalle' && hiloActivo(); as hilo) {
     <section>
       <div class="flex items-start gap-4 mb-6">
-        <button (click)="volverALista()" class="transition-colors mt-0.5 flex-shrink-0"
-          style="color: rgba(255,255,255,0.4);"
-          onmouseenter="this.style.color='white'"
-          onmouseleave="this.style.color='rgba(255,255,255,0.4)'">
+        <button
+          (click)="volverALista()"
+          class="transition-colors mt-0.5 flex-shrink-0"
+          style="color: rgba(var(--_tw), 0.6)"
+          onmouseenter="this.style.color = '#1E1B4B'"
+          onmouseleave="this.style.color = 'rgba(var(--_tw),0.60)'"
+        >
           <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none">
-            <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+            <path
+              d="M13 8H3M7 4L3 8l4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+            />
           </svg>
         </button>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5 border"
+            <span
+              class="text-[9px] font-black tracking-[0.2em] uppercase px-1.5 py-0.5 border"
               [style.border-color]="categoriaEstilo(hilo.categoria).borde"
-              [style.color]="categoriaEstilo(hilo.categoria).texto">
+              [style.color]="categoriaEstilo(hilo.categoria).texto"
+            >
               {{ labelCategoria(hilo.categoria) }}
             </span>
-            <span class="text-[10px] font-light" style="color: rgba(255,255,255,0.35);">
-              Abierto por {{ hilo.de === 'atleta' ? 'ti' : profesionalNombre() }} · {{ formatearFecha(hilo.fecha) }}
+            <span class="text-[10px] font-light" style="color: rgba(var(--_tw), 0.5)">
+              Abierto por {{ hilo.de === 'atleta' ? 'ti' : profesionalNombre() }} ·
+              {{ formatearFecha(hilo.fecha) }}
             </span>
           </div>
-          <h3 class="text-base font-black uppercase tracking-tight text-white leading-tight">{{ hilo.titulo }}</h3>
+          <h3 class="text-base font-black uppercase tracking-tight text-white leading-tight">
+            {{ hilo.titulo }}
+          </h3>
         </div>
       </div>
 
       <!-- Mensajes -->
       <div class="flex flex-col gap-5 mb-6">
-        @for (msg of hilo.mensajes; track msg.id) {
-          <div [class]="msg.de === 'atleta' ? 'flex justify-end' : 'flex justify-start'">
-            <div class="max-w-[80%]">
-              <div class="flex items-center gap-2 mb-1.5" [class.flex-row-reverse]="msg.de === 'atleta'">
-                <span class="text-[10px] font-black tracking-[0.15em] uppercase"
-                  [class.text-white]="msg.de === 'atleta'"
-                  [class.text-[#2ED38D]]="msg.de !== 'atleta'">
-                  {{ msg.de === 'atleta' ? 'Tú' : profesionalNombre() }}
-                </span>
-                <span class="text-[10px] font-light" style="color: rgba(255,255,255,0.3);">{{ formatearFecha(msg.fecha) }}</span>
-              </div>
-              <div class="px-4 py-3 text-sm font-light leading-relaxed"
-                [style.background]="msg.de === 'atleta' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)'"
-                [style.border]="msg.de === 'atleta' ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.08)'"
-                [style.color]="msg.de === 'atleta' ? 'white' : 'rgba(255,255,255,0.8)'">
-
-                @if (msg.adjuntos && msg.adjuntos.length > 0) {
-                  <div class="flex flex-wrap gap-2 mb-3">
-                    @for (adj of msg.adjuntos; track adj.id) {
-                      <div class="overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12);">
-                        @if (adj.tipo === 'imagen') {
-                          <img [src]="adj.url" class="max-w-[200px] max-h-[160px] object-cover block cursor-zoom-in hover:opacity-90 transition-opacity" [alt]="adj.nombre" (click)="zoomUrl.set(adj.url)"/>
-                        } @else {
-                          <video [src]="adj.url" controls class="max-w-[200px] block"></video>
-                        }
-                      </div>
-                    }
-                  </div>
-                }
-                @if (msg.texto) {
-                  <p>{{ msg.texto }}</p>
-                }
-              </div>
+        @if (loadingMensajes()) {
+          <div
+            class="flex items-center justify-center p-6 text-center"
+          >
+            <div class="py-20 text-center">
+              <div
+                class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+              ></div>
+              <p
+                class="text-[10px] font-black tracking-[0.2em] uppercase"
+                style="color: rgba(var(--_tw), 0.58)"
+              >
+                CARGANDO MENSAJES...
+              </p>
             </div>
           </div>
+        } @else {
+          @for (msg of hilo.mensajes; track msg.id) {
+            <div [class]="msg.de === 'atleta' ? 'flex justify-end' : 'flex justify-start'">
+              <div class="max-w-[80%]">
+                <div
+                  class="flex items-center gap-2 mb-1.5"
+                  [class.flex-row-reverse]="msg.de === 'atleta'"
+                >
+                  <span
+                    class="text-[10px] font-black tracking-[0.15em] uppercase"
+                    [class.text-white]="msg.de === 'atleta'"
+                    [class.text-[#2ED38D]]="msg.de !== 'atleta'"
+                  >
+                    {{ msg.de === 'atleta' ? 'Tú' : profesionalNombre() }}
+                  </span>
+                  <span class="text-[10px] font-light" style="color: rgba(var(--_tw), 0.5)">{{
+                    formatearFecha(msg.fecha)
+                  }}</span>
+                </div>
+                <div
+                  class="px-4 py-3 text-sm font-light leading-relaxed"
+                  [style.background]="
+                    msg.de === 'atleta' ? 'rgba(var(--_bw),0.18)' : 'rgba(var(--_bw),0.06)'
+                  "
+                  [style.border]="
+                    msg.de === 'atleta'
+                      ? '1px solid rgba(var(--_tw),0.28)'
+                      : '1px solid rgba(var(--_bw),0.14)'
+                  "
+                  [style.color]="msg.de === 'atleta' ? 'var(--c-text-1)' : 'rgba(var(--_tw),0.85)'"
+                >
+                  @if (msg.adjuntos && msg.adjuntos.length > 0) {
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      @for (adj of msg.adjuntos; track adj.id) {
+                        <div
+                          class="overflow-hidden"
+                          style="border: 1px solid rgba(var(--_bw), 0.2)"
+                        >
+                          @if (adj.tipo === 'imagen') {
+                            <img
+                              [src]="adj.url"
+                              class="max-w-[200px] max-h-[160px] object-cover block cursor-zoom-in hover:opacity-90 transition-opacity"
+                              [alt]="adj.nombre"
+                              (click)="zoomUrl.set(adj.url)"
+                            />
+                          } @else {
+                            <video [src]="adj.url" controls class="max-w-[200px] block"></video>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                  @if (msg.texto) {
+                    <p>{{ msg.texto }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
         }
       </div>
 
       <!-- Respuesta -->
-      <div class="pt-5" style="border-top: 1px solid rgba(255,255,255,0.08);">
-        <p class="text-[10px] font-black tracking-[0.2em] uppercase mb-3" style="color: rgba(255,255,255,0.4);">RESPUESTA</p>
+      <div class="pt-5" style="border-top: 1px solid rgba(var(--_bw), 0.14)">
+        <p
+          class="text-[10px] font-black tracking-[0.2em] uppercase mb-3"
+          style="color: rgba(var(--_tw), 0.6)"
+        >
+          RESPUESTA
+        </p>
         <textarea
-          [ngModel]="textoRespuesta()" (ngModelChange)="textoRespuesta.set($event)"
+          [ngModel]="textoRespuesta()"
+          (ngModelChange)="textoRespuesta.set($event)"
           placeholder="Escribe tu respuesta..."
           rows="3"
           class="w-full p-4 text-sm font-light text-white placeholder:text-white/25 outline-none resize-none leading-relaxed transition-colors mb-3 bg-transparent focus:border-white"
-          style="border: 1px solid rgba(255,255,255,0.12);"
+          style="border: 1px solid rgba(var(--_bw), 0.2)"
         ></textarea>
 
-        <label class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors group mb-3"
-          style="border: 1px dashed rgba(255,255,255,0.15);"
-          onmouseenter="this.style.borderColor='rgba(255,255,255,0.35)'"
-          onmouseleave="this.style.borderColor='rgba(255,255,255,0.15)'">
-          <svg class="w-4 h-4 flex-shrink-0" style="color: rgba(255,255,255,0.4);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-linecap="square"/>
+        <label
+          class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors group mb-3"
+          style="border: 1px dashed rgba(var(--_tw), 0.28)"
+          onmouseenter="this.style.borderColor = 'rgba(var(--_tw),0.50)'"
+          onmouseleave="this.style.borderColor = 'rgba(var(--_tw),0.28)'"
+        >
+          <svg
+            class="w-4 h-4 flex-shrink-0"
+            style="color: rgba(var(--_tw), 0.6)"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+              stroke-linecap="square"
+            />
           </svg>
-          <span class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors" style="color: rgba(255,255,255,0.4);">
+          <span
+            class="text-[11px] font-black tracking-[0.15em] uppercase transition-colors"
+            style="color: rgba(var(--_tw), 0.6)"
+          >
             ADJUNTAR IMAGEN O VÍDEO
           </span>
           @if (respuestaAdjuntos().length > 0) {
-            <span class="ml-auto text-[10px] font-black text-[#2ED38D]">{{ respuestaAdjuntos().length }} archivo{{ respuestaAdjuntos().length > 1 ? 's' : '' }}</span>
+            <span class="ml-auto text-[10px] font-black text-[#2ED38D]"
+              >{{ respuestaAdjuntos().length }} archivo{{
+                respuestaAdjuntos().length > 1 ? 's' : ''
+              }}</span
+            >
           }
-          <input type="file" accept="image/*,video/*" multiple class="hidden" (change)="adjuntarArchivos($event, 'respuesta')"/>
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            class="hidden"
+            (change)="adjuntarArchivos($event, 'respuesta')"
+          />
         </label>
 
         @if (respuestaAdjuntos().length > 0) {
           <div class="flex flex-wrap gap-2 mb-3">
             @for (adj of respuestaAdjuntos(); track adj.id) {
-              <div class="relative group overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12);">
+              <div
+                class="relative group overflow-hidden"
+                style="border: 1px solid rgba(var(--_bw), 0.2)"
+              >
                 @if (adj.tipo === 'imagen') {
-                  <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre"/>
+                  <img [src]="adj.url" class="h-20 w-20 object-cover block" [alt]="adj.nombre" />
                 } @else {
                   <video [src]="adj.url" class="h-20 w-20 object-cover block"></video>
                 }
-                <button (click)="quitarAdjunto(adj.id, 'respuesta')"
-                  class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <button
+                  (click)="quitarAdjunto(adj.id, 'respuesta')"
+                  class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                >
                   <svg class="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+                    <path
+                      d="M3 3l10 10M13 3L3 13"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="square"
+                    />
                   </svg>
                 </button>
               </div>
@@ -420,11 +713,12 @@
             (click)="responder()"
             [disabled]="!textoRespuesta().trim() && !respuestaAdjuntos().length"
             class="text-[11px] font-black tracking-[0.2em] uppercase px-5 py-2.5 text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            style="background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%);"
-          >RESPONDER</button>
+            style="background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%)"
+          >
+            RESPONDER
+          </button>
         </div>
       </div>
     </section>
   }
-
 </div>

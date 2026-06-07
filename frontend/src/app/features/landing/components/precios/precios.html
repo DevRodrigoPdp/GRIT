@@ -18,6 +18,9 @@
         </p>
         <!-- Toggle mensual / anual -->
         <div class="flex items-center gap-3">
+          @if (anual()) {
+            <span class="text-[10px] font-black tracking-widest uppercase text-white bg-[#2ED38D] px-2 py-0.5 rounded-full">2 meses gratis</span>
+          }
           <span class="text-xs font-bold uppercase tracking-widest" [class.text-black]="!anual()" [class.text-gray-400]="anual()">Mensual</span>
           <button
             (click)="anual.set(!anual())"
@@ -33,9 +36,7 @@
             ></span>
           </button>
           <span class="text-xs font-bold uppercase tracking-widest" [class.text-black]="anual()" [class.text-gray-400]="!anual()">Anual</span>
-          @if (anual()) {
-            <span class="text-[10px] font-black tracking-widest uppercase text-white bg-[#2ED38D] px-2 py-0.5 rounded-full">2 meses gratis</span>
-          }
+          
         </div>
       </div>
     </div>

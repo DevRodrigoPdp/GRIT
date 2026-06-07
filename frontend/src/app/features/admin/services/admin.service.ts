@@ -60,9 +60,6 @@ export class AdminService {
   private readonly API = '/api/v1/admin';
 
   buscarUsuarios(q: string = '', page: number = 0, size: number = 10): Observable<{ usuarios: UsuarioDTO[]; totalPages: number }> {
-    const url = q.trim()
-      ? `${this.API}/usuarios/search`
-      : `${this.API}/usuarios`;
 
     let params = new HttpParams()
       .set('page', page.toString())
@@ -70,13 +67,13 @@ export class AdminService {
     if (q.trim()) params = params.set('search', q.trim());
 
     return this.http
-      .get<any>(`${url}`, { params, withCredentials: true })
+      .get<any>(`${this.API}/usuarios/search`, { params, withCredentials: true })
       .pipe(
         map(r => {
           const lista: any[] = Array.isArray(r) ? r : (r?.content ?? r?.data ?? []);
           return {
             usuarios: lista.map((u: any) => ({
-              id: u.idPublico,
+              id: u.id,
               nombre: u.nombre,
               correo: u.email,
               rol: u.rol,
@@ -100,7 +97,7 @@ export class AdminService {
       { withCredentials: true }
     ).pipe(
       map((u: any) => ({
-        id: u.idPublico,
+        id: u.id,
         nombre: u.nombre,
         correo: u.email,
         rol: u.rol,

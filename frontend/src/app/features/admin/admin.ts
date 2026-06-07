@@ -3,16 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, EntrenadorPendienteDTO, UsuarioDTO } from './services/admin.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
+import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
+import { forkJoin} from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ScrollIndicatorDirective],
   templateUrl: './admin.html',
 })
 export class AdminPage implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
+
+  readonly cargando = signal(true);
 
   // Navegación
   readonly seccionActual = signal<'SOLICITUDES' | 'USUARIOS'>('SOLICITUDES');
@@ -57,27 +64,31 @@ export class AdminPage implements OnInit, OnDestroy {
   readonly usuariosFiltrados = computed(() => {
     const rol = this.filtroRol();
     if (rol === 'TODOS') return this.usuarios();
-    return this.usuarios().filter(u => u.rol === rol);
+    return this.usuarios().filter((u) => u.rol === rol);
   });
 
   // Solicitudes filtradas
   readonly solicitudesFiltradas = computed(() => {
-    const query = this.busqueda().toLowerCase().trim();
+    const query = this.busquedaSolicitudes().toLowerCase().trim();
     if (!query) return this.solicitudes();
-    return this.solicitudes().filter(s =>
-      s.nombre.toLowerCase().includes(query) ||
-      s.correo.toLowerCase().includes(query)
+    return this.solicitudes().filter(
+      (s) => s.nombre.toLowerCase().includes(query) || s.correo.toLowerCase().includes(query),
     );
   });
 
-
   ngOnInit() {
-    // Restaurar sesión si fue necesario (respaldo si guard no lo hizo)
-    if (!this.auth.rol()) {
-      this.auth.me().subscribe();
-    }
-    this.cargarSolicitudes();
-    this.cargarUsuarios();
+    const observablesObj = {
+      solicitudes: this.cargarSolicitudes(0), 
+      usuarios: this.cargarUsuarios(0),       
+    };
+
+    forkJoin(observablesObj).subscribe({
+      next: () => this.cargando.set(false),
+      error: () => {
+        this.error.set('Error crítico al inicializar el panel de administración.');
+        this.cargando.set(false);
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -89,32 +100,46 @@ export class AdminPage implements OnInit, OnDestroy {
     this.seccionActual.set(seccion);
     this.busqueda.set('');
     this.busquedaSolicitudes.set('');
-    if (seccion === 'USUARIOS') this.cargarUsuarios();
   }
 
   cargarUsuarios(pagina: number = 0) {
     this.loadingUsuarios.set(true);
     this.paginaUsuarios.set(pagina);
-    this.adminService.buscarUsuarios(this.busqueda(), pagina).subscribe(res => {
-      this.usuarios.set(res.usuarios);
-      this.totalPaginasUsuarios.set(res.totalPages);
-      this.loadingUsuarios.set(false);
-    });
+
+    return this.adminService.buscarUsuarios(this.busqueda(), pagina).pipe(
+      tap({
+        next: (res) => {
+          if (res.usuarios.length === 0 && pagina > 0) {
+            this.cargarUsuarios(pagina - 1).subscribe();
+            return;
+        }
+
+        this.usuarios.set(res.usuarios);
+        this.totalPaginasUsuarios.set(res.totalPages);
+        this.loadingUsuarios.set(false);
+      },
+      error: (err) => {
+        this.error.set('Error al cargar la lista de usuarios.');
+        this.loadingUsuarios.set(false);
+      },
+    }));
   }
 
   onBusquedaUsuariosChange(q: string) {
     this.busqueda.set(q);
     clearTimeout(this._searchTimer);
-    this._searchTimer = setTimeout(() => this.cargarUsuarios(), 350);
+    this._searchTimer = setTimeout(() => this.cargarUsuarios(0).subscribe(), 350);
   }
 
   buscarAhora() {
     clearTimeout(this._searchTimer);
-    this.cargarUsuarios();
+    this.cargarUsuarios(0).subscribe();
   }
 
   cambiarFiltroRol(rol: 'TODOS' | 'ATLETA' | 'ENTRENADOR') {
     this.filtroRol.set(rol);
+    this.paginaUsuarios.set(0);
+    this.cargarUsuarios(0).subscribe();
   }
 
   cargarSolicitudes(pagina: number = 0) {
@@ -127,24 +152,24 @@ export class AdminPage implements OnInit, OnDestroy {
       ? this.adminService.buscarEntrenadores(q, pagina, this.pageSize)
       : this.adminService.getPendingTrainers(pagina, this.pageSize);
 
-    obs.subscribe({
+    return obs.pipe(
+    tap({
       next: (res) => {
         this.solicitudes.set(res.content);
         this.totalPaginasSolicitudes.set(res.totalPages);
         this.loadingSolicitudes.set(false);
       },
       error: (err) => {
-
         this.error.set('Error al cargar las solicitudes. Inténtalo de nuevo más tarde.');
         this.loadingSolicitudes.set(false);
-      }
-    });
+      },
+    }));
   }
 
   onBusquedaSolicitudesChange(q: string) {
     this.busquedaSolicitudes.set(q);
     clearTimeout(this._searchSolicitudesTimer);
-    this._searchSolicitudesTimer = setTimeout(() => this.cargarSolicitudes(), 350);
+    this._searchSolicitudesTimer = setTimeout(() => this.cargarSolicitudes(0).subscribe(), 350);
   }
 
   seleccionarSolicitud(entrenador: EntrenadorPendienteDTO) {
@@ -171,16 +196,15 @@ export class AdminPage implements OnInit, OnDestroy {
     this.adminService.processReview(e.id, true).subscribe({
       next: () => {
         this.nombreAprobado.set(e.nombre);
-        this.solicitudes.update(list => list.filter(item => item.id !== e.id));
+        this.solicitudes.update((list) => list.filter((item) => item.id !== e.id));
         this.entrenadorSeleccionado.set(null);
         this.loadingSolicitudes.set(false);
         this.mostrarModalExito.set(true);
       },
       error: (err) => {
-
         this.error.set('No se pudo aprobar al entrenador.');
         this.loadingSolicitudes.set(false);
-      }
+      },
     });
   }
 
@@ -203,16 +227,15 @@ export class AdminPage implements OnInit, OnDestroy {
     this.loadingUsuarios.set(true);
     this.adminService.eliminarUsuario(u.id).subscribe({
       next: () => {
-        this.usuarios.update(list => list.filter(item => item.id !== u.id));
         this.usuarioSeleccionado.set(null);
         this.mostrarModalEliminacion.set(false);
-        this.loadingUsuarios.set(false);
+
+        this.cargarUsuarios(this.paginaUsuarios()).subscribe(); 
       },
       error: (err) => {
-
         this.error.set('No se pudo eliminar el usuario.');
         this.loadingUsuarios.set(false);
-      }
+      },
     });
   }
 
@@ -234,7 +257,7 @@ export class AdminPage implements OnInit, OnDestroy {
         // Eliminar también el usuario definitivamente
         this.adminService.eliminarUsuario(e.id).subscribe({
           next: () => {
-            this.solicitudes.update(list => list.filter(item => item.id !== e.id));
+            this.solicitudes.update((list) => list.filter((item) => item.id !== e.id));
             this.entrenadorSeleccionado.set(null);
             this.mostrarModalRechazo.set(false);
             this.motivoRechazo.set('');
@@ -243,14 +266,13 @@ export class AdminPage implements OnInit, OnDestroy {
           error: (err) => {
             this.error.set('La solicitud fue rechazada pero hubo un error al eliminar la cuenta.');
             this.loadingSolicitudes.set(false);
-          }
+          },
         });
       },
       error: (err) => {
-
         this.error.set('No se pudo rechazar la solicitud.');
         this.loadingSolicitudes.set(false);
-      }
+      },
     });
   }
 
@@ -265,20 +287,22 @@ export class AdminPage implements OnInit, OnDestroy {
     const nuevoEstado = u.estado === 'BLOQUEADO' ? 'ACTIVO' : 'BLOQUEADO';
     this.adminService.bloquearUsuario(u.id, { estado: nuevoEstado }).subscribe({
       next: (actualizado) => {
-        this.usuarios.update(list => list.map(x => x.id === actualizado.id ? actualizado : x));
+        this.usuarios.update((list) =>
+          list.map((x) => (x.id === actualizado.id ? actualizado : x)),
+        );
         this.mostrarModalBloqueo.set(false);
         this.usuarioSeleccionado.set(null);
       },
       error: () => {
         this.error.set('No se pudo cambiar el estado del usuario.');
-      }
+      },
     });
   }
 
   iniciales(nombre: string): string {
     return nombre
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -289,20 +313,34 @@ export class AdminPage implements OnInit, OnDestroy {
   irPaginaAnterior() {
     const pagina = this.paginaSolicitudes();
     if (pagina > 0) {
-      this.cargarSolicitudes(pagina - 1);
+      this.cargarSolicitudes(pagina - 1).subscribe();
     }
   }
 
   irPaginaSiguiente() {
     const pagina = this.paginaSolicitudes();
     if (pagina < this.totalPaginasSolicitudes() - 1) {
-      this.cargarSolicitudes(pagina + 1);
+      this.cargarSolicitudes(pagina + 1).subscribe();
     }
   }
 
   irPagina(pagina: number) {
     if (pagina >= 0 && pagina < this.totalPaginasSolicitudes()) {
-      this.cargarSolicitudes(pagina);
+      this.cargarSolicitudes(pagina).subscribe();
+    }
+  }
+
+  irPaginaAnteriorUsuarios() {
+    const pagina = this.paginaUsuarios();
+    if (pagina > 0) {
+      this.cargarUsuarios(pagina - 1).subscribe();
+    }
+  }
+
+  irPaginaSiguienteUsuarios() {
+    const pagina = this.paginaUsuarios();
+    if (pagina < this.totalPaginasUsuarios() - 1) {
+      this.cargarUsuarios(pagina + 1).subscribe();
     }
   }
 
@@ -313,7 +351,7 @@ export class AdminPage implements OnInit, OnDestroy {
     this.usuarioEnEdicion.set({
       nombre: usuario.nombre,
       correo: usuario.correo,
-      estado: usuario.estado
+      estado: usuario.estado,
     });
     this.mostrarModalEdicion.set(true);
   }
@@ -327,8 +365,8 @@ export class AdminPage implements OnInit, OnDestroy {
     this.adminService.bloquearUsuario(u.id, edicion).subscribe({
       next: (usuarioActualizado) => {
         // Actualizar la lista de usuarios
-        this.usuarios.update(list =>
-          list.map(item => item.id === u.id ? usuarioActualizado : item)
+        this.usuarios.update((list) =>
+          list.map((item) => (item.id === u.id ? usuarioActualizado : item)),
         );
         this.mostrarModalEdicion.set(false);
         this.usuarioSeleccionado.set(null);
@@ -336,10 +374,9 @@ export class AdminPage implements OnInit, OnDestroy {
         this.loadingUsuarios.set(false);
       },
       error: (err) => {
-
         this.error.set('No se pudieron guardar los cambios.');
         this.loadingUsuarios.set(false);
-      }
+      },
     });
   }
 
