@@ -1,45 +1,92 @@
 ﻿<div
-  class="h-screen flex flex-col overflow-hidden font-sans"
-  style="background: linear-gradient(135deg, #0c0c14 0%, #12121c 50%, #0e0e18 100%)"
+  class="h-screen flex flex-col overflow-hidden font-sans dashboard-root"
+  style="background: var(--c-bg)"
 >
+
+<!-- ── Spinner de carga ── -->
+  @if (cargando()) {
+    <div class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center gap-8" style="background: var(--c-bg);">
+      <span class="font-black tracking-tighter text-2xl text-white uppercase select-none" style="color: var(--c-text-1);">GRIT</span>
+      <div class="relative w-8 h-8">
+        <svg class="w-8 h-8 animate-spin" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="17" stroke-width="2.5" style="stroke: rgba(var(--_bw),0.25);"/>
+          <path d="M20 3 a17 17 0 0 1 17 17" stroke="#2ED38D" stroke-width="2.5" stroke-linecap="square"/>
+        </svg>
+      </div>
+    </div>
+  }
+
   <!-- Top bar -->
   <header
-    class="border-b px-6 h-14 flex items-center justify-between flex-shrink-0 flex-shrink-0"
-    style="
-      background: linear-gradient(90deg, #08080e 0%, #0f0f18 50%, #08080e 100%);
-      border-color: rgba(255, 255, 255, 0.06);
-    "
+    class="border-b px-6 h-14 flex items-center justify-between flex-shrink-0 z-50"
+    style="background: var(--c-header); border-color: rgba(var(--_bw), 0.06)"
   >
     <div class="flex items-center gap-4">
-      <span class="font-black tracking-tighter text-lg text-white uppercase select-none">GRIT</span>
-      <div class="h-4 w-px hidden md:block" style="background: rgba(255, 255, 255, 0.1)"></div>
+      <span class="font-black tracking-tighter text-2xl text-white uppercase select-none"
+        >GRIT</span
+      >
+      <div class="h-4 w-px hidden md:block" style="background: rgba(var(--_bw), 0.1)"></div>
       <span
         class="text-[10px] font-black tracking-[0.2em] uppercase hidden md:block"
-        style="color: rgba(255, 255, 255, 0.58)"
+        style="color: rgba(var(--_bw), 0.58)"
         >ADMIN</span
       >
-      <div class="h-4 w-px hidden md:block" style="background: rgba(255, 255, 255, 0.06)"></div>
+      <div class="h-4 w-px hidden md:block" style="background: rgba(var(--_bw), 0.06)"></div>
       <span
         class="text-[10px] font-black tracking-[0.2em] uppercase text-[#2ED38D] hidden md:block"
       >
         {{ seccionActual() === 'SOLICITUDES' ? 'GESTIÓN DE SOLICITUDES' : 'GESTIÓN DE USUARIOS' }}
       </span>
     </div>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
       @if (auth.nombre()) {
         <span
-          class="text-[10px] font-black tracking-[0.2em] uppercase"
-          style="color: rgba(255, 255, 255, 0.58)"
+          class="text-[10px] font-black tracking-[0.2em] uppercase hidden md:block"
+          style="color: rgba(var(--_bw), 0.58)"
         >
           {{ auth.nombre() }}
         </span>
       }
       <button
-        (click)="cerrarSesion()"
-        class="text-[10px] font-black tracking-[0.2em] uppercase transition-colors hover:text-white"
-        style="color: rgba(255, 255, 255, 0.8)"
+        (click)="theme.toggle()"
+        class="w-8 h-8 flex items-center justify-center transition-all duration-200"
+        style="color: rgba(var(--_bw), 0.55); border: 1px solid rgba(var(--_bw), 0.1)"
+        onmouseenter="
+          this.style.color = 'rgba(var(--_bw),0.90)';
+          this.style.background = 'rgba(var(--_bw),0.06)';
+        "
+        onmouseleave="
+          this.style.color = 'rgba(var(--_bw),0.55)';
+          this.style.background = 'transparent';
+        "
       >
-        SALIR
+        @if (theme.isDark()) {
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              stroke-linecap="square"
+            />
+          </svg>
+        } @else {
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              stroke-linecap="square"
+            />
+          </svg>
+        }
       </button>
     </div>
   </header>
@@ -47,16 +94,13 @@
   <div class="flex-1 min-h-0 flex overflow-hidden">
     <!-- Sidebar -->
     <aside
-      class="w-14 lg:w-60 flex flex-col py-8 flex-shrink-0"
-      style="
-        background: linear-gradient(180deg, #08080e 0%, #0f0f1a 100%);
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
-      "
+      class="w-14 lg:w-60 flex flex-col pt-8 flex-shrink-0"
+      style="background: var(--c-sidebar); border-right: 1px solid rgba(var(--_bw), 0.05)"
     >
       <div class="px-4 mb-8 hidden lg:block">
         <span
           class="text-[9px] font-black tracking-[0.4em] uppercase"
-          style="color: rgba(255, 255, 255, 0.5)"
+          style="color: rgba(var(--_bw), 0.5)"
           >PANEL DE CONTROL</span
         >
       </div>
@@ -68,7 +112,7 @@
           [style]="
             seccionActual() === 'SOLICITUDES'
               ? 'background: linear-gradient(90deg, rgba(46,211,141,0.18) 0%, rgba(46,211,141,0.06) 100%); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D; box-shadow: 0 0 20px rgba(46,211,141,0.08);'
-              : 'color: rgba(255,255,255,0.60); border: 1px solid transparent;'
+              : 'color: rgba(var(--_bw),0.60); border: 1px solid transparent;'
           "
         >
           <svg
@@ -94,7 +138,7 @@
           [style]="
             seccionActual() === 'USUARIOS'
               ? 'background: linear-gradient(90deg, rgba(46,211,141,0.18) 0%, rgba(46,211,141,0.06) 100%); border: 1px solid rgba(46,211,141,0.25); color: #2ED38D; box-shadow: 0 0 20px rgba(46,211,141,0.08);'
-              : 'color: rgba(255,255,255,0.60); border: 1px solid transparent;'
+              : 'color: rgba(var(--_bw),0.60); border: 1px solid transparent;'
           "
         >
           <svg
@@ -114,6 +158,48 @@
           >
         </button>
       </nav>
+
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+
+      <!-- Cerrar sesión -->
+      <div
+        class="px-2"
+        style="border-top: 1px solid rgba(var(--_bw), 0.1); padding-top: 12px; padding-bottom: 12px"
+      >
+        <button
+          (click)="cargando.set(true); cerrarSesion()"
+          [disabled]="cargando()"
+          class="flex items-center gap-3 px-3 py-3 w-full transition-all duration-200"
+          style="color: rgba(var(--_bw), 0.5); border: 1px solid transparent"
+          onmouseenter="
+            this.style.color = 'rgba(220,38,38,0.85)';
+            this.style.background = 'rgba(220,38,38,0.06)';
+            this.style.borderColor = 'rgba(220,38,38,0.15)';
+          "
+          onmouseleave="
+            this.style.color = 'rgba(var(--_bw),0.50)';
+            this.style.background = 'transparent';
+            this.style.borderColor = 'transparent';
+          "
+        >
+          <svg
+            class="w-4 h-4 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              stroke-linecap="square"
+            />
+          </svg>
+          <span class="hidden lg:block text-[11px] font-black tracking-[0.2em] uppercase"
+            >CERRAR SESIÓN</span
+          >
+        </button>
+      </div>
     </aside>
 
     <!-- Main Content -->
@@ -122,76 +208,169 @@
         <!-- ── SOLICITUDES ────────────────────────────────────────────────── -->
         <section
           class="flex-1 flex flex-col overflow-hidden"
-          style="border-right: 1px solid rgba(255, 255, 255, 0.05)"
+          style="border-right: 1px solid rgba(var(--_bw), 0.06)"
         >
-          <div
-            class="p-6 md:p-8 lg:p-12 pb-6"
-            style="
-              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-              background: linear-gradient(180deg, rgba(8, 8, 14, 0.8) 0%, transparent 100%);
-            "
-          >
+          <div class="p-6 md:p-8 lg:p-12" style="border-bottom: 1px solid rgba(var(--_bw), 0.07)">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-6 h-px bg-[#2ED38D]"></div>
               <span class="text-[10px] font-black tracking-[0.4em] uppercase text-[#2ED38D]"
                 >REVISIÓN DE CREDENCIALES</span
               >
             </div>
+
             <h1
-              class="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none mb-6 md:mb-10"
+              class="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-none mb-6"
             >
               SOLICITUDES<br />PENDIENTES
             </h1>
 
-            <!-- Search -->
-            <div class="relative max-w-md">
-              <input
-                [ngModel]="busquedaSolicitudes()"
-                (ngModelChange)="onBusquedaSolicitudesChange($event)"
-                (keydown.enter)="cargarSolicitudes()"
-                placeholder="BUSCAR POR NOMBRE O EMAIL..."
-                class="w-full px-5 py-4 text-xs font-bold tracking-widest text-white placeholder:text-white/40 outline-none transition-all"
-                style="
-                  background: rgba(255, 255, 255, 0.04);
-                  border: 1px solid rgba(255, 255, 255, 0.08);
-                "
-                [style.border-color]="
-                  busquedaSolicitudes() ? 'rgba(46,211,141,0.5)' : 'rgba(255,255,255,0.08)'
-                "
-              />
-              @if (busquedaSolicitudes()) {
+            <!-- Paginación y Búsqueda - debajo del título, pegados a la izquierda -->
+            <div class="flex flex-col md:flex-row flex-wrap items-stretch gap-3 md:gap-4 w-full">
+              <!-- Search -->
+              <div class="relative w-full sm:w-[280px] h-[46px]">
+                <input
+                  [ngModel]="busquedaSolicitudes()"
+                  (ngModelChange)="onBusquedaSolicitudesChange($event)"
+                  (keydown.enter)="cargarSolicitudes()"
+                  placeholder="BUSCAR POR NOMBRE O EMAIL..."
+                  class="w-full h-full px-5 text-xs font-bold tracking-widest text-white placeholder:text-white/40 outline-none transition-all"
+                  style="
+                    background: rgba(var(--_bw), 0.04);
+                    border: 1px solid rgba(var(--_bw), 0.1);
+                  "
+                  [style.border-color]="
+                    busquedaSolicitudes() ? 'rgba(46,211,141,0.5)' : 'rgba(var(--_bw),0.10)'
+                  "
+                />
+                @if (busquedaSolicitudes()) {
+                  <button
+                    (click)="onBusquedaSolicitudesChange('')"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs transition-colors hover:text-white"
+                    style="color: rgba(var(--_tw), 0.62)"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <!-- Paginación SOLICITUDES -->
+              <div
+                class="flex items-center h-[46px] w-full sm:w-auto"
+                style="background: rgba(var(--_bw), 0.04); border: 1px solid rgba(var(--_bw), 0.1)"
+              >
                 <button
-                  (click)="onBusquedaSolicitudesChange('')"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs transition-colors hover:text-white"
-                  style="color: rgba(255, 255, 255, 0.62)"
+                  (click)="irPaginaAnterior()"
+                  [disabled]="paginaSolicitudes() === 0"
+                  class="h-full px-4 flex items-center justify-center transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed flex-1 sm:flex-initial"
+                  style="
+                    color: rgba(var(--_tw), 0.55);
+                    border-right: 1px solid rgba(var(--_bw), 0.08);
+                  "
+                  onmouseenter="
+                    if (!this.disabled) {
+                      this.style.background = 'rgba(var(--_bw),0.06)';
+                      this.style.color = 'rgba(var(--_tw),0.9)';
+                    }
+                  "
+                  onmouseleave="
+                    this.style.background = '';
+                    this.style.color = 'rgba(var(--_tw),0.55)';
+                  "
                 >
-                  ✕
+                  <svg
+                    class="w-4 h-4"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="square"
+                  >
+                    <path d="M10 3L5 8l5 5" />
+                  </svg>
                 </button>
-              }
+
+                <div class="px-5 flex items-center justify-center gap-1 flex-1 sm:flex-initial">
+                  <span class="text-[13px] font-black text-white font-mono tabular-nums">{{
+                    paginaSolicitudes() + 1
+                  }}</span>
+                  <span class="text-[10px] font-bold" style="color: rgba(var(--_tw), 0.3)">/</span>
+                  <span
+                    class="text-[13px] font-black font-mono tabular-nums"
+                    style="color: rgba(var(--_tw), 0.45)"
+                    >{{ totalPaginasSolicitudes() || 1 }}</span
+                  >
+                </div>
+
+                <button
+                  (click)="irPaginaSiguiente()"
+                  [disabled]="
+                    paginaSolicitudes() >= totalPaginasSolicitudes() - 1 ||
+                    !totalPaginasSolicitudes()
+                  "
+                  class="h-full px-4 flex items-center justify-center transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed flex-1 sm:flex-initial"
+                  style="
+                    color: rgba(var(--_tw), 0.55);
+                    border-left: 1px solid rgba(var(--_bw), 0.08);
+                  "
+                  onmouseenter="
+                    if (!this.disabled) {
+                      this.style.background = 'rgba(var(--_bw),0.06)';
+                      this.style.color = 'rgba(var(--_tw),0.9)';
+                    }
+                  "
+                  onmouseleave="
+                    this.style.background = '';
+                    this.style.color = 'rgba(var(--_tw),0.55)';
+                  "
+                >
+                  <svg
+                    class="w-4 h-4"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="square"
+                  >
+                    <path d="M6 3l5 5-5 5" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Scrollable List -->
           <div class="flex-1 overflow-y-auto px-6 md:px-8 lg:px-12 py-6 md:py-8" scrollIndicator>
             @if (loadingSolicitudes() && solicitudes().length === 0) {
-              <div class="py-20 text-center">
-                <div
-                  class="w-10 h-10 border-2 border-[#2ED38D] border-t-transparent animate-spin mx-auto mb-4"
-                ></div>
+              <div class="flex items-center justify-center p-6 text-center">
+                <div class="py-20 text-center">
+                  <div
+                    class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                    style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+                  ></div>
+                  <p
+                    class="text-[10px] font-black tracking-[0.2em] uppercase"
+                    style="color: rgba(var(--_tw), 0.58)"
+                  >
+                    CARGANDO SOLICITUDES...
+                  </p>
+                </div>
+              </div>
+            } @else if (solicitudes().length === 0) {
+              <div class="py-20 text-center" style="border: 1px dashed rgba(var(--_bw), 0.15)">
                 <p
                   class="text-[10px] font-black tracking-[0.2em] uppercase"
-                  style="color: rgba(255, 255, 255, 0.58)"
+                  style="color: rgba(var(--_tw), 0.42)"
                 >
-                  CARGANDO...
+                  SIN SOLICITUDES PENDIENTES
                 </p>
               </div>
             } @else if (solicitudesFiltradas().length === 0) {
-              <div class="py-20 text-center" style="border: 1px dashed rgba(255, 255, 255, 0.08)">
+              <div class="py-20 text-center" style="border: 1px dashed rgba(var(--_bw), 0.15)">
                 <p
                   class="text-[10px] font-black tracking-[0.2em] uppercase"
-                  style="color: rgba(255, 255, 255, 0.42)"
+                  style="color: rgba(var(--_tw), 0.42)"
                 >
-                  SIN SOLICITUDES
+                  SIN SOLICITUDES ENCONTRADAS
                 </p>
               </div>
             } @else {
@@ -203,7 +382,7 @@
                     [style]="
                       entrenadorSeleccionado()?.id === s.id
                         ? 'background: linear-gradient(135deg, rgba(46,211,141,0.1) 0%, rgba(46,211,141,0.04) 100%); border: 1px solid rgba(46,211,141,0.3); transform: translateX(4px); box-shadow: 0 4px 24px rgba(46,211,141,0.08), inset 0 1px 0 rgba(46,211,141,0.1);'
-                        : 'background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(255,255,255,0.07);'
+                        : 'background: rgba(var(--_bw), 0.04); border: 1px solid rgba(var(--_bw), 0.10);'
                     "
                   >
                     <div
@@ -220,7 +399,7 @@
                     <div class="flex items-center justify-between mb-4">
                       <span
                         class="text-[10px] font-black tracking-[0.2em] uppercase"
-                        style="color: rgba(255, 255, 255, 0.52)"
+                        style="color: rgba(var(--_tw), 0.52)"
                       >
                         RECIBIDA EL {{ s.createdAt | date: 'dd/MM/yyyy' }}
                       </span>
@@ -233,7 +412,7 @@
                     </h3>
                     <p
                       class="text-xs font-bold tracking-tight lowercase mb-4"
-                      style="color: rgba(255, 255, 255, 0.62)"
+                      style="color: rgba(var(--_tw), 0.62)"
                     >
                       {{ s.correo }}
                     </p>
@@ -243,9 +422,9 @@
                         <span
                           class="text-[9px] font-black tracking-widest uppercase px-2 py-1"
                           style="
-                            background: rgba(255, 255, 255, 0.1);
-                            color: rgba(255, 255, 255, 0.8);
-                            border: 1px solid rgba(255, 255, 255, 0.12);
+                            background: rgba(var(--_bw), 0.1);
+                            color: rgba(var(--_tw), 0.85);
+                            border: 1px solid rgba(var(--_bw), 0.2);
                           "
                           >ENTRENAMIENTO</span
                         >
@@ -267,36 +446,44 @@
         <!-- Detail Pane — modal en tablet, side panel en desktop -->
         @if (entrenadorSeleccionado(); as e) {
           <!-- Backdrop tablet (oculto en lg+) -->
-          <div class="fixed inset-0 z-40 lg:hidden"
-            style="background: rgba(0,0,0,0.65); backdrop-filter: blur(3px);"
-            (click)="entrenadorSeleccionado.set(null)">
-          </div>
+          <div
+            class="fixed inset-0 z-40 lg:hidden"
+            style="background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(3px)"
+            (click)="entrenadorSeleccionado.set(null)"
+          ></div>
           <!-- Panel: fixed en tablet, side panel en lg+ -->
           <section
-            class="fixed top-14 right-0 bottom-0 z-50 w-full max-w-[480px] flex flex-col overflow-hidden
-                   lg:static lg:top-auto lg:bottom-auto lg:z-auto lg:w-[520px] lg:max-w-none lg:flex-shrink-0"
-            style="
-              background: linear-gradient(180deg, #0a0a12 0%, #0e0e18 100%);
-              border-left: 1px solid rgba(255, 255, 255, 0.05);
-            "
+            class="fixed top-14 right-0 bottom-0 z-50 w-full max-w-[480px] flex flex-col overflow-hidden lg:static lg:top-auto lg:bottom-auto lg:z-auto lg:w-[520px] lg:max-w-none lg:flex-shrink-0"
+            style="background: var(--c-surface); border-left: 1px solid rgba(var(--_bw), 0.08)"
           >
             <!-- Dark header -->
             <div
               class="px-7 md:px-10 lg:px-16 pt-10 lg:pt-12 pb-8 lg:pb-10 flex-shrink-0 relative"
-              style="
-                background: linear-gradient(180deg, #07070d 0%, rgba(10, 10, 18, 0.8) 100%);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-              "
+              style="background: var(--c-header); border-bottom: 1px solid rgba(var(--_bw), 0.08)"
             >
               <button
                 (click)="entrenadorSeleccionado.set(null)"
                 class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center transition-colors"
-                style="color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.10);"
-                onmouseenter="this.style.color='rgba(255,255,255,0.85)'; this.style.borderColor='rgba(255,255,255,0.30)'"
-                onmouseleave="this.style.color='rgba(255,255,255,0.35)'; this.style.borderColor='rgba(255,255,255,0.10)'"
-                aria-label="Cerrar detalle">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
-                  <path d="M1 1l12 12M13 1L1 13"/>
+                style="color: rgba(var(--_tw), 0.4); border: 1px solid rgba(var(--_bw), 0.15)"
+                onmouseenter="
+                  this.style.color = 'rgba(var(--_tw),0.90)';
+                  this.style.borderColor = 'rgba(var(--_bw),0.35)';
+                "
+                onmouseleave="
+                  this.style.color = 'rgba(var(--_tw),0.40)';
+                  this.style.borderColor = 'rgba(var(--_bw),0.15)';
+                "
+                aria-label="Cerrar detalle"
+              >
+                <svg
+                  class="w-3.5 h-3.5"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="square"
+                >
+                  <path d="M1 1l12 12M13 1L1 13" />
                 </svg>
               </button>
               <div
@@ -316,7 +503,7 @@
               </h2>
               <p
                 class="text-sm font-bold tracking-tight lowercase"
-                style="color: rgba(255, 255, 255, 0.62)"
+                style="color: rgba(var(--_tw), 0.62)"
               >
                 {{ e.correo }}
               </p>
@@ -327,16 +514,16 @@
                 <div>
                   <h4
                     class="text-[10px] font-black tracking-[0.3em] uppercase mb-6 flex items-center gap-4"
-                    style="color: rgba(255, 255, 255, 0.52)"
+                    style="color: rgba(var(--_tw), 0.52)"
                   >
                     DATOS PROFESIONALES
-                    <div class="flex-1 h-px" style="background: rgba(255, 255, 255, 0.12)"></div>
+                    <div class="flex-1 h-px" style="background: rgba(var(--_bw), 0.2)"></div>
                   </h4>
                   <div class="grid grid-cols-1 gap-6">
                     <div>
                       <p
                         class="text-[10px] font-black tracking-[0.2em] uppercase mb-2"
-                        style="color: rgba(255, 255, 255, 0.62)"
+                        style="color: rgba(var(--_tw), 0.62)"
                       >
                         CÓDIGO PROFESIONAL
                       </p>
@@ -347,7 +534,7 @@
                     <div>
                       <p
                         class="text-[10px] font-black tracking-[0.2em] uppercase mb-2"
-                        style="color: rgba(255, 255, 255, 0.62)"
+                        style="color: rgba(var(--_tw), 0.62)"
                       >
                         TITULACIÓN RECLAMADA
                       </p>
@@ -370,10 +557,10 @@
                 <div>
                   <h4
                     class="text-[10px] font-black tracking-[0.3em] uppercase mb-6 flex items-center gap-4"
-                    style="color: rgba(255, 255, 255, 0.52)"
+                    style="color: rgba(var(--_tw), 0.52)"
                   >
                     DOCUMENTACIÓN ADJUNTA
-                    <div class="flex-1 h-px" style="background: rgba(255, 255, 255, 0.12)"></div>
+                    <div class="flex-1 h-px" style="background: rgba(var(--_bw), 0.2)"></div>
                   </h4>
                   <div class="space-y-3">
                     @for (doc of e.documentos; track doc.id) {
@@ -382,16 +569,16 @@
                         target="_blank"
                         class="flex items-center justify-between p-4 transition-all group no-underline"
                         style="
-                          border: 1px solid rgba(255, 255, 255, 0.07);
-                          background: rgba(255, 255, 255, 0.02);
+                          border: 1px solid rgba(var(--_bw), 0.12);
+                          background: rgba(var(--_bw), 0.03);
                         "
                         onmouseenter="
                           this.style.borderColor = 'rgba(46,211,141,0.35)';
                           this.style.background = 'rgba(46,211,141,0.04)';
                         "
                         onmouseleave="
-                          this.style.borderColor = 'rgba(255,255,255,0.07)';
-                          this.style.background = 'rgba(255,255,255,0.02)';
+                          this.style.borderColor = 'rgba(var(--_bw),0.12)';
+                          this.style.background = 'rgba(var(--_bw),0.03)';
                         "
                       >
                         <div class="flex items-center gap-4">
@@ -401,7 +588,7 @@
                             stroke="currentColor"
                             stroke-width="2"
                             viewBox="0 0 24 24"
-                            style="color: rgba(255, 255, 255, 0.52)"
+                            style="color: rgba(var(--_tw), 0.52)"
                           >
                             <path
                               d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
@@ -423,7 +610,7 @@
                 </div>
               </div>
               <!-- Acciones -->
-              <div class="pt-8 mt-4 flex gap-4" style="border-top: 1px solid rgba(255,255,255,0.06);">
+              <div class="pt-8 mt-4 flex gap-4" style="border-top: 1px solid rgba(var(--_bw), 0.1)">
                 <button
                   (click)="pedirConfirmacionAprobacion()"
                   [disabled]="loadingSolicitudes()"
@@ -432,8 +619,14 @@
                     background: linear-gradient(135deg, #2ed38d 0%, #22b574 100%);
                     box-shadow: 0 4px 20px rgba(46, 211, 141, 0.25);
                   "
-                  onmouseenter="this.style.background='linear-gradient(135deg,#3AEAA0 0%,#2ED38D 100%)'; this.style.boxShadow='0 4px 30px rgba(46,211,141,0.4)'"
-                  onmouseleave="this.style.background='linear-gradient(135deg,#2ED38D 0%,#22B574 100%)'; this.style.boxShadow='0 4px 20px rgba(46,211,141,0.25)'"
+                  onmouseenter="
+                    this.style.background = 'linear-gradient(135deg,#3AEAA0 0%,#2ED38D 100%)';
+                    this.style.boxShadow = '0 4px 30px rgba(46,211,141,0.4)';
+                  "
+                  onmouseleave="
+                    this.style.background = 'linear-gradient(135deg,#2ED38D 0%,#22B574 100%)';
+                    this.style.boxShadow = '0 4px 20px rgba(46,211,141,0.25)';
+                  "
                 >
                   APROBAR CUENTA
                 </button>
@@ -441,9 +634,21 @@
                   (click)="abrirModalRechazo()"
                   [disabled]="loadingSolicitudes()"
                   class="px-6 py-4 text-xs font-black tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-30"
-                  style="border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.70);"
-                  onmouseenter="this.style.background='rgba(220,38,38,0.2)'; this.style.borderColor='rgba(220,38,38,0.5)'; this.style.color='#fff'"
-                  onmouseleave="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.70)'"
+                  style="
+                    border: 1px solid rgba(var(--_bw), 0.15);
+                    background: rgba(var(--_bw), 0.04);
+                    color: rgba(var(--_tw), 0.7);
+                  "
+                  onmouseenter="
+                    this.style.background = 'rgba(220,38,38,0.2)';
+                    this.style.borderColor = 'rgba(220,38,38,0.5)';
+                    this.style.color = 'rgba(var(--_tw),1)';
+                  "
+                  onmouseleave="
+                    this.style.background = 'rgba(var(--_bw),0.04)';
+                    this.style.borderColor = 'rgba(var(--_bw),0.15)';
+                    this.style.color = 'rgba(var(--_tw),0.70)';
+                  "
                 >
                   RECHAZAR
                 </button>
@@ -454,18 +659,12 @@
       } @else {
         <!-- ── USUARIOS ───────────────────────────────────────────────────── -->
         <section class="flex-1 flex flex-col overflow-hidden">
-          <div
-            class="p-6 md:p-8 lg:p-12"
-            style="
-              border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-              background: linear-gradient(180deg, rgba(8, 8, 14, 0.9) 0%, transparent 100%);
-            "
-          >
+          <div class="p-6 md:p-8 lg:p-12" style="border-bottom: 1px solid rgba(var(--_bw), 0.07)">
             <div class="flex items-center gap-3 mb-4">
-              <div class="w-6 h-px" style="background: rgba(255, 255, 255, 0.3)"></div>
+              <div class="w-6 h-px" style="background: rgba(var(--_bw), 0.35)"></div>
               <span
                 class="text-[10px] font-black tracking-[0.4em] uppercase"
-                style="color: rgba(255, 255, 255, 0.65)"
+                style="color: rgba(var(--_tw), 0.65)"
                 >GESTIÓN COMUNIDAD</span
               >
             </div>
@@ -476,13 +675,15 @@
                 TODOS LOS<br />USUARIOS
               </h1>
 
-              <div class="flex flex-col md:flex-row flex-wrap items-stretch gap-3 md:gap-4 w-full lg:w-auto">
+              <div
+                class="flex flex-col md:flex-row flex-wrap items-stretch gap-3 md:gap-4 w-full lg:w-auto"
+              >
                 <!-- Role Filter -->
                 <div
                   class="flex p-1 h-[46px] items-center justify-between sm:justify-start flex-1 sm:flex-initial"
                   style="
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    background: rgba(var(--_bw), 0.04);
+                    border: 1px solid rgba(var(--_bw), 0.1);
                   "
                 >
                   @for (opt of ['TODOS', 'ATLETA', 'ENTRENADOR']; track opt) {
@@ -492,7 +693,7 @@
                       [style]="
                         filtroRol() === opt
                           ? 'background: linear-gradient(135deg, #2ED38D 0%, #22B574 100%); color: #000;'
-                          : 'color: rgba(255,255,255,0.62);'
+                          : 'color: rgba(var(--_tw),0.62);'
                       "
                     >
                       {{ opt }}
@@ -502,37 +703,84 @@
                 <!-- Paginación -->
                 <div
                   class="flex items-center h-[46px] w-full sm:w-auto"
-                  style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);"
+                  style="
+                    background: rgba(var(--_bw), 0.04);
+                    border: 1px solid rgba(var(--_bw), 0.1);
+                  "
                 >
                   <button
                     (click)="irPaginaAnteriorUsuarios()"
                     [disabled]="paginaUsuarios() === 0"
                     class="h-full px-4 flex items-center justify-center transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed flex-1 sm:flex-initial"
-                    style="color: rgba(255,255,255,0.55); border-right: 1px solid rgba(255,255,255,0.08);"
-                    onmouseenter="if(!this.disabled){this.style.background='rgba(255,255,255,0.06)'; this.style.color='#fff'}"
-                    onmouseleave="this.style.background=''; this.style.color='rgba(255,255,255,0.55)'"
+                    style="
+                      color: rgba(var(--_tw), 0.55);
+                      border-right: 1px solid rgba(var(--_bw), 0.08);
+                    "
+                    onmouseenter="
+                      if (!this.disabled) {
+                        this.style.background = 'rgba(var(--_bw),0.06)';
+                        this.style.color = 'rgba(var(--_tw),0.9)';
+                      }
+                    "
+                    onmouseleave="
+                      this.style.background = '';
+                      this.style.color = 'rgba(var(--_tw),0.55)';
+                    "
                   >
-                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
-                      <path d="M10 3L5 8l5 5"/>
+                    <svg
+                      class="w-4 h-4"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="square"
+                    >
+                      <path d="M10 3L5 8l5 5" />
                     </svg>
                   </button>
 
                   <div class="px-5 flex items-center justify-center gap-1 flex-1 sm:flex-initial">
-                    <span class="text-[13px] font-black text-white font-mono tabular-nums">{{ paginaUsuarios() + 1 }}</span>
-                    <span class="text-[10px] font-bold" style="color: rgba(255,255,255,0.30)">/</span>
-                    <span class="text-[13px] font-black font-mono tabular-nums" style="color: rgba(255,255,255,0.45)">{{ totalPaginasUsuarios() || 1 }}</span>
+                    <span class="text-[13px] font-black text-white font-mono tabular-nums">{{
+                      paginaUsuarios() + 1
+                    }}</span>
+                    <span class="text-[10px] font-bold" style="color: rgba(var(--_tw), 0.3)"
+                      >/</span
+                    >
+                    <span
+                      class="text-[13px] font-black font-mono tabular-nums"
+                      style="color: rgba(var(--_tw), 0.45)"
+                      >{{ totalPaginasUsuarios() || 1 }}</span
+                    >
                   </div>
 
                   <button
                     (click)="irPaginaSiguienteUsuarios()"
                     [disabled]="paginaUsuarios() >= totalPaginasUsuarios() - 1"
                     class="h-full px-4 flex items-center justify-center transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed flex-1 sm:flex-initial"
-                    style="color: rgba(255,255,255,0.55); border-left: 1px solid rgba(255,255,255,0.08);"
-                    onmouseenter="if(!this.disabled){this.style.background='rgba(255,255,255,0.06)'; this.style.color='#fff'}"
-                    onmouseleave="this.style.background=''; this.style.color='rgba(255,255,255,0.55)'"
+                    style="
+                      color: rgba(var(--_tw), 0.55);
+                      border-left: 1px solid rgba(var(--_bw), 0.08);
+                    "
+                    onmouseenter="
+                      if (!this.disabled) {
+                        this.style.background = 'rgba(var(--_bw),0.06)';
+                        this.style.color = 'rgba(var(--_tw),0.9)';
+                      }
+                    "
+                    onmouseleave="
+                      this.style.background = '';
+                      this.style.color = 'rgba(var(--_tw),0.55)';
+                    "
                   >
-                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
-                      <path d="M6 3l5 5-5 5"/>
+                    <svg
+                      class="w-4 h-4"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="square"
+                    >
+                      <path d="M6 3l5 5-5 5" />
                     </svg>
                   </button>
                 </div>
@@ -545,8 +793,8 @@
                     placeholder="BUSCAR USUARIO..."
                     class="w-full h-full px-4 text-[11px] font-bold tracking-widest text-white placeholder:text-white/40 outline-none transition-all"
                     style="
-                      background: rgba(255, 255, 255, 0.04);
-                      border: 1px solid rgba(255, 255, 255, 0.08);
+                      background: rgba(var(--_bw), 0.04);
+                      border: 1px solid rgba(var(--_bw), 0.1);
                     "
                   />
                 </div>
@@ -560,9 +808,9 @@
               <div
                 class="grid grid-cols-6 px-6 md:px-12 py-5 text-[10px] font-black tracking-[0.3em] uppercase"
                 style="
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-                  background: rgba(0, 0, 0, 0.25);
-                  color: rgba(255, 255, 255, 0.52);
+                  border-bottom: 1px solid rgba(var(--_bw), 0.1);
+                  background: var(--c-section);
+                  color: rgba(var(--_tw), 0.52);
                 "
               >
                 <div class="col-span-2">USUARIO</div>
@@ -573,148 +821,174 @@
               </div>
 
               <!-- Filas -->
-              <div>
-                @for (u of usuariosFiltrados(); track u.id || $index) {
-                  <div
-                    class="grid grid-cols-6 px-6 md:px-12 py-4 md:py-5 items-center transition-colors group"
-                    style="border-bottom: 1px solid rgba(255, 255, 255, 0.04)"
-                    onmouseenter="this.style.background = 'rgba(255,255,255,0.025)'"
-                    onmouseleave="this.style.background = 'transparent'"
+              @if (loadingUsuarios() && usuariosFiltrados().length === 0) {
+                <div class="flex items-center justify-center p-6 text-center">
+                  <div class="py-20 text-center">
+                    <div
+                      class="w-10 h-10 border-2 border-t-transparent animate-spin mx-auto mb-4"
+                      style="border-color: rgba(var(--_tw), 0.25); border-top-color: #2ed38d"
+                    ></div>
+                    <p
+                      class="text-[10px] font-black tracking-[0.2em] uppercase"
+                      style="color: rgba(var(--_tw), 0.58)"
+                    >
+                      CARGANDO USUARIOS...
+                    </p>
+                  </div>
+                </div>
+              } @else if (usuariosFiltrados().length === 0) {
+                <div class="py-20 text-center" style="border: 1px dashed rgba(var(--_bw), 0.15)">
+                  <p
+                    class="text-[10px] font-black tracking-[0.2em] uppercase"
+                    style="color: rgba(var(--_tw), 0.42)"
                   >
-                    <div class="col-span-2 flex items-center gap-4">
-                      <div
-                        class="w-10 h-10 flex-shrink-0 flex items-center justify-center font-black text-xs"
-                        [style]="
-                          u.rol === 'ATLETA'
-                            ? 'background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%); color: #fff; border: 1px solid rgba(255,255,255,0.1);'
-                            : 'background: linear-gradient(135deg, rgba(46,211,141,0.2) 0%, rgba(46,211,141,0.08) 100%); color: #2ED38D; border: 1px solid rgba(46,211,141,0.2);'
-                        "
-                      >
-                        {{ iniciales(u.nombre) }}
+                    SIN USUARIOS ENCONTRADOS
+                  </p>
+                </div>
+              } @else {
+                <div>
+                  @for (u of usuariosFiltrados(); track u.id || $index) {
+                    <div
+                      class="grid grid-cols-6 px-6 md:px-12 py-4 md:py-5 items-center transition-colors group"
+                      style="border-bottom: 1px solid rgba(var(--_bw), 0.07)"
+                      onmouseenter="this.style.background = 'rgba(var(--_bw),0.04)'"
+                      onmouseleave="this.style.background = 'transparent'"
+                    >
+                      <div class="col-span-2 flex items-center gap-4">
+                        <div
+                          class="w-10 h-10 flex-shrink-0 flex items-center justify-center font-black text-xs"
+                          [style]="
+                            u.rol === 'ATLETA'
+                              ? 'background: rgba(var(--_bw), 0.10); color: var(--c-text-1); border: 1px solid rgba(var(--_bw), 0.15);'
+                              : 'background: linear-gradient(135deg, rgba(46,211,141,0.2) 0%, rgba(46,211,141,0.08) 100%); color: #2ED38D; border: 1px solid rgba(46,211,141,0.2);'
+                          "
+                        >
+                          {{ iniciales(u.nombre) }}
+                        </div>
+                        <div>
+                          <p class="text-sm font-black uppercase tracking-tight text-white mb-0.5">
+                            {{ u.nombre }}
+                          </p>
+                          <p
+                            class="text-[11px] font-medium lowercase"
+                            style="color: rgba(var(--_tw), 0.62)"
+                          >
+                            {{ u.correo }}
+                          </p>
+                        </div>
                       </div>
                       <div>
-                        <p class="text-sm font-black uppercase tracking-tight text-white mb-0.5">
-                          {{ u.nombre }}
-                        </p>
-                        <p
-                          class="text-[11px] font-medium lowercase"
-                          style="color: rgba(255, 255, 255, 0.62)"
-                        >
-                          {{ u.correo }}
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      <span
-                        class="text-[9px] font-black tracking-[0.15em] uppercase px-2 py-0.5"
-                        [style]="
-                          u.rol === 'ATLETA'
-                            ? 'background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1);'
-                            : 'background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.25);'
-                        "
-                      >
-                        {{ u.rol }}
-                      </span>
-                    </div>
-                    <div>
-                      <span
-                        class="flex items-center gap-2 text-[10px] font-black tracking-[0.1em] uppercase"
-                        [class]="
-                          u.estado === 'ACTIVO'
-                            ? 'text-[#2ED38D]'
-                            : u.estado === 'BLOQUEADO'
-                              ? 'text-amber-400'
-                              : ''
-                        "
-                        [style]="
-                          u.estado === 'ACTIVO'
-                            ? ''
-                            : u.estado === 'BLOQUEADO'
-                              ? 'color: #F59E0B'
-                              : 'color: rgba(255,255,255,0.50)'
-                        "
-                      >
                         <span
-                          class="w-1.5 h-1.5 rounded-full"
+                          class="text-[9px] font-black tracking-[0.15em] uppercase px-2 py-0.5"
+                          [style]="
+                            u.rol === 'ATLETA'
+                              ? 'background: rgba(var(--_bw), 0.08); color: rgba(var(--_tw), 0.80); border: 1px solid rgba(var(--_bw), 0.15);'
+                              : 'background: rgba(46,211,141,0.12); color: #2ED38D; border: 1px solid rgba(46,211,141,0.25);'
+                          "
+                        >
+                          {{ u.rol }}
+                        </span>
+                      </div>
+                      <div>
+                        <span
+                          class="flex items-center gap-2 text-[10px] font-black tracking-[0.1em] uppercase"
+                          [class]="
+                            u.estado === 'ACTIVO'
+                              ? 'text-[#2ED38D]'
+                              : u.estado === 'BLOQUEADO'
+                                ? 'text-amber-400'
+                                : ''
+                          "
                           [style]="
                             u.estado === 'ACTIVO'
-                              ? 'background: #2ED38D; box-shadow: 0 0 6px rgba(46,211,141,0.6)'
+                              ? ''
                               : u.estado === 'BLOQUEADO'
-                                ? 'background: #F59E0B; box-shadow: 0 0 6px rgba(245,158,11,0.5)'
-                                : 'background: rgba(255,255,255,0.2)'
+                                ? 'color: #F59E0B'
+                                : 'color: rgba(255,255,255,0.50)'
                           "
-                        ></span>
-                        {{ u.estado }}
-                      </span>
-                    </div>
-                    <div class="text-xs font-bold" style="color: rgba(255, 255, 255, 0.65)">
-                      {{ u.fechaRegistro ? (u.fechaRegistro | date: 'dd/MM/yyyy') : '—' }}
-                    </div>
-                    <div
-                      class="flex justify-center gap-4 transition-colors"
-                      style="color: rgba(255, 255, 255, 0.42)"
-                    >
-                      <button
-                        (click)="pedirConfirmacionBloqueo(u)"
-                        [title]="
-                          u.estado === 'BLOQUEADO' ? 'Desbloquear usuario' : 'Bloquear usuario'
-                        "
-                        [class]="
-                          u.estado === 'BLOQUEADO'
-                            ? 'text-amber-400 hover:text-amber-300'
-                            : 'hover:text-amber-400'
-                        "
-                        class="transition-colors"
-                      >
-                        @if (u.estado === 'BLOQUEADO') {
-                          <svg
-                            class="w-4 h-4 text-current"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-                              stroke-linecap="square"
-                            />
-                          </svg>
-                        } @else {
-                          <svg
-                            class="w-4 h-4 text-current"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4"
-                              stroke-linecap="square"
-                            />
-                          </svg>
-                        }
-                      </button>
-                      <button
-                        (click)="pedirConfirmacionEliminacion(u)"
-                        class="hover:text-red-500 transition-colors"
-                      >
-                        <svg
-                          class="w-4 h-4 text-current"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
                         >
-                          <path
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            stroke-linecap="square"
-                          />
-                        </svg>
-                      </button>
+                          <span
+                            class="w-1.5 h-1.5 rounded-full"
+                            [style]="
+                              u.estado === 'ACTIVO'
+                                ? 'background: #2ED38D; box-shadow: 0 0 6px rgba(46,211,141,0.6)'
+                                : u.estado === 'BLOQUEADO'
+                                  ? 'background: #F59E0B; box-shadow: 0 0 6px rgba(245,158,11,0.5)'
+                                  : 'background: rgba(255,255,255,0.2)'
+                            "
+                          ></span>
+                          {{ u.estado }}
+                        </span>
+                      </div>
+                      <div class="text-xs font-bold" style="color: rgba(var(--_tw), 0.65)">
+                        {{ u.fechaRegistro ? (u.fechaRegistro | date: 'dd/MM/yyyy') : '—' }}
+                      </div>
+                      <div
+                        class="flex justify-center gap-4 transition-colors"
+                        style="color: rgba(var(--_tw), 0.55)"
+                      >
+                        <button
+                          (click)="pedirConfirmacionBloqueo(u)"
+                          [title]="
+                            u.estado === 'BLOQUEADO' ? 'Desbloquear usuario' : 'Bloquear usuario'
+                          "
+                          [class]="
+                            u.estado === 'BLOQUEADO'
+                              ? 'text-amber-400 hover:text-amber-300'
+                              : 'hover:text-amber-400'
+                          "
+                          class="transition-colors"
+                        >
+                          @if (u.estado === 'BLOQUEADO') {
+                            <svg
+                              class="w-4 h-4 text-current"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M8 11V7a4 4 0 018 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                                stroke-linecap="square"
+                              />
+                            </svg>
+                          } @else {
+                            <svg
+                              class="w-4 h-4 text-current"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM16 11V7a4 4 0 00-8 0v4"
+                                stroke-linecap="square"
+                              />
+                            </svg>
+                          }
+                        </button>
+                        <button
+                          (click)="pedirConfirmacionEliminacion(u)"
+                          class="hover:text-red-500 transition-colors"
+                        >
+                          <svg
+                            class="w-4 h-4 text-current"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              stroke-linecap="square"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                }
-              </div>
+                  }
+                </div>
+              }
             </div>
           </div>
         </section>

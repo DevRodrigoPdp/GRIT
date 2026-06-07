@@ -1,5 +1,5 @@
 # Ignorar carpetas de compilación local
-target/
+backend/target/
 build/
 
 # Ignorar datos de persistencia de Docker local

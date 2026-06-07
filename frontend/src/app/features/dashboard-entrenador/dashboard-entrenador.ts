@@ -11,10 +11,12 @@ import { PerfilEntrenadorVistaComponent } from './components/perfil-entrenador/p
 import { ComunicacionComponent } from './components/comunicacion/comunicacion';
 import { LucidePin } from '@lucide/angular';
 import { ScrollIndicatorDirective } from '../../shared/directives/scroll-indicator.directive';
+import { forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-type Tab    = 'ENTRENAMIENTO' | 'NUTRICION' | 'COMUNICACION';
+type Tab = 'ENTRENAMIENTO' | 'NUTRICION' | 'COMUNICACION';
 type Filtro = 'TODOS' | 'ENTRENAMIENTO' | 'NUTRICION';
-type Vista  = 'atletas' | 'perfil' | 'ajustes';
+type Vista = 'atletas' | 'perfil' | 'ajustes';
 
 @Component({
   selector: 'app-dashboard-entrenador',
@@ -35,86 +37,88 @@ type Vista  = 'atletas' | 'perfil' | 'ajustes';
   ]
 })
 export class DashboardEntrenadorPage implements OnInit {
-  readonly auth      = inject(AuthService);
+  readonly auth = inject(AuthService);
   readonly entrenador = inject(EntrenadorService);
-  readonly theme     = inject(ThemeService);
+  readonly theme = inject(ThemeService);
 
-  atletas       = signal<AtletaAsignado[]>([]);
-  atletaActivo  = signal<AtletaAsignado | null>(null);
-  tabActiva     = signal<Tab>('NUTRICION');
-  vistaActual   = signal<Vista>('atletas');
-  perfil        = signal<PerfilEntrenador | null>(null);
+  readonly cargando = signal(true);
 
-  busqueda       = signal('');
+  atletas = signal<AtletaAsignado[]>([]);
+  atletaActivo = signal<AtletaAsignado | null>(null);
+  tabActiva = signal<Tab>('NUTRICION');
+  vistaActual = signal<Vista>('atletas');
+  perfil = signal<PerfilEntrenador | null>(null);
+
+  busqueda = signal('');
   filtroServicio = signal<Filtro>('TODOS');
-  codigoCopiado  = signal(false);
+  codigoCopiado = signal(false);
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
-  sidebarPinned  = signal(false);
+  sidebarPinned = signal(false);
   sidebarHovered = signal(false);
   mobileMenuOpen = signal(false);
   readonly sidebarOpen = computed(() => this.sidebarPinned() || this.sidebarHovered() || this.mobileMenuOpen());
 
   // ── Desconectar atleta ────────────────────────────────────────────────────
-  readonly confirmandoDesconectar  = signal<string | null>(null);
-  readonly pendienteDesconectar    = signal<AtletaAsignado | null>(null);
-  readonly desconectando           = signal(false);
+  readonly confirmandoDesconectar = signal<string | null>(null);
+  readonly pendienteDesconectar = signal<AtletaAsignado | null>(null);
+  readonly desconectando = signal(false);
 
   // ── Ajustes ───────────────────────────────────────────────────────────────
-  readonly passAbierto        = signal(false);
-  readonly passActual         = signal('');
-  readonly passNueva          = signal('');
-  readonly passConfirm        = signal('');
-  readonly cambiandoPass      = signal(false);
-  readonly passCambiada       = signal(false);
-  readonly passError          = signal('');
-  readonly showPassActual     = signal(false);
-  readonly showPassNueva      = signal(false);
-  readonly showPassConfirm    = signal(false);
+  readonly passAbierto = signal(false);
+  readonly passActual = signal('');
+  readonly passNueva = signal('');
+  readonly passConfirm = signal('');
+  readonly cambiandoPass = signal(false);
+  readonly passCambiada = signal(false);
+  readonly passError = signal('');
+  readonly showPassActual = signal(false);
+  readonly showPassNueva = signal(false);
+  readonly showPassConfirm = signal(false);
 
   private readonly PASS_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/;
 
   readonly passReglas = computed(() => {
     const v = this.passNueva();
     return [
-      { label: 'Mínimo 8 caracteres',  ok: v.length >= 8 },
-      { label: 'Una mayúscula',         ok: /[A-Z]/.test(v) },
-      { label: 'Una minúscula',         ok: /[a-z]/.test(v) },
-      { label: 'Un número',             ok: /\d/.test(v) },
-      { label: 'Un carácter especial',  ok: /[^a-zA-Z\d]/.test(v) },
+      { label: 'Mínimo 8 caracteres', ok: v.length >= 8 },
+      { label: 'Una mayúscula', ok: /[A-Z]/.test(v) },
+      { label: 'Una minúscula', ok: /[a-z]/.test(v) },
+      { label: 'Un número', ok: /\d/.test(v) },
+      { label: 'Un carácter especial', ok: /[^a-zA-Z\d]/.test(v) },
     ];
   });
 
-  readonly bajaAbierta        = signal(false);
-  readonly confirmarBaja      = signal(false);
-  readonly textoConfirmaBaja  = signal('');
-  readonly eliminandoCuenta   = signal(false);
+  readonly bajaAbierta = signal(false);
+  readonly confirmarBaja = signal(false);
+  readonly textoConfirmaBaja = signal('');
+  readonly eliminandoCuenta = signal(false);
 
   // ── Editar perfil ─────────────────────────────────────────────────────────
-  readonly editarPerfilAbierto  = signal(false);
-  readonly editNombre           = signal('');
-  readonly editDescripcion      = signal('');
-  readonly editExperiencia      = signal(0);
-  readonly editMasters          = signal<string[]>([]);
-  readonly nuevoMaster          = signal('');
-  readonly guardandoPerfil      = signal(false);
-  readonly perfilGuardado       = signal(false);
-  readonly perfilError          = signal('');
+  readonly editarPerfilAbierto = signal(false);
+  readonly editNombre = signal('');
+  readonly editDescripcion = signal('');
+  readonly editExperiencia = signal(0);
+  readonly editMasters = signal<string[]>([]);
+  readonly nuevoMaster = signal('');
+  readonly guardandoPerfil = signal(false);
+  readonly perfilGuardado = signal(false);
+  readonly perfilError = signal('');
 
 
   readonly navItems: { id: Vista; label: string }[] = [
     { id: 'atletas', label: 'ATLETAS' },
-    { id: 'perfil',  label: 'MI PERFIL' },
+    { id: 'perfil', label: 'MI PERFIL' },
     { id: 'ajustes', label: 'AJUSTES' },
   ];
 
   readonly atletasFiltrados = computed(() => {
-    const q           = this.busqueda().toLowerCase().trim();
-    const filtro      = this.filtroServicio();
-    const tieneEntr   = this.auth.tituloEntrenamiento();
-    const tieneNutr   = this.auth.tituloNutricion();
+    const q = this.busqueda().toLowerCase().trim();
+    const filtro = this.filtroServicio();
+    const tieneEntr = this.auth.tituloEntrenamiento();
+    const tieneNutr = this.auth.tituloNutricion();
     return this.atletas().filter(a => {
-      const coincideNombre   = !q || a.nombre.toLowerCase().includes(q);
+      const coincideNombre = !q || a.nombre.toLowerCase().includes(q);
       const coincideServicio =
         filtro === 'TODOS' ||
         a.servicio === filtro ||
@@ -122,7 +126,7 @@ export class DashboardEntrenadorPage implements OnInit {
       // Ocultar atletas cuyo servicio no cubre ninguna titulación del profesional
       const esRelevante =
         (tieneEntr && (a.servicio === 'ENTRENAMIENTO' || a.servicio === 'AMBOS')) ||
-        (tieneNutr && (a.servicio === 'NUTRICION'     || a.servicio === 'AMBOS'));
+        (tieneNutr && (a.servicio === 'NUTRICION' || a.servicio === 'AMBOS'));
       return coincideNombre && coincideServicio && esRelevante;
     });
   });
@@ -141,14 +145,18 @@ export class DashboardEntrenadorPage implements OnInit {
 
     const tabs: Tab[] = [];
     if (tieneEntrenamiento) tabs.push('ENTRENAMIENTO');
-    if (tieneNutricion)     tabs.push('NUTRICION');
+    if (tieneNutricion) tabs.push('NUTRICION');
     tabs.push('COMUNICACION');
     return tabs;
   });
 
   ngOnInit() {
-    this.entrenador.getPerfil().subscribe(p => this.perfil.set(p));
-    this.entrenador.getMisAtletas().subscribe(a => this.atletas.set(a));
+    const observablesObj: Record<string, any> = {
+      perfil: this.entrenador.getPerfil().pipe(tap(p => this.perfil.set(p))),
+      atletas: this.entrenador.getMisAtletas().pipe(tap(a => this.atletas.set(a))),
+    }
+
+    forkJoin(observablesObj).subscribe(() => this.cargando.set(false));
   }
 
   navegarA(vista: Vista): void {
@@ -174,9 +182,9 @@ export class DashboardEntrenadorPage implements OnInit {
   nivelLabel(nivel: AtletaAsignado['nivel']): string {
     const map: Record<AtletaAsignado['nivel'], string> = {
       PRINCIPIANTE: 'Principiante',
-      INTERMEDIO:   'Intermedio',
-      AVANZADO:     'Avanzado',
-      ELITE:        'Élite',
+      INTERMEDIO: 'Intermedio',
+      AVANZADO: 'Avanzado',
+      ELITE: 'Élite',
     };
     return map[nivel];
   }
@@ -195,7 +203,7 @@ export class DashboardEntrenadorPage implements OnInit {
     navigator.clipboard.writeText(codigo).then(() => {
       this.codigoCopiado.set(true);
       setTimeout(() => this.codigoCopiado.set(false), 2000);
-    }).catch(() => {});
+    }).catch(() => { });
   }
 
   cambiarPassword(): void {
@@ -277,18 +285,18 @@ export class DashboardEntrenadorPage implements OnInit {
     this.guardandoPerfil.set(true);
     this.perfilError.set('');
     this.entrenador.actualizarPerfil({
-      nombre:         this.editNombre(),
-      descripcion:    this.editDescripcion(),
+      nombre: this.editNombre(),
+      descripcion: this.editDescripcion(),
       experienciaAnos: this.editExperiencia(),
-      masters:        this.editMasters(),
+      masters: this.editMasters(),
     }).subscribe({
       next: () => {
         this.perfil.update(p => p ? {
           ...p,
-          nombre:          this.editNombre(),
-          descripcion:     this.editDescripcion(),
+          nombre: this.editNombre(),
+          descripcion: this.editDescripcion(),
           experienciaAnos: this.editExperiencia(),
-          masters:         this.editMasters(),
+          masters: this.editMasters(),
         } : p);
         this.perfilGuardado.set(true);
         this.guardandoPerfil.set(false);

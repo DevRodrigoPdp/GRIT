@@ -24,7 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Component
-@Profile({"dev", "docker"}) // Se activa en ambos entornos
+@Profile({"dev", "docker","prod"}) // Se activa en ambos entornos
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 

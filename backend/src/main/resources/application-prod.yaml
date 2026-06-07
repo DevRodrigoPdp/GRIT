@@ -28,11 +28,15 @@ spring:
 
 logging:
   level:
-    root: INFO
+    root: WARN
+    grit.sistema.backend: INFO
+    org.flywaydb: INFO
+    org.springframework.boot.web: WARN
+    org.springframework.context: WARN
+    org.apache.catalina: WARN
     org.hibernate.SQL: ERROR
-    # Solo errores en seguridad para no exponer datos sensibles [cite: 25]
     org.springframework.security: WARN
-
+    org.springframework.web: WARN
 application:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
@@ -43,12 +47,10 @@ application:
     cookie:
       secure: true
   storage:
-    # Configuración personalizada para nuestro Service
-    # No hay localhost, usamos el endpoint real de AWS S3
-    endpoint: https://s3.amazonaws.com
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
-    bucket-name: grit-production-storage
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+    access-key: ${STORAGE_ACCESS_KEY:minioadmin}
+    secret-key: ${STORAGE_SECRET_KEY:minioadmin}
+    bucket-name: grit-certificaciones-entrenadores
 
 management:
   endpoints:

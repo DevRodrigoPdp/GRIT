@@ -1,19 +1,31 @@
-import { Component, signal, computed, inject, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  inject,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors, AbstractControl, AsyncValidatorFn } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ValidationErrors,
+  AbstractControl,
+  AsyncValidatorFn,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';
 import { EntrenadorService } from '../../../dashboard-entrenador/services/entrenador.service';
 import { Observable, map, catchError, of } from 'rxjs';
 
-export type TipoTitulacionEntrenamiento =
-  | 'GRADO_CAFYD'
-  | 'TSAF_TSEAS'
-  | 'CERT_AFDA0210';
+export type TipoTitulacionEntrenamiento = 'GRADO_CAFYD' | 'TSAF_TSEAS' | 'CERT_AFDA0210';
 
-export type TipoTitulacionNutricion =
-  | 'GRADO_NUTRICION_DIETETICA'
-  | 'TSD';
+export type TipoTitulacionNutricion = 'GRADO_NUTRICION_DIETETICA' | 'TSD';
 
 interface ArchivoSubido {
   file: File;
@@ -52,8 +64,14 @@ export class EntrenadorPage implements OnInit {
   }
 
   readonly titulacionesEntrenamiento: { value: TipoTitulacionEntrenamiento; label: string }[] = [
-    { value: 'GRADO_CAFYD', label: 'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte' },
-    { value: 'TSAF_TSEAS', label: 'TSAF / TSEAS — Técnico Superior en Animación de Actividades Físicas' },
+    {
+      value: 'GRADO_CAFYD',
+      label: 'Grado en CAFYD — Ciencias de la Actividad Física y del Deporte',
+    },
+    {
+      value: 'TSAF_TSEAS',
+      label: 'TSAF / TSEAS — Técnico Superior en Animación de Actividades Físicas',
+    },
     { value: 'CERT_AFDA0210', label: 'Certificado de Profesionalidad AFDA0210' },
   ];
 
@@ -68,12 +86,12 @@ export class EntrenadorPage implements OnInit {
   agregarMasterPersonalizado(): void {
     const texto = this.masterPersonalizado().trim();
     if (!texto) return;
-    this.mastersSeleccionados.update(set => new Set(set).add(texto));
+    this.mastersSeleccionados.update((set) => new Set(set).add(texto));
     this.masterPersonalizado.set('');
   }
 
   eliminarMaster(master: string): void {
-    this.mastersSeleccionados.update(set => {
+    this.mastersSeleccionados.update((set) => {
       const next = new Set(set);
       next.delete(master);
       return next;
@@ -105,8 +123,8 @@ export class EntrenadorPage implements OnInit {
   private readonly _titNutr = signal<string | null>(null);
 
   // true si tiene al menos una titulación universitaria (da acceso a colegio profesional)
-  readonly tieneUniversitaria = computed(() =>
-    this._titEnt() === 'GRADO_CAFYD' || this._titNutr() === 'GRADO_NUTRICION_DIETETICA'
+  readonly tieneUniversitaria = computed(
+    () => this._titEnt() === 'GRADO_CAFYD' || this._titNutr() === 'GRADO_NUTRICION_DIETETICA',
   );
 
   // Información dinámica del campo de número profesional según las titulaciones elegidas
@@ -168,7 +186,7 @@ export class EntrenadorPage implements OnInit {
   readonly camposConError = computed(() => {
     if (!this.submitted()) return 0;
     const campos = ['nombre', 'correo', 'codigoColegiado'];
-    const formErrors = campos.filter(k => this.form.get(k)?.invalid).length;
+    const formErrors = campos.filter((k) => this.form.get(k)?.invalid).length;
     const archivoErr = this.archivos().length === 0 ? 1 : 0;
     const titulacionErr = this.sinTitulacion() ? 1 : 0;
     return formErrors + archivoErr + titulacionErr;
@@ -183,53 +201,86 @@ export class EntrenadorPage implements OnInit {
 
   readonly paso1Completo = computed(() => {
     this._formTick();
-    return this.form.get('nombre')?.valid === true
-      && this.form.get('correo')?.valid === true
-      && this.form.get('password')?.valid === true
-      && this.form.get('confirmPassword')?.valid === true;
+    return (
+      this.form.get('nombre')?.valid === true &&
+      this.form.get('correo')?.valid === true &&
+      this.form.get('password')?.valid === true &&
+      this.form.get('confirmPassword')?.valid === true
+    );
   });
 
   readonly paso2Completo = computed(() => {
     this._formTick();
-    return (this._titEnt() !== null || this._titNutr() !== null)
-      && this.form.get('codigoColegiado')?.valid === true;
+    return (
+      (this._titEnt() !== null || this._titNutr() !== null) &&
+      this.form.get('codigoColegiado')?.valid === true
+    );
   });
 
   readonly paso3Completo = computed(() => {
     this._formTick();
     const sobreMi = this.form.get('sobreMi')?.value;
-    const anos    = this.form.get('anosExperiencia')?.value;
-    return !!(sobreMi?.trim()) || !!(anos) || this.mastersSeleccionados().size > 0 || this.archivos().length > 0;
+    const anos = this.form.get('anosExperiencia')?.value;
+    return (
+      !!sobreMi?.trim() ||
+      !!anos ||
+      this.mastersSeleccionados().size > 0 ||
+      this.archivos().length > 0
+    );
   });
 
   readonly paso4Completo = computed(() => this.archivos().length > 0);
 
-  readonly pasosCompletos = computed(() => this.paso1Completo() && 
-    this.paso2Completo() && 
-    this.paso3Completo() && 
-    this.paso4Completo());
+  readonly pasosCompletos = computed(
+    () =>
+      this.paso1Completo() && this.paso2Completo() && this.paso3Completo() && this.paso4Completo(),
+  );
 
   readonly pasos = computed(() => {
-    if (!this.paso1Completo()) return "PASO 01 / 04";
-    if (!this.paso2Completo()) return "PASO 02 / 04";
-    if (!this.paso3Completo()) return "PASO 03 / 04";
-    if (!this.paso4Completo()) return "PASO 04 / 04";
-    if (this.pasosCompletos()) return "Listo para enviar ✓";
-    return "PASO 01 / 04";
+    if (!this.paso1Completo()) return 'PASO 01 / 04';
+    if (!this.paso2Completo()) return 'PASO 02 / 04';
+    if (!this.paso3Completo()) return 'PASO 03 / 04';
+    if (!this.paso4Completo()) return 'PASO 04 / 04';
+    if (this.pasosCompletos()) return 'Listo para enviar ✓';
+    return 'PASO 01 / 04';
   });
 
   constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/)]],
-      correo: ['', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/)]],
-      confirmPassword: ['', Validators.required],
-      codigoColegiado: ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
-      titulacionEntrenamiento: [null],
-      titulacionNutricion: [null],
-      anosExperiencia: ['', [Validators.min(0), Validators.max(50), Validators.pattern(/^\d+$/)]],
-      sobreMi: ['', [Validators.maxLength(500)]],
-    }, { validators: this.passwordMatchValidator });
+    this.form = this.fb.group(
+      {
+        nombre: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(3),
+            Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/),
+          ],
+        ],
+        correo: [
+          '',
+          [
+            Validators.required,
+            Validators.email,
+            Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/),
+          ],
+        ],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/),
+          ],
+        ],
+        confirmPassword: ['', Validators.required],
+        codigoColegiado: ['', [Validators.pattern(/^[A-Z0-9\-]{4,20}$/i)]],
+        titulacionEntrenamiento: [null],
+        titulacionNutricion: [null],
+        anosExperiencia: ['', [Validators.min(0), Validators.max(50), Validators.pattern(/^\d+$/)]],
+        sobreMi: ['', [Validators.maxLength(500)]],
+      },
+      { validators: this.passwordMatchValidator },
+    );
   }
 
   private codigoColegiadoValidator(): AsyncValidatorFn {
@@ -238,15 +289,15 @@ export class EntrenadorPage implements OnInit {
         return of(null);
       }
       return this.entrenadorService.checkCodigoColegiadoExists(control.value).pipe(
-        map(exists => (exists ? { codigoExists: true } : null)),
-        catchError(() => of(null)) // En caso de error, no mostrar error
+        map((exists) => (exists ? { codigoExists: true } : null)),
+        catchError(() => of(null)), // En caso de error, no mostrar error
       );
     };
   }
 
   ngOnInit(): void {
-    this.form.get('password')!.valueChanges.subscribe(v => this._passwordValue.set(v ?? ''));
-    this.form.valueChanges.subscribe(() => this._formTick.update(v => v + 1));
+    this.form.get('password')!.valueChanges.subscribe((v) => this._passwordValue.set(v ?? ''));
+    this.form.valueChanges.subscribe(() => this._formTick.update((v) => v + 1));
   }
 
   passwordMatchValidator(group: FormGroup): ValidationErrors | null {
@@ -302,17 +353,20 @@ export class EntrenadorPage implements OnInit {
 
   private procesarArchivos(files: FileList): void {
     const permitidos = ['application/pdf', 'image/jpeg', 'image/png'];
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach((file) => {
       if (!permitidos.includes(file.type)) return;
       if (file.size > 10 * 1024 * 1024) return;
       const kb = file.size / 1024;
       const tamaño = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
-      this.archivos.update(list => [...list, { file, nombre: file.name, size: tamaño, tipo: file.type }]);
+      this.archivos.update((list) => [
+        ...list,
+        { file, nombre: file.name, size: tamaño, tipo: file.type },
+      ]);
     });
   }
 
   eliminarArchivo(index: number): void {
-    this.archivos.update(list => list.filter((_, i) => i !== index));
+    this.archivos.update((list) => list.filter((_, i) => i !== index));
   }
 
   iconoArchivo(tipo: string): string {
@@ -335,27 +389,33 @@ export class EntrenadorPage implements OnInit {
     }
 
     const v = this.form.value;
-    this.auth.registroEntrenador({
-      nombre: v.nombre,
-      email: v.correo,
-      password: v.password,
-      codigoProfesional: v.codigoColegiado || null,
-      titulacionEntrenamiento: v.titulacionEntrenamiento || null,
-      titulacionNutricion: v.titulacionNutricion || null,
-      anosExperiencia: v.anosExperiencia ? parseInt(v.anosExperiencia, 10) : null,
-      sobreMi: v.sobreMi?.trim() || null,
-      masters: Array.from(this.mastersSeleccionados()),
-      fotoPerfil: this.fotoFile(),
-      certificaciones: this.archivos().map(a => a.file),
-    })
+    this.auth
+      .registroEntrenador({
+        nombre: v.nombre,
+        email: v.correo,
+        password: v.password,
+        codigoProfesional: v.codigoColegiado || null,
+        titulacionEntrenamiento: v.titulacionEntrenamiento || null,
+        titulacionNutricion: v.titulacionNutricion || null,
+        anosExperiencia: v.anosExperiencia ? parseInt(v.anosExperiencia, 10) : null,
+        sobreMi: v.sobreMi?.trim() || null,
+        masters: Array.from(this.mastersSeleccionados()),
+        fotoPerfil: this.fotoFile(),
+        certificaciones: this.archivos().map((a) => a.file),
+      })
       .subscribe({
-        next: () => { },
+        next: () => {},
         error: (err) => {
           if (err.status === 409) {
             this.registroError.set('El correo electrónico ya está registrado.');
           } else if (err.status === 400) {
-            const msg = err.error?.message ?? err.error?.error;
-            this.registroError.set(msg ?? 'Datos inválidos. Revisa los campos.');
+            let msg = '';
+            if (err.error.detail.includes('Seguridad')) {
+              msg = err.error.detail;
+            } else {
+              msg = 'Datos inválidos. Revisa los campos.';
+            }
+            this.registroError.set(msg);
           } else {
             this.registroError.set('Error al enviar la solicitud. Inténtalo de nuevo.');
           }
