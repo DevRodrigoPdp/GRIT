@@ -156,7 +156,7 @@ export class AdminPage implements OnInit, OnDestroy {
     tap({
       next: (res) => {
         this.solicitudes.set(res.content);
-        this.totalPaginasSolicitudes.set(res.totalPages);
+        this.totalPaginasSolicitudes.set(res.page.totalPages);
         this.loadingSolicitudes.set(false);
       },
       error: (err) => {

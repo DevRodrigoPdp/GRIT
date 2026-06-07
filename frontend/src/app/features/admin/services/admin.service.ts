@@ -33,12 +33,14 @@ export interface UsuarioDTO {
 
 export interface PageResponse<T> {
   content: T[];
-  totalElements: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
+  page: {
+    totalElements: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
 }
 
 export interface DashboardStats {
@@ -59,17 +61,18 @@ export class AdminService {
   private http = inject(HttpClient);
   private readonly API = '/api/v1/admin';
 
-  buscarUsuarios(q: string = '', page: number = 0, size: number = 10): Observable<{ usuarios: UsuarioDTO[]; totalPages: number }> {
-
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+  buscarUsuarios(
+    q: string = '',
+    page: number = 0,
+    size: number = 10,
+  ): Observable<{ usuarios: UsuarioDTO[]; totalPages: number }> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
     if (q.trim()) params = params.set('search', q.trim());
 
     return this.http
       .get<any>(`${this.API}/usuarios/search`, { params, withCredentials: true })
       .pipe(
-        map(r => {
+        map((r) => {
           const lista: any[] = Array.isArray(r) ? r : (r?.content ?? r?.data ?? []);
           return {
             usuarios: lista.map((u: any) => ({
@@ -91,58 +94,56 @@ export class AdminService {
    * Actualiza los datos de un usuario.
    */
   bloquearUsuario(id: string, data: Partial<UsuarioDTO>): Observable<UsuarioDTO> {
-    return this.http.patch<UsuarioDTO>(
-      `${this.API}/usuarios/${id}`,
-      data,
-      { withCredentials: true }
-    ).pipe(
-      map((u: any) => ({
-        id: u.id,
-        nombre: u.nombre,
-        correo: u.email,
-        rol: u.rol,
-        estado: u.estado,
-        fechaRegistro: u.registro ?? u.fechaRegistro ?? u.createdAt ?? null,
-      }))
-    );
+    return this.http
+      .patch<UsuarioDTO>(`${this.API}/usuarios/${id}`, data, { withCredentials: true })
+      .pipe(
+        map((u: any) => ({
+          id: u.id,
+          nombre: u.nombre,
+          correo: u.email,
+          rol: u.rol,
+          estado: u.estado,
+          fechaRegistro: u.registro ?? u.fechaRegistro ?? u.createdAt ?? null,
+        })),
+      );
   }
 
   /**
    * Elimina permanentemente un usuario.
    */
   eliminarUsuario(id: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.API}/usuarios/${id}`,
-      { withCredentials: true }
-    );
+    return this.http.delete<void>(`${this.API}/usuarios/${id}`, { withCredentials: true });
   }
 
   /**
    * Busca entrenadores pendientes por nombre o email.
    */
-  buscarEntrenadores(q: string = '', page: number = 0, size: number = 10): Observable<PageResponse<EntrenadorPendienteDTO>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+  buscarEntrenadores(
+    q: string = '',
+    page: number = 0,
+    size: number = 10,
+  ): Observable<PageResponse<EntrenadorPendienteDTO>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
     if (q.trim()) params = params.set('q', q.trim());
 
     return this.http.get<PageResponse<EntrenadorPendienteDTO>>(
       `${this.API}/entrenadores/pendientes/search`,
-      { params, withCredentials: true }
+      { params, withCredentials: true },
     );
   }
 
   /**
    * Obtiene la lista de entrenadores con documentación pendiente (con paginación).
    */
-  getPendingTrainers(page: number = 0, size: number = 10): Observable<PageResponse<EntrenadorPendienteDTO>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+  getPendingTrainers(
+    page: number = 0,
+    size: number = 10,
+  ): Observable<PageResponse<EntrenadorPendienteDTO>> {
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
 
     return this.http.get<PageResponse<EntrenadorPendienteDTO>>(
       `${this.API}/entrenadores/pendientes`,
-      { params, withCredentials: true }
+      { params, withCredentials: true },
     );
   }
 
@@ -160,7 +161,7 @@ export class AdminService {
     return this.http.post<void>(
       `${this.API}/entrenadores/${id}/revision`,
       {},
-      { params, withCredentials: true }
+      { params, withCredentials: true },
     );
   }
 
@@ -168,9 +169,6 @@ export class AdminService {
    * Obtiene estadísticas del dashboard de administración.
    */
   getDashboardStats(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>(
-      `${this.API}/dashboard`,
-      { withCredentials: true }
-    );
+    return this.http.get<DashboardStats>(`${this.API}/dashboard`, { withCredentials: true });
   }
 }
