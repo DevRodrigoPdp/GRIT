@@ -283,8 +283,13 @@ export class AtletaPage implements OnInit {
         if (err.status === 409) {
           this.registroError.set('El correo electrónico ya está registrado.');
         } else if (err.status === 400) {
-          const msg = err.error?.message ?? err.error?.error;
-          this.registroError.set(msg ?? 'Datos inválidos. Revisa los campos.');
+          let msg = "";
+          if (err.error.detail.includes('Seguridad')) {
+             msg = err.error.detail;
+          }else{
+            msg = 'Datos inválidos. Revisa los campos.';
+          }
+          this.registroError.set(msg);
         } else {
           this.registroError.set('Error al registrar. Inténtalo de nuevo.');
         }
