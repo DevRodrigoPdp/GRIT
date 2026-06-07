@@ -65,8 +65,8 @@ public class AsignacionServiceImpl implements AsignacionService {
                 .validar(entrenador);
 
         // 3. Validaciones de negocio (Estado actual)
-        if (asignacionRepo.existsByAtletaIdAndEntrenadorIdAndActivaTrue(atletaId, entrenador.getId())) {
-            throw new BusinessException("ALREADY_LINKED", "Ya estás vinculado con este profesional.");
+        if (asignacionRepo.existsByAtletaIdAndEntrenadorIdAndActivaTrueAndTipoServicio(atletaId, entrenador.getId(), request.rolSolicitado())) {
+            throw new BusinessException("ALREADY_LINKED", "Ya estás vinculado con este profesional para este servicio.");
         }
 
         if (asignacionRepo.existsByAtletaIdAndTipoServicioAndActivaTrue(atletaId, request.rolSolicitado())) {

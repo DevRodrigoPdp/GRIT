@@ -44,5 +44,7 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
 
     boolean existsByAtletaIdAndEntrenadorIdAndActivaTrue(UUID atletaId, UUID entrenadorId);
 
+    boolean existsByAtletaIdAndEntrenadorIdAndActivaTrueAndTipoServicio(UUID atletaId, UUID entrenadorId, TipoServicio tipoServicio);
+
     boolean existsByAtletaIdAndActivaTrueAndTipoServicio(UUID atletaId, TipoServicio servicioContexto);
 }
