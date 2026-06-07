@@ -1,4 +1,6 @@
 {
+  "version": 2,
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -9,4 +11,5 @@
       "destination": "/index.html"
     }
   ]
+  
 }

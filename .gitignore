@@ -1,52 +1,82 @@
-# ─── Angular / Node ───────────────────────────────────────────────
+# =================================================================
+# 1. SISTEMA OPERATIVO E IDEs
+# =================================================================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+# IntelliJ / VS Code / Eclipse
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.vscode/
+.history/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# =================================================================
+# 2. SEGURIDAD Y VARIABLES DE ENTORNO (CRÍTICO)
+# =================================================================
+# Jamás subir secretos al repositorio [cite: 25]
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# =================================================================
+# 3. BACKEND (Spring Boot / Maven / Python)
+# =================================================================
+# Binarios y compilación
+**/target/
+**/build/
+*.jar
+*.war
+*.ear
+
+# Python (si existe en el backend)
+backend/node_modules/
+backend/__pycache__/
+backend/*.pyc
+backend/venv/
+backend/.venv/
+
+# Datos persistentes de contenedores
+backend/docker/postgres-data/
+backend/docker/minio-data/
+docker/postgres-data/
+**/postgres-data/
+
+# =================================================================
+# 4. FRONTEND (React / Angular / Node)
+# =================================================================
+**/node_modules/
+**/dist/
+.npm/
+.eslintcache
+.angular/
 frontend/node_modules/
 frontend/.angular/
 frontend/dist/
 
-# ─── Backend ──────────────────────────────────────────────────────
-backend/node_modules/
-backend/__pycache__/
-backend/*.pyc
-backend/.env
-backend/venv/
-backend/.venv/
-
-# ─── BBDD ─────────────────────────────────────────────────────────
+# =================================================================
+# 5. BASE DE DATOS Y HERRAMIENTAS
+# =================================================================
 bbdd/*.sql.bak
 bbdd/*.dump
-
-# ─── Sistema ──────────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-*.log
-
-# ─── Variables de entorno (nunca subir) ───────────────────────────
-.env
-.env.local
-.env.*.local
-
-# ─── IDE ──────────────────────────────────────────────────────────
-.idea/
-*.iml
-*.iws
-*.ipr
-.vscode/
-
-# ─── Java / Spring Boot ───────────────────────────────────────────
-target/
-*.jar
-*.war
-*.class
-*.ear
-.mvn/
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-application-local.yml
-application-local.properties
-
-# ─── Claude Code ──────────────────────────────────────────────────
 .claude/
 
-# ─── Carpeta legacy ───────────────────────────────────────────────
+# =================================================================
+# 6. DOCUMENTACIÓN Y LEGACY
+# =================================================================
+HELP.md
 grit-landing/

@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'spring-boot'
+    metrics_path: '/management/prometheus'
+    static_configs:
+      - targets: ['grit-backend:8080'] # Cambia 'backend-app' por 'grit-backend'

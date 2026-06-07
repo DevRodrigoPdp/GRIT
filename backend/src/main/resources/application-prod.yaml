@@ -1,0 +1,62 @@
+server:
+  port: ${PORT:8080}
+  error:
+    include-stacktrace: never
+
+spring:
+  datasource:
+    # Railway suele proveer estas variables por defecto al vincular servicios
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10 # En Railway Free/Hobby, 20 puede ser mucho
+      connection-timeout: 20000 # Aumentamos a 20s para el arranque inicial en la nube
+      idle-timeout: 30000
+      max-lifetime: 2000000
+  jpa:
+    hibernate:
+      ddl-auto: validate # Correcto: la base de datos debe ser inmutable en PROD
+    show-sql: false
+  flyway:
+    enabled: true
+    # Simplificación: usar las mismas credenciales que la app para evitar bloqueos
+    url: ${SPRING_DATASOURCE_URL}
+    user: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+logging:
+  level:
+    root: WARN
+    grit.sistema.backend: INFO
+    org.flywaydb: INFO
+    org.springframework.boot.web: WARN
+    org.springframework.context: WARN
+    org.apache.catalina: WARN
+    org.hibernate.SQL: ERROR
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+application:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  security:
+    pepper: ${SECURITY_PEPPER_PROD}
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+    cookie:
+      secure: true
+  storage:
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+    access-key: ${STORAGE_ACCESS_KEY:minioadmin}
+    secret-key: ${STORAGE_SECRET_KEY:minioadmin}
+    bucket-name: grit-certificaciones-entrenadores
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info" # Solo salud e info
+  endpoint:
+    health:
+      show-details: when_authorized # Solo si el usuario está autenticado

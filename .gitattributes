@@ -1,2 +1,16 @@
+# Configuración global
 * text=auto eol=lf
+
+# Archivos de Windows (mantienen CRLF para compatibilidad nativa)
 *.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Scripts de Shell y Wrappers (DEBEN ser LF para Docker/Linux)
+**/mvnw text eol=lf
+*.sh text eol=lf
+
+# Asegurar que archivos de datos no se corrompan como texto
+*.jar binary
+*.war binary
+*.jpg binary
+*.png binary
