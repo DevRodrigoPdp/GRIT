@@ -7,7 +7,7 @@
       "destination": "https://grit-production-11bc.up.railway.app/api/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
