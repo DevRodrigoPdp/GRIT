@@ -65,12 +65,17 @@ public class SecurityConfig {
 
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // Permite lectura desde JS
-                        .csrfTokenRequestHandler(requestHandler) // Usamos nuestro handler configurado
-                        .ignoringRequestMatchers("/api/v1/diagnostic/**", "/management/**")
-                        .ignoringRequestMatchers(SWAGGER_WHITELIST)
-                )
+                .csrf(csrf -> {
+                    if (isDev) {
+                        csrf.disable();
+                    } else {
+                        csrf
+                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                                .csrfTokenRequestHandler(requestHandler)
+                                .ignoringRequestMatchers("/api/v1/diagnostic/**", "/management/**")
+                                .ignoringRequestMatchers(SWAGGER_WHITELIST);
+                    }
+                })
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler)
                         .accessDeniedHandler(accessDeniedHandler)
@@ -99,8 +104,8 @@ public class SecurityConfig {
                             .anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(mdcFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(csrfCookieFilter, MDCFilter.class)
